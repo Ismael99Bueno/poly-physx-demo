@@ -1,0 +1,92 @@
+#include "vec2.hpp"
+#include <cmath>
+
+namespace vec
+{
+    vec2::vec2(const float x, const float y) : x(x), y(y) {}
+
+    vec2::vec2(const sf::Vector2f &v2) : x(v2.x), y(v2.y) {}
+
+    float vec2::dot(const vec2 &v) const { return this->x * v.x + this->y * v.y; }
+
+    float vec2::sq_dist(const vec2 &v) const { return (*this - v).sq_norm(); }
+
+    float vec2::dist(const vec2 &v) const { return (*this - v).norm(); }
+
+    float vec2::sq_norm() const { return dot(*this); }
+
+    float vec2::norm() const { return sqrt(sq_norm()); }
+
+    void vec2::normalize() { *this /= norm(); }
+
+    vec2 vec2::normalized() const { return *this / norm(); }
+
+    void vec2::rotate(float angle) { *this = rotated(angle); }
+
+    vec2 vec2::rotated(float angle) const
+    {
+        float x = this->x * std::cos(angle) - this->y * std::sin(angle);
+        float y = this->x * std::sin(angle) + this->y * std::cos(angle);
+        return {x, y};
+    }
+
+    float vec2::angle() const { return std::atan2(this->y, this->x); }
+
+    float vec2::angle(const vec2 &v) const { return std::acos(dot(v) / (norm() * v.norm())); }
+
+    vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
+
+    vec2 operator+(const vec2 &v) { return v; }
+
+    vec2 operator-(const vec2 &v) { return {-v.x, -v.y}; }
+
+    vec2 operator+(const vec2 &lhs, const vec2 &rhs) { return {lhs.x + rhs.x, lhs.y + rhs.y}; }
+
+    vec2 operator-(const vec2 &lhs, const vec2 &rhs) { return lhs + (-rhs); }
+
+    vec2 operator+(const vec2 &lhs, const float rhs) { return {lhs.x + rhs, lhs.y + rhs}; }
+
+    vec2 operator-(const vec2 &lhs, const float rhs) { return lhs + (-rhs); }
+
+    vec2 operator+(const float lhs, const vec2 &rhs) { return rhs + lhs; }
+
+    vec2 operator-(const float lhs, const vec2 &rhs) { return -rhs + lhs; }
+
+    vec2 operator+=(vec2 &lhs, const vec2 &rhs) { return lhs = lhs + rhs; }
+
+    vec2 operator-=(vec2 &lhs, const vec2 &rhs) { return lhs = lhs - rhs; }
+
+    vec2 operator+=(vec2 &lhs, const float rhs) { return lhs = lhs + rhs; }
+
+    vec2 operator-=(vec2 &lhs, const float rhs) { return lhs = lhs - rhs; }
+
+    vec2 operator*(const vec2 &lhs, const vec2 &rhs) { return {lhs.x * rhs.x, lhs.y * rhs.y}; }
+
+    vec2 operator/(const vec2 &lhs, const vec2 &rhs) { return {lhs.x / rhs.x, lhs.y / rhs.y}; }
+
+    vec2 operator*(const vec2 &lhs, const float rhs) { return {lhs.x * rhs, lhs.y * rhs}; }
+
+    vec2 operator/(const vec2 &lhs, const float rhs) { return {lhs.x / rhs, lhs.y / rhs}; }
+
+    vec2 operator*(const float lhs, const vec2 &rhs) { return rhs * lhs; }
+
+    vec2 operator/(const float lhs, const vec2 &rhs) { return lhs / rhs; }
+
+    vec2 operator*=(vec2 &lhs, const vec2 &rhs) { return lhs = lhs * rhs; }
+
+    vec2 operator/=(vec2 &lhs, const vec2 &rhs) { return lhs = lhs / rhs; }
+
+    vec2 operator*=(vec2 &lhs, const float rhs) { return lhs = lhs * rhs; }
+
+    vec2 operator/=(vec2 &lhs, const float rhs) { return lhs = lhs / rhs; }
+
+    bool operator==(const vec2 &lhs, const vec2 &rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+
+    bool operator!=(const vec2 &lhs, const vec2 &rhs) { return !(lhs == rhs); }
+
+    std::ostream &operator<<(std::ostream &stream, const vec2 &other)
+    {
+        stream << "x: " << other.x << " y: " << other.y;
+        return stream;
+    }
+}

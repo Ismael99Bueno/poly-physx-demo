@@ -10,8 +10,9 @@ project "app"
 
    files {"src/**.cpp", "include/**.hpp"}
    includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
-   --libdirs "/opt/homebrew/Cellar/sfml/2.5.1_2/lib"
+   libdirs "/opt/homebrew/Cellar/sfml/2.5.1_2/lib"
    --links {"vector", "runge-kutta", "vec-ptr", "timer", "engine-2D", "sfml-graphics", "sfml-window", "sfml-system"}
+   links {"vector", "sfml-graphics", "sfml-window", "sfml-system"}
 
    filter "configurations:Debug"
       defines { "DEBUG" }
