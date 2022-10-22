@@ -21,7 +21,20 @@ namespace rk
         integrator(const tableau &tb, vec2 &state);
 
         template <typename T>
-        bool forward(float t, float dt, const T &params, vec2 (*ode)(float, const T &));
+        bool forward(const float t, const float dt, const T &params, vec2 (*ode)(float, const T &))
+        {
+            m_valid = true;
+            update_kvec(t, dt, params, ode);
+            if (m_tableau.embedded())
+            {
+                m_state = generate_solution(dt, m_tableau.coefs1());
+                const vec2 aux_state = generate_solution(dt, m_tableau.coefs2());
+                m_error = (aux_state - m_state).norm();
+            }
+            else
+                m_state = generate_solution(dt, m_tableau.coefs());
+            return m_valid;
+        }
 
         float error() const;
 
@@ -33,8 +46,8 @@ namespace rk
         bool m_valid;
 
         template <typename T>
-        void update_kvec(float t,
-                         float dt,
+        void update_kvec(const float t,
+                         const float dt,
                          const T &params,
                          vec2 (*ode)(float, const T &)) const
         {
@@ -51,7 +64,7 @@ namespace rk
             m_state = initial;
         }
 
-        vec2 generate_solution(float dt,
+        vec2 generate_solution(const float dt,
                                const std::vector<float> &coefs)
         {
             vec2 sum;
