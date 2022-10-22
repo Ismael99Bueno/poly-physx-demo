@@ -11,14 +11,14 @@ struct particle
 
 rk::state ode(const float t, const particle &p)
 {
-    return {p.m_state.vel, -p.m_state.pos};
+    return {p.m_state.vel, p.m_state.pos * t};
 }
 
 int main()
 {
     particle p;
     p.m_state = {{1.f, 1.f}, {1.f, -1.f}};
-    rk::integrator integ(rk::rk4, p.m_state);
+    rk::integrator integ(rk::rkf78, p.m_state);
     rk::state st1, st2;
     st1 = st2;
 
@@ -28,6 +28,6 @@ int main()
     {
         integ.forward(t, dt, p, ode);
         t += dt;
-        std::cout << p.m_state.pos << "\n";
+        std::cout << p.m_state.pos << " error: " << integ.error() << "\n";
     }
 }

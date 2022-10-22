@@ -27,8 +27,8 @@ namespace rk
             update_kvec(t, dt, params, ode);
             if (m_tableau.embedded())
             {
-                m_state = generate_solution(dt, m_tableau.coefs1());
                 const state aux_state = generate_solution(dt, m_tableau.coefs2());
+                m_state = generate_solution(dt, m_tableau.coefs1());
                 m_error = (aux_state - m_state).norm();
             }
             else

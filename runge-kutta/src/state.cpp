@@ -10,10 +10,7 @@ namespace rk
     bool state::is_nan() const { return std::isnan(pos.x) || std::isnan(pos.y) ||
                                         std::isnan(vel.x) || std::isnan(vel.y); }
 
-    state operator+(const state &lhs, const state &rhs)
-    {
-        return {lhs.pos + rhs.pos, lhs.vel + rhs.vel};
-    }
+    state operator+(const state &lhs, const state &rhs) { return {lhs.pos + rhs.pos, lhs.vel + rhs.vel}; }
 
     state operator-(const state &lhs, const state &rhs) { return {lhs.pos - rhs.pos, lhs.vel - rhs.vel}; }
 
