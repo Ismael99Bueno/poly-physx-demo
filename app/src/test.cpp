@@ -1,8 +1,33 @@
 #include <iostream>
-#include "vec2.hpp"
+#include "prefab.hpp"
+#include "integrator.hpp"
+
+using namespace vec;
+
+struct particle
+{
+    rk::state m_state;
+};
+
+rk::state ode(const float t, const particle &p)
+{
+    return {p.m_state.vel, -p.m_state.pos};
+}
 
 int main()
 {
-    std::cout << "Hello test!\n";
-    vec::vec2 v(1.f, 2.f);
+    particle p;
+    p.m_state = {{1.f, 1.f}, {1.f, -1.f}};
+    rk::integrator integ(rk::rk4, p.m_state);
+    rk::state st1, st2;
+    st1 = st2;
+
+    const float dt = 0.01f, tf = 10.0f;
+    float t = 0.0f;
+    while (t < tf)
+    {
+        integ.forward(t, dt, p, ode);
+        t += dt;
+        std::cout << p.m_state.pos << "\n";
+    }
 }
