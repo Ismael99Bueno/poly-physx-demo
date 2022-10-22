@@ -8,7 +8,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 --include "vector"
 --include "runge-kutta"
 --include "vec-ptr"
---include "timer"
+include "timer"
 --include "engine-2D"
 include "app"
 
