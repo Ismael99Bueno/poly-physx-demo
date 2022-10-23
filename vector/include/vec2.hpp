@@ -32,6 +32,8 @@ namespace vec
         float angle() const;
         float angle(const vec2 &v) const;
 
+        float cross(const vec2 &v) const;
+
         operator sf::Vector2f() const;
     };
 

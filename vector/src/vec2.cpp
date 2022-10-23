@@ -34,6 +34,8 @@ namespace vec
 
     float vec2::angle(const vec2 &v) const { return std::acos(dot(v) / (norm() * v.norm())); }
 
+    float vec2::cross(const vec2 &v) const { return x * v.y - y * v.x; }
+
     vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
 
     vec2 operator+(const vec2 &v) { return v; }
