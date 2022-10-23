@@ -8,7 +8,7 @@ namespace rk
     using namespace vec;
     struct state
     {
-        vec2 pos, vel;
+        vec2 pos, vel, angular;
         float norm() const;
         bool is_nan() const;
     };
