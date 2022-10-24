@@ -39,6 +39,8 @@ namespace vec
 
     vec2 operator+(const vec2 &v);
 
+    vec2 &operator+(vec2 &v);
+
     vec2 operator-(const vec2 &v);
 
     vec2 operator+(const vec2 &lhs, const vec2 &rhs);
