@@ -2,21 +2,21 @@
 #include "vec2.hpp"
 #include <vector>
 #include <algorithm>
+#include "polygon2D.hpp"
 
-using namespace vec;
-
-bool cmp(const vec2 &v1, const vec2 &v2)
-{
-    return v1.angle() < v2.angle();
-}
+using namespace geo;
 
 int main()
 {
-    std::vector<vec2> v = {{1.f, 2.f}, {-1.f, 1.f}, {-1.f, -1.f}};
-    std::sort(v.begin(), v.end(), cmp);
-    for (const vec2 &vc : v)
-        std::cout << vc << "\n";
+    const polygon2D p1({{1.f, 0.f}, {0.f, 1.f}, {0.f, -1.f}});
+    const polygon2D p2({{0.f, 0.f}, {1.f, 1.f}, {1.f, -1.f}});
+    const polygon2D dp = p1 - p2;
 
-    const auto &[min, max] = std::minmax_element(v.begin(), v.end(), cmp);
-    std::cout << *min << "\n";
+    // for (const vec2 &v : df.vertices())
+    //     std::cout << v << "\n";
+    const vec2 dir = {-1.f, .5f};
+    std::cout << p1.support_vertex(dir) << "\n";
+    std::cout << p2.support_vertex(dir) << "\n";
+    std::cout << dp.support_vertex(dir) << "\n";
+    std::cout << p1.support_vertex(dir) - p2.support_vertex(-dir) << "\n";
 }
