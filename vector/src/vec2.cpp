@@ -7,6 +7,8 @@ namespace vec
 
     vec2::vec2(const sf::Vector2f &v2) : x(v2.x), y(v2.y) {}
 
+    float vec2::sum() const { return x + y; }
+
     float vec2::dot(const vec2 &v) const { return x * v.x + y * v.y; }
 
     float vec2::sq_dist(const vec2 &v) const { return (*this - v).sq_norm(); }
