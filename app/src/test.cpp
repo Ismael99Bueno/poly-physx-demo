@@ -1,39 +1,18 @@
 #include <iostream>
-#include "prefab.hpp"
-#include "integrator.hpp"
-#include "timer.hpp"
+#include "vec2.hpp"
+#include <vector>
+#include <algorithm>
+#include "box2D.hpp"
+#include "polygon2D.hpp"
 
-using namespace vec;
-
-struct particle
-{
-    rk::state m_state;
-};
-
-rk::state ode(const float t, const particle &p)
-{
-    return {p.m_state.vel, -p.m_state.pos, {p.m_state.angular.y, -p.m_state.angular.x}};
-}
+using namespace geo;
 
 int main()
 {
-    particle p;
-    p.m_state = {{1.f, 1.f}, {0.f, 0.f}, {1.0f, 0.0f}};
-    rk::integrator integ(rk::rkf78, p.m_state);
-    rk::state st1, st2;
-    st1 = st2;
+    const polygon2D p1({{-4.f, 2.f}, {-3.f, 1.f}, {-2.f, 2.f}});
+    const polygon2D p2({{2.f, 1.f}, {2.f, 3.f}, {4.f, 1.f}, {4.f, 3.f}});
+    const polygon2D dp = p1 + p2;
 
-    const float dt = 0.01f, tf = 2.0f;
-    float t = 0.0f;
-
-    std::size_t iters = 0;
-    while (t < tf && iters < 2)
-    {
-        benchmark::timer tm(std::cout);
-        integ.forward(t, dt, p, ode);
-        t += dt;
-        // std::cout << p.m_state.pos << " error: " << integ.error() << "\n";
-        iters++;
-    }
-    std::cout << iters << "\n";
+    // for (const vec2 &v : dp.vertices())
+    std::cout << dp.centre_of_vertices() << "\n";
 }
