@@ -7,6 +7,8 @@ namespace vec
 
     vec2::vec2(const sf::Vector2f &v2) : x(v2.x), y(v2.y) {}
 
+    float vec2::sum() const { return x + y; }
+
     float vec2::dot(const vec2 &v) const { return x * v.x + y * v.y; }
 
     float vec2::sq_dist(const vec2 &v) const { return (*this - v).sq_norm(); }
@@ -34,9 +36,13 @@ namespace vec
 
     float vec2::angle(const vec2 &v) const { return std::acos(dot(v) / (norm() * v.norm())); }
 
+    float vec2::cross(const vec2 &v) const { return x * v.y - y * v.x; }
+
     vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
 
     vec2 operator+(const vec2 &v) { return v; }
+
+    vec2 &operator+(vec2 &v) { return v; }
 
     vec2 operator-(const vec2 &v) { return {-v.x, -v.y}; }
 

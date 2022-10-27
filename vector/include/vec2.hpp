@@ -15,6 +15,7 @@ namespace vec
         vec2(float x, float y);
         vec2(const sf::Vector2f &v2);
 
+        float sum() const;
         float dot(const vec2 &v) const;
 
         float sq_dist(const vec2 &v) const;
@@ -32,10 +33,14 @@ namespace vec
         float angle() const;
         float angle(const vec2 &v) const;
 
+        float cross(const vec2 &v) const;
+
         operator sf::Vector2f() const;
     };
 
     vec2 operator+(const vec2 &v);
+
+    vec2 &operator+(vec2 &v);
 
     vec2 operator-(const vec2 &v);
 
