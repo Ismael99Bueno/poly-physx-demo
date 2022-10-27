@@ -64,16 +64,8 @@ namespace rk
             m_state = initial;
         }
 
-        state generate_solution(const float dt,
-                                const std::vector<float> &coefs)
-        {
-            state sum;
-            for (std::uint8_t i = 0; i < m_tableau.stage(); i++)
-                sum += coefs[i] * m_kvec[i];
-            m_valid &= !sum.is_nan();
-            DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta stateution.\n")
-            return m_state + sum * dt;
-        }
+        state generate_solution(float dt,
+                                const std::vector<float> &coefs);
     };
 
 }

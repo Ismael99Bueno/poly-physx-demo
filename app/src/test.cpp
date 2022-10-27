@@ -12,15 +12,14 @@ struct particle
 
 rk::state ode(const float t, const particle &p)
 {
-    std::cout << p.m_state.pos << "\n";
-    return {p.m_state.vel, -p.m_state.pos};
+    return {p.m_state.vel, -p.m_state.pos, {p.m_state.angular.y, -p.m_state.angular.x}};
 }
 
 int main()
 {
     particle p;
-    p.m_state = {{1.f, 1.f}, {0.f, 0.f}};
-    rk::integrator integ(rk::rk4, p.m_state);
+    p.m_state = {{1.f, 1.f}, {0.f, 0.f}, {1.0f, 0.0f}};
+    rk::integrator integ(rk::rkf78, p.m_state);
     rk::state st1, st2;
     st1 = st2;
 
