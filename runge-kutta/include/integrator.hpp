@@ -37,10 +37,11 @@ namespace rk
         }
 
         float error() const;
+        const state &step() const;
 
     private:
         const tableau m_tableau;
-        state &m_state;
+        state &m_state, m_step;
         matrix m_kvec;
         float m_error;
         bool m_valid;

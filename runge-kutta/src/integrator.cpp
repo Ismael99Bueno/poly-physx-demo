@@ -14,6 +14,7 @@ namespace rk
             sum += coefs[i] * m_kvec[i];
         m_valid &= !sum.is_nan();
         DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta stateution.\n")
-        return m_state + sum * dt;
+        m_step = sum * dt;
+        return m_state + m_step;
     }
 }
