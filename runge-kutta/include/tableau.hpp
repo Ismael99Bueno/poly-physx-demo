@@ -39,10 +39,10 @@ namespace rk
         uint8 order() const;
 
     private:
-        const vector m_alpha, m_coefs1, m_coefs2;
-        const matrix m_beta;
+        vector m_alpha, m_coefs1, m_coefs2;
+        matrix m_beta;
         bool m_embedded;
-        const uint8 m_stage, m_order;
+        uint8 m_stage, m_order;
     };
 }
 
