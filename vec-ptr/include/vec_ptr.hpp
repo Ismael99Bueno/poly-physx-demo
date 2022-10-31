@@ -10,7 +10,7 @@ namespace utils
     {
     public:
         vec_ptr() = default;
-        vec_ptr(std::vector<float> *buffer, std::size_t index = 0);
+        vec_ptr(std::vector<float> &buffer, std::size_t index = 0);
 
         float &operator[](const std::size_t idx);
         const float &operator[](const std::size_t idx) const;
@@ -19,7 +19,7 @@ namespace utils
 
     private:
         std::vector<float> *m_buffer = nullptr;
-        std::size_t m_index;
+        std::size_t m_index = 0;
     };
 
 }
