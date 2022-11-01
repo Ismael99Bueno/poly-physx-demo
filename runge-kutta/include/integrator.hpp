@@ -29,8 +29,8 @@ namespace rk
         template <typename T>
         bool raw_forward(float &t,
                          float dt,
-                         const T &params,
-                         vector (*ode)(float, const vector &, const T &))
+                         T &params,
+                         vector (*ode)(float, const vector &, T &))
         {
             DBG_EXIT_IF(dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value.\n")
             m_valid = true;
@@ -50,8 +50,8 @@ namespace rk
         template <typename T>
         bool reiterative_forward(float &t,
                                  float &dt,
-                                 const T &params,
-                                 vector (*ode)(float, const vector &, const T &),
+                                 T &params,
+                                 vector (*ode)(float, const vector &, T &),
                                  uint8 reiterations = 2)
         {
             DBG_EXIT_IF(reiterations < 2, "The amount of reiterations has to be greater than 1, otherwise the algorithm will break.\n")
@@ -88,8 +88,8 @@ namespace rk
         template <typename T>
         bool embedded_forward(float &t,
                               float &dt,
-                              const T &params,
-                              vector (*ode)(float, const vector &, const T &))
+                              T &params,
+                              vector (*ode)(float, const vector &, T &))
         {
             DBG_EXIT_IF(!m_tableau.embedded(), "Cannot perform embedded adaptive stepsize without an embedded solution.\n")
             DBG_EXIT_IF(dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value.\n")
@@ -152,8 +152,8 @@ namespace rk
         void update_kvec(float t,
                          float dt,
                          const vector &state,
-                         const T &params,
-                         vector (*ode)(float, const vector &, const T &))
+                         T &params,
+                         vector (*ode)(float, const vector &, T &))
         {
             DBG_EXIT_IF(state.size() != m_kvec[0].size(), "State and k-vectors size mismatch!\n")
             vector aux_state(state.size());
