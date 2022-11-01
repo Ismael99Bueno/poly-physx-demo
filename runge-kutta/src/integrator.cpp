@@ -15,13 +15,10 @@ namespace rk
                                                  m_min_dt(min_dt),
                                                  m_max_dt(max_dt),
                                                  m_error(0.f),
-                                                 m_valid(true) { resize_kvec(); }
-
-    void integrator::resize_kvec()
+                                                 m_valid(true)
     {
         m_kvec.resize(m_tableau.stage());
-        for (vector &v : m_kvec)
-            v.resize(m_state.size());
+        resize();
     }
 
     integrator::vector integrator::generate_solution(const float dt,
@@ -81,17 +78,16 @@ namespace rk
         return SAFETY_FACTOR * std::pow(m_tolerance / m_error, 1.f / m_tableau.order());
     }
 
-    void integrator::reserve_state(std::size_t size)
+    void integrator::reserve(std::size_t size)
     {
-        m_state.reserve(size);
         for (vector &v : m_kvec)
             v.reserve(size);
     }
 
-    void integrator::resize_state(std::size_t size)
+    void integrator::resize()
     {
-        m_state.resize(size);
-        resize_kvec();
+        for (vector &v : m_kvec)
+            v.resize(m_state.size());
     }
 
     float integrator::tolerance() const { return m_tolerance; }

@@ -116,8 +116,8 @@ namespace rk
             return m_valid;
         }
 
-        void reserve_state(std::size_t size);
-        void resize_state(std::size_t size);
+        void reserve(std::size_t size);
+        void resize();
 
         float tolerance() const;
         float min_dt() const;
@@ -134,8 +134,6 @@ namespace rk
         matrix m_kvec;
         float m_tolerance, m_min_dt, m_max_dt, m_error;
         bool m_valid;
-
-        void resize_kvec();
 
         vector generate_solution(float dt,
                                  const vector &state,
