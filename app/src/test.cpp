@@ -1,18 +1,30 @@
 #include <iostream>
-#include "vec2.hpp"
-#include <vector>
-#include <algorithm>
-#include "box2D.hpp"
-#include "polygon2D.hpp"
+#include "prefab.hpp"
+#include "interaction2D.hpp"
+#include "engine2D.hpp"
 
-using namespace geo;
+using namespace physics;
+
+class gravitation : public interaction2D
+{
+    std::pair<vec2, float> acceleration(const entity2D &b1, const entity2D &b2) const override
+    {
+        return {10.f * (b2.pos() - b1.pos()).normalized() * (b2.mass() / b1.pos().sq_dist(b2.pos())), 0.f};
+    }
+};
 
 int main()
 {
-    const polygon2D p1({{-4.f, 2.f}, {-3.f, 1.f}, {-2.f, 2.f}});
-    const polygon2D p2({{2.f, 1.f}, {2.f, 3.f}, {4.f, 1.f}, {4.f, 3.f}});
-    const polygon2D dp = p1 + p2;
+    engine2D eng(rk::rkf78);
+    entity_ptr e1 = eng.add(), e2 = eng.add({1.f, 0.f}, {0.f, -1.f});
 
-    // for (const vec2 &v : dp.vertices())
-    std::cout << dp.centre_of_vertices() << "\n";
+    gravitation grav;
+    grav.add(e1);
+    grav.add(e2);
+    const float tf = 1.f;
+    while (eng.elapsed() < tf)
+    {
+        eng.embedded_forward();
+        std::cout << e2->pos() << "\n";
+    }
 }
