@@ -1,5 +1,4 @@
 #include "integrator.hpp"
-#include "debug.h"
 #include <cmath>
 #define SAFETY_FACTOR 0.85f
 
@@ -33,7 +32,6 @@ namespace rk
             for (uint8 i = 0; i < m_tableau.stage(); i++)
                 sum += coefs[i] * m_kvec[i][j];
             m_valid &= !isnan(sum);
-            DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             sol.emplace_back(state[j] + sum * dt);
         }
         return sol;
