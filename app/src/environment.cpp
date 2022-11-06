@@ -1,0 +1,101 @@
+#include "environment.hpp"
+#include <iostream>
+
+#define WIDTH 1920
+#define HEIGHT 1280
+
+namespace app
+{
+    environment::environment(const rk::tableau &table,
+                             const float dt,
+                             const std::size_t allocations,
+                             const std::string &wname) : engine2D(table, dt, allocations),
+                                                         m_window(sf::VideoMode(WIDTH, HEIGHT), wname),
+                                                         m_gui(m_window)
+    {
+        m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
+    }
+
+    entity_ptr environment::add(const vec2 &pos,
+                                const vec2 &vel,
+                                float angpos, float angvel,
+                                float mass, float charge)
+    {
+        const entity_ptr e = engine2D::add(pos, vel, angpos, angvel, mass, charge);
+        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, {{-100.f, 0.f}, {100.f, 0.f}, {0.f, 100.f}}));
+
+        sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
+        shape.setPointCount(poly.size());
+        for (std::size_t i = 0; i < poly.size(); i++)
+            shape.setPoint(i, poly[i]);
+        return e;
+    }
+
+    void cb() { std::cout << "Hey!\n"; }
+
+    void environment::run(bool (engine2D::*forward)(),
+                          const std::string &wname)
+    {
+        // tgui::Button::Ptr btn = tgui::Button::create();
+        // btn->setSize(100, 100);
+        // btn->onPress(cb);
+
+        // m_gui.add(btn);
+        // btn->setPosition(WIDTH / 2.f, HEIGHT / 2.f);
+        while (m_window.isOpen())
+        {
+            handle_events();
+            m_window.clear();
+            (this->*forward)();
+            draw_entities();
+            // m_gui.draw();
+            m_window.display();
+        }
+    }
+
+    void environment::handle_events()
+    {
+        sf::Event event;
+        while (m_window.pollEvent(event))
+        {
+            m_gui.handleEvent(event);
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                m_window.close();
+                break;
+
+            case sf::Event::MouseButtonPressed:
+                m_grab = cartesian_mouse();
+                break;
+
+                // case sf::Event::MouseButtonReleased:
+                // {
+                //     const vec2 release = cartesian_mouse();
+                //     add(m_grab, 0.1f * (m_grab - release));
+                //     break;
+                // }
+
+            default:
+                break;
+            }
+        }
+    }
+
+    void environment::draw_entities()
+    {
+        retrieve();
+        for (std::size_t i = 0; i < m_entities.size(); i++)
+        {
+            m_shapes[i].setPosition(m_entities[i].pos());
+            m_window.draw(m_shapes[i]);
+        }
+    }
+
+    vec2 environment::cartesian_mouse() const
+    {
+        const sf::Vector2i mpos = sf::Mouse::getPosition(m_window);
+        const sf::Vector2f wpos = m_window.mapPixelToCoords(mpos);
+        return {wpos.x / 2.f, wpos.y / 2.f}; //{x - WIDTH / 2.f, HEIGHT / 2.f - y};
+    }
+}
