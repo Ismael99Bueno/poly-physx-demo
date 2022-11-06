@@ -77,6 +77,7 @@ namespace rk
                 if (m_error <= m_tolerance || dt_too_small(dt))
                 {
                     m_state = sol1;
+                    dt = m_min_dt;
                     break;
                 }
                 dt *= timestep_factor();
@@ -109,6 +110,7 @@ namespace rk
                 if (m_error <= m_tolerance || dt_too_small(dt))
                 {
                     m_state = sol1;
+                    dt = m_min_dt;
                     break;
                 }
                 dt *= timestep_factor();
