@@ -35,6 +35,13 @@ private:
     }
 };
 
+void set_points(sf::ConvexShape &shape, const geo::polygon2D &poly)
+{
+    shape.setPointCount(poly.size());
+    for (std::size_t i = 0; i < poly.size(); i++)
+        shape.setPoint(i, poly[i]);
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
@@ -42,23 +49,28 @@ int main()
 
     engine2D eng(rk::rkf78);
     eng.integrator().tolerance(1.e-8);
-    entity_ptr e1 = eng.add({100.f, 0.f}, {0.f, 60.f}), e2 = eng.add(), e3 = eng.add({-100.f, -100.f});
-    e3->mass(10.f);
+    entity_ptr e1 = eng.add({100.f, 0.f}, {-20.f, 10.f}), e2 = eng.add(); //, e3 = eng.add({-100.f, -100.f});
 
-    gravitation grav;
-    grav.add(e1);
-    grav.add(e2);
-    grav.add(e3);
+    const geo::polygon2D &s1 = e1->shape(geo::polygon2D(e1->pos(), {{-30.f, 0.f}, {30.f, 0.f}, {0.f, 30.f}})),
+                         &s2 = e2->shape(geo::polygon2D(e2->pos(), {{-30.f, 0.f}, {30.f, 0.f}, {0.f, 30.f}}));
+
+    // gravitation grav;
+    // grav.add(e1);
+    // grav.add(e2);
+    // grav.add(e3);
 
     stick st;
     st.add({e1, e2});
     eng.add(st);
 
-    const float r = 20.f;
-    sf::CircleShape c1(r);
+    sf::ConvexShape c1, c2;
+    set_points(c1, s1);
+    set_points(c2, s2);
+
     c1.setFillColor(sf::Color::Green);
-    c1.setOrigin(r, r);
-    sf::CircleShape c2 = c1, c3 = c1;
+    c1.setOrigin(s1.centroid() - s1[0]);
+    c2.setFillColor(sf::Color::Green);
+    c2.setOrigin(s2.centroid() - s2[0]);
 
     while (window.isOpen())
     {
@@ -74,13 +86,10 @@ int main()
         eng.raw_forward();
         e1->retrieve();
         e2->retrieve();
-        e3->retrieve();
-        c1.setPosition(e1->pos());
-        c2.setPosition(e2->pos());
-        c3.setPosition(e3->pos());
+        set_points(c1, s1);
+        set_points(c2, s2);
         window.draw(c1);
         window.draw(c2);
-        window.draw(c3);
         window.display();
     }
 
