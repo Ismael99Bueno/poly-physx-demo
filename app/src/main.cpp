@@ -48,6 +48,6 @@ void set_points(sf::ConvexShape &cshape, sf::RectangleShape &rshape, const const
 
 int main()
 {
-    app::environment env(rk::rk4);
+    app::environment env(rk::rkf78);
     env.run();
 }

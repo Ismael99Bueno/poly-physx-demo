@@ -26,6 +26,7 @@ namespace app
 
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
         shape.setPointCount(poly.size());
+        shape.setFillColor(sf::Color::Green);
         return e;
     }
 
