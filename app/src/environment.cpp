@@ -16,18 +16,16 @@ namespace app
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
     }
 
-    entity_ptr environment::add(const vec2 &pos,
-                                const vec2 &vel,
-                                float angpos, float angvel,
-                                float mass, float charge)
+    entity_ptr environment::add_entity(const vec2 &pos,
+                                       const vec2 &vel,
+                                       float angpos, float angvel,
+                                       float mass, float charge)
     {
-        const entity_ptr e = engine2D::add(pos, vel, angpos, angvel, mass, charge);
-        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, {{-100.f, 0.f}, {100.f, 0.f}, {0.f, 100.f}}));
+        const entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge);
+        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, {{-45.f, 0.f}, {45.f, 0.f}, {0.f, 45.f}}));
 
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
         shape.setPointCount(poly.size());
-        for (std::size_t i = 0; i < poly.size(); i++)
-            shape.setPoint(i, poly[i]);
         return e;
     }
 
@@ -69,12 +67,12 @@ namespace app
                 m_grab = cartesian_mouse();
                 break;
 
-                // case sf::Event::MouseButtonReleased:
-                // {
-                //     const vec2 release = cartesian_mouse();
-                //     add(m_grab, 0.1f * (m_grab - release));
-                //     break;
-                // }
+            case sf::Event::MouseButtonReleased:
+            {
+                const vec2 release = cartesian_mouse();
+                add_entity(m_grab, 0.3f * (m_grab - release));
+                break;
+            }
 
             default:
                 break;
@@ -85,9 +83,10 @@ namespace app
     void environment::draw_entities()
     {
         retrieve();
-        for (std::size_t i = 0; i < m_entities.size(); i++)
+        for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
-            m_shapes[i].setPosition(m_entities[i].pos());
+            for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
+                m_shapes[i].setPoint(j, m_entities[i].shape()[j]);
             m_window.draw(m_shapes[i]);
         }
     }
@@ -96,6 +95,6 @@ namespace app
     {
         const sf::Vector2i mpos = sf::Mouse::getPosition(m_window);
         const sf::Vector2f wpos = m_window.mapPixelToCoords(mpos);
-        return {wpos.x / 2.f, wpos.y / 2.f}; //{x - WIDTH / 2.f, HEIGHT / 2.f - y};
+        return {wpos.x, wpos.y}; //{x - WIDTH / 2.f, HEIGHT / 2.f - y};
     }
 }
