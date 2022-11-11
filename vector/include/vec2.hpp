@@ -35,6 +35,8 @@ namespace vec
 
         float cross(const vec2 &v) const;
 
+        static vec2 triple_cross(const vec2 &v1, const vec2 &v2, const vec2 &v3);
+
         operator sf::Vector2f() const;
     };
 

@@ -38,6 +38,12 @@ namespace vec
 
     float vec2::cross(const vec2 &v) const { return x * v.y - y * v.x; }
 
+    vec2 vec2::triple_cross(const vec2 &v1, const vec2 &v2, const vec2 &v3)
+    {
+        const float cross = v1.cross(v2);
+        return vec2(-v3.y * cross, v3.x * cross);
+    }
+
     vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
 
     vec2 operator+(const vec2 &v) { return v; }
