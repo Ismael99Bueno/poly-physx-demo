@@ -35,11 +35,15 @@ private:
     }
 };
 
-void set_points(sf::ConvexShape &shape, const geo::polygon2D &poly)
+void set_points(sf::ConvexShape &cshape, sf::RectangleShape &rshape, const const_entity_ptr &e)
 {
-    shape.setPointCount(poly.size());
-    for (std::size_t i = 0; i < poly.size(); i++)
-        shape.setPoint(i, poly[i]);
+    cshape.setPointCount(e->shape().size());
+    for (std::size_t i = 0; i < e->shape().size(); i++)
+        cshape.setPoint(i, e->shape()[i]);
+
+    rshape.setOrigin((e->bounding_box().max() - e->bounding_box().min()) / 2.f);
+    rshape.setSize(e->bounding_box().max() - e->bounding_box().min());
+    rshape.setPosition(e->pos());
 }
 
 int main()
@@ -49,9 +53,9 @@ int main()
 
     engine2D eng(rk::rkf78);
     eng.integrator().tolerance(1.e-8);
-    entity_ptr e1 = eng.add({100.f, 0.f}, {-20.f, 10.f}), e2 = eng.add(); //, e3 = eng.add({-100.f, -100.f});
+    entity_ptr e1 = eng.add_entity({100.f, 0.f}, {-30.f, 1.f}, M_PI / 3.f), e2 = eng.add_entity(); //, e3 = eng.add({-100.f, -100.f});
 
-    const geo::polygon2D &s1 = e1->shape(geo::polygon2D(e1->pos(), {{-30.f, 0.f}, {30.f, 0.f}, {0.f, 30.f}})),
+    const geo::polygon2D &s1 = e1->shape(geo::polygon2D(e1->pos(), {{-30.f, 0.f}, {30.f, 0.f}, {0.f, 30.f}, {00.f, -30.f}})),
                          &s2 = e2->shape(geo::polygon2D(e2->pos(), {{-30.f, 0.f}, {30.f, 0.f}, {0.f, 30.f}}));
 
     // gravitation grav;
@@ -59,18 +63,18 @@ int main()
     // grav.add(e2);
     // grav.add(e3);
 
-    stick st;
-    st.add({e1, e2});
-    eng.add(st);
+    // stick st;
+    // st.add_entities({e1, e2});
+    // eng.add_constrain(st);
 
     sf::ConvexShape c1, c2;
-    set_points(c1, s1);
-    set_points(c2, s2);
+    sf::RectangleShape r1, r2;
+
+    set_points(c1, r1, e1);
+    set_points(c2, r2, e2);
 
     c1.setFillColor(sf::Color::Green);
-    c1.setOrigin(s1.centroid() - s1[0]);
     c2.setFillColor(sf::Color::Green);
-    c2.setOrigin(s2.centroid() - s2[0]);
 
     while (window.isOpen())
     {
@@ -86,8 +90,10 @@ int main()
         eng.raw_forward();
         e1->retrieve();
         e2->retrieve();
-        set_points(c1, s1);
-        set_points(c2, s2);
+        set_points(c1, r1, e1);
+        set_points(c2, r2, e2);
+        // window.draw(r1);
+        // window.draw(r2);
         window.draw(c1);
         window.draw(c2);
         window.display();
