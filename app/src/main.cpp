@@ -35,19 +35,11 @@ private:
     }
 };
 
-void set_points(sf::ConvexShape &cshape, sf::RectangleShape &rshape, const const_entity_ptr &e)
-{
-    cshape.setPointCount(e->shape().size());
-    for (std::size_t i = 0; i < e->shape().size(); i++)
-        cshape.setPoint(i, e->shape()[i]);
-
-    rshape.setOrigin((e->bounding_box().max() - e->bounding_box().min()) / 2.f);
-    rshape.setSize(e->bounding_box().max() - e->bounding_box().min());
-    rshape.setPosition(e->pos());
-}
-
 int main()
 {
     app::environment env(rk::rkf78);
+    // const entity_ptr e = env.add_entity({0.f, -100.f});
+    // e->shape(geo::polygon2D({{-400.f, -20.f}, {400.f, -20.f}, {400.f, 20.f}, {-400.f, 20.f}}));
+    // e->dynamic(false);
     env.run();
 }

@@ -86,8 +86,14 @@ namespace app
         retrieve();
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
+            m_shapes[i].setPointCount(m_entities[i].shape().size());
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, m_entities[i].shape()[j]);
+            m_shapes[i].setFillColor(sf::Color::Green);
+            for (std::size_t j = 0; j < m_shapes.size(); j++)
+                if (i != j && m_entities[i].shape().overlaps(m_entities[j].shape()))
+                    m_shapes[i].setFillColor(sf::Color::Blue);
+
             m_window.draw(m_shapes[i]);
         }
     }
