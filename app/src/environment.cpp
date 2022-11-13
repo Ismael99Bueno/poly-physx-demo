@@ -1,8 +1,15 @@
 #include "environment.hpp"
+#include "force2D.hpp"
 #include <iostream>
 
 #define WIDTH 1920
 #define HEIGHT 1280
+
+class gravity : public physics::force2D
+{
+    std::pair<vec::vec2, float> acceleration(const physics::entity2D &e) const override { return {{0.f, -100.f}, 0.f}; }
+};
+gravity g;
 
 namespace app
 {
@@ -22,11 +29,12 @@ namespace app
                                        float mass, float charge)
     {
         const entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge);
-        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, {{-45.f, 0.f}, {45.f, 0.f}, {0.f, 45.f}}));
+        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, {{-45.f, 0.f}, {45.f, 0.f}, {0.f, 45.f}, {45.f, 45.f}}));
 
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
         shape.setPointCount(poly.size());
         shape.setFillColor(sf::Color::Green);
+        g.include(e);
         return e;
     }
 
@@ -41,11 +49,13 @@ namespace app
 
         // m_gui.add(btn);
         // btn->setPosition(WIDTH / 2.f, HEIGHT / 2.f);
+        m_window.setFramerateLimit(60);
         while (m_window.isOpen())
         {
             handle_events();
             m_window.clear();
-            (this->*forward)();
+            for (std::size_t i = 0; i < 30; i++)
+                (this->*forward)();
             draw_entities();
             // m_gui.draw();
             m_window.display();
@@ -89,11 +99,6 @@ namespace app
             m_shapes[i].setPointCount(m_entities[i].shape().size());
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, m_entities[i].shape()[j]);
-            m_shapes[i].setFillColor(sf::Color::Green);
-            for (std::size_t j = 0; j < m_shapes.size(); j++)
-                if (i != j && m_entities[i].shape().overlaps(m_entities[j].shape()))
-                    m_shapes[i].setFillColor(sf::Color::Blue);
-
             m_window.draw(m_shapes[i]);
         }
     }

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include "prefab.hpp"
+#include "force2D.hpp"
 #include "interaction2D.hpp"
 #include "environment.hpp"
 #include "timer.hpp"
@@ -38,8 +39,8 @@ private:
 int main()
 {
     app::environment env(rk::rkf78);
-    // const entity_ptr e = env.add_entity({0.f, -100.f});
-    // e->shape(geo::polygon2D({{-400.f, -20.f}, {400.f, -20.f}, {400.f, 20.f}, {-400.f, 20.f}}));
-    // e->dynamic(false);
+    const entity_ptr e = env.add_entity({0.f, -100.f});
+    e->shape(geo::polygon2D({{-400.f, -20.f}, {400.f, -20.f}, {400.f, 20.f}, {-400.f, 20.f}}));
+    e->dynamic(false);
     env.run();
 }
