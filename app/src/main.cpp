@@ -13,14 +13,6 @@ using namespace physics;
 #define WIDTH 1280.f
 #define HEIGHT 1280.f
 
-class gravitation : public interaction2D
-{
-    std::pair<vec2, float> acceleration(const entity2D &e1, const entity2D &e2) const override
-    {
-        return {10000.f * (e2.pos() - e1.pos()).normalized() * (e2.mass() / e1.pos().sq_dist(e2.pos())), 0.f};
-    }
-};
-
 class stick : public constrain2D<2>
 {
 private:
