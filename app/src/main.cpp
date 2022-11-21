@@ -32,10 +32,10 @@ private:
 int main()
 {
     app::environment env(rk::rkf78);
-    const entity_ptr e1 = env.add_entity({0.f, -10.f}, {0.f, 1.f}), e2 = env.add_entity();
-    e1->shape(geo::polygon2D(geo::polygon2D::box(4.f)));
-    e2->shape(geo::polygon2D(geo::polygon2D::rect(6.f, 4.f)));
-    const stick st({e1, e2});
-    env.add_constrain(st);
+    // const entity_ptr e1 = env.add_entity({0.f, -10.f}, {0.f, 1.f}), e2 = env.add_entity();
+    // e1->shape(geo::polygon2D(geo::polygon2D::box(4.f)));
+    // e2->shape(geo::polygon2D(geo::polygon2D::rect(6.f, 4.f)));
+    // const stick st({e1, e2});
+    // env.add_constrain(st);
     env.run();
 }

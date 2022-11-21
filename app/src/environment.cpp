@@ -5,6 +5,7 @@
 #define WIDTH 1920
 #define HEIGHT 1280
 #define WORLD_TO_PIXEL 10.f
+#define PIXEL_TO_WORLD 0.1f
 
 class gravity : public physics::force2D
 {
@@ -24,39 +25,18 @@ namespace app
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
     }
 
-    entity_ptr environment::add_entity(const vec2 &pos,
-                                       const vec2 &vel,
-                                       float angpos, float angvel,
-                                       float mass, float charge)
+    void environment::add_shape(const geo::polygon2D &poly, sf::Color color)
     {
-        const entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge);
-        const geo::polygon2D &poly = e->shape(geo::polygon2D(pos, geo::polygon2D::box(8.f)));
-
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
         shape.setPointCount(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
             shape.setPoint(i, poly[i] * WORLD_TO_PIXEL);
-
         shape.setFillColor(sf::Color::Green);
-        // g.include(e);
-        return e;
-    }
-
-    void cb()
-    {
-        std::cout << "Hello\n";
     }
 
     void environment::run(bool (engine2D::*forward)(),
                           const std::string &wname)
     {
-        tgui::Button::Ptr btn = tgui::Button::create();
-        btn->setSize(100, 100);
-        btn->onPress(cb);
-        btn->setText("Hello!");
-
-        m_gui.add(btn);
-        btn->setPosition("(parent.innersize - size) / 2");
         m_window.setFramerateLimit(60);
         while (m_window.isOpen())
         {
@@ -75,7 +55,7 @@ namespace app
         sf::Event event;
         while (m_window.pollEvent(event))
         {
-            m_gui.handleEvent(event);
+            m_gui.handle_event(event);
             switch (event.type)
             {
             case sf::Event::Closed:
@@ -89,7 +69,26 @@ namespace app
             case sf::Event::MouseButtonReleased:
             {
                 const vec2 release = cartesian_mouse();
-                add_entity(m_grab / WORLD_TO_PIXEL, (0.3f / WORLD_TO_PIXEL) * (m_grab - release));
+                if (m_gui.adding_entity())
+                {
+                    const vec2 pos = m_grab * PIXEL_TO_WORLD,
+                               vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
+                    const entity_ptr e = add_entity(pos, vel);
+                    switch (m_gui.which_shape())
+                    {
+                    case gui::shape_type::BOX:
+                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::box(8.f))));
+                        break;
+
+                    case gui::shape_type::RECT:
+                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::rect(8.f, 4.f))));
+                        break;
+
+                    case gui::shape_type::CIRCLE:
+                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::circle(4.f, 20))));
+                        break;
+                    }
+                }
                 break;
             }
 
@@ -102,9 +101,9 @@ namespace app
     void environment::draw_entities()
     {
         retrieve();
-        sf::Vertex line[2];
-        line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
-        line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
+        // sf::Vertex line[2];
+        // line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
+        // line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
@@ -113,7 +112,7 @@ namespace app
             // m_shapes[i].setRotation(m_entities[i].angpos() * 180.f / M_PI);
             m_window.draw(m_shapes[i]);
         }
-        m_window.draw(line, 2, sf::Lines);
+        // m_window.draw(line, 2, sf::Lines);
     }
 
     vec2 environment::cartesian_mouse() const
