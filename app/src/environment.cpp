@@ -25,6 +25,24 @@ namespace app
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
     }
 
+    entity_ptr environment::add_entity(const body2D &body,
+                                       const std::vector<vec2> &vertices)
+    {
+        const entity_ptr e = engine2D::add_entity(body, vertices);
+        add_shape(e->shape());
+        return e;
+    }
+    entity_ptr environment::add_entity(const vec2 &pos,
+                                       const vec2 &vel,
+                                       float angpos, float angvel,
+                                       float mass, float charge,
+                                       const std::vector<vec2> &vertices)
+    {
+        const entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices);
+        add_shape(e->shape());
+        return e;
+    }
+
     void environment::add_shape(const geo::polygon2D &poly, sf::Color color)
     {
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
@@ -73,19 +91,18 @@ namespace app
                 {
                     const vec2 pos = m_grab * PIXEL_TO_WORLD,
                                vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
-                    const entity_ptr e = add_entity(pos, vel);
                     switch (m_gui.which_shape())
                     {
-                    case gui::shape_type::BOX:
-                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::box(8.f))));
+                    case entity_template::shape_type::BOX:
+                        add_entity(physics::body2D(pos, vel), geo::polygon2D::box(4.f));
                         break;
 
-                    case gui::shape_type::RECT:
-                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::rect(8.f, 4.f))));
+                    case entity_template::shape_type::RECT:
+                        add_entity(physics::body2D(pos, vel), geo::polygon2D::rect(6.f, 8.f));
                         break;
 
-                    case gui::shape_type::CIRCLE:
-                        add_shape(e->shape(geo::polygon2D(geo::polygon2D::circle(4.f, 20))));
+                    case entity_template::shape_type::CIRCLE:
+                        add_entity(physics::body2D(pos, vel), geo::polygon2D::circle(8.f));
                         break;
                     }
                 }

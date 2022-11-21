@@ -17,7 +17,12 @@ namespace app
                     std::size_t allocations = 100,
                     const std::string &wname = "Physics engine");
 
-        void add_shape(const geo::polygon2D &poly, sf::Color color = sf::Color::Green);
+        entity_ptr add_entity(const body2D &body, const std::vector<vec2> &vertices = geo::polygon2D::box(1.f)) override;
+        entity_ptr add_entity(const vec2 &pos = {0.f, 0.f},
+                              const vec2 &vel = {0.f, 0.f},
+                              float angpos = 0.f, float angvel = 0.f,
+                              float mass = 1.f, float charge = 1.f,
+                              const std::vector<vec2> &vertices = geo::polygon2D::box(1.f)) override;
 
         void run(bool (engine2D::*forward)() = &engine2D::raw_forward,
                  const std::string &wname = "Physics engine");
@@ -28,6 +33,7 @@ namespace app
         gui m_gui;
         vec2 m_grab;
 
+        void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void handle_events();
         void draw_entities();
         vec2 cartesian_mouse() const;
