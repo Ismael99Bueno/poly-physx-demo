@@ -1,6 +1,7 @@
 #ifndef GUI_HPP
 #define GUI_HPP
 
+#include "entity_template.hpp"
 #include <TGUI/TGUI.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -9,19 +10,12 @@ namespace app
     class gui
     {
     public:
-        enum shape_type
-        {
-            BOX = 0,
-            RECT = 1,
-            CIRCLE = 2
-        };
-
         gui(sf::RenderWindow &window);
         void draw();
         void handle_event(const sf::Event &event);
 
         bool adding_entity() const;
-        shape_type which_shape() const;
+        entity_template::shape_type which_shape() const;
 
     private:
         const sf::RenderWindow &m_window;

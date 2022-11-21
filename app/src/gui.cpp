@@ -20,9 +20,9 @@ namespace app
             return false;
         return selected_action() == 0 && selected_action_option() != -1;
     }
-    gui::shape_type gui::which_shape() const
+    entity_template::shape_type gui::which_shape() const
     {
-        return (shape_type)selected_action_option();
+        return (entity_template::shape_type)selected_action_option();
     }
 
     bool gui::mouse_on_any_widget() const
