@@ -4,7 +4,7 @@
 #include <fstream>
 #include <SFML/System/Vector2.hpp>
 
-namespace vec
+namespace alg
 {
     struct vec2
     {

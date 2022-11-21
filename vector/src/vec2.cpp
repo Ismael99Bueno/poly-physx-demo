@@ -1,7 +1,7 @@
 #include "vec2.hpp"
 #include <cmath>
 
-namespace vec
+namespace alg
 {
     vec2::vec2(const float x, const float y) : x(x), y(y) {}
 

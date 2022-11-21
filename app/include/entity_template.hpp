@@ -6,7 +6,6 @@
 
 namespace app
 {
-    using namespace vec;
     class entity_template
     {
     public:
@@ -17,17 +16,17 @@ namespace app
             CIRCLE = 2
         };
 
-        const physics::body2D &body() const;
-        physics::body2D &body();
+        const phys::body2D &body() const;
+        phys::body2D &body();
 
-        const std::vector<vec2> &vertices() const;
-        std::vector<vec2> &vertices();
+        const std::vector<alg::vec2> &vertices() const;
+        std::vector<alg::vec2> &vertices();
 
-        void body(const physics::body2D &body);
+        void body(const phys::body2D &body);
 
     private:
-        physics::body2D m_body;
-        std::vector<vec2> m_vertices;
+        phys::body2D m_body;
+        std::vector<alg::vec2> m_vertices;
     };
 }
 

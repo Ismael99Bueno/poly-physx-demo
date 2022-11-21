@@ -8,23 +8,21 @@
 #include "timer.hpp"
 #include "constrain2D.hpp"
 
-using namespace physics;
-
 #define WIDTH 1280.f
 #define HEIGHT 1280.f
 
-class stick : public constrain2D<2>
+class stick : public phys::constrain2D<2>
 {
 private:
     using constrain2D<2>::constrain2D;
-    float constrain(const std::array<const_entity_ptr, 2> &entities) const override
+    float constrain(const std::array<phys::const_entity_ptr, 2> &entities) const override
     {
-        const const_entity_ptr &e1 = entities[0], &e2 = entities[1];
+        const phys::const_entity_ptr &e1 = entities[0], &e2 = entities[1];
         return e1->shape()[0].sq_dist(e2->shape()[0]) - 100.f;
     }
-    float constrain_derivative(const std::array<const_entity_ptr, 2> &entities) const override
+    float constrain_derivative(const std::array<phys::const_entity_ptr, 2> &entities) const override
     {
-        const const_entity_ptr &e1 = entities[0], &e2 = entities[1];
+        const phys::const_entity_ptr &e1 = entities[0], &e2 = entities[1];
         return 2.f * (e1->shape()[0] - e2->shape()[0]).dot(e1->vel(e1->shape()[0]) - e2->vel(e2->shape()[0]));
     }
 };

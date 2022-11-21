@@ -7,9 +7,9 @@
 #define WORLD_TO_PIXEL 10.f
 #define PIXEL_TO_WORLD 0.1f
 
-class gravity : public physics::force2D
+class gravity : public phys::force2D
 {
-    std::pair<vec::vec2, float> force(const physics::entity2D &e) const override { return {{0.f, -100.f}, 0.f}; }
+    std::pair<alg::vec2, float> force(const phys::entity2D &e) const override { return {{0.f, -100.f}, 0.f}; }
 };
 gravity g;
 
@@ -25,20 +25,20 @@ namespace app
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
     }
 
-    entity_ptr environment::add_entity(const body2D &body,
-                                       const std::vector<vec2> &vertices)
+    phys::entity_ptr environment::add_entity(const phys::body2D &body,
+                                             const std::vector<alg::vec2> &vertices)
     {
-        const entity_ptr e = engine2D::add_entity(body, vertices);
+        const phys::entity_ptr e = engine2D::add_entity(body, vertices);
         add_shape(e->shape());
         return e;
     }
-    entity_ptr environment::add_entity(const vec2 &pos,
-                                       const vec2 &vel,
-                                       float angpos, float angvel,
-                                       float mass, float charge,
-                                       const std::vector<vec2> &vertices)
+    phys::entity_ptr environment::add_entity(const alg::vec2 &pos,
+                                             const alg::vec2 &vel,
+                                             float angpos, float angvel,
+                                             float mass, float charge,
+                                             const std::vector<alg::vec2> &vertices)
     {
-        const entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices);
+        const phys::entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices);
         add_shape(e->shape());
         return e;
     }
@@ -86,23 +86,23 @@ namespace app
 
             case sf::Event::MouseButtonReleased:
             {
-                const vec2 release = cartesian_mouse();
+                const alg::vec2 release = cartesian_mouse();
                 if (m_gui.adding_entity())
                 {
-                    const vec2 pos = m_grab * PIXEL_TO_WORLD,
-                               vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
+                    const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
+                                    vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
                     switch (m_gui.which_shape())
                     {
                     case entity_template::shape_type::BOX:
-                        add_entity(physics::body2D(pos, vel), geo::polygon2D::box(4.f));
+                        add_entity(phys::body2D(pos, vel, 0.f, 0.f, m_entities.size() + 1), geo::polygon2D::box(4.f));
                         break;
 
                     case entity_template::shape_type::RECT:
-                        add_entity(physics::body2D(pos, vel), geo::polygon2D::rect(6.f, 8.f));
+                        add_entity(phys::body2D(pos, vel), geo::polygon2D::rect(6.f, 8.f));
                         break;
 
                     case entity_template::shape_type::CIRCLE:
-                        add_entity(physics::body2D(pos, vel), geo::polygon2D::circle(8.f));
+                        add_entity(phys::body2D(pos, vel), geo::polygon2D::circle(8.f));
                         break;
                     }
                 }
@@ -132,7 +132,7 @@ namespace app
         // m_window.draw(line, 2, sf::Lines);
     }
 
-    vec2 environment::cartesian_mouse() const
+    alg::vec2 environment::cartesian_mouse() const
     {
         const sf::Vector2i mpos = sf::Mouse::getPosition(m_window);
         const sf::Vector2f wpos = m_window.mapPixelToCoords(mpos);

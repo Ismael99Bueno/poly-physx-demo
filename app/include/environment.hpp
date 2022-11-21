@@ -8,8 +8,7 @@
 
 namespace app
 {
-    using namespace physics;
-    class environment : public engine2D
+    class environment : public phys::engine2D
     {
     public:
         environment(const rk::tableau &table,
@@ -17,12 +16,12 @@ namespace app
                     std::size_t allocations = 100,
                     const std::string &wname = "Physics engine");
 
-        entity_ptr add_entity(const body2D &body, const std::vector<vec2> &vertices = geo::polygon2D::box(1.f)) override;
-        entity_ptr add_entity(const vec2 &pos = {0.f, 0.f},
-                              const vec2 &vel = {0.f, 0.f},
-                              float angpos = 0.f, float angvel = 0.f,
-                              float mass = 1.f, float charge = 1.f,
-                              const std::vector<vec2> &vertices = geo::polygon2D::box(1.f)) override;
+        phys::entity_ptr add_entity(const phys::body2D &body, const std::vector<alg::vec2> &vertices = geo::polygon2D::box(1.f)) override;
+        phys::entity_ptr add_entity(const alg::vec2 &pos = {0.f, 0.f},
+                                    const alg::vec2 &vel = {0.f, 0.f},
+                                    float angpos = 0.f, float angvel = 0.f,
+                                    float mass = 1.f, float charge = 1.f,
+                                    const std::vector<alg::vec2> &vertices = geo::polygon2D::box(1.f)) override;
 
         void run(bool (engine2D::*forward)() = &engine2D::raw_forward,
                  const std::string &wname = "Physics engine");
@@ -31,12 +30,12 @@ namespace app
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
         gui m_gui;
-        vec2 m_grab;
+        alg::vec2 m_grab;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void handle_events();
         void draw_entities();
-        vec2 cartesian_mouse() const;
+        alg::vec2 cartesian_mouse() const;
     };
 }
 
