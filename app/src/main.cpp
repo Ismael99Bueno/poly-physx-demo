@@ -7,6 +7,7 @@
 #include "environment.hpp"
 #include "timer.hpp"
 #include "constrain2D.hpp"
+#include "constants.hpp"
 
 #define WIDTH 1280.f
 #define HEIGHT 1280.f
@@ -29,6 +30,7 @@ private:
 
 int main()
 {
+    tgui::Theme::setDefault(THEME);
     app::environment env(rk::rkf78);
     // const entity_ptr e1 = env.add_entity({0.f, -10.f}, {0.f, 1.f}), e2 = env.add_entity();
     // e1->shape(geo::polygon2D(geo::polygon2D::box(4.f)));

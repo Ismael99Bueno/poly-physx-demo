@@ -19,7 +19,7 @@ namespace app
                              const float dt,
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, dt, allocations),
-                                                         m_window(sf::VideoMode(WIDTH, HEIGHT), wname),
+                                                         m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen),
                                                          m_gui(m_window)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
@@ -80,6 +80,11 @@ namespace app
                 m_window.close();
                 break;
 
+            case sf::Event::KeyPressed:
+                if (event.key.code == sf::Keyboard::Escape)
+                    m_window.close();
+                break;
+
             case sf::Event::MouseButtonPressed:
                 m_grab = cartesian_mouse();
                 break;
@@ -91,20 +96,10 @@ namespace app
                 {
                     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
                                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
-                    switch (m_gui.which_shape())
-                    {
-                    case entity_template::shape_type::BOX:
-                        add_entity(phys::body2D(pos, vel, 0.f, 0.f, m_entities.size() + 1), geo::polygon2D::box(4.f));
-                        break;
-
-                    case entity_template::shape_type::RECT:
-                        add_entity(phys::body2D(pos, vel), geo::polygon2D::rect(6.f, 8.f));
-                        break;
-
-                    case entity_template::shape_type::CIRCLE:
-                        add_entity(phys::body2D(pos, vel), geo::polygon2D::circle(8.f));
-                        break;
-                    }
+                    add_entity(phys::body2D(pos, vel, 0.f, 0.f,
+                                            m_gui.templ().body().mass(),
+                                            m_gui.templ().body().charge()),
+                               m_gui.templ().vertices());
                 }
                 break;
             }

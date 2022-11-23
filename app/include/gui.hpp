@@ -2,6 +2,7 @@
 #define GUI_HPP
 
 #include "entity_template.hpp"
+#include "actions.hpp"
 #include <TGUI/TGUI.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -15,17 +16,16 @@ namespace app
         void handle_event(const sf::Event &event);
 
         bool adding_entity() const;
-        entity_template::shape_type which_shape() const;
+
+        const entity_template &templ() const;
 
     private:
         const sf::RenderWindow &m_window;
         tgui::GuiSFML m_tgui;
-        tgui::ChildWindow::Ptr m_actions_window;
+        actions m_actions;
+        entity_template m_templ;
 
         bool mouse_on_any_widget() const;
-        int selected_action() const;
-        int selected_action_option() const;
-        void create_actions_window();
     };
 }
 
