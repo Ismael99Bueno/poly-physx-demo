@@ -39,7 +39,7 @@ namespace app
                                              const std::vector<alg::vec2> &vertices)
     {
         const phys::entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices);
-        add_shape(e->shape());
+        // Base class will already call derived overridden method
         return e;
     }
 
@@ -113,18 +113,16 @@ namespace app
     void environment::draw_entities()
     {
         retrieve();
-        // sf::Vertex line[2];
-        // line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
-        // line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
+        sf::Vertex line[2];
+        line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
+        line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, m_entities[i].shape()[j] * WORLD_TO_PIXEL);
-            // m_shapes[i].setPosition(m_entities[i].pos());
-            // m_shapes[i].setRotation(m_entities[i].angpos() * 180.f / M_PI);
             m_window.draw(m_shapes[i]);
         }
-        // m_window.draw(line, 2, sf::Lines);
+        m_window.draw(line, 2, sf::Lines);
     }
 
     alg::vec2 environment::cartesian_mouse() const
