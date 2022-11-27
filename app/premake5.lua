@@ -14,19 +14,25 @@ project "app"
    links {"vector", "timer", "vec-ptr", "runge-kutta", "geometry", "engine", "sfml-graphics", "sfml-window", "sfml-system", "tgui"}
 
    filter "configurations:Debug"
-      defines { "DEBUG" }
+      defines { "DEBUG", "PERF" }
       runtime "Debug"
       symbols "On"
       removefiles "src/test.cpp"
 
    filter "configurations:Release"
+      defines { "NDEBUG", "PERF" }
+      runtime "Release"
+      optimize "On"
+      removefiles "src/test.cpp"
+
+      filter "configurations:Distribution"
       defines { "NDEBUG" }
       runtime "Release"
       optimize "On"
       removefiles "src/test.cpp"
 
    filter "configurations:Test"
-      defines { "DEBUG" }
+      defines { "DEBUG", "PERF" }
       runtime "Debug"
       symbols "On"
       removefiles "src/main.cpp"

@@ -6,6 +6,7 @@
 #include "constants.hpp"
 #include "spring2D.hpp"
 #include "rigid_bar2D.hpp"
+#include "perf.hpp"
 
 #define WIDTH 1280.f
 #define HEIGHT 1280.f
@@ -22,5 +23,7 @@ int main()
     // env.add_spring(sp);
     const phys::rigid_bar2D bar = {e1, e2, e1->shape().relative(0), e2->shape().relative(0)};
     env.add_constrain(bar);
+    PERF_BEGIN_SESSION("profiling/results.json")
     env.run();
+    PERF_END_SESSION()
 }

@@ -1,9 +1,10 @@
 #include "timer.hpp"
+#include "profiling.hpp"
 
-namespace benchmark
+namespace perf
 {
-    timer::timer(std::ostream &stream) : m_startpoint(std::chrono::high_resolution_clock::now()),
-                                         m_stream(stream) {}
+    timer::timer(const char *name) : m_startpoint(std::chrono::high_resolution_clock::now()),
+                                     m_name(name) {}
 
     timer::~timer() { stop(); }
 
@@ -12,9 +13,9 @@ namespace benchmark
         const auto endpoint = std::chrono::high_resolution_clock::now();
         const long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_startpoint).time_since_epoch().count();
         const long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endpoint).time_since_epoch().count();
-        const long long duration = end - start;
-        const double mil_duration = duration * 0.001;
-        m_stream << duration << " us (" << mil_duration << " ms)"
-                 << "\n";
+        // const long long duration = end - start;
+        // const double mil_duration = duration * 0.001;
+
+        profiler::get().write({m_name, start, end});
     }
 }

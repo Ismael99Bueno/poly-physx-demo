@@ -4,19 +4,19 @@
 #include <fstream>
 #include <chrono>
 
-namespace benchmark
+namespace perf
 {
     class timer
     {
     public:
-        timer(std::ostream &stream);
+        timer(const char *m_name);
         ~timer();
 
         void stop() const;
 
     private:
         const std::chrono::time_point<std::chrono::high_resolution_clock> m_startpoint;
-        std::ostream &m_stream;
+        const char *m_name;
     };
 }
 

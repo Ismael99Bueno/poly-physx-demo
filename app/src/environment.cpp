@@ -1,5 +1,6 @@
 #include "environment.hpp"
 #include "force2D.hpp"
+#include "perf.hpp"
 #include <iostream>
 
 #define WIDTH 1920
@@ -60,8 +61,10 @@ namespace app
         {
             handle_events();
             m_window.clear();
+
             for (std::size_t i = 0; i < 30; i++)
                 (this->*forward)();
+
             draw_entities();
             m_gui.draw();
             m_window.display();
