@@ -1,4 +1,4 @@
-project "timer"
+project "profiling"
    language "C++"
    cppdialect "C++17"
    staticruntime "on"

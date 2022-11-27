@@ -13,6 +13,7 @@
 
 int main()
 {
+    PERF_BEGIN_SESSION("profiling/results.json")
     tgui::Theme::setDefault(THEME);
     app::environment env(rk::rkf78);
     const phys::entity_ptr e1 = env.add_entity({0.f, -10.f}), e2 = env.add_entity();
@@ -23,7 +24,6 @@ int main()
     // env.add_spring(sp);
     const phys::rigid_bar2D bar = {e1, e2, e1->shape().relative(0), e2->shape().relative(0)};
     env.add_constrain(bar);
-    PERF_BEGIN_SESSION("profiling/results.json")
     env.run();
     PERF_END_SESSION()
 }

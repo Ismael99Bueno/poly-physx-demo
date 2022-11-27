@@ -3,4 +3,4 @@
 **/Makefile
 .DS_Store
 .vscode
-profiling/
+profile-results/

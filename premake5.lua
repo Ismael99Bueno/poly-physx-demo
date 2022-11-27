@@ -9,7 +9,7 @@ include "vector"
 include "runge-kutta"
 include "geometry"
 include "vec-ptr"
-include "timer"
+include "profiling"
 include "engine"
 include "app"
 
