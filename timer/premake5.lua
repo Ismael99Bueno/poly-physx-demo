@@ -9,7 +9,7 @@ project "timer"
 
    files {"src/**.cpp", "include/**.hpp"}
 
-   includedirs "include"
+   includedirs "../**/include"
 
    filter "configurations:Debug"
       defines { "DEBUG" }

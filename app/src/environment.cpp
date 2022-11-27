@@ -56,6 +56,7 @@ namespace app
     void environment::run(bool (engine2D::*forward)(),
                           const std::string &wname)
     {
+        PERF_FUNCTION()
         m_window.setFramerateLimit(60);
         while (m_window.isOpen())
         {
