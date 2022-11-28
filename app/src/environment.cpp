@@ -66,8 +66,9 @@ namespace app
 
             {
                 PERF_SCOPE("PHYSICS")
-                for (std::size_t i = 0; i < 4; i++)
+                for (std::size_t i = 0; i < 30; i++)
                     (this->*forward)();
+                collider().update_quad_tree();
             }
 
             {
@@ -124,16 +125,16 @@ namespace app
     void environment::draw_entities()
     {
         retrieve();
-        sf::Vertex line[2];
-        line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
-        line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
+        // sf::Vertex line[2];
+        // line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
+        // line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, m_entities[i].shape()[j] * WORLD_TO_PIXEL);
             m_window.draw(m_shapes[i]);
         }
-        m_window.draw(line, 2, sf::Lines);
+        // m_window.draw(line, 2, sf::Lines);
     }
 
     alg::vec2 environment::cartesian_mouse() const

@@ -1,6 +1,6 @@
 workspace "physics-engine-2D"
     architecture "arm64"
-    configurations {"debug", "release", "debug-profile", "release-profile", "test"}
+    configurations {"debug", "release", "test", "debug-profile", "release-profile", "test-profile"}
     startproject "app"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
