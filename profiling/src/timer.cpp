@@ -11,8 +11,8 @@ namespace perf
     void timer::stop() const
     {
         const auto endpoint = std::chrono::high_resolution_clock::now();
-        const long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_startpoint).time_since_epoch().count();
-        const long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endpoint).time_since_epoch().count();
+        const long long start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_startpoint).time_since_epoch().count();
+        const long long end = std::chrono::time_point_cast<std::chrono::nanoseconds>(endpoint).time_since_epoch().count();
         // const long long duration = end - start;
         // const double mil_duration = duration * 0.001;
 

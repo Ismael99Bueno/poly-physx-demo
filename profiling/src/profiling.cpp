@@ -1,5 +1,6 @@
 #include "profiling.hpp"
 #include "debug.h"
+#include <iostream>
 
 namespace perf
 {
@@ -9,17 +10,18 @@ namespace perf
         return p;
     }
 
-    void profiler::begin_session(const std::string &filename)
+    void profiler::begin_session(const std::string &filename,
+                                 const std::string &extension)
     {
-        m_output.open(filename);
-        write_header();
+        m_name = filename;
+        m_extension = extension;
+        start_run();
     }
 
     void profiler::end_session()
     {
-        write_footer();
-        m_output.close();
-        m_count = 0;
+        end_run();
+        m_runs = 0;
     }
 
     void profiler::write(const profile_result &result)
@@ -28,6 +30,11 @@ namespace perf
         if (!m_output.is_open())
             return;
 
+        if (m_output.tellp() > m_max_mb * 1000000)
+        {
+            end_run();
+            start_run();
+        }
         if (m_count++ > 0)
             m_output << ",";
 
@@ -47,6 +54,19 @@ namespace perf
         m_output.flush();
     }
 
+    void profiler::start_run()
+    {
+        m_output.open(m_name + "-" + std::to_string(++m_runs) + m_extension);
+        write_header();
+    }
+
+    void profiler::end_run()
+    {
+        write_footer();
+        m_output.close();
+        m_count = 0;
+    }
+
     void profiler::write_header()
     {
         m_output << "{\"otherData\": {},\"traceEvents\":[";
@@ -58,4 +78,7 @@ namespace perf
         m_output << "]}";
         m_output.flush();
     }
+
+    std::uint32_t profiler::max_mb() const { return m_max_mb; }
+    void profiler::max_mb(const std::uint32_t size) { m_max_mb = size; }
 }

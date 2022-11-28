@@ -60,15 +60,22 @@ namespace app
         m_window.setFramerateLimit(60);
         while (m_window.isOpen())
         {
+            PERF_SCOPE("FRAME")
             handle_events();
             m_window.clear();
 
-            for (std::size_t i = 0; i < 30; i++)
-                (this->*forward)();
+            {
+                PERF_SCOPE("PHYSICS")
+                for (std::size_t i = 0; i < 4; i++)
+                    (this->*forward)();
+            }
 
-            draw_entities();
-            m_gui.draw();
-            m_window.display();
+            {
+                PERF_SCOPE("DRAWING")
+                draw_entities();
+                m_gui.draw();
+                m_window.display();
+            }
         }
     }
 

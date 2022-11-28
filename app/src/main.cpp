@@ -13,7 +13,9 @@
 
 int main()
 {
-    PERF_BEGIN_SESSION("profiling/results.json")
+    PERF_SET_MAX_FILE_MB(300)
+
+    PERF_BEGIN_SESSION("profile-results/runtime", ".json")
     tgui::Theme::setDefault(THEME);
     app::environment env(rk::rkf78);
     const phys::entity_ptr e1 = env.add_entity({0.f, -10.f}), e2 = env.add_entity();

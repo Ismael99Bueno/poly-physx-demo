@@ -13,26 +13,32 @@ project "app"
    libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/tgui/0.9.5/lib"}
    links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "sfml-graphics", "sfml-window", "sfml-system", "tgui"}
 
-   filter "configurations:Debug"
-      defines { "DEBUG", "PERF" }
+   filter "configurations:debug"
+      defines { "DEBUG" }
       runtime "Debug"
       symbols "On"
       removefiles "src/test.cpp"
 
-   filter "configurations:Release"
-      defines { "NDEBUG", "PERF" }
-      runtime "Release"
-      optimize "On"
-      removefiles "src/test.cpp"
-
-      filter "configurations:Distribution"
+   filter "configurations:release"
       defines { "NDEBUG" }
       runtime "Release"
       optimize "On"
       removefiles "src/test.cpp"
 
-   filter "configurations:Test"
+   filter "configurations:debug-profile"
       defines { "DEBUG", "PERF" }
+      runtime "Debug"
+      symbols "On"
+      removefiles "src/test.cpp"
+
+   filter "configurations:release-profile"
+      defines { "NDEBUG", "PERF" }
+      runtime "Release"
+      optimize "On"
+      removefiles "src/test.cpp"
+
+   filter "configurations:test"
+      defines { "DEBUG" }
       runtime "Debug"
       symbols "On"
       removefiles "src/main.cpp"
