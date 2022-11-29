@@ -9,9 +9,9 @@ project "app"
    objdir("../build/" .. outputdir .. "/%{prj.name}")
 
    files {"src/**.cpp", "include/**.hpp"}
-   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include", "/opt/homebrew/Cellar/tgui/0.9.5/include"}
-   libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/tgui/0.9.5/lib", "/System/Library/Frameworks"}
-   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-env", "sfml-graphics", "sfml-window", "sfml-system", "tgui", "OpenGL.framework"}
+   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
+   libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/System/Library/Frameworks"}
+   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-env", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
       defines { "DEBUG" }

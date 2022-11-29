@@ -3,8 +3,9 @@
 
 #include "body2D.hpp"
 #include "polygon2D.hpp"
-#include "constants.hpp"
 #include <vector>
+
+#define INITIAL 5.f
 
 namespace app
 {
@@ -33,9 +34,9 @@ namespace app
         float radius() const;
 
     private:
-        phys::body2D m_body = phys::body2D({0.f, 0.f}, {0.f, 0.f}, 0.f, 0.f, DPVAL, DPVAL);
-        std::vector<alg::vec2> m_vertices = geo::polygon2D::box(DPVAL);
-        float m_size = DPVAL, m_width = DPVAL, m_height = DPVAL, m_radius = DPVAL;
+        phys::body2D m_body = phys::body2D({0.f, 0.f}, {0.f, 0.f}, 0.f, 0.f, INITIAL, INITIAL);
+        std::vector<alg::vec2> m_vertices = geo::polygon2D::box(INITIAL);
+        float m_size = INITIAL, m_width = INITIAL, m_height = INITIAL, m_radius = INITIAL;
     };
 }
 

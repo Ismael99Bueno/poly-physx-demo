@@ -552,6 +552,8 @@ namespace ImGui
                 return ImGuiKey_F11;
             case sf::Keyboard::F12:
                 return ImGuiKey_F12;
+            default:
+                return ImGuiKey_None;
             }
             return ImGuiKey_None;
         }
@@ -572,6 +574,8 @@ namespace ImGui
             case sf::Keyboard::LSystem:
             case sf::Keyboard::RSystem:
                 return ImGuiKey_ModSuper;
+            default:
+                return ImGuiKey_None;
             }
             return ImGuiKey_None;
         }

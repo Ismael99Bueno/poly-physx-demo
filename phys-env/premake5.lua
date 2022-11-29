@@ -9,7 +9,7 @@ project "phys-env"
    objdir("../build/" .. outputdir .. "/%{prj.name}")
 
    files {"src/**.cpp", "include/**.hpp"}
-   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include", "/opt/homebrew/Cellar/tgui/0.9.5/include"}
+   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
 
    filter "configurations:debug"
       defines { "DEBUG" }

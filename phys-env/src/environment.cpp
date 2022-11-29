@@ -1,6 +1,8 @@
 #include "environment.hpp"
 #include "force2D.hpp"
 #include "perf.hpp"
+#include "imgui.h"
+#include "imgui-SFML.h"
 #include <iostream>
 
 #define WIDTH 1920
@@ -20,8 +22,7 @@ namespace app
                              const float dt,
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, dt, allocations),
-                                                         m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen),
-                                                         m_gui(m_window)
+                                                         m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
     }
@@ -58,10 +59,15 @@ namespace app
     {
         PERF_FUNCTION()
         m_window.setFramerateLimit(60);
+        assert(ImGui::SFML::Init(m_window) && "ImGui initialization failed.");
+
+        sf::Clock dclock;
         while (m_window.isOpen())
         {
             PERF_SCOPE("FRAME")
             handle_events();
+
+            ImGui::SFML::Update(m_window, dclock.restart());
             m_window.clear();
 
             {
@@ -73,10 +79,11 @@ namespace app
             {
                 PERF_SCOPE("DRAWING")
                 draw_entities();
-                m_gui.draw();
+                ImGui::SFML::Render(m_window);
                 m_window.display();
             }
         }
+        ImGui::SFML::Shutdown(m_window);
     }
 
     void environment::handle_events()
@@ -84,7 +91,7 @@ namespace app
         sf::Event event;
         while (m_window.pollEvent(event))
         {
-            m_gui.handle_event(event);
+            ImGui::SFML::ProcessEvent(event);
             switch (event.type)
             {
             case sf::Event::Closed:
@@ -103,15 +110,15 @@ namespace app
             case sf::Event::MouseButtonReleased:
             {
                 const alg::vec2 release = cartesian_mouse();
-                if (m_gui.adding_entity())
-                {
-                    const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
-                                    vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
-                    add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                                            m_gui.templ().body().mass(),
-                                            m_gui.templ().body().charge()),
-                               m_gui.templ().vertices());
-                }
+                // if (m_gui.adding_entity())
+                // {
+                //     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
+                //                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
+                //     add_entity(phys::body2D(pos, vel, 0.f, 0.f,
+                //                             m_gui.templ().body().mass(),
+                //                             m_gui.templ().body().charge()),
+                //                m_gui.templ().vertices());
+                // }
                 break;
             }
 

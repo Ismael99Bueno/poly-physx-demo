@@ -2,7 +2,7 @@
 #define ENVIRONMENT_HPP
 
 #include "engine2D.hpp"
-#include "gui.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -29,7 +29,6 @@ namespace app
     private:
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
-        gui m_gui;
         alg::vec2 m_grab;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);

@@ -3,7 +3,6 @@
 #include <iostream>
 #include "prefab.hpp"
 #include "environment.hpp"
-#include "constants.hpp"
 #include "spring2D.hpp"
 #include "rigid_bar2D.hpp"
 #include "perf.hpp"
@@ -16,7 +15,6 @@ int main()
     PERF_SET_MAX_FILE_MB(300)
 
     PERF_BEGIN_SESSION("profile-results/runtime", ".json")
-    tgui::Theme::setDefault(THEME);
     app::environment env(rk::rkf78);
     const phys::entity_ptr e1 = env.add_entity({0.f, -10.f}), e2 = env.add_entity();
     e1->shape(geo::polygon2D(geo::polygon2D::box(4.f)));
