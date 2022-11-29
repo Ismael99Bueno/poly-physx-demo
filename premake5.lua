@@ -11,6 +11,7 @@ include "geometry"
 include "vec-ptr"
 include "profiling"
 include "engine"
+include "imgui"
 include "phys-env"
 include "entry-point"
 

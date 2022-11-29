@@ -1,34 +1,42 @@
+#include "imgui.h"
+#include "imgui-SFML.h"
+
 #include <SFML/Graphics.hpp>
-
-#include <iostream>
-#include "prefab.hpp"
-#include "environment.hpp"
-#include "constants.hpp"
-#include "spring2D.hpp"
-#include "rigid_bar2D.hpp"
-#include "perf.hpp"
-
-#define WIDTH 1280.f
-#define HEIGHT 1280.f
 
 int main()
 {
-    PERF_SET_MAX_FILE_MB(300)
+    // create the window
+    sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
+    if (!ImGui::SFML::Init(window))
+        exit(EXIT_FAILURE);
 
-    PERF_BEGIN_SESSION("profile-results/runtime", ".json")
-    tgui::Theme::setDefault(THEME);
-    app::environment env(rk::rkf78);
-    const std::size_t amount = 10;
-    for (std::size_t i = 0; i < amount; i++)
+    sf::CircleShape shape(100);
+    shape.setPosition(400, 300);
+    bool exists = true;
+
+    sf::Clock delta_clock;
+    while (window.isOpen())
     {
-        const float x = 0.1f * WIDTH * ((float)i / (amount - 1) - 0.5f);
-        for (std::size_t j = 0; j < amount; j++)
+        sf::Event event;
+        while (window.pollEvent(event))
         {
-            const float y = 0.1f * HEIGHT * ((float)j / (amount - 1) - 0.5f);
-            env.add_entity({x, y});
+            ImGui::SFML::ProcessEvent(event);
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
+        ImGui::SFML::Update(window, delta_clock.restart());
+
+        ImGui::Begin("Hey!");
+        ImGui::Text("Heyyyyy");
+        ImGui::Checkbox("Circle", &exists);
+        ImGui::End();
+
+        window.clear(sf::Color::Black);
+        if (exists)
+            window.draw(shape);
+        ImGui::SFML::Render(window);
+        window.display();
     }
-    env.collider().quad_tree_build_period(60);
-    env.run();
-    PERF_END_SESSION()
+    ImGui::SFML::Shutdown();
+    return 0;
 }

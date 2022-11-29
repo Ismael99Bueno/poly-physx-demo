@@ -1,23 +1,21 @@
-project "app"
-   kind "ConsoleApp"
-
+project "imgui"
    language "C++"
    cppdialect "C++17"
    staticruntime "on"
+   kind "StaticLib"
+   defines "GL_SILENCE_DEPRECATION"
 
    targetdir("../bin/" .. outputdir)
    objdir("../build/" .. outputdir .. "/%{prj.name}")
 
-   files {"src/**.cpp", "include/**.hpp"}
-   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include", "/opt/homebrew/Cellar/tgui/0.9.5/include"}
-   libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/tgui/0.9.5/lib", "/System/Library/Frameworks"}
-   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-env", "sfml-graphics", "sfml-window", "sfml-system", "tgui", "OpenGL.framework"}
+   files {"src/**.cpp", "include/**.h"}
+
+   includedirs {"include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
 
    filter "configurations:debug"
       defines { "DEBUG" }
       runtime "Debug"
       symbols "On"
-      removefiles "src/test.cpp"
 
    filter "configurations:release"
       defines { "NDEBUG" }
@@ -29,22 +27,18 @@ project "app"
       defines { "DEBUG" }
       runtime "Debug"
       symbols "On"
-      removefiles "src/main.cpp"
 
    filter "configurations:debug-profile"
       defines { "DEBUG", "PERF" }
       runtime "Debug"
       symbols "On"
-      removefiles "src/test.cpp"
 
    filter "configurations:release-profile"
       defines { "NDEBUG", "PERF" }
       runtime "Release"
       optimize "On"
-      removefiles "src/test.cpp"
 
    filter "configurations:test-profile"
       defines { "DEBUG", "PERF" }
       runtime "Debug"
       symbols "On"
-      removefiles "src/main.cpp"
