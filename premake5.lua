@@ -11,7 +11,8 @@ include "geometry"
 include "vec-ptr"
 include "profiling"
 include "engine"
-include "app"
+include "phys-env"
+include "entry-point"
 
 newaction {
     trigger = "clean",
