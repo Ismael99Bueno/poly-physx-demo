@@ -68,7 +68,6 @@ namespace app
                 PERF_SCOPE("PHYSICS")
                 for (std::size_t i = 0; i < 30; i++)
                     (this->*forward)();
-                collider().update_quad_tree();
             }
 
             {

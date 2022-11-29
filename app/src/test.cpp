@@ -28,6 +28,7 @@ int main()
             env.add_entity({x, y});
         }
     }
+    env.collider().quad_tree_build_period(60);
     env.run();
     PERF_END_SESSION()
 }
