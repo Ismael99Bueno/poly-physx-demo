@@ -19,15 +19,20 @@ newaction {
     trigger = "clean",
     description = "Remove all object and binary files",
     execute = function()
-        print("Removing binaries")
+        print("Removing binaries...")
         os.rmdir("**/bin")
         os.rmdir("./bin")
-        print("Removing objects")
+        print("Removing objects...")
         os.rmdir("**/build")
         os.rmdir("./build")
-        print("Removing Makefiles")
+        print("Removing Makefiles...")
         os.remove("**/Makefile")
         os.remove("Makefile")
+        print("Removing project files...")
+        os.rmdir(".vs/")
+        os.rmdir("**.xcworkspace/")
+        os.rmdir("**.xcodeproj/")
+        os.remove("**.xcodeproj")
         print("Done")
     end
 }

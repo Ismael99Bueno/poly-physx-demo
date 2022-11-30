@@ -16,7 +16,7 @@ class gravity : public phys::force2D
 };
 gravity g;
 
-namespace app
+namespace phys_env
 {
     environment::environment(const rk::tableau &table,
                              const float dt,
@@ -79,6 +79,7 @@ namespace app
             {
                 PERF_SCOPE("DRAWING")
                 draw_entities();
+                m_gui.actions().render();
                 ImGui::SFML::Render(m_window);
                 m_window.display();
             }
@@ -110,15 +111,15 @@ namespace app
             case sf::Event::MouseButtonReleased:
             {
                 const alg::vec2 release = cartesian_mouse();
-                // if (m_gui.adding_entity())
-                // {
-                //     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
-                //                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
-                //     add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                //                             m_gui.templ().body().mass(),
-                //                             m_gui.templ().body().charge()),
-                //                m_gui.templ().vertices());
-                // }
+                if (m_gui.actions().adding_entity())
+                {
+                    const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
+                                    vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
+                    add_entity(phys::body2D(pos, vel, 0.f, 0.f,
+                                            m_gui.actions().templ().body().mass(),
+                                            m_gui.actions().templ().body().charge()),
+                               m_gui.actions().templ().vertices());
+                }
                 break;
             }
 

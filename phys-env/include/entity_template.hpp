@@ -7,7 +7,7 @@
 
 #define INITIAL 5.f
 
-namespace app
+namespace phys_env
 {
     class entity_template
     {

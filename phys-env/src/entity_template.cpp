@@ -1,6 +1,6 @@
 #include "entity_template.hpp"
 
-namespace app
+namespace phys_env
 {
     void entity_template::box() { box(m_size); }
     void entity_template::box(const float size)

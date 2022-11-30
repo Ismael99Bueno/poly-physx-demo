@@ -2,11 +2,12 @@
 #define ENVIRONMENT_HPP
 
 #include "engine2D.hpp"
+#include "gui.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
 
-namespace app
+namespace phys_env
 {
     class environment : public phys::engine2D
     {
@@ -30,6 +31,7 @@ namespace app
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
         alg::vec2 m_grab;
+        gui m_gui;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void handle_events();
