@@ -5,11 +5,6 @@
 #include "imgui-SFML.h"
 #include <iostream>
 
-#define WIDTH 1920
-#define HEIGHT 1280
-#define WORLD_TO_PIXEL 10.f
-#define PIXEL_TO_WORLD 0.1f
-
 class gravity : public phys::force2D
 {
     std::pair<alg::vec2, float> force(const phys::entity2D &e) const override { return {{0.f, -100.f}, 0.f}; }
@@ -116,8 +111,8 @@ namespace phys_env
                     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
                                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
                     add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                                            m_gui.actions().templ().body().mass(),
-                                            m_gui.actions().templ().body().charge()),
+                                            m_gui.actions().templ().mass(),
+                                            m_gui.actions().templ().charge()),
                                m_gui.actions().templ().vertices());
                 }
                 break;
@@ -132,16 +127,12 @@ namespace phys_env
     void environment::draw_entities()
     {
         retrieve();
-        // sf::Vertex line[2];
-        // line[0].position = m_entities[0].shape()[0] * WORLD_TO_PIXEL;
-        // line[1].position = m_entities[1].shape()[0] * WORLD_TO_PIXEL;
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, m_entities[i].shape()[j] * WORLD_TO_PIXEL);
             m_window.draw(m_shapes[i]);
         }
-        // m_window.draw(line, 2, sf::Lines);
     }
 
     alg::vec2 environment::cartesian_mouse() const

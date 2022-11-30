@@ -5,12 +5,18 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-#define INITIAL 5.f
-
 namespace phys_env
 {
     class actions_panel
     {
+    private:
+        enum shape_type
+        {
+            BOX = 0,
+            RECT = 1,
+            CIRCLE = 2
+        };
+
     public:
         actions_panel() = default;
         void render();
@@ -21,11 +27,11 @@ namespace phys_env
     private:
         entity_template m_templ;
         bool m_adding_entity;
-        int m_selected_shape = 0, m_last_shape = 0;
-        float m_size = INITIAL, m_width = INITIAL, m_height = INITIAL, m_radius = 0.5 * INITIAL;
+        shape_type m_selected_shape = BOX;
 
         void render_tabs();
         void render_shape_list();
+        void render_entity_inputs();
         void update_template();
     };
 }

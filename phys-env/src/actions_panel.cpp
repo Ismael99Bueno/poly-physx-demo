@@ -20,6 +20,7 @@ namespace phys_env
         {
             m_adding_entity = true;
             render_shape_list();
+            render_entity_inputs();
             ImGui::EndTabItem();
         }
         else
@@ -39,23 +40,42 @@ namespace phys_env
     void actions_panel::render_shape_list()
     {
         const char *const shapes[] = {"Box", "Rectangle", "Circle"};
-        ImGui::ListBox("Shapes", &m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
+        ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
+    }
+
+    void actions_panel::render_entity_inputs()
+    {
+        ImGui::InputFloat("Mass", &m_templ.m_mass);
+        ImGui::InputFloat("Charge", &m_templ.m_charge);
+        switch (m_selected_shape)
+        {
+        case BOX:
+            ImGui::InputFloat("Size", &m_templ.m_size);
+            break;
+        case RECT:
+            ImGui::InputFloat("Width", &m_templ.m_width);
+            ImGui::InputFloat("Height", &m_templ.m_height);
+            break;
+        case CIRCLE:
+            ImGui::InputFloat("Radius", &m_templ.m_radius);
+            break;
+        default:
+            break;
+        }
     }
 
     void actions_panel::update_template()
     {
-        if (m_selected_shape == m_last_shape)
-            return;
         switch (m_selected_shape)
         {
-        case 0:
-            m_templ.box(m_size);
+        case BOX:
+            m_templ.box();
             break;
-        case 1:
-            m_templ.rect(m_width, m_height);
+        case RECT:
+            m_templ.rect();
             break;
-        case 2:
-            m_templ.circle(m_radius);
+        case CIRCLE:
+            m_templ.circle();
         default:
             break;
         }
