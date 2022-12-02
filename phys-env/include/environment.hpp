@@ -18,7 +18,7 @@ namespace phys_env
     {
     public:
         environment(const rk::tableau &table,
-                    float dt = 0.001f,
+                    float dt,
                     std::size_t allocations = 100,
                     const std::string &wname = "Physics engine");
 
@@ -29,7 +29,7 @@ namespace phys_env
                                     float mass = 1.f, float charge = 1.f,
                                     const std::vector<alg::vec2> &vertices = geo::polygon2D::box(1.f)) override;
 
-        void run(bool (engine2D::*forward)() = &engine2D::raw_forward,
+        void run(bool (engine2D::*forward)(float &) = &engine2D::raw_forward,
                  const std::string &wname = "Physics engine");
 
     private:
@@ -37,6 +37,7 @@ namespace phys_env
         sf::RenderWindow m_window;
         alg::vec2 m_grab;
         gui m_gui;
+        float m_dt;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void handle_events();

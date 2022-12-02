@@ -16,7 +16,8 @@ namespace phys_env
     environment::environment(const rk::tableau &table,
                              const float dt,
                              const std::size_t allocations,
-                             const std::string &wname) : engine2D(table, dt, allocations),
+                             const std::string &wname) : engine2D(table, allocations),
+                                                         m_dt(dt),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
@@ -49,7 +50,7 @@ namespace phys_env
         shape.setFillColor(sf::Color::Green);
     }
 
-    void environment::run(bool (engine2D::*forward)(),
+    void environment::run(bool (engine2D::*forward)(float &),
                           const std::string &wname)
     {
         PERF_FUNCTION()
@@ -68,7 +69,7 @@ namespace phys_env
             {
                 PERF_SCOPE("PHYSICS")
                 for (std::size_t i = 0; i < 30; i++)
-                    (this->*forward)();
+                    (this->*forward)(m_dt);
             }
 
             {
