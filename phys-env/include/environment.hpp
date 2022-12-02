@@ -18,7 +18,7 @@ namespace phys_env
     {
     public:
         environment(const rk::butcher_tableau &table,
-                    float dt,
+                    float dt = 0.001f,
                     std::size_t allocations = 100,
                     const std::string &wname = "Physics engine");
 
