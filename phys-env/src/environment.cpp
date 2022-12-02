@@ -75,6 +75,9 @@ namespace phys_env
                 PERF_SCOPE("DRAWING")
                 draw_entities();
                 m_gui.actions().render();
+#ifdef DEBUG
+                ImGui::ShowDemoWindow();
+#endif
                 ImGui::SFML::Render(m_window);
                 m_window.display();
             }
