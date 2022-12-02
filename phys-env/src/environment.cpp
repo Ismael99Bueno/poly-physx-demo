@@ -13,7 +13,7 @@ gravity g;
 
 namespace phys_env
 {
-    environment::environment(const rk::tableau &table,
+    environment::environment(const rk::butcher_tableau &table,
                              const float dt,
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, allocations),
@@ -75,7 +75,7 @@ namespace phys_env
             {
                 PERF_SCOPE("DRAWING")
                 draw_entities();
-                m_gui.actions().render();
+                m_actions.render();
 #ifdef DEBUG
                 ImGui::ShowDemoWindow();
 #endif
@@ -110,14 +110,14 @@ namespace phys_env
             case sf::Event::MouseButtonReleased:
             {
                 const alg::vec2 release = cartesian_mouse();
-                if (m_gui.actions().adding_entity())
+                if (m_actions.adding_entity())
                 {
                     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
                                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
                     add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                                            m_gui.actions().templ().mass(),
-                                            m_gui.actions().templ().charge()),
-                               m_gui.actions().templ().vertices());
+                                            m_actions.templ().mass(),
+                                            m_actions.templ().charge()),
+                               m_actions.templ().vertices());
                 }
                 break;
             }

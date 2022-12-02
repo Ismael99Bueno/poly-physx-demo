@@ -1,7 +1,7 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
 
-#include "tableau.hpp"
+#include "butcher_tableau.hpp"
 #include "debug.h"
 #include <cstdint>
 #include <cmath>
@@ -20,7 +20,7 @@ namespace rk
 
     public:
         integrator() = delete;
-        integrator(const tableau &tb,
+        integrator(const butcher_tableau &tb,
                    vector &state,
                    float tolerance = 1e-6,
                    float min_dt = 1e-6,
@@ -124,6 +124,15 @@ namespace rk
         void reserve(std::size_t size);
         void resize();
 
+        const butcher_tableau &tableau() const;
+        butcher_tableau &tableau();
+
+        const vector &state() const;
+        vector &state();
+
+        void tableau(const butcher_tableau &tableau);
+        void state(vector &state);
+
         float tolerance() const;
         float min_dt() const;
         float max_dt() const;
@@ -134,7 +143,7 @@ namespace rk
         void max_dt(float val);
 
     private:
-        const tableau m_tableau;
+        butcher_tableau m_tableau;
         vector &m_state;
         matrix m_kvec;
         float m_tolerance, m_min_dt, m_max_dt, m_error;

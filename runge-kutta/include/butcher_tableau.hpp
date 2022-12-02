@@ -1,12 +1,12 @@
-#ifndef TABLEAU_HPP
-#define TABLEAU_HPP
+#ifndef BUTCHER_TABLEAU_HPP
+#define BUTCHER_TABLEAU_HPP
 
 #include <vector>
 #include <cstdint>
 
 namespace rk
 {
-    class tableau
+    class butcher_tableau
     {
     private:
         using vector = std::vector<float>;
@@ -14,20 +14,20 @@ namespace rk
         using uint8 = std::uint8_t;
 
     public:
-        tableau() = delete;
+        butcher_tableau() = delete;
 
-        tableau(const vector &alpha,
-                const matrix &beta,
-                const vector &coefs,
-                uint8 stage,
-                uint8 order);
+        butcher_tableau(const vector &alpha,
+                        const matrix &beta,
+                        const vector &coefs,
+                        uint8 stage,
+                        uint8 order);
 
-        tableau(const vector &alpha,
-                const matrix &beta,
-                const vector &coefs1,
-                const vector &coefs2,
-                uint8 stage,
-                uint8 order);
+        butcher_tableau(const vector &alpha,
+                        const matrix &beta,
+                        const vector &coefs1,
+                        const vector &coefs2,
+                        uint8 stage,
+                        uint8 order);
 
         const vector &alpha() const;
         const matrix &beta() const;

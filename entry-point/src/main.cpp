@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
-#include "prefab.hpp"
+#include "tableaus.hpp"
 #include "environment.hpp"
 #include "spring2D.hpp"
 #include "perf.hpp"

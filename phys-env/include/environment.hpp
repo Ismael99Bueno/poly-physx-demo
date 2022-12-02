@@ -2,7 +2,7 @@
 #define ENVIRONMENT_HPP
 
 #include "engine2D.hpp"
-#include "gui.hpp"
+#include "actions_panel.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -17,7 +17,7 @@ namespace phys_env
     class environment : public phys::engine2D
     {
     public:
-        environment(const rk::tableau &table,
+        environment(const rk::butcher_tableau &table,
                     float dt,
                     std::size_t allocations = 100,
                     const std::string &wname = "Physics engine");
@@ -36,7 +36,7 @@ namespace phys_env
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
         alg::vec2 m_grab;
-        gui m_gui;
+        actions_panel m_actions;
         float m_dt;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);

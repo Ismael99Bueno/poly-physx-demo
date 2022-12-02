@@ -1,10 +1,10 @@
-#include "prefab.hpp"
+#include "tableaus.hpp"
 
 namespace rk
 {
-    const tableau rk1 = {{}, {}, {1.f}, 1, 1};
-    const tableau rk2 = {{1.f}, {{1.f}}, {0.5, 0.5}, 2, 2};
-    const tableau rk4 = {
+    const butcher_tableau rk1 = {{}, {}, {1.f}, 1, 1};
+    const butcher_tableau rk2 = {{1.f}, {{1.f}}, {0.5, 0.5}, 2, 2};
+    const butcher_tableau rk4 = {
         {0.5, 0.5, 1.f},
         {{0.5},
          {0.f, 0.5},
@@ -13,7 +13,7 @@ namespace rk
         4,
         4};
 
-    const tableau rk38 = {
+    const butcher_tableau rk38 = {
         {1.f / 3.f, 2.f / 3.f, 1.f},
         {
             {1.f / 3.f},
@@ -24,9 +24,9 @@ namespace rk
         4,
         4};
 
-    const tableau rkf12 = {{1}, {{1}}, {0.5, 0.5}, {1.f, 0.f}, 2, 2};
+    const butcher_tableau rkf12 = {{1}, {{1}}, {0.5, 0.5}, {1.f, 0.f}, 2, 2};
 
-    const tableau rkf45 = {
+    const butcher_tableau rkf45 = {
         {0.25, 3.f / 8.f, 12.f / 13.f, 1.f, 0.5},
         {{0.25},
          {3.f / 32.f, 9.f / 32.f},
@@ -38,7 +38,7 @@ namespace rk
         6,
         5};
 
-    const tableau rkfck45 = {
+    const butcher_tableau rkfck45 = {
         {0.2, 0.3, 0.6, 1.f, 7.f / 8.f},
         {{0.2},
          {3.f / 40.f, 9.f / 40.f},
@@ -50,7 +50,7 @@ namespace rk
         6,
         5};
 
-    const tableau rkf78 = {
+    const butcher_tableau rkf78 = {
         {2.f / 27.f, 1.f / 9.f, 1.f / 6.f, 5.f / 12.f, 0.5, 5.f / 6.f, 1.f / 6.f, 2.f / 3.f, 1.f / 3.f, 1.f, 0.f, 1.f},
         {{2.f / 27.f},
          {1.f / 36.f, 1.f / 12.f},

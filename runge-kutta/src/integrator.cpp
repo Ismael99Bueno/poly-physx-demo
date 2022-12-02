@@ -4,7 +4,7 @@
 
 namespace rk
 {
-    integrator::integrator(const tableau &tb,
+    integrator::integrator(const butcher_tableau &tb,
                            vector &state,
                            const float tolerance,
                            const float min_dt,
@@ -86,6 +86,24 @@ namespace rk
     {
         for (vector &v : m_kvec)
             v.resize(m_state.size());
+    }
+
+    const butcher_tableau &integrator::tableau() const { return m_tableau; }
+    butcher_tableau &integrator::tableau() { return m_tableau; }
+
+    const integrator::vector &integrator::state() const { return m_state; }
+    integrator::vector &integrator::state() { return m_state; }
+
+    void integrator::tableau(const butcher_tableau &tableau)
+    {
+        m_tableau = tableau;
+        m_kvec.resize(m_tableau.stage());
+        resize();
+    }
+    void integrator::state(vector &state)
+    {
+        m_state = state;
+        resize();
     }
 
     float integrator::tolerance() const { return m_tolerance; }
