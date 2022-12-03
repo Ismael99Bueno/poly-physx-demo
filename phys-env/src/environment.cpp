@@ -18,6 +18,7 @@ namespace phys_env
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, allocations),
                                                          m_dt(dt),
+                                                         m_eng_panel(integrator(), m_dt),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
@@ -68,7 +69,7 @@ namespace phys_env
 
             {
                 PERF_SCOPE("PHYSICS")
-                for (std::size_t i = 0; i < 30; i++)
+                for (std::size_t i = 0; i < m_integrations_per_frame; i++)
                     (this->*forward)(m_dt);
             }
 
@@ -76,6 +77,7 @@ namespace phys_env
                 PERF_SCOPE("DRAWING")
                 draw_entities();
                 m_actions.render();
+                m_eng_panel.render(elapsed(), m_integrations_per_frame);
 #ifdef DEBUG
                 ImGui::ShowDemoWindow();
 #endif
@@ -114,10 +116,11 @@ namespace phys_env
                 {
                     const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
                                     vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
+                    const entity_template &templ = m_actions.templ();
                     add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                                            m_actions.templ().mass(),
-                                            m_actions.templ().charge()),
-                               m_actions.templ().vertices());
+                                            templ.mass(),
+                                            templ.charge()),
+                               templ.vertices());
                 }
                 break;
             }

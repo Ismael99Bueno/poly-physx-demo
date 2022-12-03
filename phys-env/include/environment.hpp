@@ -3,6 +3,7 @@
 
 #include "engine2D.hpp"
 #include "actions_panel.hpp"
+#include "engine_panel.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -37,6 +38,8 @@ namespace phys_env
         sf::RenderWindow m_window;
         alg::vec2 m_grab;
         actions_panel m_actions;
+        engine_panel m_eng_panel;
+        int m_integrations_per_frame = 10;
         float m_dt;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);

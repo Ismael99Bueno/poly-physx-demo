@@ -2,8 +2,6 @@
 #define ACTIONS_PANEL_HPP
 
 #include "entity_template.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 
 namespace phys_env
 {

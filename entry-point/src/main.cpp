@@ -11,7 +11,7 @@ int main()
     PERF_SET_MAX_FILE_MB(300)
 
     PERF_BEGIN_SESSION("profile-results/runtime", ".json")
-    phys_env::environment env(rk::rkf78);
+    phys_env::environment env(rk::rk4);
 
     const float w = WIDTH * PIXEL_TO_WORLD, h = HEIGHT * PIXEL_TO_WORLD;
     const phys::entity_ptr e1 = env.add_entity({-w / 2.f, 0.f}),

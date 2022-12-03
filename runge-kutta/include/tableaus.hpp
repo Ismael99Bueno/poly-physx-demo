@@ -1,5 +1,5 @@
-#ifndef PREFAB_HPP
-#define PREFAB_HPP
+#ifndef TABLEAUS_HPP
+#define TABLEAUS_HPP
 
 #include "butcher_tableau.hpp"
 

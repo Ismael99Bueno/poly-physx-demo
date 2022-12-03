@@ -1,6 +1,6 @@
 #include "actions_panel.hpp"
 #include "imgui.h"
-// #include "polygon2D.hpp"
+#include "imgui-SFML.h"
 
 namespace phys_env
 {
@@ -15,7 +15,7 @@ namespace phys_env
     void actions_panel::render_tabs()
     {
         ImGui::BeginTabBar("Hey");
-        ImGui::PushItemWidth(500);
+        ImGui::PushItemWidth(200);
         if (ImGui::BeginTabItem("Add"))
         {
             m_adding_entity = true;
@@ -45,19 +45,19 @@ namespace phys_env
 
     void actions_panel::render_entity_inputs()
     {
-        ImGui::InputFloat("Mass", &m_templ.m_mass);
-        ImGui::InputFloat("Charge", &m_templ.m_charge);
+        ImGui::DragFloat("Mass", &m_templ.m_mass, 0.2f, 1.f, 100.f);
+        ImGui::DragFloat("Charge", &m_templ.m_charge, 0.2f, 1.f, 100.f);
         switch (m_selected_shape)
         {
         case BOX:
-            ImGui::InputFloat("Size", &m_templ.m_size);
+            ImGui::DragFloat("Size", &m_templ.m_size, 0.2f, 1.f, 100.f);
             break;
         case RECT:
-            ImGui::InputFloat("Width", &m_templ.m_width);
-            ImGui::InputFloat("Height", &m_templ.m_height);
+            ImGui::DragFloat("Width", &m_templ.m_width, 0.2f, 1.f, 100.f);
+            ImGui::DragFloat("Height", &m_templ.m_height, 0.2f, 1.f, 100.f);
             break;
         case CIRCLE:
-            ImGui::InputFloat("Radius", &m_templ.m_radius);
+            ImGui::DragFloat("Radius", &m_templ.m_radius, 0.2f, 1.f, 100.f);
             break;
         default:
             break;
