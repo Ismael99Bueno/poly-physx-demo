@@ -39,7 +39,7 @@ namespace phys_env
 
     void actions_panel::render_shape_list()
     {
-        const char *const shapes[] = {"Box", "Rectangle", "Circle"};
+        static const char *const shapes[] = {"Box", "Rectangle", "Circle"};
         ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
     }
 

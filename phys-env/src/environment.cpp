@@ -18,7 +18,7 @@ namespace phys_env
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, allocations),
                                                          m_dt(dt),
-                                                         m_eng_panel(integrator(), m_dt),
+                                                         m_eng_panel(integrator(), collider(), m_dt),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
