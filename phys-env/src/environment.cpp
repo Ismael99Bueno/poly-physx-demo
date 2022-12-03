@@ -3,7 +3,6 @@
 #include "perf.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
-#include <iostream>
 
 class gravity : public phys::force2D
 {
@@ -56,16 +55,17 @@ namespace phys_env
     {
         PERF_FUNCTION()
         m_window.setFramerateLimit(60);
-        assert(ImGui::SFML::Init(m_window) && "ImGui initialization failed.");
+        if (!ImGui::SFML::Init(m_window))
+        {
+            perror("ImGui initialization failed\n");
+            exit(EXIT_FAILURE);
+        }
 
         sf::Clock dclock;
         while (m_window.isOpen())
         {
             PERF_SCOPE("FRAME")
             handle_events();
-
-            ImGui::SFML::Update(m_window, dclock.restart());
-            m_window.clear();
 
             {
                 PERF_SCOPE("PHYSICS")
@@ -75,6 +75,8 @@ namespace phys_env
 
             {
                 PERF_SCOPE("DRAWING")
+                ImGui::SFML::Update(m_window, dclock.restart());
+                m_window.clear();
                 draw_entities();
                 m_actions.render();
                 m_eng_panel.render(elapsed(), m_integrations_per_frame);

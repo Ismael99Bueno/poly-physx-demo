@@ -21,7 +21,6 @@ project "imgui"
       defines { "NDEBUG" }
       runtime "Release"
       optimize "On"
-      removefiles "src/test.cpp"
 
    filter "configurations:test"
       defines { "DEBUG" }

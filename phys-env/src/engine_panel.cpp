@@ -121,10 +121,13 @@ namespace phys_env
     {
         static int max_entities = m_collider.quad_tree().max_entities(),
                    period = m_collider.quad_tree_build_period();
+
         ImGui::Text("Quad Tree parameters");
         ImGui::DragInt("Maximum entities", &max_entities);
         ImGui::DragInt("Refresh period", &period, 0.2f, 1, 100);
-        if (ImGui::Button("Visualize"))
+
+        static bool visualize = false;
+        if (ImGui::Checkbox("Visualize", &visualize))
         {
             // Visualize QT
         }
