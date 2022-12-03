@@ -6,7 +6,7 @@
 
 class gravity : public phys::force2D
 {
-    std::pair<alg::vec2, float> force(const phys::entity2D &e) const override { return {{0.f, -100.f}, 0.f}; }
+    std::pair<alg::vec2, float> force(const phys::entity2D &e) const override { return {{0.f, -100.f * e.mass()}, 0.f}; }
 };
 gravity g;
 

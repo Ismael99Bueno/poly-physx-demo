@@ -97,7 +97,7 @@ namespace phys_env
     {
         ImGui::PushItemWidth(250);
         static float stiffness = m_collider.stiffness(), dampening = m_collider.dampening();
-        ImGui::DragFloat("Stiffness", &stiffness, 1.f, 200.f, 1500.f, "%.1f");
+        ImGui::DragFloat("Stiffness", &stiffness, 1.f, 1000.f, 10000.f, "%.1f");
         ImGui::DragFloat("Dampening", &dampening, 0.2f, 0.f, 50.f);
         m_collider.stiffness(stiffness);
         m_collider.dampening(dampening);
@@ -123,8 +123,8 @@ namespace phys_env
                    period = m_collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
-        ImGui::DragInt("Maximum entities", &max_entities);
-        ImGui::DragInt("Refresh period", &period, 0.2f, 1, 100);
+        ImGui::DragInt("Maximum entities", &max_entities, 0.2f, 2, 20);
+        ImGui::DragInt("Refresh period", &period, 0.2f, 1, 500);
 
         static bool visualize = false;
         if (ImGui::Checkbox("Visualize", &visualize))
