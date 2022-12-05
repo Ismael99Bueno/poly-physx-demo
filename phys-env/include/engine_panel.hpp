@@ -27,15 +27,15 @@ namespace phys_env
 
     private:
         rk::integrator &m_integ;
-        integ_method m_method = RK4, m_last_method = RK4;
+        integ_method m_method = RK4;
         phys::collider2D &m_collider;
         float &m_dt;
         bool m_visualize_qt;
 
         void render_integration(const float integ_time, int &integ_per_frame);
         void render_sliders(int &integ_per_frame) const;
-        void render_methods_list() const;
-        void update_method_if_changed();
+        void render_methods_list();
+        void update_method();
 
         void render_collision();
         void render_collision_params() const;

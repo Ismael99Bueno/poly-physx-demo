@@ -29,7 +29,6 @@ namespace phys_env
             ImGui::Text("Integration error: %e", m_integ.error());
         render_sliders(integ_per_frame);
         render_methods_list();
-        update_method_if_changed();
     }
 
     void engine_panel::render_sliders(int &integ_per_frame) const
@@ -40,7 +39,7 @@ namespace phys_env
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::render_methods_list() const
+    void engine_panel::render_methods_list()
     {
         ImGui::PushItemWidth(200);
         static const char *const methods[] = {"RK1",
@@ -51,14 +50,14 @@ namespace phys_env
                                               "RKF45",
                                               "RKFCK45",
                                               "RKF78"};
-        ImGui::ListBox("Integration method", (int *)&m_method, methods, IM_ARRAYSIZE(methods));
+        if (ImGui::ListBox("Integration method", (int *)&m_method, methods, IM_ARRAYSIZE(methods)))
+            update_method();
+
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::update_method_if_changed()
+    void engine_panel::update_method()
     {
-        if (m_method == m_last_method)
-            return;
         switch (m_method)
         {
         case RK1:
@@ -86,7 +85,6 @@ namespace phys_env
             m_integ.tableau(rk::rkf78);
             break;
         }
-        m_last_method = m_method;
     }
 
     void engine_panel::render_collision()
@@ -111,8 +109,8 @@ namespace phys_env
         ImGui::PushItemWidth(300);
         static const char *const coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         static int coldet = m_collider.coldet();
-        ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets));
-        m_collider.coldet((phys::collider2D::coldet_method)coldet);
+        if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
+            m_collider.coldet((phys::collider2D::coldet_method)coldet);
 
         if (m_collider.coldet() == phys::collider2D::coldet_method::QUAD_TREE)
             render_quad_tree_params();
@@ -127,15 +125,13 @@ namespace phys_env
                    period = m_collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
-        ImGui::DragInt("Maximum entities", &max_entities, 0.2f, 2, 20);
-        ImGui::DragInt("Refresh period", &period, 0.2f, 1, 500);
-
-        ImGui::Checkbox("Visualize", &m_visualize_qt);
-        if (max_entities != m_collider.quad_tree().max_entities())
+        if (ImGui::DragInt("Maximum entities", &max_entities, 0.2f, 2, 20))
         {
             m_collider.quad_tree().max_entities(max_entities);
             m_collider.rebuild_quad_tree();
         }
-        m_collider.quad_tree_build_period(period);
+        if (ImGui::DragInt("Refresh period", &period, 0.2f, 1, 500))
+            m_collider.quad_tree_build_period(period);
+        ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 }
