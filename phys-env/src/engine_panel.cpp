@@ -20,6 +20,8 @@ namespace phys_env
         ImGui::End();
     }
 
+    bool engine_panel::visualize_quad_tree() const { return m_visualize_qt; }
+
     void engine_panel::render_integration(const float integ_time, int &integ_per_frame)
     {
         ImGui::Text("Simulation time: %.2f", integ_time);
@@ -87,7 +89,7 @@ namespace phys_env
         m_last_method = m_method;
     }
 
-    void engine_panel::render_collision() const
+    void engine_panel::render_collision()
     {
         render_collision_params();
         render_coldet_list();
@@ -104,7 +106,7 @@ namespace phys_env
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::render_coldet_list() const
+    void engine_panel::render_coldet_list()
     {
         ImGui::PushItemWidth(300);
         static const char *const coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
@@ -114,10 +116,12 @@ namespace phys_env
 
         if (m_collider.coldet() == phys::collider2D::coldet_method::QUAD_TREE)
             render_quad_tree_params();
+        else
+            m_visualize_qt = false;
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::render_quad_tree_params() const
+    void engine_panel::render_quad_tree_params()
     {
         static int max_entities = m_collider.quad_tree().max_entities(),
                    period = m_collider.quad_tree_build_period();
@@ -126,15 +130,11 @@ namespace phys_env
         ImGui::DragInt("Maximum entities", &max_entities, 0.2f, 2, 20);
         ImGui::DragInt("Refresh period", &period, 0.2f, 1, 500);
 
-        static bool visualize = false;
-        if (ImGui::Checkbox("Visualize", &visualize))
-        {
-            // Visualize QT
-        }
+        ImGui::Checkbox("Visualize", &m_visualize_qt);
         if (max_entities != m_collider.quad_tree().max_entities())
         {
             m_collider.quad_tree().max_entities(max_entities);
-            m_collider.update_quad_tree();
+            m_collider.rebuild_quad_tree();
         }
         m_collider.quad_tree_build_period(period);
     }

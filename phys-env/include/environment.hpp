@@ -41,9 +41,11 @@ namespace phys_env
         engine_panel m_eng_panel;
         int m_integrations_per_frame = 10;
         float m_dt;
+        bool m_visualize_qt;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void handle_events();
+        void draw_quad_tree(const phys::quad_tree2D &qt);
         void draw_entities();
         alg::vec2 cartesian_mouse() const;
     };

@@ -80,6 +80,8 @@ namespace phys_env
                 draw_entities();
                 m_actions.render();
                 m_eng_panel.render(elapsed(), m_integrations_per_frame);
+                if (m_eng_panel.visualize_quad_tree())
+                    draw_quad_tree(collider().quad_tree());
 #ifdef DEBUG
                 ImGui::ShowDemoWindow();
 #endif
@@ -130,6 +132,23 @@ namespace phys_env
             default:
                 break;
             }
+        }
+    }
+
+    void environment::draw_quad_tree(const phys::quad_tree2D &qt)
+    {
+        if (qt.partitioned())
+            for (const auto &child : qt.children())
+                draw_quad_tree(*child);
+        else
+        {
+            const alg::vec2 &pos = qt.pos(), &hdim = qt.dim() * 0.5f;
+            sf::Vertex vertices[4];
+            vertices[0].position = (pos + alg::vec2(-hdim.x, hdim.y)) * WORLD_TO_PIXEL;
+            vertices[1].position = (pos + hdim) * WORLD_TO_PIXEL;
+            vertices[2].position = (pos + alg::vec2(hdim.x, -hdim.y)) * WORLD_TO_PIXEL;
+            vertices[3].position = (pos - hdim) * WORLD_TO_PIXEL;
+            m_window.draw(vertices, 4, sf::LineStrip);
         }
     }
 
