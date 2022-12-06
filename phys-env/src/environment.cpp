@@ -155,10 +155,11 @@ namespace phys_env
     void environment::draw_entities()
     {
         retrieve();
+        const std::vector<phys::entity2D> &etts = entities();
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
-                m_shapes[i].setPoint(j, m_entities[i].shape()[j] * WORLD_TO_PIXEL);
+                m_shapes[i].setPoint(j, etts[i].shape()[j] * WORLD_TO_PIXEL);
             m_window.draw(m_shapes[i]);
         }
     }
