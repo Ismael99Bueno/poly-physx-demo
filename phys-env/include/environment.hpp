@@ -30,6 +30,9 @@ namespace phys_env
                                     float mass = 1.f, float charge = 1.f,
                                     const std::vector<alg::vec2> &vertices = geo::polygon2D::box(1.f)) override;
 
+        void remove_entity(std::size_t index) override;
+        void remove_entity(const phys::const_entity_ptr &e) override;
+
         void run(bool (engine2D::*forward)(float &) = &engine2D::raw_forward,
                  const std::string &wname = "Physics engine");
 

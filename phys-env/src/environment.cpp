@@ -36,9 +36,19 @@ namespace phys_env
                                              float mass, float charge,
                                              const std::vector<alg::vec2> &vertices)
     {
-        const phys::entity_ptr e = engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices);
-        // Base class will already call derived overridden method
-        return e;
+        return engine2D::add_entity(pos, vel, angpos, angvel, mass, charge, vertices); // Should call method above
+    }
+
+    void environment::remove_entity(const std::size_t index)
+    {
+        engine2D::remove_entity(index);
+        m_shapes[index] = m_shapes.back();
+        m_shapes.pop_back();
+    }
+
+    void environment::remove_entity(const phys::const_entity_ptr &e)
+    {
+        engine2D::remove_entity(e); // Should call method above
     }
 
     void environment::add_shape(const geo::polygon2D &poly, sf::Color color)
