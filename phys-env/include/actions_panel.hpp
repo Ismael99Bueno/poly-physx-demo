@@ -16,15 +16,23 @@ namespace phys_env
         };
 
     public:
+        enum actions
+        {
+            ADD,
+            GRAB,
+            SELECT,
+            NONE
+        };
+
         actions_panel() = default;
         void render();
 
         const entity_template &templ();
-        bool adding_entity() const;
+        actions action() const;
 
     private:
         entity_template m_templ;
-        bool m_adding_entity;
+        actions m_action = ADD;
         shape_type m_selected_shape = BOX;
 
         void render_tabs();

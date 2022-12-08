@@ -51,6 +51,18 @@ namespace phys_env
         engine2D::remove_entity(e); // Should call method above
     }
 
+    void environment::add_entity_template()
+    {
+        const alg::vec2 release = cartesian_mouse();
+        const alg::vec2 pos = m_mouse_press * PIXEL_TO_WORLD,
+                        vel = (0.3f * PIXEL_TO_WORLD) * (m_mouse_press - release);
+        const entity_template &templ = m_actions.templ();
+        add_entity(phys::body2D(pos, vel, 0.f, 0.f,
+                                templ.mass(),
+                                templ.charge()),
+                   templ.vertices());
+    }
+
     void environment::add_shape(const geo::polygon2D &poly, sf::Color color)
     {
         sf::ConvexShape &shape = m_shapes.emplace_back(sf::ConvexShape());
@@ -120,21 +132,34 @@ namespace phys_env
                 break;
 
             case sf::Event::MouseButtonPressed:
-                m_grab = cartesian_mouse();
+                switch (m_actions.action())
+                {
+                case actions_panel::ADD:
+                    m_mouse_press = cartesian_mouse();
+                    break;
+                case actions_panel::GRAB:
+                    break;
+                case actions_panel::SELECT:
+                    break;
+                default:
+                    break;
+                }
                 break;
 
             case sf::Event::MouseButtonReleased:
             {
-                const alg::vec2 release = cartesian_mouse();
-                if (m_actions.adding_entity())
+                switch (m_actions.action())
                 {
-                    const alg::vec2 pos = m_grab * PIXEL_TO_WORLD,
-                                    vel = (0.3f * PIXEL_TO_WORLD) * (m_grab - release);
-                    const entity_template &templ = m_actions.templ();
-                    add_entity(phys::body2D(pos, vel, 0.f, 0.f,
-                                            templ.mass(),
-                                            templ.charge()),
-                               templ.vertices());
+                case actions_panel::ADD:
+                    add_entity_template();
+                    break;
+                case actions_panel::GRAB:
+                    m_grabbed = nullptr;
+                    break;
+                case actions_panel::SELECT:
+                    break;
+                default:
+                    break;
                 }
                 break;
             }

@@ -18,19 +18,19 @@ namespace phys_env
         ImGui::PushItemWidth(200);
         if (ImGui::BeginTabItem("Add"))
         {
-            m_adding_entity = true;
+            m_action = ADD;
             render_shape_list();
             render_entity_inputs();
             ImGui::EndTabItem();
         }
-        else
-            m_adding_entity = false;
         if (ImGui::BeginTabItem("Grab"))
         {
+            m_action = GRAB;
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Select"))
         {
+            m_action = SELECT;
             ImGui::EndTabItem();
         }
         ImGui::PopItemWidth();
@@ -86,9 +86,10 @@ namespace phys_env
         update_template();
         return m_templ;
     }
-    bool actions_panel::adding_entity() const
+    actions_panel::actions actions_panel::action() const
     {
-        ImGuiIO &io = ImGui::GetIO();
-        return m_adding_entity && !io.WantCaptureMouse;
+        if (ImGui::GetIO().WantCaptureMouse)
+            return NONE;
+        return m_action;
     }
 }

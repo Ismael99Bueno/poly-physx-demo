@@ -39,7 +39,8 @@ namespace phys_env
     private:
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
-        alg::vec2 m_grab;
+        alg::vec2 m_mouse_press;
+        phys::entity_ptr m_grabbed;
         actions_panel m_actions;
         engine_panel m_eng_panel;
         int m_integrations_per_frame = 10;
@@ -47,6 +48,7 @@ namespace phys_env
         bool m_visualize_qt;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
+        void add_entity_template();
         void handle_events();
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void draw_entities();
