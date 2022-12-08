@@ -26,7 +26,7 @@ namespace perf
 
     void profiler::write(const profile_result &result)
     {
-        DBG_ASSERT_LOG(m_output.is_open(), "Trying to profile with no profiling session active.\n")
+        DBG_LOG_IF(!m_output.is_open(), "Trying to profile with no profiling session active.\n")
         if (!m_output.is_open())
             return;
 

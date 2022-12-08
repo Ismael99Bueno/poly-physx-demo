@@ -32,7 +32,7 @@ namespace rk
                          T &params,
                          vector (*ode)(float, const vector &, T &))
         {
-            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value.\n")
+            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             m_valid = true;
             update_kvec(t, dt, m_state, params, ode);
             if (m_tableau.embedded())
@@ -44,7 +44,7 @@ namespace rk
             else
                 m_state = generate_solution(dt, m_state, m_tableau.coefs());
             t += dt;
-            DBG_ASSERT_LOG(m_valid, "NaN encountered when computing runge-kutta solution.\n")
+            DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
 
@@ -56,8 +56,8 @@ namespace rk
                                  uint8 reiterations = 2)
         {
             DBG_ASSERT(reiterations >= 2, "The amount of reiterations has to be greater than 1, otherwise the algorithm will break.\n")
-            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value.\n")
-            DBG_ASSERT_LOG(!m_tableau.embedded(), "Table has an embedded solution. Use an embedded adaptive method for better efficiency.\n")
+            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
+            DBG_LOG_IF(m_tableau.embedded(), "Butcher tableau has an embedded solution. Use an embedded adaptive method for better efficiency.\n")
 
             m_valid = true;
             if (m_error > 0.f)
@@ -84,7 +84,7 @@ namespace rk
             }
             m_error = std::max(m_error, m_tolerance / TOL_PART);
             t += dt;
-            DBG_ASSERT_LOG(m_valid, "NaN encountered when computing runge-kutta solution.\n")
+            DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
 
@@ -95,7 +95,7 @@ namespace rk
                               vector (*ode)(float, const vector &, T &))
         {
             DBG_ASSERT(m_tableau.embedded(), "Cannot perform embedded adaptive stepsize without an embedded solution.\n")
-            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value.\n")
+            DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             m_valid = true;
 
             if (m_error > 0.f)
@@ -117,7 +117,7 @@ namespace rk
             }
             m_error = std::max(m_error, m_tolerance / TOL_PART);
             t += dt;
-            DBG_ASSERT_LOG(m_valid, "NaN encountered when computing runge-kutta solution.\n")
+            DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
 
@@ -167,7 +167,7 @@ namespace rk
                          T &params,
                          vector (*ode)(float, const vector &, T &))
         {
-            DBG_ASSERT(state.size() == m_kvec[0].size(), "State and k-vectors size mismatch!\n")
+            DBG_ASSERT(state.size() == m_kvec[0].size(), "State and k-vectors size mismatch! - state size: %zu, k-vectors size: %zu\n", state.size(), m_kvec[0].size())
             vector aux_state(state.size());
 
             m_kvec[0] = ode(t, state, params);

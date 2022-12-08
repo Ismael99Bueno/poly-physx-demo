@@ -9,7 +9,7 @@ project "vec-ptr"
 
    files {"src/**.cpp", "include/**.hpp"}
 
-   includedirs "include"
+   includedirs "../**/include"
 
    filter "configurations:debug"
       defines { "DEBUG" }
