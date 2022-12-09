@@ -5,6 +5,7 @@
 #include "environment.hpp"
 #include "spring2D.hpp"
 #include "perf.hpp"
+#include "constants.hpp"
 
 int main()
 {

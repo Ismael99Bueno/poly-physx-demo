@@ -2,6 +2,7 @@
 #define ACTIONS_PANEL_HPP
 
 #include "entity_template.hpp"
+#include "grabber.hpp"
 
 namespace phys_env
 {
@@ -24,7 +25,7 @@ namespace phys_env
             NONE
         };
 
-        actions_panel() = default;
+        actions_panel(grabber &g);
         void render();
 
         const entity_template &templ();
@@ -34,10 +35,15 @@ namespace phys_env
         entity_template m_templ;
         actions m_action = ADD;
         shape_type m_selected_shape = BOX;
+        grabber &m_grabber;
 
         void render_tabs();
-        void render_shape_list();
+
+        void render_shapes_list();
         void render_entity_inputs();
+
+        void render_grab_parameters();
+
         void update_template();
     };
 }

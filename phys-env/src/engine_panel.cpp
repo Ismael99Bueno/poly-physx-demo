@@ -13,6 +13,7 @@ namespace phys_env
     {
         ImGui::Begin("Engine");
         ImGui::SetWindowFontScale(3.f);
+        ImGui::Text("Entities: %zu", m_integ.state().size() / 6);
         if (ImGui::CollapsingHeader("Integration"))
             render_integration(integ_time, integ_per_frame);
         if (ImGui::CollapsingHeader("Collisions"))
@@ -97,8 +98,8 @@ namespace phys_env
     {
         ImGui::PushItemWidth(250);
         static float stiffness = m_collider.stiffness(), dampening = m_collider.dampening();
-        ImGui::DragFloat("Stiffness", &stiffness, 1.f, 1000.f, 10000.f, "%.1f");
-        ImGui::DragFloat("Dampening", &dampening, 0.2f, 0.f, 50.f);
+        ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, 10000.f, "%.1f");
+        ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, 50.f);
         m_collider.stiffness(stiffness);
         m_collider.dampening(dampening);
         ImGui::PopItemWidth();

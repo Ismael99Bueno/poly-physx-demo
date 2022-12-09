@@ -4,6 +4,8 @@
 
 namespace phys_env
 {
+    actions_panel::actions_panel(grabber &g) : m_grabber(g) {}
+
     void actions_panel::render()
     {
         ImGui::Begin("Actions");
@@ -19,13 +21,14 @@ namespace phys_env
         if (ImGui::BeginTabItem("Add"))
         {
             m_action = ADD;
-            render_shape_list();
+            render_shapes_list();
             render_entity_inputs();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Grab"))
         {
             m_action = GRAB;
+            render_grab_parameters();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Select"))
@@ -37,7 +40,7 @@ namespace phys_env
         ImGui::EndTabBar();
     }
 
-    void actions_panel::render_shape_list()
+    void actions_panel::render_shapes_list()
     {
         static const char *const shapes[] = {"Box", "Rectangle", "Circle"};
         ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
@@ -62,6 +65,12 @@ namespace phys_env
         default:
             break;
         }
+    }
+
+    void actions_panel::render_grab_parameters()
+    {
+        ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 50.f, 1000.f, "%.1f");
+        ImGui::DragFloat("Dampening", &m_grabber.m_dampening, 0.2f, 5.f, 100.f, "%.2f");
     }
 
     void actions_panel::update_template()

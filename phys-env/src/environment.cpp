@@ -3,6 +3,7 @@
 #include "perf.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "constants.hpp"
 
 class gravity : public phys::force2D
 {
@@ -17,6 +18,7 @@ namespace phys_env
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, allocations),
                                                          m_dt(dt),
+                                                         m_actions(m_grabber),
                                                          m_eng_panel(integrator(), collider(), m_dt),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
@@ -42,6 +44,7 @@ namespace phys_env
     void environment::remove_entity(const std::size_t index)
     {
         engine2D::remove_entity(index);
+        m_grabber.validate();
         m_shapes[index] = m_shapes.back();
         m_shapes.pop_back();
     }
@@ -53,9 +56,9 @@ namespace phys_env
 
     void environment::add_entity_template()
     {
-        const alg::vec2 release = cartesian_mouse();
-        const alg::vec2 pos = m_mouse_press * PIXEL_TO_WORLD,
-                        vel = (0.3f * PIXEL_TO_WORLD) * (m_mouse_press - release);
+        const alg::vec2 release = world_mouse();
+        const alg::vec2 pos = m_mouse_press,
+                        vel = 0.3f * (m_mouse_press - release);
         const entity_template &templ = m_actions.templ();
         add_entity(phys::body2D(pos, vel, 0.f, 0.f,
                                 templ.mass(),
@@ -99,6 +102,8 @@ namespace phys_env
                 PERF_SCOPE("DRAWING")
                 ImGui::SFML::Update(m_window, dclock.restart());
                 m_window.clear();
+                if (m_grabber)
+                    m_grabber.move_grabbed_entity(m_window, world_mouse(), world_mouse_delta());
                 draw_entities();
                 m_actions.render();
                 m_eng_panel.render(elapsed(), m_integrations_per_frame);
@@ -135,9 +140,10 @@ namespace phys_env
                 switch (m_actions.action())
                 {
                 case actions_panel::ADD:
-                    m_mouse_press = cartesian_mouse();
+                    m_mouse_press = world_mouse();
                     break;
                 case actions_panel::GRAB:
+                    m_grabber.try_grab_entity(entities(), world_mouse());
                     break;
                 case actions_panel::SELECT:
                     break;
@@ -154,7 +160,7 @@ namespace phys_env
                     add_entity_template();
                     break;
                 case actions_panel::GRAB:
-                    m_grabbed = nullptr;
+                    m_grabber.null();
                     break;
                 case actions_panel::SELECT:
                     break;
@@ -199,10 +205,15 @@ namespace phys_env
         }
     }
 
-    alg::vec2 environment::cartesian_mouse() const
+    alg::vec2 environment::world_mouse() const
     {
         const sf::Vector2i mpos = sf::Mouse::getPosition(m_window);
         const sf::Vector2f wpos = m_window.mapPixelToCoords(mpos);
-        return {wpos.x, wpos.y}; //{x - WIDTH / 2.f, HEIGHT / 2.f - y};
+        return alg::vec2(wpos.x, wpos.y) * PIXEL_TO_WORLD; //{x - WIDTH / 2.f, HEIGHT / 2.f - y};
+    }
+
+    alg::vec2 environment::world_mouse_delta() const
+    {
+        return alg::vec2(ImGui::GetIO().MouseDelta.x, -ImGui::GetIO().MouseDelta.y) * PIXEL_TO_WORLD;
     }
 }

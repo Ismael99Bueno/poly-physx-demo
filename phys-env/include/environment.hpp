@@ -4,14 +4,10 @@
 #include "engine2D.hpp"
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
+#include "grabber.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
-
-#define WIDTH 1920.f
-#define HEIGHT 1280.f
-#define WORLD_TO_PIXEL 10.f
-#define PIXEL_TO_WORLD 0.1f
 
 namespace phys_env
 {
@@ -39,8 +35,10 @@ namespace phys_env
     private:
         std::vector<sf::ConvexShape> m_shapes;
         sf::RenderWindow m_window;
+
         alg::vec2 m_mouse_press;
-        phys::entity_ptr m_grabbed;
+        grabber m_grabber;
+
         actions_panel m_actions;
         engine_panel m_eng_panel;
         int m_integrations_per_frame = 10;
@@ -52,7 +50,8 @@ namespace phys_env
         void handle_events();
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void draw_entities();
-        alg::vec2 cartesian_mouse() const;
+        alg::vec2 world_mouse() const;
+        alg::vec2 world_mouse_delta() const;
     };
 }
 
