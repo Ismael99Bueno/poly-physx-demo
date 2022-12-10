@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include <cmath>
 
 class gravity : public phys::force2D
 {
@@ -18,6 +19,7 @@ namespace phys_env
                              const std::size_t allocations,
                              const std::string &wname) : engine2D(table, allocations),
                                                          m_dt(dt),
+                                                         m_selector(m_window, entities()),
                                                          m_actions(m_grabber),
                                                          m_eng_panel(integrator(), collider(), m_dt),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
@@ -73,6 +75,7 @@ namespace phys_env
         for (std::size_t i = 0; i < poly.size(); i++)
             shape.setPoint(i, poly[i] * WORLD_TO_PIXEL);
         shape.setFillColor(sf::Color::Green);
+        shape.setOutlineColor(sf::Color::Red);
     }
 
     void environment::run(bool (engine2D::*forward)(float &),
@@ -102,9 +105,13 @@ namespace phys_env
                 PERF_SCOPE("DRAWING")
                 ImGui::SFML::Update(m_window, dclock.restart());
                 m_window.clear();
-                if (m_grabber)
-                    m_grabber.move_grabbed_entity(m_window, world_mouse(), world_mouse_delta());
                 draw_entities();
+
+                const alg::vec2 mpos = world_mouse();
+                if (m_grabber)
+                    m_grabber.move_grabbed_entity(m_window, mpos, world_mouse_delta());
+                m_selector.draw_select_box(mpos);
+
                 m_actions.render();
                 m_eng_panel.render(elapsed(), m_integrations_per_frame);
                 if (m_eng_panel.visualize_quad_tree())
@@ -146,6 +153,7 @@ namespace phys_env
                     m_grabber.try_grab_entity(entities(), world_mouse());
                     break;
                 case actions_panel::SELECT:
+                    m_selector.begin_select(world_mouse(), !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                     break;
                 default:
                     break;
@@ -163,6 +171,7 @@ namespace phys_env
                     m_grabber.null();
                     break;
                 case actions_panel::SELECT:
+                    m_selector.select(world_mouse());
                     break;
                 default:
                     break;
@@ -184,12 +193,13 @@ namespace phys_env
         else
         {
             const alg::vec2 &pos = qt.pos(), &hdim = qt.dim() * 0.5f;
-            sf::Vertex vertices[4];
+            sf::Vertex vertices[5];
             vertices[0].position = (pos + alg::vec2(-hdim.x, hdim.y)) * WORLD_TO_PIXEL;
             vertices[1].position = (pos + hdim) * WORLD_TO_PIXEL;
             vertices[2].position = (pos + alg::vec2(hdim.x, -hdim.y)) * WORLD_TO_PIXEL;
             vertices[3].position = (pos - hdim) * WORLD_TO_PIXEL;
-            m_window.draw(vertices, 4, sf::LineStrip);
+            vertices[4].position = vertices[0].position;
+            m_window.draw(vertices, 5, sf::LineStrip);
         }
     }
 
@@ -197,10 +207,17 @@ namespace phys_env
     {
         retrieve();
         const std::vector<phys::entity2D> &etts = entities();
+        const alg::vec2 mpos = world_mouse();
         for (std::size_t i = 0; i < m_shapes.size(); i++)
         {
             for (std::size_t j = 0; j < m_shapes[i].getPointCount(); j++)
                 m_shapes[i].setPoint(j, etts[i].shape()[j] * WORLD_TO_PIXEL);
+
+            const float ampl = 1.5f, freq = 2.5f;
+            if (m_selector.is_selecting({&entities(), i}, mpos))
+                m_shapes[i].setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
+            else
+                m_shapes[i].setOutlineThickness(0);
             m_window.draw(m_shapes[i]);
         }
     }

@@ -5,6 +5,7 @@
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
 #include "grabber.hpp"
+#include "selector.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -38,12 +39,15 @@ namespace phys_env
 
         alg::vec2 m_mouse_press;
         grabber m_grabber;
+        selector m_selector;
 
         actions_panel m_actions;
         engine_panel m_eng_panel;
         int m_integrations_per_frame = 10;
         float m_dt;
         bool m_visualize_qt;
+
+        sf::Clock m_clock;
 
         void add_shape(const geo::polygon2D &poly, sf::Color = sf::Color::Green);
         void add_entity_template();

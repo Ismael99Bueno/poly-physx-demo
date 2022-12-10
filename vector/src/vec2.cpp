@@ -27,12 +27,12 @@ namespace alg
 
     vec2 vec2::rotated(const float angle) const
     {
-        const float x = this->x * std::cos(angle) - this->y * std::sin(angle);
-        const float y = this->x * std::sin(angle) + this->y * std::cos(angle);
+        const float x = this->x * std::cosf(angle) - this->y * std::sinf(angle);
+        const float y = this->x * std::sinf(angle) + this->y * std::cosf(angle);
         return {x, y};
     }
 
-    float vec2::angle() const { return std::atan2(this->y, this->x); }
+    float vec2::angle() const { return std::atan2f(this->y, this->x); }
 
     float vec2::angle(const vec2 &v) const { return std::acos(dot(v) / (norm() * v.norm())); }
 
