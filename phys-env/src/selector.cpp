@@ -78,9 +78,9 @@ namespace phys_env
 
     std::pair<alg::vec2, alg::vec2> selector::minmax(const alg::vec2 &mpos) const
     {
-        return {{std::min(mpos.x, m_mpos_start.x),
-                 std::min(mpos.y, m_mpos_start.y)},
-                {std::max(mpos.x, m_mpos_start.x),
-                 std::max(mpos.y, m_mpos_start.y)}};
+        return std::make_pair(alg::vec2(std::min(mpos.x, m_mpos_start.x),
+                                        std::min(mpos.y, m_mpos_start.y)),
+                              alg::vec2(std::max(mpos.x, m_mpos_start.x),
+                                        std::max(mpos.y, m_mpos_start.y)));
     }
 }
