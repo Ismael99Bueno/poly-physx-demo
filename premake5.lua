@@ -4,6 +4,7 @@ workspace "physics-engine-2D"
     startproject "app"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+openmp "On"
 
 include "vector"
 include "runge-kutta"

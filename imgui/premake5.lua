@@ -1,6 +1,6 @@
 project "imgui"
    language "C++"
-   cppdialect "C++17"
+   cppdialect "C++20"
    staticruntime "on"
    kind "StaticLib"
    defines "GL_SILENCE_DEPRECATION"
