@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include <iostream>
 #include <cmath>
 
 class gravity : public phys::force2D
@@ -82,7 +83,6 @@ namespace phys_env
     void environment::run(bool (engine2D::*forward)(float &),
                           const std::string &wname)
     {
-        PERF_FUNCTION()
         m_window.setFramerateLimit(60);
         if (!ImGui::SFML::Init(m_window))
         {
@@ -123,6 +123,9 @@ namespace phys_env
                 ImGui::SFML::Render(m_window);
                 m_window.display();
             }
+            const auto &hierarchies = perf::profiler::get().hierarchies();
+            if (hierarchies.find("runtime") != hierarchies.end() && !hierarchies.at("runtime").empty())
+                std::cout << hierarchies.at("runtime").back() << "\n";
         }
         ImGui::SFML::Shutdown(m_window);
     }

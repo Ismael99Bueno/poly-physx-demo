@@ -1,10 +1,13 @@
 #include "timer.hpp"
-#include "profiling.hpp"
+#include "profiler.hpp"
 
 namespace perf
 {
     timer::timer(const char *name) : m_startpoint(std::chrono::high_resolution_clock::now()),
-                                     m_name(name) {}
+                                     m_name(name)
+    {
+        perf::profiler::get().begin_timer();
+    }
 
     timer::~timer()
     {
@@ -19,7 +22,7 @@ namespace perf
         const long long start = std::chrono::time_point_cast<std::chrono::nanoseconds>(m_startpoint).time_since_epoch().count();
         const long long end = std::chrono::time_point_cast<std::chrono::nanoseconds>(endpoint).time_since_epoch().count();
 
-        profiler::get().write({m_name, start, end});
+        profiler::get().end_timer({m_name, start, end});
         return end - start;
     }
 }
