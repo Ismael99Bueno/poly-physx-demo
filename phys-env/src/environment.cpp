@@ -47,6 +47,7 @@ namespace phys_env
     {
         engine2D::remove_entity(index);
         m_grabber.validate();
+        m_selector.validate();
         m_shapes[index] = m_shapes.back();
         m_shapes.pop_back();
     }
@@ -139,8 +140,22 @@ namespace phys_env
                 break;
 
             case sf::Event::KeyPressed:
-                if (event.key.code == sf::Keyboard::Escape)
+                switch (event.key.code)
+                {
+                case sf::Keyboard::Escape:
                     m_window.close();
+                    break;
+                case sf::Keyboard::Backspace:
+                {
+                    const std::unordered_set<phys::const_entity_ptr> selected = m_selector.get();
+                    for (phys::const_entity_ptr e : selected)
+                        if (e.try_validate())
+                            remove_entity(e);
+                    break;
+                }
+                default:
+                    break;
+                }
                 break;
 
             case sf::Event::MouseButtonPressed:

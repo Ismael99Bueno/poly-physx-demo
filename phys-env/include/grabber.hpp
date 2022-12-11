@@ -15,7 +15,7 @@ namespace phys_env
         void move_grabbed_entity(sf::RenderWindow &window, const alg::vec2 &mpos, const alg::vec2 mdelta);
 
         void null();
-        void validate();
+        bool validate();
 
         explicit operator bool() const;
 

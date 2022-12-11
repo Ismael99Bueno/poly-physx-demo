@@ -19,6 +19,8 @@ namespace phys_env
         void select(const alg::vec2 &mpos);
         bool validate();
 
+        const std::unordered_set<phys::const_entity_ptr> &get() const;
+
     private:
         sf::RenderWindow &m_window;
         std::vector<phys::entity2D> &m_entities;

@@ -34,6 +34,7 @@ namespace phys_env
         if (ImGui::BeginTabItem("Select"))
         {
             m_action = SELECT;
+            render_selected_options();
             ImGui::EndTabItem();
         }
         ImGui::PopItemWidth();
@@ -71,6 +72,11 @@ namespace phys_env
     {
         ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 50.f, 1000.f, "%.1f");
         ImGui::DragFloat("Dampening", &m_grabber.m_dampening, 0.2f, 5.f, 100.f, "%.2f");
+    }
+
+    void actions_panel::render_selected_options() const
+    {
+        ImGui::Text("Press DEL to remove selected entities");
     }
 
     void actions_panel::update_template()

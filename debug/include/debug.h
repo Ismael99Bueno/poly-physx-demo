@@ -9,12 +9,12 @@
     printf("-DBG- LOG in %s at line %d: ", __FILE__, __LINE__); \
     printf(__VA_ARGS__);
 
-#define DBG_LOG_IF(cond,                                                                            \
-                   ...)                                                                             \
-    if (cond)                                                                                       \
-    {                                                                                               \
-        printf("-DBG- ASSERT LOG in %s at line %d with condition %s: ", __FILE__, __LINE__, #cond); \
-        printf(__VA_ARGS__);                                                                        \
+#define DBG_LOG_IF(cond,                                                                                 \
+                   ...)                                                                                  \
+    if (cond)                                                                                            \
+    {                                                                                                    \
+        printf("-DBG- CONDITIONAL LOG in %s at line %d with condition %s: ", __FILE__, __LINE__, #cond); \
+        printf(__VA_ARGS__);                                                                             \
     }
 
 #define DBG_ASSERT(cond,                                                                                 \

@@ -44,6 +44,8 @@ namespace phys_env
 
         void render_grab_parameters();
 
+        void render_selected_options() const;
+
         void update_template();
     };
 }

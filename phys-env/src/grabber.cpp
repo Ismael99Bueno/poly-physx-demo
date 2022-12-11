@@ -39,10 +39,14 @@ namespace phys_env
     }
 
     void grabber::null() { m_grabbed = nullptr; }
-    void grabber::validate()
+    bool grabber::validate()
     {
-        if (!m_grabbed.try_validate())
+        if (m_grabbed && !m_grabbed.try_validate())
+        {
             m_grabbed = nullptr;
+            return false;
+        }
+        return true;
     }
 
     grabber::operator bool() const { return (bool)m_grabbed; }

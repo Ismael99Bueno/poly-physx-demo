@@ -58,12 +58,14 @@ namespace phys_env
     {
         std::vector<phys::const_entity_ptr> invalids;
         invalids.reserve(m_selected.size());
-        for (auto it = m_selected.begin(); it != m_selected.end(); ++it)
+        for (auto it = m_selected.begin(); it != m_selected.end();)
             if (!it->is_valid())
             {
                 invalids.emplace_back(*it);
                 it = m_selected.erase(it);
             }
+            else
+                ++it;
         for (phys::const_entity_ptr &e : invalids)
             if (e.try_validate())
                 m_selected.insert(e);
@@ -71,6 +73,8 @@ namespace phys_env
         DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
         return !invalids.empty();
     }
+
+    const std::unordered_set<phys::const_entity_ptr> &selector::get() const { return m_selected; }
 
     std::pair<alg::vec2, alg::vec2> selector::minmax(const alg::vec2 &mpos) const
     {

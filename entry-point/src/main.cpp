@@ -14,16 +14,17 @@ int main()
     PERF_BEGIN_SESSION("profile-results/runtime", ".json")
     phys_env::environment env(rk::rk4);
 
-    const float w = WIDTH * PIXEL_TO_WORLD, h = HEIGHT * PIXEL_TO_WORLD;
-    const phys::entity_ptr e1 = env.add_entity({-w / 2.f, 0.f}),
-                           e2 = env.add_entity({w / 2.f, 0.f}),
-                           e3 = env.add_entity({0.f, -h / 2.f}),
-                           e4 = env.add_entity({0.f, h / 2.f});
+    const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+    const float thck = 20.f;
+    const phys::entity_ptr e1 = env.add_entity({-w - 0.4f * thck, 0.f}),
+                           e2 = env.add_entity({w + 0.4f * thck, 0.f}),
+                           e3 = env.add_entity({0.f, -h - 0.4f * thck}),
+                           e4 = env.add_entity({0.f, h + 0.4f * thck});
 
-    e1->shape(geo::polygon2D(geo::polygon2D::rect(1.f, h - 5.f)));
-    e2->shape(geo::polygon2D(geo::polygon2D::rect(1.f, h - 5.f)));
-    e3->shape(geo::polygon2D(geo::polygon2D::rect(w, 1.f)));
-    e4->shape(geo::polygon2D(geo::polygon2D::rect(w, 1.f)));
+    e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+    e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+    e3->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
+    e4->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
 
     e1->dynamic(false);
     e2->dynamic(false);
