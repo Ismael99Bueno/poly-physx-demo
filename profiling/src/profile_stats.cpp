@@ -2,12 +2,6 @@
 
 namespace perf
 {
-
-    void profile_stats::compute_duration_from_children()
-    {
-        for (auto &[name, pstats] : m_children)
-            m_duration += pstats.m_duration;
-    }
     void profile_stats::compute_relative_durations()
     {
         m_percent = 1.f;
@@ -24,6 +18,23 @@ namespace perf
             pstats.compute_relative_durations(*this);
     }
 
+    void profile_stats::print(std::ostream &stream, std::uint32_t identation) const
+    {
+        for (std::uint32_t i = 0; i < identation; i++)
+            stream << "\t";
+        stream << "Name: " << m_name << "||"
+               << "Calls: " << m_calls << "||"
+               << "Duration: " << m_duration << " ns|"
+               << as_microseconds() << " us|"
+               << as_miliseconds() << " ms|"
+               << as_seconds() << " s||"
+               << " " << m_percent * 100.f << "% "
+               << "(" << m_total_percent * 100.f << "%"
+               << ")\n";
+        for (auto &[name, pstats] : m_children)
+            pstats.print(stream, identation + 1);
+    }
+
     float profile_stats::as_seconds() const { return 1.e-9f * m_duration; }
     float profile_stats::as_miliseconds() const { return 1.e-6f * m_duration; }
     float profile_stats::as_microseconds() const { return 1.e-3f * m_duration; }
@@ -37,17 +48,7 @@ namespace perf
 
     std::ostream &operator<<(std::ostream &stream, const profile_stats &other)
     {
-        stream << "Name: " << other.name() << "|"
-               << "Calls: " << other.calls() << "|"
-               << "Duration: " << other.as_nanoseconds() << " ns|"
-               << other.as_microseconds() << " us|"
-               << other.as_miliseconds() << " ms|"
-               << other.as_seconds() << " s|"
-               << " " << other.pecent() * 100.f << "% "
-               << "(" << other.total_percent() * 100.f << "%"
-               << ")\n";
-        for (auto &[name, pstats] : other.children())
-            stream << "    " << pstats;
+        other.print(stream, 0);
         return stream;
     }
 }

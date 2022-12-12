@@ -31,11 +31,12 @@ namespace perf
         float m_percent = 0.f, m_total_percent = 0.f;
         std::unordered_map<std::string, profile_stats> m_children;
 
-        void compute_duration_from_children();
         void compute_relative_durations();
         void compute_relative_durations(const profile_stats &parent);
+        void print(std::ostream &stream, std::uint32_t identation) const;
 
         friend class profiler;
+        friend std::ostream &operator<<(std::ostream &stream, const profile_stats &other);
     };
 
     std::ostream &operator<<(std::ostream &stream, const profile_stats &other);

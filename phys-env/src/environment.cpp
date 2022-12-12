@@ -99,7 +99,10 @@ namespace phys_env
             {
                 PERF_SCOPE("PHYSICS")
                 for (std::size_t i = 0; i < m_integrations_per_frame; i++)
+                {
+                    PERF_SCOPE("FORWARD")
                     (this->*forward)(m_dt);
+                }
             }
 
             {
@@ -223,6 +226,7 @@ namespace phys_env
 
     void environment::draw_entities()
     {
+        PERF_FUNCTION()
         retrieve();
         const std::vector<phys::entity2D> &etts = entities();
         const alg::vec2 mpos = world_mouse();

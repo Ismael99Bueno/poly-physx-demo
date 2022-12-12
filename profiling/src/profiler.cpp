@@ -75,8 +75,6 @@ namespace perf
 
     void profiler::end_hierarchy(profile_stats &head)
     {
-        head.m_calls = 1;
-        head.compute_duration_from_children();
         head.compute_relative_durations();
         m_hierarchies[m_name].emplace_back(head);
     }
@@ -84,8 +82,9 @@ namespace perf
     void profiler::add_to_hierarchy(const profile_result &result)
     {
         profile_stats stats = m_current_hierarchy.top();
-        stats.m_duration = result.end - result.start;
         stats.m_name = result.name;
+        stats.m_duration = result.end - result.start;
+        stats.m_calls = 1;
 
         m_current_hierarchy.pop();
         if (m_current_hierarchy.empty())
@@ -96,9 +95,11 @@ namespace perf
         profile_stats &parent = m_current_hierarchy.top();
 
         if (parent.m_children.find(result.name) != parent.m_children.end())
-            stats.m_calls = parent.m_children.at(result.name).m_calls + 1;
-        else
-            stats.m_calls = 1;
+        {
+            stats.m_calls += parent.m_children.at(result.name).m_calls;
+            stats.m_duration += parent.m_children.at(result.name).m_duration;
+        }
+
         parent.m_children[result.name] = stats;
     }
 
