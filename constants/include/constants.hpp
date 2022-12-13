@@ -5,5 +5,6 @@
 #define HEIGHT 1280.f
 #define WORLD_TO_PIXEL 10.f
 #define PIXEL_TO_WORLD 0.1f
+#define WINDOW_FONT_SCALE 2.5f
 
 #endif

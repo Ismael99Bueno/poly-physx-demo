@@ -2,6 +2,7 @@
 #include "tableaus.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "constants.hpp"
 
 namespace phys_env
 {
@@ -12,7 +13,7 @@ namespace phys_env
     void engine_panel::render(const float integ_time, int &integ_per_frame)
     {
         ImGui::Begin("Engine");
-        ImGui::SetWindowFontScale(3.f);
+        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         ImGui::Text("Entities: %zu", m_integ.state().size() / 6);
         if (ImGui::CollapsingHeader("Integration"))
             render_integration(integ_time, integ_per_frame);
@@ -27,7 +28,16 @@ namespace phys_env
     {
         ImGui::Text("Simulation time: %.2f", integ_time);
         if (m_integ.tableau().embedded())
-            ImGui::Text("Integration error: %e", m_integ.error());
+        {
+            const float error = m_integ.error();
+            static float max_error = error;
+            if (ImGui::Button("Reset maximum"))
+                max_error = error;
+
+            if (error > max_error)
+                max_error = error;
+            ImGui::Text("Integration error: %.2e (%.2e)", error, max_error);
+        }
         render_sliders(integ_per_frame);
         render_methods_list();
     }
@@ -43,14 +53,14 @@ namespace phys_env
     void engine_panel::render_methods_list()
     {
         ImGui::PushItemWidth(200);
-        static const char *const methods[] = {"RK1",
-                                              "RK2",
-                                              "RK4",
-                                              "RK38",
-                                              "RKF12",
-                                              "RKF45",
-                                              "RKFCK45",
-                                              "RKF78"};
+        static const char *methods[] = {"RK1",
+                                        "RK2",
+                                        "RK4",
+                                        "RK38",
+                                        "RKF12",
+                                        "RKF45",
+                                        "RKFCK45",
+                                        "RKF78"};
         if (ImGui::ListBox("Integration method", (int *)&m_method, methods, IM_ARRAYSIZE(methods)))
             update_method();
 
@@ -108,7 +118,7 @@ namespace phys_env
     void engine_panel::render_coldet_list()
     {
         ImGui::PushItemWidth(300);
-        static const char *const coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
+        static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         static int coldet = m_collider.coldet();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
             m_collider.coldet((phys::collider2D::coldet_method)coldet);

@@ -4,6 +4,7 @@
 #include "engine2D.hpp"
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
+#include "perf_panel.hpp"
 #include "grabber.hpp"
 #include "selector.hpp"
 
@@ -43,6 +44,7 @@ namespace phys_env
 
         actions_panel m_actions;
         engine_panel m_eng_panel;
+        perf_panel m_perf;
         int m_integrations_per_frame = 10;
         float m_dt;
         bool m_visualize_qt;

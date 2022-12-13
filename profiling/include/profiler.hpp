@@ -34,7 +34,7 @@ namespace perf
         void end_session();
         void write(const profile_result &result);
 
-        const std::unordered_map<std::string, std::vector<profile_stats>> &hierarchies() const;
+        const std::unordered_map<std::string, profile_stats> &hierarchy() const;
 
         std::uint32_t max_mb() const;
         void max_mb(std::uint32_t size);
@@ -52,7 +52,7 @@ namespace perf
         std::uint32_t m_count = 0, m_runs = 0, m_max_mb = 200;
         std::string m_name, m_extension = ".json", m_path = "profile-results/";
         profile_export m_export;
-        std::unordered_map<std::string, std::vector<profile_stats>> m_hierarchies;
+        std::unordered_map<std::string, profile_stats> m_hierarchy;
         std::stack<profile_stats> m_current_hierarchy;
 
         void end_hierarchy(profile_stats &head);

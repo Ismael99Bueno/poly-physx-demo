@@ -23,6 +23,7 @@ namespace phys_env
                                                          m_selector(m_window, entities()),
                                                          m_actions(m_grabber),
                                                          m_eng_panel(integrator(), collider(), m_dt),
+                                                         m_perf(m_window),
                                                          m_window(sf::VideoMode::getFullscreenModes()[0], wname, sf::Style::Fullscreen)
     {
         m_window.setView(sf::View(sf::Vector2f(0.f, 0.f), sf::Vector2f(WIDTH, -HEIGHT)));
@@ -96,16 +97,29 @@ namespace phys_env
             PERF_SCOPE("FRAME")
             handle_events();
 
+#ifndef PERF
+            static sf::Time phys_dur, draw_dur;
+#endif
+
             {
                 PERF_SCOPE("PHYSICS")
+#ifndef PERF
+                sf::Clock clock;
+#endif
                 for (std::size_t i = 0; i < m_integrations_per_frame; i++)
                 {
                     PERF_SCOPE("FORWARD")
                     (this->*forward)(m_dt);
                 }
+#ifndef PERF
+                phys_dur = clock.getElapsedTime();
+#endif
             }
 
             {
+#ifndef PERF
+                sf::Clock clock;
+#endif
                 PERF_SCOPE("DRAWING")
                 ImGui::SFML::Update(m_window, dclock.restart());
                 m_window.clear();
@@ -118,6 +132,11 @@ namespace phys_env
 
                 m_actions.render();
                 m_eng_panel.render(elapsed(), m_integrations_per_frame);
+#ifdef PERF
+                m_perf.render();
+#else
+                m_perf.render_no_profiling(phys_dur, draw_dur);
+#endif
                 if (m_eng_panel.visualize_quad_tree())
                     draw_quad_tree(collider().quad_tree());
 #ifdef DEBUG
@@ -125,10 +144,13 @@ namespace phys_env
 #endif
                 ImGui::SFML::Render(m_window);
                 m_window.display();
+#ifndef PERF
+                draw_dur = clock.getElapsedTime();
+#endif
             }
-            const auto &hierarchies = perf::profiler::get().hierarchies();
-            if (hierarchies.find("runtime") != hierarchies.end() && !hierarchies.at("runtime").empty())
-                std::cout << hierarchies.at("runtime").back() << "\n";
+            // const auto &hierarchies = perf::profiler::get().hierarchies();
+            // if (hierarchies.find("runtime") != hierarchies.end() && !hierarchies.at("runtime").empty())
+            //     std::cout << hierarchies.at("runtime").back() << "\n";
         }
         ImGui::SFML::Shutdown(m_window);
     }

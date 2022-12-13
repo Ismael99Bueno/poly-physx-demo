@@ -77,7 +77,8 @@ Index of this file:
 // [SECTION] Example App: Documents Handling / ShowExampleAppDocuments()
 
 */
-
+#ifdef DEBUG
+#include "constants.hpp"
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
@@ -370,7 +371,7 @@ void ImGui::ShowDemoWindow(bool *p_open)
         ImGui::End();
         return;
     }
-    ImGui::SetWindowFontScale(3.f);
+    ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
 
     // Most "big" widgets share a common width settings by default. See 'Demo->Layout->Widgets Width' for details.
     // e.g. Use 2/3 of the space for widgets and 1/3 for labels (right align)
@@ -8727,3 +8728,4 @@ void ImGui::ShowStyleEditor(ImGuiStyle *) {}
 #endif
 
 #endif // #ifndef IMGUI_DISABLE
+#endif

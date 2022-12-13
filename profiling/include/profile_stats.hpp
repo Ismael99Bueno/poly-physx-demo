@@ -33,7 +33,7 @@ namespace perf
 
         void compute_relative_durations();
         void compute_relative_durations(const profile_stats &parent);
-        void print(std::ostream &stream, std::uint32_t identation) const;
+        void print(std::ostream &stream, std::uint32_t identation = 0) const;
 
         friend class profiler;
         friend std::ostream &operator<<(std::ostream &stream, const profile_stats &other);

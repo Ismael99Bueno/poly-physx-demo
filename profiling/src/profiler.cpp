@@ -76,7 +76,7 @@ namespace perf
     void profiler::end_hierarchy(profile_stats &head)
     {
         head.compute_relative_durations();
-        m_hierarchies[m_name].emplace_back(head);
+        m_hierarchy[m_name] = head;
     }
 
     void profiler::add_to_hierarchy(const profile_result &result)
@@ -126,7 +126,7 @@ namespace perf
         m_output << "]}";
     }
 
-    const std::unordered_map<std::string, std::vector<profile_stats>> &profiler::hierarchies() const { return m_hierarchies; }
+    const std::unordered_map<std::string, profile_stats> &profiler::hierarchy() const { return m_hierarchy; }
 
     std::uint32_t profiler::max_mb() const { return m_max_mb; }
     void profiler::max_mb(const std::uint32_t size) { m_max_mb = size; }

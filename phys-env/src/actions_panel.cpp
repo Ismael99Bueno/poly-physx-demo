@@ -1,6 +1,7 @@
 #include "actions_panel.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "constants.hpp"
 
 namespace phys_env
 {
@@ -9,7 +10,7 @@ namespace phys_env
     void actions_panel::render()
     {
         ImGui::Begin("Actions");
-        ImGui::SetWindowFontScale(3.f);
+        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_tabs();
         ImGui::End();
     }
@@ -43,7 +44,7 @@ namespace phys_env
 
     void actions_panel::render_shapes_list()
     {
-        static const char *const shapes[] = {"Box", "Rectangle", "Circle"};
+        static const char *shapes[] = {"Box", "Rectangle", "Circle"};
         ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
     }
 

@@ -48,7 +48,7 @@ namespace perf
 
     std::ostream &operator<<(std::ostream &stream, const profile_stats &other)
     {
-        other.print(stream, 0);
+        other.print(stream);
         return stream;
     }
 }
