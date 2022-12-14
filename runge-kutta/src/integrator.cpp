@@ -24,6 +24,7 @@ namespace rk
                                                      const vector &state,
                                                      const vector &coefs)
     {
+        PERF_FUNCTION()
         vector sol;
         sol.reserve(state.size());
         for (std::size_t j = 0; j < state.size(); j++)

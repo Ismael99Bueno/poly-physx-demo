@@ -1,6 +1,6 @@
 #include "profiler.hpp"
 #include "debug.h"
-#include <iostream>
+#include <cmath>
 
 namespace perf
 {
@@ -82,9 +82,12 @@ namespace perf
     void profiler::add_to_hierarchy(const profile_result &result)
     {
         profile_stats stats = m_current_hierarchy.top();
+        const long long duration = result.end - result.start;
         stats.m_name = result.name;
-        stats.m_duration = result.end - result.start;
-        stats.m_calls = 1;
+
+        stats.m_relative_calls = 1;
+        stats.m_duration_per_call = duration;
+        stats.m_duration_over_calls = duration;
 
         m_current_hierarchy.pop();
         if (m_current_hierarchy.empty())
@@ -96,8 +99,13 @@ namespace perf
 
         if (parent.m_children.find(result.name) != parent.m_children.end())
         {
-            stats.m_calls += parent.m_children.at(result.name).m_calls;
-            stats.m_duration += parent.m_children.at(result.name).m_duration;
+            const profile_stats &last = parent.m_children.at(result.name);
+            const long long last_per_call = last.m_duration_per_call;
+            const long long last_over_calls = last.m_duration_over_calls;
+
+            stats.m_relative_calls += parent.m_children.at(result.name).m_relative_calls;
+            stats.m_duration_per_call = ((stats.m_relative_calls - 1) * last_per_call + duration) / stats.m_relative_calls;
+            stats.m_duration_over_calls += last_over_calls;
         }
 
         parent.m_children[result.name] = stats;

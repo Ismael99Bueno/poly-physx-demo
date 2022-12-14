@@ -39,60 +39,108 @@ namespace phys_env
         ImGui::PopItemWidth();
     }
 
+    int perf_panel::render_refresh_period() const
+    {
+        static int refresh_period = 1;
+        ImGui::PushItemWidth(200);
+        ImGui::SliderInt("Refresh period", &refresh_period, 1, 1000);
+        ImGui::PopItemWidth();
+        return refresh_period;
+    }
+
     void perf_panel::render_fps(const float frame_time) const
     {
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
-        static int fps = 60;
+        static int fps = DEFAULT_FPS;
         static bool limited = true;
         ImGui::PushItemWidth(150);
         if (ImGui::Checkbox("Limit FPS", &limited))
             m_window.setFramerateLimit(limited ? fps : 0);
-        if (limited && ImGui::SliderInt("FPS Limit", &fps, 30, 120))
+        if (limited && ImGui::SliderInt("FPS Limit", &fps, MIN_FPS, MAX_FPS))
             m_window.setFramerateLimit(fps);
         ImGui::PopItemWidth();
     }
 
-    void perf_panel::render_time(const std::string &name) const
+    void perf_panel::render_time(const std::string &name)
     {
         const auto &hierarchy = perf::profiler::get().hierarchy();
         if (hierarchy.find(name) == hierarchy.end())
             return;
-        const perf::profile_stats &stats = hierarchy.at(name);
 
-        int calls = 0;
-        render_hierarchy_as_seconds(stats, calls);
+        static perf::profile_stats stats = hierarchy.at(name);
+        const int period = render_refresh_period();
+        if (++m_render_calls >= period)
+        {
+            m_render_calls = 0;
+            stats = hierarchy.at(name);
+        }
+
+        int call = 0;
+        switch (m_unit)
+        {
+        case SECONDS:
+            render_hierarchy(stats, 1.e-9f, "s", call);
+            break;
+        case MILLISECONDS:
+            render_hierarchy(stats, 1.e-6f, "ms", call);
+            break;
+        case MICROSECONDS:
+            render_hierarchy(stats, 1.e-3f, "us", call);
+            break;
+        case NANOSECONDS:
+            render_hierarchy(stats, 1.f, "ns", call);
+            break;
+        }
+
+        render_fps(stats.duration_over_calls() * 1.e-9f);
     }
 
-    void perf_panel::render_hierarchy_as_seconds(const perf::profile_stats &stats, int &call) const
+    void perf_panel::render_hierarchy(const perf::profile_stats &stats, const float conversion,
+                                      const char *unit, int &call) const
     {
-        const std::string label = stats.name() + " " +
-                                  std::to_string(stats.as_seconds()) + " s (" +
-                                  std::to_string((int)std::round(stats.total_percent() * 100.0)) + "%)";
+        const std::string label = stats.name() + " (" +
+                                  std::to_string((int)std::round(stats.relative_percent() * 100.0)) + "%)";
         if (ImGui::TreeNode((void *)(intptr_t)call, "%s", label.c_str()))
         {
+            if (ImGui::TreeNode("Details"))
+            {
+                ImGui::Text("Execution: %f %s", stats.duration_per_call() * conversion, unit);
+                ImGui::Text("Time resources (current process): %f %s", stats.duration_over_calls() * conversion, unit);
+                ImGui::Text("Time resources (overall): %d%%", (int)std::round(stats.total_percent() * 100.0));
+                ImGui::Text("Calls (current process): %u", stats.relative_calls());
+                ImGui::Text("Calls (overall): %u", stats.total_calls());
+                ImGui::TreePop();
+            }
+
             for (const auto &[name, child] : stats.children())
-                render_hierarchy_as_seconds(child, ++call);
+                render_hierarchy(child, conversion, unit, ++call);
             ImGui::TreePop();
         }
     }
-    void perf_panel::render_hierarchy_as_milliseconds(const perf::profile_stats &stats, int &call) const {}
-    void perf_panel::render_hierarchy_as_microseconds(const perf::profile_stats &stats, int &call) const {}
-    void perf_panel::render_hierarchy_as_nanoseconds(const perf::profile_stats &stats, int &call) const {}
 
-    void perf_panel::perf_panel::render_simple_time(const sf::Time &physics, const sf::Time &drawing) const
+    void perf_panel::perf_panel::render_simple_time(const sf::Time &physics, const sf::Time &drawing)
     {
-        static sf::Time max_physics = physics, max_drawing = drawing;
+        const int period = render_refresh_period();
+        static sf::Time sphysics = physics, sdrawing = drawing;
+        if (++m_render_calls >= period)
+        {
+            m_render_calls = 0;
+            sphysics = physics;
+            sdrawing = drawing;
+        }
+
+        static sf::Time max_physics = sphysics, max_drawing = sdrawing;
         if (ImGui::Button("Reset maximums"))
         {
             max_physics = sf::Time::Zero;
             max_drawing = sf::Time::Zero;
         }
 
-        if (physics > max_physics)
-            max_physics = physics;
-        if (drawing > max_drawing)
-            max_drawing = drawing;
-        const sf::Time total = physics + drawing, max_total = max_physics + max_drawing;
+        if (sphysics > max_physics)
+            max_physics = sphysics;
+        if (sdrawing > max_drawing)
+            max_drawing = sdrawing;
+        const sf::Time total = sphysics + sdrawing, max_total = max_physics + max_drawing;
 
         switch (m_unit)
         {

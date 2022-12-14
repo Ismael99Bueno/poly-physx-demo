@@ -3,6 +3,7 @@
 
 #include "butcher_tableau.hpp"
 #include "debug.h"
+#include "perf.hpp"
 #include <cstdint>
 #include <cmath>
 
@@ -32,6 +33,7 @@ namespace rk
                          T &params,
                          vector (*ode)(float, const vector &, T &))
         {
+            PERF_FUNCTION()
             DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             m_valid = true;
             update_kvec(t, dt, m_state, params, ode);
@@ -55,6 +57,7 @@ namespace rk
                                  vector (*ode)(float, const vector &, T &),
                                  uint8 reiterations = 2)
         {
+            PERF_FUNCTION()
             DBG_ASSERT(reiterations >= 2, "The amount of reiterations has to be greater than 1, otherwise the algorithm will break.\n")
             DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             DBG_LOG_IF(m_tableau.embedded(), "Butcher tableau has an embedded solution. Use an embedded adaptive method for better efficiency.\n")
@@ -94,6 +97,7 @@ namespace rk
                               T &params,
                               vector (*ode)(float, const vector &, T &))
         {
+            PERF_FUNCTION()
             DBG_ASSERT(m_tableau.embedded(), "Cannot perform embedded adaptive stepsize without an embedded solution.\n")
             DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             m_valid = true;
@@ -167,6 +171,7 @@ namespace rk
                          T &params,
                          vector (*ode)(float, const vector &, T &))
         {
+            PERF_FUNCTION()
             DBG_ASSERT(state.size() == m_kvec[0].size(), "State and k-vectors size mismatch! - state size: %zu, k-vectors size: %zu\n", state.size(), m_kvec[0].size())
             vector aux_state(state.size());
 

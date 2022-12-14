@@ -24,17 +24,16 @@ namespace phys_env
     private:
         sf::RenderWindow &m_window;
         time_unit m_unit = MILLISECONDS;
+        int m_render_calls = 0;
 
         void render_unit_slider();
+        int render_refresh_period() const;
         void render_fps(float frame_time) const;
 
-        void render_time(const std::string &name) const;
-        void render_hierarchy_as_seconds(const perf::profile_stats &stats, int &call) const;
-        void render_hierarchy_as_milliseconds(const perf::profile_stats &stats, int &call) const;
-        void render_hierarchy_as_microseconds(const perf::profile_stats &stats, int &call) const;
-        void render_hierarchy_as_nanoseconds(const perf::profile_stats &stats, int &call) const;
+        void render_time(const std::string &name);
+        void render_hierarchy(const perf::profile_stats &stats, float conversion, const char *unit, int &call) const;
 
-        void render_simple_time(const sf::Time &physics, const sf::Time &drawing) const;
+        void render_simple_time(const sf::Time &physics, const sf::Time &drawing);
     };
 }
 

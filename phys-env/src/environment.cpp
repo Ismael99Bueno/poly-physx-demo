@@ -84,7 +84,7 @@ namespace phys_env
     void environment::run(bool (engine2D::*forward)(float &),
                           const std::string &wname)
     {
-        m_window.setFramerateLimit(60);
+        m_window.setFramerateLimit(DEFAULT_FPS);
         if (!ImGui::SFML::Init(m_window))
         {
             perror("ImGui initialization failed\n");
@@ -94,7 +94,7 @@ namespace phys_env
         sf::Clock dclock;
         while (m_window.isOpen())
         {
-            PERF_SCOPE("FRAME")
+            PERF_SCOPE("-Frame-")
             handle_events();
 
 #ifndef PERF
@@ -102,15 +102,12 @@ namespace phys_env
 #endif
 
             {
-                PERF_SCOPE("PHYSICS")
 #ifndef PERF
                 sf::Clock clock;
 #endif
                 for (std::size_t i = 0; i < m_integrations_per_frame; i++)
-                {
-                    PERF_SCOPE("FORWARD")
                     (this->*forward)(m_dt);
-                }
+
 #ifndef PERF
                 phys_dur = clock.getElapsedTime();
 #endif
@@ -120,7 +117,7 @@ namespace phys_env
 #ifndef PERF
                 sf::Clock clock;
 #endif
-                PERF_SCOPE("DRAWING")
+                PERF_SCOPE("-Drawing-")
                 ImGui::SFML::Update(m_window, dclock.restart());
                 m_window.clear();
                 draw_entities();
