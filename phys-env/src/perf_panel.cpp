@@ -8,16 +8,7 @@ namespace phys_env
 {
     perf_panel::perf_panel(sf::RenderWindow &window) : m_window(window) {}
 
-    void perf_panel::render()
-    {
-        ImGui::Begin("Performance");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
-        render_unit_slider();
-        render_time("runtime");
-        ImGui::End();
-    }
-
-    void perf_panel::render_no_profiling(const sf::Time &physics, const sf::Time &drawing)
+    void perf_panel::render_simple(const sf::Time &physics, const sf::Time &drawing)
     {
         ImGui::Begin("Performance");
         ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
@@ -53,12 +44,22 @@ namespace phys_env
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
         static int fps = DEFAULT_FPS;
         static bool limited = true;
-        ImGui::PushItemWidth(150);
+        ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))
             m_window.setFramerateLimit(limited ? fps : 0);
         if (limited && ImGui::SliderInt("FPS Limit", &fps, MIN_FPS, MAX_FPS))
             m_window.setFramerateLimit(fps);
         ImGui::PopItemWidth();
+    }
+
+#ifdef PERF
+    void perf_panel::render()
+    {
+        ImGui::Begin("Performance");
+        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        render_unit_slider();
+        render_time("runtime");
+        ImGui::End();
     }
 
     void perf_panel::render_time(const std::string &name)
@@ -98,18 +99,15 @@ namespace phys_env
     void perf_panel::render_hierarchy(const perf::profile_stats &stats, const float conversion,
                                       const char *unit, int &call) const
     {
-        const std::string label = stats.name() + " (" +
-                                  std::to_string((int)std::round(stats.relative_percent() * 100.0)) + "%)";
-        if (ImGui::TreeNode((void *)(intptr_t)call, "%s", label.c_str()))
+        if (ImGui::TreeNode((void *)(intptr_t)call, "%s (%.2f%%)", stats.name().c_str(), stats.relative_percent() * 100.0))
         {
-            if (ImGui::TreeNode("Details"))
+            if (ImGui::CollapsingHeader("Details"))
             {
                 ImGui::Text("Execution: %f %s", stats.duration_per_call() * conversion, unit);
                 ImGui::Text("Time resources (current process): %f %s", stats.duration_over_calls() * conversion, unit);
-                ImGui::Text("Time resources (overall): %d%%", (int)std::round(stats.total_percent() * 100.0));
+                ImGui::Text("Time resources (overall): %.2f%%", stats.total_percent() * 100.0);
                 ImGui::Text("Calls (current process): %u", stats.relative_calls());
                 ImGui::Text("Calls (overall): %u", stats.total_calls());
-                ImGui::TreePop();
             }
 
             for (const auto &[name, child] : stats.children())
@@ -117,6 +115,7 @@ namespace phys_env
             ImGui::TreePop();
         }
     }
+#endif
 
     void perf_panel::perf_panel::render_simple_time(const sf::Time &physics, const sf::Time &drawing)
     {
@@ -146,18 +145,18 @@ namespace phys_env
         {
         case SECONDS:
 
-            ImGui::Text("Physics: %f s (%f s)", physics.asSeconds(), max_physics.asSeconds());
-            ImGui::Text("Drawing: %f s (%f s)", drawing.asSeconds(), max_drawing.asSeconds());
+            ImGui::Text("Physics: %f s (%f s)", sphysics.asSeconds(), max_physics.asSeconds());
+            ImGui::Text("Drawing: %f s (%f s)", sdrawing.asSeconds(), max_drawing.asSeconds());
             ImGui::Text("Total: %f s (%f s)", total.asSeconds(), max_total.asSeconds());
             break;
         case MILLISECONDS:
-            ImGui::Text("Physics: %d ms (%d ms)", physics.asMilliseconds(), max_physics.asMilliseconds());
-            ImGui::Text("Drawing: %d ms (%d ms)", drawing.asMilliseconds(), max_drawing.asMilliseconds());
+            ImGui::Text("Physics: %d ms (%d ms)", sphysics.asMilliseconds(), max_physics.asMilliseconds());
+            ImGui::Text("Drawing: %d ms (%d ms)", sdrawing.asMilliseconds(), max_drawing.asMilliseconds());
             ImGui::Text("Total: %d ms (%d ms)", total.asMilliseconds(), max_total.asMilliseconds());
             break;
         case MICROSECONDS:
-            ImGui::Text("Physics: %lld us (%lld us)", physics.asMicroseconds(), max_physics.asMicroseconds());
-            ImGui::Text("Drawing: %lld us (%lld us)", drawing.asMicroseconds(), max_drawing.asMicroseconds());
+            ImGui::Text("Physics: %lld us (%lld us)", sphysics.asMicroseconds(), max_physics.asMicroseconds());
+            ImGui::Text("Drawing: %lld us (%lld us)", sdrawing.asMicroseconds(), max_drawing.asMicroseconds());
             ImGui::Text("Total: %lld us (%lld us)", total.asMicroseconds(), max_total.asMicroseconds());
             break;
         default:

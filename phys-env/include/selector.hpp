@@ -26,7 +26,7 @@ namespace phys_env
         std::vector<phys::entity2D> &m_entities;
         std::unordered_set<phys::const_entity_ptr> m_selected;
         alg::vec2 m_mpos_start;
-        bool m_selecting;
+        bool m_selecting = false;
 
         std::pair<alg::vec2, alg::vec2> minmax(const alg::vec2 &mpos) const;
     };

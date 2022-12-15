@@ -19,7 +19,7 @@ namespace phys_env
         perf_panel(sf::RenderWindow &window);
 
         void render();
-        void render_no_profiling(const sf::Time &physics, const sf::Time &drawing);
+        void render_simple(const sf::Time &physics, const sf::Time &drawing);
 
     private:
         sf::RenderWindow &m_window;
@@ -31,7 +31,9 @@ namespace phys_env
         void render_fps(float frame_time) const;
 
         void render_time(const std::string &name);
+#ifdef PERF
         void render_hierarchy(const perf::profile_stats &stats, float conversion, const char *unit, int &call) const;
+#endif
 
         void render_simple_time(const sf::Time &physics, const sf::Time &drawing);
     };

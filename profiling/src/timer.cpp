@@ -6,7 +6,7 @@ namespace perf
     timer::timer(const char *name) : m_startpoint(std::chrono::high_resolution_clock::now()),
                                      m_name(name)
     {
-        perf::profiler::get().begin_timer();
+        profiler::get().begin_timer();
     }
 
     timer::~timer()

@@ -96,27 +96,19 @@ namespace phys_env
         {
             PERF_SCOPE("-Frame-")
             handle_events();
-
 #ifndef PERF
             static sf::Time phys_dur, draw_dur;
-#endif
-
             {
-#ifndef PERF
                 sf::Clock clock;
 #endif
                 for (std::size_t i = 0; i < m_integrations_per_frame; i++)
                     (this->*forward)(m_dt);
-
 #ifndef PERF
                 phys_dur = clock.getElapsedTime();
-#endif
             }
-
-            {
-#ifndef PERF
-                sf::Clock clock;
+            sf::Clock clock;
 #endif
+            {
                 PERF_SCOPE("-Drawing-")
                 ImGui::SFML::Update(m_window, dclock.restart());
                 m_window.clear();
@@ -132,7 +124,7 @@ namespace phys_env
 #ifdef PERF
                 m_perf.render();
 #else
-                m_perf.render_no_profiling(phys_dur, draw_dur);
+                m_perf.render_simple(phys_dur, draw_dur);
 #endif
                 if (m_eng_panel.visualize_quad_tree())
                     draw_quad_tree(collider().quad_tree());
@@ -145,9 +137,6 @@ namespace phys_env
                 draw_dur = clock.getElapsedTime();
 #endif
             }
-            // const auto &hierarchies = perf::profiler::get().hierarchies();
-            // if (hierarchies.find("runtime") != hierarchies.end() && !hierarchies.at("runtime").empty())
-            //     std::cout << hierarchies.at("runtime").back() << "\n";
         }
         ImGui::SFML::Shutdown(m_window);
     }
