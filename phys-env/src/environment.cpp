@@ -81,7 +81,7 @@ namespace phys_env
         shape.setOutlineColor(sf::Color::Red);
     }
 
-    void environment::run(bool (engine2D::*forward)(float &),
+    void environment::run(std::function<bool(engine2D &, float &)> forward,
                           const std::string &wname)
     {
         m_window.setFramerateLimit(DEFAULT_FPS);
@@ -102,7 +102,7 @@ namespace phys_env
                 sf::Clock clock;
 #endif
                 for (std::size_t i = 0; i < m_integrations_per_frame; i++)
-                    (this->*forward)(m_dt);
+                    forward(*this, m_dt);
 #ifndef PERF
                 phys_dur = clock.getElapsedTime();
             }
