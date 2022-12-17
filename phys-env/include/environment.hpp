@@ -32,7 +32,8 @@ namespace phys_env
         void remove_entity(std::size_t index) override;
         void remove_entity(const phys::const_entity_ptr &e) override;
 
-        void run(std::function<bool(engine2D &, float &)> forward = &engine2D::raw_forward,
+        using forward_fun = std::function<bool(engine2D &, float &)>;
+        void run(const forward_fun &forward = &engine2D::raw_forward,
                  const std::string &wname = "Physics engine");
 
     private:

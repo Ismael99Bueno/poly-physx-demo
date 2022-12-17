@@ -81,7 +81,7 @@ namespace phys_env
         shape.setOutlineColor(sf::Color::Red);
     }
 
-    void environment::run(std::function<bool(engine2D &, float &)> forward,
+    void environment::run(const forward_fun &forward,
                           const std::string &wname)
     {
         m_window.setFramerateLimit(DEFAULT_FPS);
