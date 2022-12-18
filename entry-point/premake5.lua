@@ -11,7 +11,7 @@ project "app"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
    libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/System/Library/Frameworks"}
-   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-env", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-app", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
       defines { "DEBUG" }

@@ -1,42 +1,36 @@
-#include "imgui.h"
-#include "imgui-SFML.h"
-
 #include <SFML/Graphics.hpp>
+
+#include <iostream>
+#include "tableaus.hpp"
+#include "environment.hpp"
+#include "spring2D.hpp"
+#include "perf.hpp"
+#include "constants.hpp"
 
 int main()
 {
-    // create the window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
-    if (!ImGui::SFML::Init(window))
-        exit(EXIT_FAILURE);
+    PERF_SET_MAX_FILE_MB(300)
 
-    sf::CircleShape shape(100);
-    shape.setPosition(400, 300);
-    bool exists = true;
+    PERF_BEGIN_SESSION("runtime", perf::profiler::profile_export::SAVE_HIERARCHY)
+    phys_env::environment env(rk::rk4);
 
-    sf::Clock delta_clock;
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-        ImGui::SFML::Update(window, delta_clock.restart());
+    const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+    const float thck = 20.f;
+    const phys::entity_ptr e1 = env.add_entity({-w - 0.4f * thck, 0.f}),
+                           e2 = env.add_entity({w + 0.4f * thck, 0.f}),
+                           e3 = env.add_entity({0.f, -h - 0.4f * thck}),
+                           e4 = env.add_entity({0.f, h + 0.4f * thck});
 
-        ImGui::Begin("Hey!");
-        ImGui::Text("Heyyyyy");
-        ImGui::Checkbox("Circle", &exists);
-        ImGui::End();
+    e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+    e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+    e3->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
+    e4->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
 
-        window.clear(sf::Color::Black);
-        if (exists)
-            window.draw(shape);
-        ImGui::SFML::Render(window);
-        window.display();
-    }
-    ImGui::SFML::Shutdown();
-    return 0;
+    e1->dynamic(false);
+    e2->dynamic(false);
+    e3->dynamic(false);
+    e4->dynamic(false);
+
+    env.run();
+    PERF_END_SESSION()
 }
