@@ -1,4 +1,5 @@
 #include "demo_app.hpp"
+#include "constants.hpp"
 
 namespace phys_demo
 {
@@ -8,6 +9,8 @@ namespace phys_demo
         {m_grabber.validate();
         m_selector.validate(); };
         engine().on_entity_removal(validate);
+
+        push_layer(&m_engine_panel);
         push_layer(&m_actions);
     }
 
@@ -17,6 +20,8 @@ namespace phys_demo
         if (m_grabber)
             m_grabber.move_grabbed_entity(mpos, mdelta);
         m_selector.draw_select_box(mpos);
+        if (m_engine_panel.visualize_quad_tree())
+            draw_quad_tree(engine().collider().quad_tree());
     }
 
     void demo_app::on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape)
@@ -86,6 +91,24 @@ namespace phys_demo
             break;
         default:
             break;
+        }
+    }
+
+    void demo_app::draw_quad_tree(const phys::quad_tree2D &qt)
+    {
+        if (qt.partitioned())
+            for (const auto &child : qt.children())
+                draw_quad_tree(*child);
+        else
+        {
+            const alg::vec2 &pos = qt.pos(), &hdim = qt.dim() * 0.5f;
+            sf::Vertex vertices[5];
+            vertices[0].position = (pos + alg::vec2(-hdim.x, hdim.y)) * WORLD_TO_PIXEL;
+            vertices[1].position = (pos + hdim) * WORLD_TO_PIXEL;
+            vertices[2].position = (pos + alg::vec2(hdim.x, -hdim.y)) * WORLD_TO_PIXEL;
+            vertices[3].position = (pos - hdim) * WORLD_TO_PIXEL;
+            vertices[4].position = vertices[0].position;
+            window().draw(vertices, 5, sf::LineStrip);
         }
     }
 

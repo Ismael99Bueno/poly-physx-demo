@@ -4,6 +4,7 @@
 #include "app.hpp"
 #include "selector.hpp"
 #include "actions_panel.hpp"
+#include "engine_panel.hpp"
 
 namespace phys_demo
 {
@@ -21,9 +22,12 @@ namespace phys_demo
         selector m_selector = selector(window(), engine().entities());
 
         actions_panel m_actions = actions_panel(m_grabber);
+        engine_panel m_engine_panel;
+
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;
 
+        void draw_quad_tree(const phys::quad_tree2D &qt);
         void add_entity_template();
     };
 }
