@@ -3,7 +3,7 @@
 #include "constants.hpp"
 #include <cmath>
 
-namespace phys_env
+namespace phys_demo
 {
     selector::selector(sf::RenderWindow &window, std::vector<phys::entity2D> &entities) : m_window(window),
                                                                                           m_entities(entities)

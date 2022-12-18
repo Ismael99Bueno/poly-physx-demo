@@ -7,7 +7,7 @@
 
 #define INITIAL 5.f
 
-namespace phys_env
+namespace phys_demo
 {
     class entity_template : public phys::body2D
     {

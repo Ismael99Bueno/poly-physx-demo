@@ -1,13 +1,14 @@
 #include "actions_panel.hpp"
+#include "app.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
 
-namespace phys_env
+namespace phys_demo
 {
     actions_panel::actions_panel(grabber &g) : m_grabber(g) {}
 
-    void actions_panel::render()
+    void actions_panel::on_update()
     {
         ImGui::Begin("Actions");
         ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);

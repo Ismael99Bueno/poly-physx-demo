@@ -2,8 +2,10 @@
 #include "constants.hpp"
 #include <limits>
 
-namespace phys_env
+namespace phys_demo
 {
+    grabber::grabber(sf::RenderWindow &window) : m_window(window) {}
+
     void grabber::try_grab_entity(std::vector<phys::entity2D> &entities, const alg::vec2 mpos)
     {
         float min_dist = std::numeric_limits<float>::max();
@@ -22,7 +24,7 @@ namespace phys_env
             }
         }
     }
-    void grabber::move_grabbed_entity(sf::RenderWindow &window, const alg::vec2 &mpos, const alg::vec2 mdelta)
+    void grabber::move_grabbed_entity(const alg::vec2 &mpos, const alg::vec2 mdelta)
     {
         const alg::vec2 rot_joint = m_joint.rotated(m_grabbed->angpos() - m_angle);
         const alg::vec2 relpos = mpos - (m_grabbed->pos() + rot_joint),
@@ -35,7 +37,7 @@ namespace phys_env
         sf::Vertex grab_line[2];
         grab_line[0].position = mpos * WORLD_TO_PIXEL;
         grab_line[1].position = (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL;
-        window.draw(grab_line, 2, sf::Lines);
+        m_window.draw(grab_line, 2, sf::Lines);
     }
 
     void grabber::null() { m_grabbed = nullptr; }

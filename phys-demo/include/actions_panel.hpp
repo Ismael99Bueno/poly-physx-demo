@@ -2,20 +2,13 @@
 #define ACTIONS_PANEL_HPP
 
 #include "entity_template.hpp"
+#include "layer.hpp"
 #include "grabber.hpp"
 
-namespace phys_env
+namespace phys_demo
 {
-    class actions_panel
+    class actions_panel : public phys::layer
     {
-    private:
-        enum shape_type
-        {
-            BOX = 0,
-            RECT = 1,
-            CIRCLE = 2
-        };
-
     public:
         enum actions
         {
@@ -24,14 +17,21 @@ namespace phys_env
             SELECT,
             NONE
         };
-
         actions_panel(grabber &g);
-        void render();
 
         const entity_template &templ();
         actions action() const;
 
     private:
+        enum shape_type
+        {
+            BOX = 0,
+            RECT = 1,
+            CIRCLE = 2
+        };
+
+        void on_update() override;
+
         entity_template m_templ;
         actions m_action = ADD;
         shape_type m_selected_shape = BOX;

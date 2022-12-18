@@ -6,7 +6,7 @@
 #include <utility>
 #include <SFML/Graphics.hpp>
 
-namespace phys_env
+namespace phys_demo
 {
     class selector
     {
