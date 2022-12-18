@@ -14,7 +14,7 @@ include "profiling"
 include "engine"
 include "imgui"
 include "phys-app"
-include "entry-point"
+include "phys-demo"
 
 newaction {
     trigger = "clean",

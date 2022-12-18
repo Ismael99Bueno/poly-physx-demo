@@ -10,8 +10,7 @@
 int main()
 {
     phys::app app;
-    phys::entity_ptr e1 = app.engine().add_entity(), e2 = app.engine().add_entity();
-    app.engine().integrator().tableau(rk::rkf78);
+    phys::entity_ptr e1 = app.engine().add_entity(), e2 = app.engine().add_entity({0.f, 10.f}, {0.f, -10.f});
 
     app.run();
 }
