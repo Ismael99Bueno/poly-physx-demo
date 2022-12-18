@@ -77,10 +77,13 @@ namespace rk
                 update_kvec(t, dt, m_state, params, ode);
                 const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs());
                 m_error = reiterative_error(sol1, sol2);
-                if (m_error <= m_tolerance || dt_too_small(dt))
+
+                const bool too_small = dt_too_small(dt);
+                if (m_error <= m_tolerance || too_small)
                 {
                     m_state = sol1;
-                    dt = m_min_dt;
+                    if (too_small)
+                        dt = m_min_dt;
                     break;
                 }
                 dt *= timestep_factor();
@@ -111,10 +114,12 @@ namespace rk
                 const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs2());
                 m_error = embedded_error(sol1, sol2);
 
-                if (m_error <= m_tolerance || dt_too_small(dt))
+                const bool too_small = dt_too_small(dt);
+                if (m_error <= m_tolerance || too_small)
                 {
                     m_state = sol1;
-                    dt = m_min_dt;
+                    if (too_small)
+                        dt = m_min_dt;
                     break;
                 }
                 dt *= timestep_factor();
