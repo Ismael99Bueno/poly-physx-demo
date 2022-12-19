@@ -6,10 +6,7 @@
 
 namespace phys_demo
 {
-    void engine_panel::on_attach(phys::app *papp)
-    {
-        m_app = papp;
-    }
+    void engine_panel::on_attach(phys::app *papp) { m_app = papp; }
     void engine_panel::on_update()
     {
         ImGui::Begin("Engine");

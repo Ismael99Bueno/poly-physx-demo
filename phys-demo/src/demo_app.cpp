@@ -10,8 +10,9 @@ namespace phys_demo
         m_selector.validate(); };
         engine().on_entity_removal(validate);
 
+        push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
-        push_layer(&m_actions);
+        push_layer(&m_actions_panel);
     }
 
     void demo_app::on_update()
@@ -40,7 +41,7 @@ namespace phys_demo
         switch (event.type)
         {
         case sf::Event::MouseButtonPressed:
-            switch (m_actions.action())
+            switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
                 m_mouse_add = world_mouse();
@@ -58,7 +59,7 @@ namespace phys_demo
 
         case sf::Event::MouseButtonReleased:
         {
-            switch (m_actions.action())
+            switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
                 add_entity_template();
@@ -117,7 +118,7 @@ namespace phys_demo
         const alg::vec2 release = world_mouse();
         const alg::vec2 pos = m_mouse_add,
                         vel = 0.3f * (m_mouse_add - release);
-        const entity_template &templ = m_actions.templ();
+        const entity_template &templ = m_actions_panel.templ();
         engine().add_entity(phys::body2D(pos, vel, 0.f, 0.f,
                                          templ.mass(),
                                          templ.charge()),

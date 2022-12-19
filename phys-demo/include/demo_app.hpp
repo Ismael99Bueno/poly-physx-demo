@@ -5,6 +5,7 @@
 #include "selector.hpp"
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
+#include "perf_panel.hpp"
 
 namespace phys_demo
 {
@@ -21,8 +22,9 @@ namespace phys_demo
         grabber m_grabber = grabber(window());
         selector m_selector = selector(window(), engine().entities());
 
-        actions_panel m_actions = actions_panel(m_grabber);
+        actions_panel m_actions_panel = actions_panel(m_grabber);
         engine_panel m_engine_panel;
+        perf_panel m_perf_panel;
 
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;
