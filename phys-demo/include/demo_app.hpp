@@ -6,6 +6,7 @@
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
 #include "perf_panel.hpp"
+#include "phys_panel.hpp"
 
 namespace phys_demo
 {
@@ -25,6 +26,7 @@ namespace phys_demo
         actions_panel m_actions_panel = actions_panel(m_grabber);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
+        phys_panel m_phys_panel;
 
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;

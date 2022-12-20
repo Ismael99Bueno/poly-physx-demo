@@ -1,5 +1,7 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 namespace phys_demo
 {
@@ -10,6 +12,7 @@ namespace phys_demo
         m_selector.validate(); };
         engine().on_entity_removal(validate);
 
+        push_layer(&m_phys_panel);
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
         push_layer(&m_actions_panel);
@@ -23,6 +26,9 @@ namespace phys_demo
         m_selector.draw_select_box(mpos);
         if (m_engine_panel.visualize_quad_tree())
             draw_quad_tree(engine().collider().quad_tree());
+#ifdef DEBUG
+        ImGui::ShowDemoWindow();
+#endif
     }
 
     void demo_app::on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape)

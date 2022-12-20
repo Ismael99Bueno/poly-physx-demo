@@ -87,7 +87,6 @@ namespace phys_demo
         switch (m_unit)
         {
         case SECONDS:
-
             ImGui::Text("Physics: %f s (%f s)", sphysics.asSeconds(), max_physics.asSeconds());
             ImGui::Text("Drawing: %f s (%f s)", sdrawing.asSeconds(), max_drawing.asSeconds());
             ImGui::Text("Total: %f s (%f s)", total.asSeconds(), max_total.asSeconds());
