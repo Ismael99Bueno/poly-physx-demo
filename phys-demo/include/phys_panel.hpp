@@ -15,7 +15,7 @@ namespace phys_demo
         phys::app *m_app;
         gravity m_gravity;
         drag m_drag;
-        electrical m_repulsive, m_atractive;
+        electrical m_repulsive, m_attractive;
         gravitational m_gravitational;
         exponential m_exponential;
 

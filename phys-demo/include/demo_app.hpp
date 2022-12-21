@@ -33,6 +33,7 @@ namespace phys_demo
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void add_entity_template();
+        void add_borders();
     };
 }
 

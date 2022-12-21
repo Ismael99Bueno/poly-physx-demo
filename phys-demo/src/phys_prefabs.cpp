@@ -1,4 +1,5 @@
 #include "phys_prefabs.hpp"
+#include <limits>
 
 namespace phys_demo
 {
@@ -10,6 +11,9 @@ namespace phys_demo
     float gravity::mag() const { return m_mag; }
     void gravity::mag(const float mag) { m_mag = mag; }
 
+    bool gravity::auto_include() const { return m_auto_include; }
+    void gravity::auto_include(const bool auto_include) { m_auto_include = auto_include; }
+
     std::pair<alg::vec2, float> drag::force(const phys::entity2D &e) const
     {
         return std::make_pair(-m_lin_mag * e.vel(), -m_ang_mag * e.angvel());
@@ -20,6 +24,22 @@ namespace phys_demo
 
     float drag::ang_mag() const { return m_ang_mag; }
     void drag::ang_mag(const float ang_mag) { m_ang_mag = ang_mag; }
+
+    bool drag::auto_include() const { return m_auto_include; }
+    void drag::auto_include(const bool auto_include) { m_auto_include = auto_include; }
+
+    std::pair<alg::vec2, float> gravitational::force(const phys::entity2D &e1, const phys::entity2D &e2) const
+    {
+        const float cte = m_mag * e1.mass() * e2.mass();
+        const alg::vec2 force = cte * (e2.pos() - e1.pos()).normalized() / e1.pos().sq_dist(e2.pos());
+        return std::make_pair(force, 0.f);
+    }
+
+    float gravitational::mag() const { return m_mag; }
+    void gravitational::mag(const float mag) { m_mag = mag; }
+
+    bool gravitational::auto_include() const { return m_auto_include; }
+    void gravitational::auto_include(const bool auto_include) { m_auto_include = auto_include; }
 
     std::pair<alg::vec2, float> electrical::force(const phys::entity2D &e1, const phys::entity2D &e2) const
     {
@@ -37,15 +57,8 @@ namespace phys_demo
     std::uint32_t electrical::exp() const { return m_exp; }
     void electrical::exp(const std::uint32_t exp) { m_exp = exp; }
 
-    std::pair<alg::vec2, float> gravitational::force(const phys::entity2D &e1, const phys::entity2D &e2) const
-    {
-        const float cte = m_mag * e1.mass() * e2.mass();
-        const float dist = e1.pos().sq_dist(e2.pos());
-        return std::make_pair(cte * (e2.pos() - e1.pos()).normalized() / dist, 0.f);
-    }
-
-    float gravitational::mag() const { return m_mag; }
-    void gravitational::mag(const float mag) { m_mag = mag; }
+    bool electrical::auto_include() const { return m_auto_include; }
+    void electrical::auto_include(const bool auto_include) { m_auto_include = auto_include; }
 
     std::pair<alg::vec2, float> exponential::force(const phys::entity2D &e1, const phys::entity2D &e2) const
     {
@@ -59,4 +72,7 @@ namespace phys_demo
 
     float exponential::exp() const { return m_exp; }
     void exponential::exp(float exp) { m_exp = exp; }
+
+    bool exponential::auto_include() const { return m_auto_include; }
+    void exponential::auto_include(const bool auto_include) { m_auto_include = auto_include; }
 }

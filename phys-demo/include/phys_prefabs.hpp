@@ -15,8 +15,12 @@ namespace phys_demo
         float mag() const;
         void mag(float mag);
 
+        bool auto_include() const;
+        void auto_include(bool auto_include);
+
     private:
         float m_mag = 0.f;
+        bool m_auto_include = false;
 
         friend class phys_panel;
     };
@@ -33,8 +37,31 @@ namespace phys_demo
         float ang_mag() const;
         void ang_mag(float ang_mag);
 
+        bool auto_include() const;
+        void auto_include(bool auto_include);
+
     private:
         float m_lin_mag = 0.f, m_ang_mag = 0.f;
+        bool m_auto_include = false;
+
+        friend class phys_panel;
+    };
+
+    class gravitational : public phys::interaction2D
+    {
+    public:
+        using phys::interaction2D::interaction2D;
+        std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+
+        float mag() const;
+        void mag(float mag);
+
+        bool auto_include() const;
+        void auto_include(bool auto_include);
+
+    private:
+        float m_mag = 0.f;
+        bool m_auto_include = false;
 
         friend class phys_panel;
     };
@@ -51,24 +78,13 @@ namespace phys_demo
         std::uint32_t exp() const;
         void exp(std::uint32_t exp);
 
+        bool auto_include() const;
+        void auto_include(bool auto_include);
+
     private:
         float m_mag = 0.f;
         std::uint32_t m_exp = 1;
-
-        friend class phys_panel;
-    };
-
-    class gravitational : public phys::interaction2D
-    {
-    public:
-        using phys::interaction2D::interaction2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
-
-        float mag() const;
-        void mag(float mag);
-
-    private:
-        float m_mag = 0.f;
+        bool m_auto_include = false;
 
         friend class phys_panel;
     };
@@ -85,8 +101,12 @@ namespace phys_demo
         float exp() const;
         void exp(float exp);
 
+        bool auto_include() const;
+        void auto_include(bool auto_include);
+
     private:
         float m_mag = 0.f, m_exp = 1.f;
+        bool m_auto_include = false;
 
         friend class phys_panel;
     };

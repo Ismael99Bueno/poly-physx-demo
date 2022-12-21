@@ -7,7 +7,7 @@ namespace phys_demo
 {
     demo_app::demo_app() : app()
     {
-        const auto validate = [this](phys::entity2D &e)
+        const auto validate = [this](const std::size_t index)
         {m_grabber.validate();
         m_selector.validate(); };
         engine().on_entity_removal(validate);
@@ -16,6 +16,8 @@ namespace phys_demo
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
         push_layer(&m_actions_panel);
+
+        add_borders();
     }
 
     void demo_app::on_update()
@@ -129,5 +131,27 @@ namespace phys_demo
                                          templ.mass(),
                                          templ.charge()),
                             templ.vertices());
+    }
+
+    void demo_app::add_borders()
+    {
+        const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+        const float thck = 20.f;
+        phys::engine2D &eng = engine();
+
+        const phys::entity_ptr e1 = eng.add_entity({-w - 0.4f * thck, 0.f}),
+                               e2 = eng.add_entity({w + 0.4f * thck, 0.f}),
+                               e3 = eng.add_entity({0.f, -h - 0.4f * thck}),
+                               e4 = eng.add_entity({0.f, h + 0.4f * thck});
+
+        e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+        e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+        e3->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
+        e4->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
+
+        e1->dynamic(false);
+        e2->dynamic(false);
+        e3->dynamic(false);
+        e4->dynamic(false);
     }
 }
