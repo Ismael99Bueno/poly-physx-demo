@@ -23,7 +23,7 @@ namespace phys_demo
         grabber m_grabber = grabber(window());
         selector m_selector = selector(window(), engine().entities());
 
-        actions_panel m_actions_panel = actions_panel(m_grabber);
+        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
         phys_panel m_phys_panel;

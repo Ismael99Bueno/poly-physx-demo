@@ -54,6 +54,8 @@ namespace phys_demo
         m_selecting = false;
     }
 
+    void selector::deselect(const phys::const_entity_ptr &e) { m_selected.erase(e); }
+
     bool selector::validate()
     {
         std::vector<phys::const_entity_ptr> invalids;

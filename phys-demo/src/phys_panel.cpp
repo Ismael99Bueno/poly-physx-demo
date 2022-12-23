@@ -82,7 +82,7 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Gravitational"))
+            if (ImGui::TreeNodeEx("Gravitational"))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravitational.size(), m_app->engine().size());
                 static bool auto_include = m_gravitational.auto_include();

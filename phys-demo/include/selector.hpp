@@ -17,6 +17,7 @@ namespace phys_demo
         void draw_select_box(const alg::vec2 &mpos) const;
         bool is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const;
         void select(const alg::vec2 &mpos);
+        void deselect(const phys::const_entity_ptr &e);
         bool validate();
 
         const std::unordered_set<phys::const_entity_ptr> &get() const;
