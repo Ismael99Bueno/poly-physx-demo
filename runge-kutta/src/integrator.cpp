@@ -33,7 +33,9 @@ namespace rk
             for (uint8 i = 0; i < m_tableau.stage(); i++)
                 sum += coefs[i] * m_kvec[i][j];
             m_valid &= !isnan(sum);
-            sol.emplace_back(state[j] + sum * dt);
+            const float step = sum * dt;
+            m_step[j] = step;
+            sol.emplace_back(state[j] + step);
         }
         return sol;
     }
@@ -87,6 +89,7 @@ namespace rk
     {
         for (vector &v : m_kvec)
             v.resize(m_state.size());
+        m_step.resize(m_state.size());
     }
 
     const butcher_tableau &integrator::tableau() const { return m_tableau; }
@@ -94,6 +97,8 @@ namespace rk
 
     const integrator::vector &integrator::state() const { return m_state; }
     integrator::vector &integrator::state() { return m_state; }
+
+    const integrator::vector &integrator::step() const { return m_step; }
 
     void integrator::tableau(const butcher_tableau &tableau)
     {

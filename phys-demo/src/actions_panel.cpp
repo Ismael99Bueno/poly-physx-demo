@@ -129,9 +129,11 @@ namespace phys_demo
                 else
                     m_app->shapes()[e.index()].setOutlineColor(sf::Color::Red);
                 ImGui::Text("Position - x: %f, y: %f", e->pos().x, e->pos().y);
-                ImGui::Text("Velocity - vx: %f, vy: %f", e->vel().x, e->vel().y);
+                ImGui::Text("Velocity - x: %f, y: %f", e->vel().x, e->vel().y);
+                ImGui::Text("Force - x: %f, y: %f", e->force().x, e->force().y);
                 ImGui::Text("Angular position - %f", e->angpos());
                 ImGui::Text("Angular velocity - %f", e->angvel());
+                ImGui::Text("Torque - %f", e->torque());
                 ImGui::Text("Area - %f", e->shape().area());
                 ImGui::Text("Inertia - %f", e->inertia());
 

@@ -68,14 +68,13 @@ namespace rk
             for (;;)
             {
                 vector sol1 = m_state;
+                update_kvec(t, dt, m_state, params, ode);
+                const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs());
                 for (uint8 i = 0; i < reiterations; i++)
                 {
                     update_kvec(t, dt / reiterations, sol1, params, ode);
                     sol1 = generate_solution(dt / reiterations, sol1, m_tableau.coefs());
                 }
-
-                update_kvec(t, dt, m_state, params, ode);
-                const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs());
                 m_error = reiterative_error(sol1, sol2);
 
                 const bool too_small = dt_too_small(dt);
@@ -110,8 +109,8 @@ namespace rk
             for (;;)
             {
                 update_kvec(t, dt, m_state, params, ode);
-                const vector sol1 = generate_solution(dt, m_state, m_tableau.coefs1());
                 const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs2());
+                const vector sol1 = generate_solution(dt, m_state, m_tableau.coefs1());
                 m_error = embedded_error(sol1, sol2);
 
                 const bool too_small = dt_too_small(dt);
@@ -139,6 +138,8 @@ namespace rk
         const vector &state() const;
         vector &state();
 
+        const vector &step() const;
+
         void tableau(const butcher_tableau &tableau);
         void state(vector &state);
 
@@ -153,7 +154,7 @@ namespace rk
 
     private:
         butcher_tableau m_tableau;
-        vector &m_state;
+        vector &m_state, m_step;
         matrix m_kvec;
         float m_tolerance, m_min_dt, m_max_dt, m_error;
         bool m_valid;
