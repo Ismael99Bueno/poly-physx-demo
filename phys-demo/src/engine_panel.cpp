@@ -25,6 +25,9 @@ namespace phys_demo
     {
         ImGui::Text("Simulation time: %.2f", m_app->engine().elapsed());
         const rk::integrator integ = m_app->engine().integrator();
+        bool paused = m_app->paused();
+        if (ImGui::Checkbox("Pause", &paused))
+            m_app->paused(paused);
         if (integ.tableau().embedded())
         {
             const float error = integ.error();
@@ -112,6 +115,9 @@ namespace phys_demo
     {
         ImGui::PushItemWidth(250);
         phys::collider2D &collider = m_app->engine().collider();
+        static bool enabled = collider.enabled();
+        if (ImGui::Checkbox("Enable", &enabled))
+            collider.enabled(enabled);
 
         static float stiffness = collider.stiffness(), dampening = collider.dampening();
         if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, 10000.f, "%.1f"))
