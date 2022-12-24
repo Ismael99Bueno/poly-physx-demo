@@ -10,7 +10,7 @@ namespace utils
     {
     public:
         const_vec_ptr() = default;
-        const_vec_ptr(const std::vector<float> &buffer, std::size_t index = 0);
+        const_vec_ptr(const std::vector<float> *buffer, std::size_t index = 0);
 
         const float &operator[](const std::size_t idx) const;
 
@@ -25,7 +25,7 @@ namespace utils
     {
     public:
         vec_ptr() = default;
-        vec_ptr(std::vector<float> &buffer, std::size_t index = 0);
+        vec_ptr(std::vector<float> *buffer, std::size_t index = 0);
 
         float &operator[](const std::size_t idx) const;
 
