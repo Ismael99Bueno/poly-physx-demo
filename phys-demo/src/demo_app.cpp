@@ -127,7 +127,7 @@ namespace phys_demo
         const alg::vec2 pos = m_mouse_add,
                         vel = 0.3f * (m_mouse_add - release);
         const entity_template &templ = m_actions_panel.templ();
-        engine().add_entity(phys::body2D(pos, vel, std::atan2f(vel.y, vel.x), 0.f,
+        engine().add_entity(phys::body2D(pos, vel, 0.f, 0.f,
                                          templ.mass(),
                                          templ.charge()),
                             templ.vertices());
