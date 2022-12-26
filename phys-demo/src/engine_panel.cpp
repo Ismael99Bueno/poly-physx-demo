@@ -45,12 +45,22 @@ namespace phys_demo
 
     void engine_panel::render_sliders()
     {
-        static float dt = m_app->timestep();
+        float dt = m_app->timestep();
         static int integ_per_frame = m_app->integrations_per_frame();
+        static bool align_dt = m_app->aligned_timestep();
+        if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
+            m_app->aligned_timestep(align_dt);
 
         ImGui::PushItemWidth(200);
-        if (ImGui::SliderFloat("Timestep", &dt, 1.e-5f, 1.e-1f, "%.5f", ImGuiSliderFlags_Logarithmic))
-            m_app->timestep(dt);
+        if (!align_dt)
+        {
+            const rk::integrator &integ = m_app->engine().integrator();
+            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt() * 10.f, integ.max_dt() * 0.1f, "%.5f", ImGuiSliderFlags_Logarithmic))
+                m_app->timestep(dt);
+        }
+        else
+            ImGui::Text("Timestep: %f", dt);
+
         if (ImGui::SliderInt("Integrations per frame", &integ_per_frame, 1, 100))
             m_app->integrations_per_frame(integ_per_frame);
         ImGui::PopItemWidth();

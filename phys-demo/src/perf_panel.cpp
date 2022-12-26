@@ -42,7 +42,7 @@ namespace phys_demo
     {
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
         static int fps = DEFAULT_FPS;
-        static bool limited = true;
+        static bool limited = false;
         ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))
             m_app->window().setFramerateLimit(limited ? fps : 0);

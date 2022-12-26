@@ -77,7 +77,6 @@ Index of this file:
 // [SECTION] Example App: Documents Handling / ShowExampleAppDocuments()
 
 */
-#ifdef DEBUG
 #include "constants.hpp"
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
@@ -8728,4 +8727,3 @@ void ImGui::ShowStyleEditor(ImGuiStyle *) {}
 #endif
 
 #endif // #ifndef IMGUI_DISABLE
-#endif

@@ -6,14 +6,14 @@
 
 #ifdef DEBUG
 #define DBG_LOG(...)                                            \
-    printf("-DBG- LOG in %s at line %d: ", __FILE__, __LINE__); \
+    printf("-DBG- LOG in %s in line %d: ", __FILE__, __LINE__); \
     printf(__VA_ARGS__);
 
 #define DBG_LOG_IF(cond,                                                                                 \
                    ...)                                                                                  \
     if (cond)                                                                                            \
     {                                                                                                    \
-        printf("-DBG- CONDITIONAL LOG in %s at line %d with condition %s: ", __FILE__, __LINE__, #cond); \
+        printf("-DBG- CONDITIONAL LOG in %s in line %d with condition %s: ", __FILE__, __LINE__, #cond); \
         printf(__VA_ARGS__);                                                                             \
     }
 
@@ -21,7 +21,7 @@
                    ...)                                                                                  \
     if (!(cond))                                                                                         \
     {                                                                                                    \
-        fprintf(stderr, "-DBG- ASSERT in %s at line %d with condition %s: ", __FILE__, __LINE__, #cond); \
+        fprintf(stderr, "-DBG- ASSERT in %s in line %d with condition %s: ", __FILE__, __LINE__, #cond); \
         fprintf(stderr, __VA_ARGS__);                                                                    \
         exit(EXIT_FAILURE);                                                                              \
     }
