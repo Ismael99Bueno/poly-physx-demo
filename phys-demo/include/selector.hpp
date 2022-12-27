@@ -16,7 +16,9 @@ namespace phys_demo
         void begin_select(const alg::vec2 &mpos, bool clear_previous = true);
         void draw_select_box(const alg::vec2 &mpos) const;
         bool is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const;
-        void select(const alg::vec2 &mpos);
+        bool selected(const phys::const_entity_ptr &e) const;
+        void end_select(const alg::vec2 &mpos);
+        void select(const phys::const_entity_ptr &e);
         void deselect(const phys::const_entity_ptr &e);
         bool validate();
 

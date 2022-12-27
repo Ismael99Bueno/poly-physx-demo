@@ -51,6 +51,7 @@ namespace phys_demo
         void render_grab_parameters();
 
         void render_selected_options() const;
+        bool render_entity_data(const phys::entity2D &e, std::int8_t sign = 1) const;
 
         void update_template();
     };

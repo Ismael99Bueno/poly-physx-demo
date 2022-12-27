@@ -76,7 +76,7 @@ namespace phys_demo
                 m_grabber.null();
                 break;
             case actions_panel::SELECT:
-                m_selector.select(world_mouse());
+                m_selector.end_select(world_mouse());
                 break;
             default:
                 break;

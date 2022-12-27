@@ -49,30 +49,29 @@ namespace phys_demo
     {
         static const char *shapes[] = {"Box", "Rectangle", "NGon"};
         ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
-        const sf::Color col = sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f);
+        const sf::Color color = sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f);
         switch (m_selected_shape)
         {
         case BOX:
         {
             const alg::vec2 size = alg::vec2(m_templ.size(), m_templ.size()) * WORLD_TO_PIXEL,
                             pos = alg::vec2(550.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(pos, size), col);
+            ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
         case RECT:
         {
             const alg::vec2 size = alg::vec2(m_templ.width(), m_templ.height()) * WORLD_TO_PIXEL,
                             pos = alg::vec2(550.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(pos, size), col);
+            ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
         case NGON:
         {
-            const ImVec4 col = {m_color[0], m_color[1], m_color[2], 1.f};
             const float radius = m_templ.radius() * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 550.f, pos.y - 30.f}, radius, ImColor(col), m_templ.sides());
+            draw_list->AddNgonFilled({pos.x + 550.f, pos.y - 30.f}, radius, ImColor(ImVec4(color)), m_templ.sides());
             break;
         }
         default:
@@ -120,37 +119,69 @@ namespace phys_demo
     void actions_panel::render_selected_options() const
     {
         ImGui::Text("Press DEL to remove selected entities");
-        phys::const_entity_ptr to_deselect = nullptr, to_remove = nullptr;
-        for (const auto &e : m_selector.get())
-            if (ImGui::TreeNodeEx((void *)(intptr_t)e->id(), ImGuiTreeNodeFlags_CollapsingHeader, "Entity %llu", e->id()))
-            {
-                if (ImGui::IsItemHovered())
-                    m_app->shapes()[e.index()].setOutlineColor(sf::Color::Magenta);
-                else
-                    m_app->shapes()[e.index()].setOutlineColor(sf::Color::Red);
-                ImGui::Text("Position - x: %f, y: %f", e->pos().x, e->pos().y);
-                ImGui::Text("Velocity - x: %f, y: %f", e->vel().x, e->vel().y);
-                ImGui::Text("Force - x: %f, y: %f", e->force().x, e->force().y);
-                ImGui::Text("Angular position - %f", e->angpos());
-                ImGui::Text("Angular velocity - %f", e->angvel());
-                ImGui::Text("Torque - %f", e->torque());
-                ImGui::Text("Area - %f", e->shape().area());
-                ImGui::Text("Inertia - %f", e->inertia());
-
-                if (ImGui::Button("Deselect"))
-                    to_deselect = e;
-                ImGui::SameLine();
-                if (ImGui::Button("Remove"))
-                    to_remove = e;
-            }
-            else if (ImGui::IsItemHovered())
-                m_app->shapes()[e.index()].setOutlineColor(sf::Color::Magenta);
+        phys::const_entity_ptr to_deselect = nullptr, to_select = nullptr;
+        const phys::entity2D *to_remove = nullptr;
+        if (ImGui::CollapsingHeader("Selected entities"))
+        {
+            if (m_selector.get().empty())
+                ImGui::Text("Select entities by dragging your mouse cursor!");
             else
-                m_app->shapes()[e.index()].setOutlineColor(sf::Color::Red);
+                for (const auto &e : m_selector.get())
+                {
+                    if (render_entity_data(*e))
+                        to_remove = e.raw();
+                    ImGui::SameLine();
+                    ImGui::PushID(e->id());
+                    if (ImGui::Button("Deselect"))
+                        to_deselect = e;
+                    ImGui::PopID();
+                }
+        }
+        if (ImGui::CollapsingHeader("Entities"))
+        {
+            if (m_app->engine().entities().empty())
+                ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
+            else
+                for (const phys::entity2D &e : m_app->engine().entities())
+                {
+                    if (render_entity_data(e, -1))
+                        to_remove = &e;
+                    const phys::const_entity_ptr e_ptr = {&m_app->engine().entities(), e.index()};
+                    if (!m_selector.selected(e_ptr))
+                    {
+                        ImGui::SameLine();
+                        ImGui::PushID(e.id());
+                        if (ImGui::Button("Select"))
+                            to_select = e_ptr;
+                        ImGui::PopID();
+                    }
+                }
+        }
+        if (to_select)
+            m_selector.select(to_select);
         if (to_deselect)
             m_selector.deselect(to_deselect);
         if (to_remove)
-            m_app->engine().remove_entity(to_remove.index());
+            m_app->engine().remove_entity(to_remove->index());
+    }
+
+    bool actions_panel::render_entity_data(const phys::entity2D &e, std::int8_t sign) const
+    {
+        if (ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %llu", e.id()))
+        {
+            ImGui::Text("Position - x: %f, y: %f", e.pos().x, e.pos().y);
+            ImGui::Text("Velocity - x: %f, y: %f", e.vel().x, e.vel().y);
+            ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
+            ImGui::Text("Angular position - %f", e.angpos());
+            ImGui::Text("Angular velocity - %f", e.angvel());
+            ImGui::Text("Torque - %f", e.torque());
+            ImGui::Text("Area - %f", e.shape().area());
+            ImGui::Text("Inertia - %f", e.inertia());
+            const bool remove = ImGui::Button("Remove");
+            ImGui::TreePop();
+            return remove;
+        }
+        return false;
     }
 
     void actions_panel::update_template()

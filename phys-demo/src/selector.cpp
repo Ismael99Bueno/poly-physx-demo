@@ -43,7 +43,9 @@ namespace phys_demo
                m_selected.find(e) != m_selected.end();
     }
 
-    void selector::select(const alg::vec2 &mpos)
+    bool selector::selected(const phys::const_entity_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
+
+    void selector::end_select(const alg::vec2 &mpos)
     {
         const auto [mm, mx] = minmax(mpos);
         for (std::size_t i = 0; i < m_entities.size(); i++)
@@ -53,6 +55,8 @@ namespace phys_demo
                 m_selected.insert({&m_entities, i});
         m_selecting = false;
     }
+
+    void selector::select(const phys::const_entity_ptr &e) { m_selected.insert(e); }
 
     void selector::deselect(const phys::const_entity_ptr &e) { m_selected.erase(e); }
 
