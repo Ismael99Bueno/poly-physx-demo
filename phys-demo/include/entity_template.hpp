@@ -1,7 +1,6 @@
 #ifndef ENTITY_TEMPLATE_HPP
 #define ENTITY_TEMPLATE_HPP
 
-#include "body2D.hpp"
 #include "polygon2D.hpp"
 #include <vector>
 
@@ -9,31 +8,17 @@
 
 namespace phys_demo
 {
-    class entity_template : public phys::body2D
+    struct entity_template
     {
-    public:
         void box();
         void rect();
         void ngon();
 
-        const std::vector<alg::vec2> &vertices() const;
-        std::vector<alg::vec2> &vertices();
-
-        void vertices(const std::vector<alg::vec2> &vertices);
-
-        float size() const;
-        float width() const;
-        float height() const;
-        float radius() const;
-        std::uint32_t sides() const;
-
-    private:
-        phys::body2D m_body = phys::body2D({0.f, 0.f}, {0.f, 0.f}, 0.f, 0.f, INITIAL, INITIAL);
-        std::vector<alg::vec2> m_vertices = geo::polygon2D::box(INITIAL);
-        float m_size = INITIAL, m_width = INITIAL, m_height = INITIAL, m_radius = INITIAL;
-        std::uint32_t m_sides = 3;
-
-        friend class actions_panel;
+        std::vector<alg::vec2> vertices = geo::polygon2D::box(INITIAL);
+        float mass = INITIAL, charge = INITIAL,
+              size = INITIAL, width = INITIAL,
+              height = INITIAL, radius = INITIAL;
+        std::uint32_t sides = 3;
     };
 }
 
