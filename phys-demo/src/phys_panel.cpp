@@ -37,7 +37,7 @@ namespace phys_demo
     void phys_panel::on_update()
     {
         ImGui::Begin("Physics");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_forces_and_inters();
         ImGui::End();
     }

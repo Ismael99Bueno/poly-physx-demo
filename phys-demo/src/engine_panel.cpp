@@ -10,7 +10,7 @@ namespace phys_demo
     void engine_panel::on_update()
     {
         ImGui::Begin("Engine");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         ImGui::Text("Entities: %zu", m_app->engine().size());
         if (ImGui::CollapsingHeader("Integration"))
             render_integration();

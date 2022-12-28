@@ -8,3 +8,4 @@ profile-results/
 imgui.ini
 *.xcworkspace/
 **.xcodeproj
+fonts/

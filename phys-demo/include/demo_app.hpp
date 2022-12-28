@@ -7,6 +7,8 @@
 #include "engine_panel.hpp"
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 namespace phys_demo
 {
@@ -30,6 +32,7 @@ namespace phys_demo
 
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;
+        ImFont *m_font;
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void add_entity_template();

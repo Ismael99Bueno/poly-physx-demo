@@ -54,7 +54,7 @@ namespace phys_demo
     void perf_panel::render_simple()
     {
         ImGui::Begin("Performance");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_unit_slider();
         render_simple_time();
         ImGui::End();
@@ -116,7 +116,7 @@ namespace phys_demo
     void perf_panel::render_full()
     {
         ImGui::Begin("Performance");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_unit_slider();
         render_time_hierarchy("runtime");
         ImGui::End();

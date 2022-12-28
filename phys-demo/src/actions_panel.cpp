@@ -12,7 +12,7 @@ namespace phys_demo
     void actions_panel::on_update()
     {
         ImGui::Begin("Actions");
-        ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_tabs();
         ImGui::End();
     }

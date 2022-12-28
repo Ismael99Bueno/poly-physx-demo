@@ -370,7 +370,7 @@ void ImGui::ShowDemoWindow(bool *p_open)
         ImGui::End();
         return;
     }
-    ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
+    // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
 
     // Most "big" widgets share a common width settings by default. See 'Demo->Layout->Widgets Width' for details.
     // e.g. Use 2/3 of the space for widgets and 1/3 for labels (right align)

@@ -1,7 +1,5 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 
 namespace phys_demo
 {
