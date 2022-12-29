@@ -147,7 +147,7 @@ namespace phys_demo
                     if (render_entity_data(e, -1))
                         to_remove = &e;
                     const phys::const_entity_ptr e_ptr = {&m_app->engine().entities(), e.index()};
-                    if (!m_selector.selected(e_ptr))
+                    if (!m_selector.is_selected(e_ptr))
                     {
                         ImGui::SameLine();
                         ImGui::PushID(e.id());

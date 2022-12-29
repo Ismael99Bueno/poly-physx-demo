@@ -3,7 +3,6 @@
 
 #include "entity_ptr.hpp"
 #include <unordered_set>
-#include <utility>
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
@@ -14,14 +13,17 @@ namespace phys_demo
         selector(sf::RenderWindow &window, std::vector<phys::entity2D> &entities);
 
         void begin_select(const alg::vec2 &mpos, bool clear_previous = true);
-        void draw_select_box(const alg::vec2 &mpos) const;
-        bool is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const;
-        bool selected(const phys::const_entity_ptr &e) const;
         void end_select(const alg::vec2 &mpos);
+
+        bool is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const;
+        bool is_selected(const phys::const_entity_ptr &e) const;
+
         void select(const phys::const_entity_ptr &e);
         void deselect(const phys::const_entity_ptr &e);
+
         bool validate();
 
+        void draw_select_box(const alg::vec2 &mpos) const;
         const std::unordered_set<phys::const_entity_ptr> &get() const;
 
     private:
@@ -31,7 +33,7 @@ namespace phys_demo
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 
-        std::pair<alg::vec2, alg::vec2> minmax(const alg::vec2 &mpos) const;
+        geo::aabb2D select_box(const alg::vec2 &mpos) const;
     };
 }
 

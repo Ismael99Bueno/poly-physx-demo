@@ -9,13 +9,11 @@ namespace phys_demo
     void grabber::try_grab_entity(std::vector<phys::entity2D> &entities, const alg::vec2 mpos)
     {
         float min_dist = std::numeric_limits<float>::max();
+        const geo::aabb2D aabb(mpos, mpos);
         for (const phys::entity2D &e : entities)
         {
             const float dist = e.pos().sq_dist(mpos);
-            if (geo::box2D::overlap(mpos, mpos,
-                                    e.bounding_box().min(),
-                                    e.bounding_box().max()) &&
-                min_dist > dist)
+            if (min_dist > dist && aabb.overlaps(e.aabb()))
             {
                 m_grabbed = {&entities, e.index()};
                 m_joint = mpos - e.pos();

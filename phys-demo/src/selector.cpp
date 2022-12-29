@@ -19,42 +19,23 @@ namespace phys_demo
         m_selecting = true;
     }
 
-    void selector::draw_select_box(const alg::vec2 &mpos) const
+    void selector::end_select(const alg::vec2 &mpos)
     {
-        if (!m_selecting)
-            return;
-        const auto [mm, mx] = minmax(mpos);
-        const alg::vec2 hdim = 0.5f * (mx - mm);
-        sf::Vertex vertices[5];
-        vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
-        vertices[1].position = mx * WORLD_TO_PIXEL;
-        vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
-        vertices[3].position = mm * WORLD_TO_PIXEL;
-        vertices[4].position = vertices[0].position;
-        m_window.draw(vertices, 5, sf::LineStrip);
+        const geo::aabb2D aabb = select_box(mpos);
+        for (const phys::entity2D &e : m_entities)
+            if (aabb.overlaps(e.aabb()))
+                m_selected.insert({&m_entities, e.index()});
+        m_selecting = false;
     }
 
     bool selector::is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const
     {
-        const auto [mm, mx] = minmax(mpos);
-        return (m_selecting && geo::box2D::overlap(mm, mx,
-                                                   e->bounding_box().min(),
-                                                   e->bounding_box().max())) ||
+        const geo::aabb2D aabb = select_box(mpos);
+        return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_selected.find(e) != m_selected.end();
     }
 
-    bool selector::selected(const phys::const_entity_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
-
-    void selector::end_select(const alg::vec2 &mpos)
-    {
-        const auto [mm, mx] = minmax(mpos);
-        for (std::size_t i = 0; i < m_entities.size(); i++)
-            if (geo::box2D::overlap(mm, mx,
-                                    m_entities[i].bounding_box().min(),
-                                    m_entities[i].bounding_box().max()))
-                m_selected.insert({&m_entities, i});
-        m_selecting = false;
-    }
+    bool selector::is_selected(const phys::const_entity_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
 
     void selector::select(const phys::const_entity_ptr &e) { m_selected.insert(e); }
 
@@ -80,13 +61,30 @@ namespace phys_demo
         return !invalids.empty();
     }
 
+    void selector::draw_select_box(const alg::vec2 &mpos) const
+    {
+        if (!m_selecting)
+            return;
+        const geo::aabb2D aabb = select_box(mpos);
+        const alg::vec2 &mm = aabb.min(),
+                        &mx = aabb.max();
+        const alg::vec2 hdim = 0.5f * (mx - mm);
+        sf::Vertex vertices[5];
+        vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
+        vertices[1].position = mx * WORLD_TO_PIXEL;
+        vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
+        vertices[3].position = mm * WORLD_TO_PIXEL;
+        vertices[4].position = vertices[0].position;
+        m_window.draw(vertices, 5, sf::LineStrip);
+    }
+
     const std::unordered_set<phys::const_entity_ptr> &selector::get() const { return m_selected; }
 
-    std::pair<alg::vec2, alg::vec2> selector::minmax(const alg::vec2 &mpos) const
+    geo::aabb2D selector::select_box(const alg::vec2 &mpos) const
     {
-        return std::make_pair(alg::vec2(std::min(mpos.x, m_mpos_start.x),
-                                        std::min(mpos.y, m_mpos_start.y)),
-                              alg::vec2(std::max(mpos.x, m_mpos_start.x),
-                                        std::max(mpos.y, m_mpos_start.y)));
+        return geo::aabb2D(alg::vec2(std::min(mpos.x, m_mpos_start.x),
+                                     std::min(mpos.y, m_mpos_start.y)),
+                           alg::vec2(std::max(mpos.x, m_mpos_start.x),
+                                     std::max(mpos.y, m_mpos_start.y)));
     }
 }

@@ -108,12 +108,13 @@ namespace phys_demo
                 draw_quad_tree(*child);
         else
         {
-            const alg::vec2 &pos = qt.pos(), &hdim = qt.dim() * 0.5f;
+            const alg::vec2 &mm = qt.aabb().min(),
+                            &mx = qt.aabb().max();
             sf::Vertex vertices[5];
-            vertices[0].position = (pos + alg::vec2(-hdim.x, hdim.y)) * WORLD_TO_PIXEL;
-            vertices[1].position = (pos + hdim) * WORLD_TO_PIXEL;
-            vertices[2].position = (pos + alg::vec2(hdim.x, -hdim.y)) * WORLD_TO_PIXEL;
-            vertices[3].position = (pos - hdim) * WORLD_TO_PIXEL;
+            vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
+            vertices[1].position = mx * WORLD_TO_PIXEL;
+            vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
+            vertices[3].position = mm * WORLD_TO_PIXEL;
             vertices[4].position = vertices[0].position;
             window().draw(vertices, 5, sf::LineStrip);
         }
