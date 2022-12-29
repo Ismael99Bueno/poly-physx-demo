@@ -9,7 +9,7 @@ namespace phys_demo
     void grabber::try_grab_entity(std::vector<phys::entity2D> &entities, const alg::vec2 mpos)
     {
         float min_dist = std::numeric_limits<float>::max();
-        const geo::aabb2D aabb(mpos, mpos);
+        const geo::aabb2D aabb(mpos);
         for (const phys::entity2D &e : entities)
         {
             const float dist = e.pos().sq_dist(mpos);
