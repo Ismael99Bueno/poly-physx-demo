@@ -16,7 +16,7 @@ namespace phys_demo
         void on_attach(phys::app *papp) override;
         void on_update() override;
 
-        phys::app *m_app;
+        const phys::app *m_app;
         gravity m_gravity;
         drag m_drag;
         electrical m_repulsive, m_attractive;

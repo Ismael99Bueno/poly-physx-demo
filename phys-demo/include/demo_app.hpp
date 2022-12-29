@@ -7,6 +7,7 @@
 #include "engine_panel.hpp"
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
+#include "previewer.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -30,13 +31,17 @@ namespace phys_demo
         perf_panel m_perf_panel;
         phys_panel m_phys_panel = phys_panel(m_selector);
 
+        previewer m_previewer = previewer(this, m_actions_panel.templ());
+
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;
         ImFont *m_font;
+        bool m_adding = false;
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void add_entity_template();
         void add_borders();
+        std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
     };
 }
 

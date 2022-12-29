@@ -112,8 +112,14 @@ namespace phys_demo
 
     void actions_panel::render_grab_parameters()
     {
-        ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 50.f, 1000.f, "%.1f");
-        ImGui::DragFloat("Dampening", &m_grabber.m_dampening, 0.2f, 5.f, 100.f, "%.2f");
+        static float sp_color[3] = {m_grabber.spring_color().r / 255.f, m_grabber.spring_color().g / 255.f, m_grabber.spring_color().b / 255.f};
+        ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 0.f, 500.f, "%.1f");
+        ImGui::DragFloat("Dampening", &m_grabber.m_dampening, 0.2f, 0.f, 50.f, "%.2f");
+        if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip))
+            m_grabber.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
+        ImGui::SameLine();
+        if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+            m_grabber.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
     }
 
     void actions_panel::render_selected_options() const

@@ -25,6 +25,11 @@ namespace phys_demo
         m_selector.draw_select_box();
         if (m_engine_panel.visualize_quad_tree())
             draw_quad_tree(engine().collider().quad_tree());
+        if (m_adding)
+        {
+            const auto [pos, vel] = pos_vel_upon_addition();
+            m_previewer.preview(pos, vel);
+        }
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
 #endif
@@ -49,6 +54,8 @@ namespace phys_demo
             {
             case actions_panel::ADD:
                 m_mouse_add = world_mouse();
+                m_adding = true;
+                m_previewer.setup();
                 break;
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
@@ -67,6 +74,7 @@ namespace phys_demo
             {
             case actions_panel::ADD:
                 add_entity_template();
+                m_adding = false;
                 break;
             case actions_panel::GRAB:
                 m_grabber.null();
@@ -120,9 +128,7 @@ namespace phys_demo
 
     void demo_app::add_entity_template()
     {
-        const alg::vec2 release = world_mouse();
-        const alg::vec2 pos = m_mouse_add,
-                        vel = 0.3f * (m_mouse_add - release);
+        const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &templ = m_actions_panel.templ();
         engine().add_entity(pos, vel,
                             std::atan2f(vel.y, vel.x),
@@ -152,5 +158,13 @@ namespace phys_demo
         e2->dynamic(false);
         e3->dynamic(false);
         e4->dynamic(false);
+    }
+
+    std::pair<alg::vec2, alg::vec2> demo_app::pos_vel_upon_addition() const
+    {
+        const float speed_mult = 0.5f;
+        const alg::vec2 pos = m_mouse_add,
+                        vel = speed_mult * (m_mouse_add - world_mouse());
+        return std::make_pair(pos, vel);
     }
 }
