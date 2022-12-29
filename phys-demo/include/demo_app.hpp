@@ -22,13 +22,13 @@ namespace phys_demo
         void on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
-        grabber m_grabber = grabber(window());
-        selector m_selector = selector(window(), engine().entities());
+        grabber m_grabber = grabber(this);
+        selector m_selector = selector(this);
 
         actions_panel m_actions_panel = actions_panel(m_grabber, m_selector);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
-        phys_panel m_phys_panel;
+        phys_panel m_phys_panel = phys_panel(m_selector);
 
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;

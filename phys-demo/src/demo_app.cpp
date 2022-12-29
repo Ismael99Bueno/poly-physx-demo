@@ -20,10 +20,9 @@ namespace phys_demo
 
     void demo_app::on_update()
     {
-        const alg::vec2 mpos = world_mouse(), mdelta = world_mouse_delta();
         if (m_grabber)
-            m_grabber.move_grabbed_entity(mpos, mdelta);
-        m_selector.draw_select_box(mpos);
+            m_grabber.move_grabbed_entity();
+        m_selector.draw_select_box();
         if (m_engine_panel.visualize_quad_tree())
             draw_quad_tree(engine().collider().quad_tree());
 #ifdef DEBUG
@@ -33,10 +32,9 @@ namespace phys_demo
 
     void demo_app::on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape)
     {
-        const alg::vec2 mpos = world_mouse();
         const float ampl = 1.5f, freq = 2.5f;
 
-        if (m_selector.is_selecting(e, mpos))
+        if (m_selector.is_selecting(e))
             shape.setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
         else
             shape.setOutlineThickness(0);
@@ -53,10 +51,10 @@ namespace phys_demo
                 m_mouse_add = world_mouse();
                 break;
             case actions_panel::GRAB:
-                m_grabber.try_grab_entity(engine().entities(), world_mouse());
+                m_grabber.try_grab_entity();
                 break;
             case actions_panel::SELECT:
-                m_selector.begin_select(world_mouse(), !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+                m_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             default:
                 break;
@@ -74,7 +72,7 @@ namespace phys_demo
                 m_grabber.null();
                 break;
             case actions_panel::SELECT:
-                m_selector.end_select(world_mouse());
+                m_selector.end_select();
                 break;
             default:
                 break;

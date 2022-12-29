@@ -5,6 +5,7 @@
 
 namespace phys_demo
 {
+    phys_panel::phys_panel(const selector &s) : m_selector(s) {}
     void phys_panel::on_attach(phys::app *papp)
     {
         m_app = papp;
@@ -54,10 +55,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravity.auto_include(auto_include);
 
-                if (ImGui::Button("Add"))
-                    for (std::size_t i = 0; i < m_app->engine().size(); i++)
-                        m_gravity.include({&m_app->engine().entities(), i});
-
+                render_add_remove_buttons(m_gravity);
                 static float mag = m_gravity.mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -200.f, 200.f, "%.1f"))
                     m_gravity.mag(mag);
@@ -70,10 +68,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_drag.auto_include(auto_include);
 
-                if (ImGui::Button("Add"))
-                    for (std::size_t i = 0; i < m_app->engine().size(); i++)
-                        m_drag.include({&m_app->engine().entities(), i});
-
+                render_add_remove_buttons(m_drag);
                 static float linmag = m_drag.lin_mag(), angmag = m_drag.ang_mag();
                 if (ImGui::DragFloat("Linear magnitude", &linmag, 0.2f, 0.f, 20.f))
                     m_drag.lin_mag(linmag);
@@ -89,10 +84,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravitational.auto_include(auto_include);
 
-                if (ImGui::Button("Add"))
-                    for (std::size_t i = 0; i < m_app->engine().size(); i++)
-                        m_gravitational.include({&m_app->engine().entities(), i});
-
+                render_add_remove_buttons(m_gravitational);
                 static float mag = m_gravitational.mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
                     m_gravitational.mag(mag);
@@ -115,5 +107,22 @@ namespace phys_demo
             }
             ImGui::PopItemWidth();
         }
+    }
+
+    void phys_panel::render_add_remove_buttons(phys::entity_set &set) const
+    {
+        if (ImGui::Button("Add all"))
+            for (const phys::entity2D &e : m_app->engine().entities())
+                set.include({&m_app->engine().entities(), e.index()});
+        ImGui::SameLine();
+        if (ImGui::Button("Remove all"))
+            set.clear();
+        if (ImGui::Button("Add selected"))
+            for (const auto &e : m_selector.get())
+                set.include(e);
+        ImGui::SameLine();
+        if (ImGui::Button("Remove selected"))
+            for (const auto &e : m_selector.get())
+                set.exclude(e);
     }
 }

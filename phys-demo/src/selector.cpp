@@ -5,32 +5,30 @@
 
 namespace phys_demo
 {
-    selector::selector(sf::RenderWindow &window, std::vector<phys::entity2D> &entities) : m_window(window),
-                                                                                          m_entities(entities)
+    selector::selector(phys::app *papp) : m_app(papp)
     {
-        m_selected.reserve(m_entities.capacity());
+        m_selected.reserve(m_app->engine().entities().capacity());
     }
 
-    void selector::begin_select(const alg::vec2 &mpos, const bool clear_previous)
+    void selector::begin_select(const bool clear_previous)
     {
         if (clear_previous)
             m_selected.clear();
-        m_mpos_start = mpos;
+        m_mpos_start = m_app->world_mouse();
         m_selecting = true;
     }
 
-    void selector::end_select(const alg::vec2 &mpos)
+    void selector::end_select()
     {
-        const geo::aabb2D aabb = select_box(mpos);
-        for (const phys::entity2D &e : m_entities)
-            if (aabb.overlaps(e.aabb()))
-                m_selected.insert({&m_entities, e.index()});
+        const geo::aabb2D aabb = select_box();
+        const auto in_area = m_app->engine()[aabb];
+        m_selected.insert(in_area.begin(), in_area.end());
         m_selecting = false;
     }
 
-    bool selector::is_selecting(const phys::const_entity_ptr &e, const alg::vec2 &mpos) const
+    bool selector::is_selecting(const phys::const_entity_ptr &e) const
     {
-        const geo::aabb2D aabb = select_box(mpos);
+        const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_selected.find(e) != m_selected.end();
     }
@@ -61,11 +59,11 @@ namespace phys_demo
         return !invalids.empty();
     }
 
-    void selector::draw_select_box(const alg::vec2 &mpos) const
+    void selector::draw_select_box() const
     {
         if (!m_selecting)
             return;
-        const geo::aabb2D aabb = select_box(mpos);
+        const geo::aabb2D aabb = select_box();
         const alg::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         const alg::vec2 hdim = 0.5f * (mx - mm);
@@ -75,13 +73,14 @@ namespace phys_demo
         vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
         vertices[3].position = mm * WORLD_TO_PIXEL;
         vertices[4].position = vertices[0].position;
-        m_window.draw(vertices, 5, sf::LineStrip);
+        m_app->window().draw(vertices, 5, sf::LineStrip);
     }
 
     const std::unordered_set<phys::const_entity_ptr> &selector::get() const { return m_selected; }
 
-    geo::aabb2D selector::select_box(const alg::vec2 &mpos) const
+    geo::aabb2D selector::select_box() const
     {
+        const alg::vec2 mpos = m_app->world_mouse();
         return geo::aabb2D(alg::vec2(std::min(mpos.x, m_mpos_start.x),
                                      std::min(mpos.y, m_mpos_start.y)),
                            alg::vec2(std::max(mpos.x, m_mpos_start.x),
