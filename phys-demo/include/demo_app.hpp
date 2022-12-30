@@ -17,6 +17,7 @@ namespace phys_demo
     {
     public:
         demo_app();
+        void add_borders();
 
     private:
         void on_update() override;
@@ -40,7 +41,6 @@ namespace phys_demo
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void add_entity_template();
-        void add_borders();
         std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
     };
 }

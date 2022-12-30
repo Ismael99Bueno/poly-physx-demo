@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include "demo_app.hpp"
 
 namespace phys_demo
 {
@@ -35,10 +36,10 @@ namespace phys_demo
             render_grab_parameters();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Select"))
+        if (ImGui::BeginTabItem("Entities"))
         {
-            m_action = SELECT;
-            render_selected_options();
+            m_action = ENTITIES;
+            render_entities_options();
             ImGui::EndTabItem();
         }
         ImGui::PopItemWidth();
@@ -122,9 +123,13 @@ namespace phys_demo
             m_grabber.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
     }
 
-    void actions_panel::render_selected_options() const
+    void actions_panel::render_entities_options() const
     {
-        ImGui::Text("Press DEL to remove selected entities");
+        if (ImGui::Button("Remove all"))
+            m_app->engine().clear_entities();
+        ImGui::SameLine();
+        if (ImGui::Button("Add borders"))
+            ((demo_app *)m_app)->add_borders();
         phys::const_entity_ptr to_deselect = nullptr, to_select = nullptr;
         const phys::entity2D *to_remove = nullptr;
         if (ImGui::CollapsingHeader("Selected entities"))

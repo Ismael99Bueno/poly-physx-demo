@@ -60,7 +60,7 @@ namespace phys_demo
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
                 break;
-            case actions_panel::SELECT:
+            case actions_panel::ENTITIES:
                 m_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             default:
@@ -79,7 +79,7 @@ namespace phys_demo
             case actions_panel::GRAB:
                 m_grabber.null();
                 break;
-            case actions_panel::SELECT:
+            case actions_panel::ENTITIES:
                 m_selector.end_select();
                 break;
             default:
