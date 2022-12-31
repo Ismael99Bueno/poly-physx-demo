@@ -26,13 +26,12 @@ namespace phys_demo
 
         grabber m_grabber = grabber(this);
         selector m_selector = selector(this);
+        previewer m_previewer = previewer(this);
 
         actions_panel m_actions_panel = actions_panel(m_grabber, m_selector);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
         phys_panel m_phys_panel = phys_panel(m_selector);
-
-        previewer m_previewer = previewer(this, m_actions_panel.templ());
 
         alg::vec2 m_mouse_add;
         sf::Clock m_clock;

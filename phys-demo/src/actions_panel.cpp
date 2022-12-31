@@ -100,6 +100,7 @@ namespace phys_demo
         default:
             break;
         }
+        ImGui::Checkbox("Dynamic", &m_templ.dynamic);
     }
 
     void actions_panel::render_color_picker()
@@ -188,6 +189,7 @@ namespace phys_demo
             ImGui::Text("Torque - %f", e.torque());
             ImGui::Text("Area - %f", e.shape().area());
             ImGui::Text("Inertia - %f", e.inertia());
+            ImGui::Text("Dynamic - %d", e.dynamic());
             const bool remove = ImGui::Button("Remove");
             ImGui::TreePop();
             return remove;

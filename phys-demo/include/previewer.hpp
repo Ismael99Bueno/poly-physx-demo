@@ -9,14 +9,14 @@ namespace phys_demo
     class previewer
     {
     public:
-        previewer(phys::app *papp, const entity_template &templ);
+        previewer(phys::app *papp);
 
-        void setup();
+        void setup(const entity_template *templ);
         void preview(const alg::vec2 &pos, const alg::vec2 &vel);
 
     private:
         phys::app *m_app;
-        const entity_template &m_templ;
+        const entity_template *m_templ;
         sf::ConvexShape m_preview;
     };
 }

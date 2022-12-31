@@ -161,12 +161,12 @@ namespace phys_demo
                    period = collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
-        if (ImGui::DragInt("Maximum entities", &max_entities, 0.2f, 2, 20))
+        if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
         {
             collider.quad_tree().max_entities(max_entities);
             collider.rebuild_quad_tree();
         }
-        if (ImGui::DragInt("Refresh period", &period, 0.2f, 1, 500))
+        if (ImGui::SliderInt("Refresh period", &period, 1, 150))
             collider.quad_tree_build_period(period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }

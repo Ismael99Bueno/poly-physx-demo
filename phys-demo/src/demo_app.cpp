@@ -55,7 +55,7 @@ namespace phys_demo
             case actions_panel::ADD:
                 m_mouse_add = world_mouse();
                 m_adding = true;
-                m_previewer.setup();
+                m_previewer.setup(&m_actions_panel.templ());
                 break;
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
@@ -130,12 +130,13 @@ namespace phys_demo
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &templ = m_actions_panel.templ();
-        engine().add_entity(pos, vel,
+        engine().add_entity(pos, templ.dynamic ? vel : alg::vec2(),
                             std::atan2f(vel.y, vel.x),
                             0.f,
                             templ.mass,
                             templ.charge,
-                            templ.vertices);
+                            templ.vertices,
+                            templ.dynamic);
     }
 
     void demo_app::add_borders()

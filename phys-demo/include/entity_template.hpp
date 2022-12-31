@@ -19,6 +19,7 @@ namespace phys_demo
               size = INITIAL, width = INITIAL,
               height = INITIAL, radius = INITIAL;
         std::uint32_t sides = 3;
+        bool dynamic = true;
     };
 }
 
