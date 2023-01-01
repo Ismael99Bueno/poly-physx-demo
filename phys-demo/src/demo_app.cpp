@@ -20,6 +20,7 @@ namespace phys_demo
 
     void demo_app::on_update()
     {
+        draw_interaction_lines();
         if (m_grabber)
             m_grabber.move_grabbed_entity();
         m_selector.draw_select_box();
@@ -124,6 +125,28 @@ namespace phys_demo
             vertices[4].position = vertices[0].position;
             window().draw(vertices, 5, sf::LineStrip);
         }
+    }
+
+    void demo_app::draw_interaction_lines()
+    {
+        const phys::const_entity_ptr e1 = engine()[world_mouse()];
+        if (e1)
+            for (const auto &inter : engine().interactions())
+                if (inter->contains(e1))
+                    for (const auto &e2 : inter->entities())
+                        if (e1 != e2)
+                        {
+                            sf::Vertex line[2];
+                            sf::Color c1 = shapes()[e1.index()].getFillColor(),
+                                      c2 = shapes()[e2.index()].getFillColor();
+                            c1.a = 120;
+                            c2.a = 120;
+                            line[0].position = e1->pos() * WORLD_TO_PIXEL;
+                            line[0].color = c1;
+                            line[1].position = e2->pos() * WORLD_TO_PIXEL;
+                            line[1].color = c2;
+                            window().draw(line, 2, sf::Lines);
+                        }
     }
 
     void demo_app::add_entity_template()

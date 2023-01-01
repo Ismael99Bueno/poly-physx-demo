@@ -39,6 +39,7 @@ namespace phys_demo
         bool m_adding = false;
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
+        void draw_interaction_lines();
         void add_entity_template();
         std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
     };

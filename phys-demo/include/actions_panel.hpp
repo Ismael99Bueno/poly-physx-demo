@@ -15,6 +15,7 @@ namespace phys_demo
         {
             ADD,
             GRAB,
+            ATTACH,
             ENTITIES,
             NONE
         };
@@ -29,6 +30,12 @@ namespace phys_demo
             BOX = 0,
             RECT = 1,
             NGON = 2
+        };
+
+        enum attach_type
+        {
+            SPRING,
+            RIGID_BAR
         };
 
         void on_attach(phys::app *papp) override;
@@ -48,7 +55,9 @@ namespace phys_demo
         void render_entity_inputs();
         void render_color_picker();
 
-        void render_grab_parameters();
+        void render_grab_options();
+
+        void render_attach_options();
 
         void render_entities_options() const;
         bool render_entity_data(const phys::entity2D &e, std::int8_t sign = 1) const;

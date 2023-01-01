@@ -33,7 +33,13 @@ namespace phys_demo
         if (ImGui::BeginTabItem("Grab"))
         {
             m_action = GRAB;
-            render_grab_parameters();
+            render_grab_options();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Attach"))
+        {
+            m_action = ATTACH;
+            render_attach_options();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Entities"))
@@ -48,7 +54,7 @@ namespace phys_demo
 
     void actions_panel::render_shapes_list()
     {
-        static const char *shapes[] = {"Box", "Rectangle", "NGon"};
+        const char *shapes[3] = {"Box", "Rectangle", "NGon"};
         ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
         const sf::Color color = sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f);
         switch (m_selected_shape)
@@ -112,7 +118,7 @@ namespace phys_demo
             m_app->entity_color(sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f));
     }
 
-    void actions_panel::render_grab_parameters()
+    void actions_panel::render_grab_options()
     {
         static float sp_color[3] = {m_grabber.spring_color().r / 255.f, m_grabber.spring_color().g / 255.f, m_grabber.spring_color().b / 255.f};
         ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 0.f, 500.f, "%.1f");
@@ -122,6 +128,12 @@ namespace phys_demo
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
             m_grabber.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
+    }
+
+    void actions_panel::render_attach_options()
+    {
+        const char *attach_types[2] = {"Spring", "Rigid bar"};
+        ImGui::ListBox("Attach type", (int *)&m_selected_shape, attach_types, IM_ARRAYSIZE(attach_types));
     }
 
     void actions_panel::render_entities_options() const
@@ -187,9 +199,11 @@ namespace phys_demo
             ImGui::Text("Angular position - %f", e.angpos());
             ImGui::Text("Angular velocity - %f", e.angvel());
             ImGui::Text("Torque - %f", e.torque());
+            ImGui::Text("Mass - %f", e.mass());
+            ImGui::Text("Charge - %f", e.charge());
             ImGui::Text("Area - %f", e.shape().area());
             ImGui::Text("Inertia - %f", e.inertia());
-            ImGui::Text("Dynamic - %d", e.dynamic());
+            ImGui::Text(e.dynamic() ? "Dynamic" : "Static");
             const bool remove = ImGui::Button("Remove");
             ImGui::TreePop();
             return remove;
