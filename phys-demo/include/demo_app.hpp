@@ -8,6 +8,7 @@
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
 #include "previewer.hpp"
+#include "adder.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -27,21 +28,18 @@ namespace phys_demo
         grabber m_grabber = grabber(this);
         selector m_selector = selector(this);
         previewer m_previewer = previewer(this);
+        adder m_adder = adder(this);
 
         actions_panel m_actions_panel = actions_panel(m_grabber, m_selector);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
         phys_panel m_phys_panel = phys_panel(m_selector);
 
-        alg::vec2 m_mouse_add;
         sf::Clock m_clock;
         ImFont *m_font;
-        bool m_adding = false;
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
         void draw_interaction_lines();
-        void add_entity_template();
-        std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
     };
 }
 

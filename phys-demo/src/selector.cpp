@@ -1,11 +1,12 @@
 #include "selector.hpp"
 #include "debug.h"
 #include "constants.hpp"
+#include "demo_app.hpp"
 #include <cmath>
 
 namespace phys_demo
 {
-    selector::selector(phys::app *papp) : m_app(papp)
+    selector::selector(demo_app *papp) : m_app(papp)
     {
         m_selected.reserve(m_app->engine().entities().capacity());
     }

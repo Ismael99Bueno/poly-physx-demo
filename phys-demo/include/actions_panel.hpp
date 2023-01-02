@@ -44,7 +44,8 @@ namespace phys_demo
         phys::app *m_app;
         entity_template m_templ;
         actions m_action = ADD;
-        shape_type m_selected_shape = BOX;
+        shape_type m_shape_type = BOX;
+        attach_type m_attach_type = SPRING;
         grabber &m_grabber;
         selector &m_selector;
         float m_color[3] = {0.f, 1.f, 0.f};

@@ -1,10 +1,11 @@
 #include "grabber.hpp"
 #include "constants.hpp"
+#include "demo_app.hpp"
 #include <limits>
 
 namespace phys_demo
 {
-    grabber::grabber(phys::app *papp) : m_app(papp) {}
+    grabber::grabber(demo_app *papp) : m_app(papp) {}
 
     void grabber::try_grab_entity()
     {

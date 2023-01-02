@@ -1,16 +1,17 @@
 #ifndef SELECTOR_HPP
 #define SELECTOR_HPP
 
-#include "app.hpp"
+#include "entity_ptr.hpp"
 #include <unordered_set>
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
+    class demo_app;
     class selector
     {
     public:
-        selector(phys::app *papp);
+        selector(demo_app *papp);
 
         void begin_select(bool clear_previous = true);
         void end_select();
@@ -27,7 +28,7 @@ namespace phys_demo
         const std::unordered_set<phys::const_entity_ptr> &get() const;
 
     private:
-        phys::app *m_app;
+        demo_app *m_app;
         std::unordered_set<phys::const_entity_ptr> m_selected;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;

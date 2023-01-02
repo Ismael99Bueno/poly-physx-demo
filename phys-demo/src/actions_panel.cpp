@@ -55,9 +55,9 @@ namespace phys_demo
     void actions_panel::render_shapes_list()
     {
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};
-        ImGui::ListBox("Shapes", (int *)&m_selected_shape, shapes, IM_ARRAYSIZE(shapes));
+        ImGui::ListBox("Shapes", (int *)&m_shape_type, shapes, IM_ARRAYSIZE(shapes));
         const sf::Color color = sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f);
-        switch (m_selected_shape)
+        switch (m_shape_type)
         {
         case BOX:
         {
@@ -90,7 +90,7 @@ namespace phys_demo
     {
         ImGui::DragFloat("Mass", &m_templ.mass, 0.2f, 1.f, 100.f);
         ImGui::DragFloat("Charge", &m_templ.charge, 0.2f, 1.f, 100.f);
-        switch (m_selected_shape)
+        switch (m_shape_type)
         {
         case BOX:
             ImGui::DragFloat("Size", &m_templ.size, 0.2f, 1.f, 100.f);
@@ -133,7 +133,7 @@ namespace phys_demo
     void actions_panel::render_attach_options()
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
-        ImGui::ListBox("Attach type", (int *)&m_selected_shape, attach_types, IM_ARRAYSIZE(attach_types));
+        ImGui::ListBox("Attach type", (int *)&m_attach_type, attach_types, IM_ARRAYSIZE(attach_types));
     }
 
     void actions_panel::render_entities_options() const
@@ -213,7 +213,7 @@ namespace phys_demo
 
     void actions_panel::update_template()
     {
-        switch (m_selected_shape)
+        switch (m_shape_type)
         {
         case BOX:
             m_templ.box();

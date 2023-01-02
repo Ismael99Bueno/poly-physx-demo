@@ -1,9 +1,10 @@
 #include "previewer.hpp"
 #include "constants.hpp"
+#include "demo_app.hpp"
 
 namespace phys_demo
 {
-    previewer::previewer(phys::app *papp) : m_app(papp) {}
+    previewer::previewer(demo_app *papp) : m_app(papp) {}
 
     void previewer::setup(const entity_template *templ)
     {
