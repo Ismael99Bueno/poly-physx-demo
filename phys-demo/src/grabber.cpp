@@ -5,7 +5,15 @@
 
 namespace phys_demo
 {
-    grabber::grabber(demo_app *papp) : m_app(papp) {}
+    grabber::grabber(demo_app *papp) : m_app(papp)
+    {
+        const auto validate = [this](const std::size_t index)
+        {
+            if (m_grabbed && !m_grabbed.try_validate())
+                m_grabbed = nullptr;
+        };
+        m_app->engine().on_entity_removal(validate);
+    }
 
     void grabber::try_grab_entity()
     {
@@ -72,16 +80,6 @@ namespace phys_demo
     }
 
     void grabber::null() { m_grabbed = nullptr; }
-    bool grabber::validate()
-    {
-        if (m_grabbed && !m_grabbed.try_validate())
-        {
-            m_grabbed = nullptr;
-            return false;
-        }
-        return true;
-    }
-
     const sf::Color &grabber::spring_color() const { return m_color; }
     void grabber::spring_color(const sf::Color &color) { m_color = color; }
 

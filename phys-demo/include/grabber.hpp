@@ -16,7 +16,6 @@ namespace phys_demo
         void move_grabbed_entity();
 
         void null();
-        bool validate();
 
         const sf::Color &spring_color() const;
         void spring_color(const sf::Color &color);

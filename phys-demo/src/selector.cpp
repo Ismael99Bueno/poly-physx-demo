@@ -9,6 +9,26 @@ namespace phys_demo
     selector::selector(demo_app *papp) : m_app(papp)
     {
         m_selected.reserve(m_app->engine().entities().capacity());
+        const auto validate = [this](const std::size_t index)
+        {
+            std::vector<phys::const_entity_ptr> invalids;
+            invalids.reserve(m_selected.size());
+            for (auto it = m_selected.begin(); it != m_selected.end();)
+                if (!it->is_valid())
+                {
+                    invalids.emplace_back(*it);
+                    it = m_selected.erase(it);
+                }
+                else
+                    ++it;
+            for (phys::const_entity_ptr &e : invalids)
+                if (e.try_validate())
+                    m_selected.insert(e);
+            DBG_LOG_IF(invalids.empty() && !m_selected.empty(), "Validate method did not find any invalid entity pointers.\n")
+            DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
+            return !invalids.empty();
+        };
+        m_app->engine().on_entity_removal(validate);
     }
 
     void selector::begin_select(const bool clear_previous)
@@ -39,27 +59,6 @@ namespace phys_demo
     void selector::select(const phys::const_entity_ptr &e) { m_selected.insert(e); }
 
     void selector::deselect(const phys::const_entity_ptr &e) { m_selected.erase(e); }
-
-    bool selector::validate()
-    {
-        std::vector<phys::const_entity_ptr> invalids;
-        invalids.reserve(m_selected.size());
-        for (auto it = m_selected.begin(); it != m_selected.end();)
-            if (!it->is_valid())
-            {
-                invalids.emplace_back(*it);
-                it = m_selected.erase(it);
-            }
-            else
-                ++it;
-        for (phys::const_entity_ptr &e : invalids)
-            if (e.try_validate())
-                m_selected.insert(e);
-        DBG_LOG_IF(invalids.empty() && !m_selected.empty(), "Validate method did not find any invalid entity pointers.\n")
-        DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
-        return !invalids.empty();
-    }
-
     void selector::draw_select_box() const
     {
         if (!m_selecting)

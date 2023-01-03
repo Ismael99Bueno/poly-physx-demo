@@ -5,11 +5,6 @@ namespace phys_demo
 {
     demo_app::demo_app() : app()
     {
-        const auto validate = [this](const std::size_t index)
-        {m_grabber.validate();
-        m_selector.validate(); };
-        engine().on_entity_removal(validate);
-
         push_layer(&m_phys_panel);
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);

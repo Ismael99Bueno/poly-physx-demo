@@ -6,7 +6,11 @@
 
 namespace phys_demo
 {
-    actions_panel::actions_panel(grabber &g, selector &s) : m_grabber(g), m_selector(s) {}
+    actions_panel::actions_panel(grabber &g,
+                                 selector &s,
+                                 attacher &a) : m_grabber(g),
+                                                m_selector(s),
+                                                m_attacher(a) {}
 
     void actions_panel::on_attach(phys::app *papp) { m_app = papp; }
 
@@ -133,7 +137,9 @@ namespace phys_demo
     void actions_panel::render_attach_options()
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
-        ImGui::ListBox("Attach type", (int *)&m_attach_type, attach_types, IM_ARRAYSIZE(attach_types));
+        static attacher::attach_type type = m_attacher.type();
+        if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
+            m_attacher.type(type);
     }
 
     void actions_panel::render_entities_options() const

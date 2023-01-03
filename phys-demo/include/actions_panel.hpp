@@ -4,6 +4,7 @@
 #include "app.hpp"
 #include "grabber.hpp"
 #include "selector.hpp"
+#include "attacher.hpp"
 #include "entity_template.hpp"
 
 namespace phys_demo
@@ -19,7 +20,7 @@ namespace phys_demo
             ENTITIES,
             NONE
         };
-        actions_panel(grabber &g, selector &s);
+        actions_panel(grabber &g, selector &s, attacher &a);
 
         const entity_template &templ();
         actions action() const;
@@ -32,12 +33,6 @@ namespace phys_demo
             NGON = 2
         };
 
-        enum attach_type
-        {
-            SPRING,
-            RIGID_BAR
-        };
-
         void on_attach(phys::app *papp) override;
         void on_update() override;
 
@@ -45,9 +40,9 @@ namespace phys_demo
         entity_template m_templ;
         actions m_action = ADD;
         shape_type m_shape_type = BOX;
-        attach_type m_attach_type = SPRING;
         grabber &m_grabber;
         selector &m_selector;
+        attacher &m_attacher;
         float m_color[3] = {0.f, 1.f, 0.f};
 
         void render_tabs();

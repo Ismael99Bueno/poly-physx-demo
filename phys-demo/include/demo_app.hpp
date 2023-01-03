@@ -9,6 +9,7 @@
 #include "phys_panel.hpp"
 #include "previewer.hpp"
 #include "adder.hpp"
+#include "attacher.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -29,8 +30,9 @@ namespace phys_demo
         selector m_selector = selector(this);
         previewer m_previewer = previewer(this);
         adder m_adder = adder(this);
+        attacher m_attacher = attacher(this);
 
-        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector);
+        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector, m_attacher);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
         phys_panel m_phys_panel = phys_panel(m_selector);

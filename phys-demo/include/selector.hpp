@@ -22,8 +22,6 @@ namespace phys_demo
         void select(const phys::const_entity_ptr &e);
         void deselect(const phys::const_entity_ptr &e);
 
-        bool validate();
-
         void draw_select_box() const;
         const std::unordered_set<phys::const_entity_ptr> &get() const;
 
