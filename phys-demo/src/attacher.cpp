@@ -37,19 +37,21 @@ namespace phys_demo
     }
     void attacher::try_attach_second(const phys::entity_ptr &e2)
     {
+        const alg::vec2 joint2 = m_app->world_mouse() - e2->pos();
         switch (m_attach_type)
         {
-            const alg::vec2 joint2 = m_app->world_mouse() - e2->pos();
         case SPRING:
         {
             const phys::spring2D sp(m_e1, e2, m_joint1, joint2);
             m_app->engine().add_spring(sp);
+            break;
         }
         case RIGID_BAR:
         {
             phys::rigid_bar2D *rb = new phys::rigid_bar2D(m_e1, e2, m_joint1, joint2, m_joint1.dist(joint2));
             m_rigid_bars.emplace_back(rb);
             m_app->engine().compeller().add_constraint(rb);
+            break;
         }
         }
         m_e1 = nullptr;

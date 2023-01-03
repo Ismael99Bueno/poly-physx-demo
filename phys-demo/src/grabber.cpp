@@ -1,6 +1,7 @@
 #include "grabber.hpp"
 #include "constants.hpp"
 #include "demo_app.hpp"
+#include "spring_line.hpp"
 #include <limits>
 
 namespace phys_demo
@@ -40,43 +41,12 @@ namespace phys_demo
 
     void grabber::draw_spring(const alg::vec2 &mpos, const alg::vec2 &rot_joint)
     {
-        const std::size_t supports_amount = 15;
-        const float supports_length = 20.f,
-                    padding = 30.f,
-                    min_height = 10.f;
-
-        sf::Vertex grab_line[2 + 4 * supports_amount];
-
-        const alg::vec2 start = mpos * WORLD_TO_PIXEL,
-                        end = (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL,
-                        segment = (end - start);
-        grab_line[0].position = end;
-        grab_line[1].position = start;
-        const float base_length = (segment.norm() - padding) / supports_amount,
-                    angle = segment.angle();
-
-        alg::vec2 ref1 = start, ref2 = end - segment.normalized() * padding;
-        for (std::size_t i = 0; i < supports_amount; i++)
-        {
-            const float y = std::sqrtf(std::max(min_height, supports_length * supports_length - base_length * base_length));
-            const alg::vec2 side1 = alg::vec2(0.5f * base_length, y).rotated(angle),
-                            side2 = alg::vec2(0.5f * base_length, -y).rotated(angle);
-
-            const std::size_t idx1 = 2 + 2 * i,
-                              idx2 = 2 + 2 * supports_amount + 2 * i;
-
-            grab_line[idx1].position = ref1 + side1;
-            grab_line[idx1 + 1].position = ref1 + side1 + side2;
-
-            grab_line[idx2].position = ref2 - side1;
-            grab_line[idx2 + 1].position = ref2 - side1 - side2;
-
-            ref1 += side1 + side2;
-            ref2 -= side1 + side2;
-        }
-        for (std::size_t i = 0; i < 2 + 4 * supports_amount; i++)
-            grab_line[i].color = m_color;
-        m_app->window().draw(grab_line, 2 + 4 * supports_amount, sf::LinesStrip);
+        prm::spring_line sl(mpos * WORLD_TO_PIXEL,
+                            (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL,
+                            m_color);
+        sl.right_padding(30.f);
+        sl.left_padding(15.f);
+        m_app->window().draw(sl);
     }
 
     void grabber::null() { m_grabbed = nullptr; }

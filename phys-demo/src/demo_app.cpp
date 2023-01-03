@@ -1,5 +1,7 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
+#include "flat_line_strip.hpp"
+#include "flat_line.hpp"
 
 namespace phys_demo
 {
@@ -110,13 +112,12 @@ namespace phys_demo
         {
             const alg::vec2 &mm = qt.aabb().min(),
                             &mx = qt.aabb().max();
-            sf::Vertex vertices[5];
-            vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
-            vertices[1].position = mx * WORLD_TO_PIXEL;
-            vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
-            vertices[3].position = mm * WORLD_TO_PIXEL;
-            vertices[4].position = vertices[0].position;
-            window().draw(vertices, 5, sf::LineStrip);
+            prm::flat_line_strip fls({alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
+                                      mx * WORLD_TO_PIXEL,
+                                      alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
+                                      mm * WORLD_TO_PIXEL,
+                                      alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            window().draw(fls);
         }
     }
 
@@ -129,16 +130,14 @@ namespace phys_demo
                     for (const auto &e2 : inter->entities())
                         if (e1 != e2)
                         {
-                            sf::Vertex line[2];
                             sf::Color c1 = shapes()[e1.index()].getFillColor(),
                                       c2 = shapes()[e2.index()].getFillColor();
                             c1.a = 120;
                             c2.a = 120;
-                            line[0].position = e1->pos() * WORLD_TO_PIXEL;
-                            line[0].color = c1;
-                            line[1].position = e2->pos() * WORLD_TO_PIXEL;
-                            line[1].color = c2;
-                            window().draw(line, 2, sf::Lines);
+                            prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
+                                              e2->pos() * WORLD_TO_PIXEL,
+                                              c1, c2);
+                            window().draw(fl);
                         }
     }
 

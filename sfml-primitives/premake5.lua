@@ -1,4 +1,4 @@
-project "phys-app"
+project "sfml-primitives"
    kind "StaticLib"
 
    language "C++"

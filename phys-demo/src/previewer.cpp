@@ -1,6 +1,8 @@
 #include "previewer.hpp"
 #include "constants.hpp"
 #include "demo_app.hpp"
+#include "flat_line.hpp"
+#include "flat_line_strip.hpp"
 
 namespace phys_demo
 {
@@ -31,21 +33,17 @@ namespace phys_demo
 
         const float antlers_length = 0.2f * segment.norm(),
                     antlers_angle = 0.33f * M_PI / (1.f + 0.015f * segment.norm());
-        sf::Vertex arrow_lines[5];
-        arrow_lines[0].position = start;
-        arrow_lines[1].position = end;
-        arrow_lines[2].position = end + (segment.normalized() * antlers_length).rotated(antlers_angle);
 
-        arrow_lines[3].position = end;
-        arrow_lines[4].position = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
-        for (std::size_t i = 0; i < 5; i++)
-        {
-            sf::Color color = m_app->entity_color();
-            color.a = 120;
-            arrow_lines[i].color = color;
-        }
-        m_app->window().draw(arrow_lines, 3, sf::LinesStrip);
-        m_app->window().draw(arrow_lines + 3, 2, sf::LinesStrip);
+        const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
+                        antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
+
+        sf::Color color = m_app->entity_color();
+        color.a = 120;
+
+        prm::flat_line_strip fls({start, end, antler1}, color);
+        prm::flat_line fl(end, antler2, color);
+        m_app->window().draw(fls);
+        m_app->window().draw(fl);
     }
 
 }

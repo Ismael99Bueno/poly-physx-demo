@@ -13,6 +13,7 @@ include "profiling"
 include "engine"
 include "imgui"
 include "phys-app"
+include "sfml-primitives"
 include "phys-demo"
 
 newaction {

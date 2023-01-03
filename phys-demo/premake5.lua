@@ -11,7 +11,7 @@ project "phys-demo"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
    libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/libomp/15.0.6/lib"}
-   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-app", "omp", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+   links {"vector", "profiling", "vec-ptr", "runge-kutta", "geometry", "engine", "imgui", "phys-app", "sfml-primitives", "omp", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
       defines { "DEBUG" }
