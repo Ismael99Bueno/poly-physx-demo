@@ -60,7 +60,7 @@ namespace phys_demo
     {
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};
         ImGui::ListBox("Shapes", (int *)&m_shape_type, shapes, IM_ARRAYSIZE(shapes));
-        const sf::Color color = sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f);
+        const sf::Color color = sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f);
         switch (m_shape_type)
         {
         case BOX:
@@ -115,16 +115,18 @@ namespace phys_demo
 
     void actions_panel::render_color_picker()
     {
-        if (ImGui::ColorPicker3("Entity color", m_color, ImGuiColorEditFlags_NoTooltip))
-            m_app->entity_color(sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f));
+        if (ImGui::ColorPicker3("Entity color", m_entity_color, ImGuiColorEditFlags_NoTooltip))
+            m_app->entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
         ImGui::SameLine();
-        if (ImGui::ColorPicker3("Entity color", m_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            m_app->entity_color(sf::Color(m_color[0] * 255.f, m_color[1] * 255.f, m_color[2] * 255.f));
+        if (ImGui::ColorPicker3("Entity color", m_entity_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+            m_app->entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
     }
 
     void actions_panel::render_grab_options()
     {
-        static float sp_color[3] = {m_grabber.spring_color().r / 255.f, m_grabber.spring_color().g / 255.f, m_grabber.spring_color().b / 255.f};
+        const sf::Color &color = m_grabber.spring_color();
+        static float sp_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+
         ImGui::DragFloat("Stiffness", &m_grabber.m_stiffness, 0.2f, 0.f, 500.f, "%.1f");
         ImGui::DragFloat("Dampening", &m_grabber.m_dampening, 0.2f, 0.f, 50.f, "%.2f");
         if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip))
@@ -136,10 +138,19 @@ namespace phys_demo
 
     void actions_panel::render_attach_options()
     {
+        const sf::Color &color = m_attacher.color();
+        static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+
         const char *attach_types[2] = {"Spring", "Rigid bar"};
         static attacher::attach_type type = m_attacher.type();
         if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
             m_attacher.type(type);
+
+        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
+            m_attacher.color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+        ImGui::SameLine();
+        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+            m_attacher.color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
     void actions_panel::render_entities_options() const

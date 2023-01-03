@@ -28,6 +28,12 @@ namespace phys_demo
             const auto [pos, vel] = m_adder.pos_vel_upon_addition();
             m_previewer.preview(pos, vel);
         }
+        m_attacher.draw_springs_and_bars();
+        if (m_attacher.has_first())
+        {
+            // m_attacher.rotate_joint();
+            m_attacher.draw_unattached_joint();
+        }
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
 #endif
@@ -56,6 +62,12 @@ namespace phys_demo
                 break;
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
+                break;
+            case actions_panel::ATTACH:
+                if (m_attacher.has_first())
+                    m_attacher.try_attach_second();
+                else
+                    m_attacher.try_attach_first();
                 break;
             case actions_panel::ENTITIES:
                 m_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));

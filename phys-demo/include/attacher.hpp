@@ -3,6 +3,7 @@
 
 #include "entity_ptr.hpp"
 #include "rigid_bar2D.hpp"
+#include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
@@ -19,12 +20,17 @@ namespace phys_demo
         attacher(demo_app *papp);
         ~attacher();
 
-        void try_attach_first(const phys::entity_ptr &e1);
-        void try_attach_second(const phys::entity_ptr &e2);
+        void try_attach_first();
+        void try_attach_second();
 
         void rotate_joint();
+        void draw_unattached_joint();
+        void draw_springs_and_bars();
 
         bool has_first() const;
+
+        const sf::Color &color();
+        void color(const sf::Color &color);
 
         const attach_type &type() const;
         void type(const attach_type &type);
@@ -36,6 +42,7 @@ namespace phys_demo
         float m_last_angle;
         attach_type m_attach_type = SPRING;
         std::vector<phys::rigid_bar2D *> m_rigid_bars;
+        sf::Color m_color = sf::Color::Magenta;
     };
 }
 

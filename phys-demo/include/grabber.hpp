@@ -29,7 +29,7 @@ namespace phys_demo
         float m_stiffness = 10.f, m_dampening = 1.f, m_angle;
         sf::Color m_color = sf::Color::Cyan;
 
-        void draw_spring(const alg::vec2 &mpos, const alg::vec2 &rot_joint);
+        void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint);
 
         friend class actions_panel;
     };

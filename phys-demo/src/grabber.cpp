@@ -36,14 +36,12 @@ namespace phys_demo
 
         m_grabbed->add_force(force);
         m_grabbed->add_torque(torque);
-        draw_spring(mpos, rot_joint);
+        draw_spring(m_app->pixel_mouse(), rot_joint);
     }
 
-    void grabber::draw_spring(const alg::vec2 &mpos, const alg::vec2 &rot_joint)
+    void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint)
     {
-        prm::spring_line sl(mpos * WORLD_TO_PIXEL,
-                            (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL,
-                            m_color);
+        prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL, m_color);
         sl.right_padding(30.f);
         sl.left_padding(15.f);
         m_app->window().draw(sl);

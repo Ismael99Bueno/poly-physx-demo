@@ -43,7 +43,7 @@ namespace phys_demo
         grabber &m_grabber;
         selector &m_selector;
         attacher &m_attacher;
-        float m_color[3] = {0.f, 1.f, 0.f};
+        float m_entity_color[3] = {0.f, 1.f, 0.f};
 
         void render_tabs();
 
