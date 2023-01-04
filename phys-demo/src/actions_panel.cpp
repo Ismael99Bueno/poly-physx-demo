@@ -172,7 +172,7 @@ namespace phys_demo
                     if (render_entity_data(*e))
                         to_remove = e.raw();
                     ImGui::SameLine();
-                    ImGui::PushID(e->id());
+                    ImGui::PushID(e.id());
                     if (ImGui::Button("Deselect"))
                         to_deselect = e;
                     ImGui::PopID();
