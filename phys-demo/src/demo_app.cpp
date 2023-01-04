@@ -104,6 +104,7 @@ namespace phys_demo
                 for (phys::const_entity_ptr e : selected)
                     if (e.try_validate())
                         engine().remove_entity(e);
+                m_attacher.cancel();
                 break;
             }
             default:

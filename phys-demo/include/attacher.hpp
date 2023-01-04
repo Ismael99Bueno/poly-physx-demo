@@ -27,6 +27,7 @@ namespace phys_demo
         void draw_unattached_joint();
         void draw_springs_and_bars();
 
+        void cancel();
         bool has_first() const;
 
         const sf::Color &color();

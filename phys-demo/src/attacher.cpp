@@ -85,7 +85,7 @@ namespace phys_demo
         case RIGID_BAR:
         {
             prm::thick_line tl((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL,
-                               m_app->pixel_mouse(), 5.f, m_color);
+                               m_app->pixel_mouse(), 8.f, m_color);
             m_app->window().draw(tl);
             break;
         }
@@ -105,11 +105,12 @@ namespace phys_demo
         {
             const alg::vec2 p1 = (rb->e1()->pos() + rb->joint1()) * WORLD_TO_PIXEL,
                             p2 = (rb->e2()->pos() + rb->joint2()) * WORLD_TO_PIXEL;
-            prm::thick_line tl(p1, p2, 5.f, m_color);
+            prm::thick_line tl(p1, p2, 8.f, m_color);
             m_app->window().draw(tl);
         }
     }
 
+    void attacher::cancel() { m_e1 = nullptr; }
     bool attacher::has_first() const { return (bool)m_e1; }
 
     const sf::Color &attacher::color() { return m_color; }

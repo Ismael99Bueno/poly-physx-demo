@@ -20,6 +20,16 @@ namespace prm
     {
         const alg::vec2 dir = (m_p2 - m_p1).normalized(),
                         offset = alg::vec2(-dir.y, dir.x) * m_thickness * 0.5f;
+
+        const float r = 0.5f * m_thickness;
+        sf::CircleShape start(r), end(r);
+        start.setOrigin(r, r);
+        start.setPosition(m_p1);
+        start.setFillColor(m_color1);
+        end.setOrigin(r, r);
+        end.setPosition(m_p2);
+        end.setFillColor(m_color2);
+
         sf::Vertex tline[4];
         tline[0].position = m_p1 + offset;
         tline[1].position = m_p2 + offset;
@@ -30,5 +40,7 @@ namespace prm
         tline[2].color = m_color2;
         tline[3].color = m_color1;
         target.draw(tline, 4, sf::Quads, states);
+        target.draw(start);
+        target.draw(end);
     }
 }
