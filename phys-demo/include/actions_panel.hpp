@@ -54,6 +54,8 @@ namespace phys_demo
         void render_grab_options();
 
         void render_attach_options();
+        void render_spring_constraint_list();
+        void render_attach_color_pickers();
 
         void render_entities_options() const;
         bool render_entity_data(const phys::entity2D &e, std::int8_t sign = 1) const;

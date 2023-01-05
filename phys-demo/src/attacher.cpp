@@ -54,7 +54,9 @@ namespace phys_demo
         {
         case SPRING:
         {
-            const phys::spring2D sp(m_e1, e2, m_joint1, joint2);
+            phys::spring2D sp(m_e1, e2, m_joint1, joint2, m_sp_length);
+            sp.stiffness(m_sp_stiffness);
+            sp.dampening(m_sp_dampening);
             m_app->engine().add_spring(sp);
             break;
         }
@@ -62,6 +64,8 @@ namespace phys_demo
         {
             const float dist = (m_e1->pos() + m_joint1).dist(e2->pos() + joint2);
             phys::rigid_bar2D *rb = new phys::rigid_bar2D(m_e1, e2, m_joint1, joint2, dist);
+            rb->stiffness(m_ctr_stiffness);
+            rb->dampening(m_ctr_dampening);
             m_rigid_bars.emplace_back(rb);
             m_app->engine().compeller().add_constraint(rb);
             break;
@@ -118,5 +122,19 @@ namespace phys_demo
 
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }
+
+    const std::vector<phys::rigid_bar2D *> &attacher::rbars() const { return m_rigid_bars; }
+
+    float attacher::sp_stiffness() const { return m_sp_stiffness; }
+    float attacher::sp_dampening() const { return m_sp_dampening; }
+    float attacher::sp_length() const { return m_sp_length; }
+    float attacher::ctr_stiffness() const { return m_ctr_stiffness; }
+    float attacher::ctr_dampening() const { return m_ctr_dampening; }
+
+    void attacher::sp_stiffness(float sp_stiffness) { m_sp_stiffness = sp_stiffness; }
+    void attacher::sp_dampening(float sp_dampening) { m_sp_dampening = sp_dampening; }
+    void attacher::sp_length(float sp_length) { m_sp_length = sp_length; }
+    void attacher::ctr_stiffness(float ctr_stiffness) { m_ctr_stiffness = ctr_stiffness; }
+    void attacher::ctr_dampening(float ctr_dampening) { m_ctr_dampening = ctr_dampening; }
 
 }
