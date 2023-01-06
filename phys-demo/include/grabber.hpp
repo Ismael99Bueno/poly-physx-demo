@@ -20,6 +20,12 @@ namespace phys_demo
         const sf::Color &spring_color() const;
         void spring_color(const sf::Color &color);
 
+        float stiffness() const;
+        float dampening() const;
+
+        void stiffness(float stiffness);
+        void dampening(float dampening);
+
         explicit operator bool() const;
 
     private:
@@ -30,8 +36,6 @@ namespace phys_demo
         sf::Color m_color = sf::Color::Cyan;
 
         void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint);
-
-        friend class actions_panel;
     };
 }
 

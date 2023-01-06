@@ -51,5 +51,14 @@ namespace phys_demo
     const sf::Color &grabber::spring_color() const { return m_color; }
     void grabber::spring_color(const sf::Color &color) { m_color = color; }
 
-    grabber::operator bool() const { return (bool)m_grabbed; }
+    float grabber::stiffness() const { return m_stiffness; }
+    float grabber::dampening() const { return m_dampening; }
+
+    void grabber::stiffness(float stiffness) { m_stiffness = stiffness; }
+    void grabber::dampening(float dampening) { m_dampening = dampening; }
+
+    grabber::operator bool() const
+    {
+        return (bool)m_grabbed;
+    }
 }
