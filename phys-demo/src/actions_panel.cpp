@@ -26,7 +26,6 @@ namespace phys_demo
     void actions_panel::render_tabs()
     {
         ImGui::BeginTabBar("Hey");
-        ImGui::PushItemWidth(200);
         if (ImGui::BeginTabItem("Add"))
         {
             m_action = ADD;
@@ -51,7 +50,6 @@ namespace phys_demo
             m_entities_tab.render(m_app);
             ImGui::EndTabItem();
         }
-        ImGui::PopItemWidth();
         ImGui::EndTabBar();
     }
 

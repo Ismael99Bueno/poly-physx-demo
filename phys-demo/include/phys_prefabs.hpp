@@ -83,7 +83,7 @@ namespace phys_demo
 
     private:
         float m_mag = 0.f;
-        std::uint32_t m_exp = 1;
+        std::uint32_t m_exp = 2;
         bool m_auto_include = false;
 
         friend class phys_panel;

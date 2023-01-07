@@ -16,18 +16,18 @@ namespace phys_demo
         void begin_select(bool clear_previous = true);
         void end_select();
 
-        bool is_selecting(const phys::const_entity_ptr &e) const;
-        bool is_selected(const phys::const_entity_ptr &e) const;
+        bool is_selecting(const phys::entity_ptr &e) const;
+        bool is_selected(const phys::entity_ptr &e) const;
 
-        void select(const phys::const_entity_ptr &e);
-        void deselect(const phys::const_entity_ptr &e);
+        void select(const phys::entity_ptr &e);
+        void deselect(const phys::entity_ptr &e);
 
         void draw_select_box() const;
-        const std::unordered_set<phys::const_entity_ptr> &get() const;
+        const std::unordered_set<phys::entity_ptr> &get() const;
 
     private:
         demo_app *m_app;
-        std::unordered_set<phys::const_entity_ptr> m_selected;
+        std::unordered_set<phys::entity_ptr> m_selected;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 

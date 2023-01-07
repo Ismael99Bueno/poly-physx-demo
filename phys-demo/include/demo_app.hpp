@@ -23,7 +23,7 @@ namespace phys_demo
 
     private:
         void on_update() override;
-        void on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape) override;
+        void on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
         grabber m_grabber = grabber(this);

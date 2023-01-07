@@ -39,7 +39,7 @@ namespace phys_demo
 #endif
     }
 
-    void demo_app::on_entity_draw(const phys::const_entity_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape)
     {
         const float ampl = 1.5f, freq = 2.5f;
 
@@ -100,7 +100,7 @@ namespace phys_demo
             {
             case sf::Keyboard::Backspace:
             {
-                const std::unordered_set<phys::const_entity_ptr> selected = m_selector.get();
+                const auto selected = m_selector.get();
                 for (phys::const_entity_ptr e : selected)
                     if (e.try_validate())
                         engine().remove_entity(e);

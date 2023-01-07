@@ -11,7 +11,7 @@ namespace phys_demo
         m_selected.reserve(m_app->engine().entities().capacity());
         const auto validate = [this](const std::size_t index)
         {
-            std::vector<phys::const_entity_ptr> invalids;
+            std::vector<phys::entity_ptr> invalids;
             invalids.reserve(m_selected.size());
             for (auto it = m_selected.begin(); it != m_selected.end();)
                 if (!it->is_valid())
@@ -21,7 +21,7 @@ namespace phys_demo
                 }
                 else
                     ++it;
-            for (phys::const_entity_ptr &e : invalids)
+            for (phys::entity_ptr &e : invalids)
                 if (e.try_validate())
                     m_selected.insert(e);
             DBG_LOG_IF(invalids.empty() && !m_selected.empty(), "Validate method did not find any invalid entity pointers.\n")
@@ -47,18 +47,18 @@ namespace phys_demo
         m_selecting = false;
     }
 
-    bool selector::is_selecting(const phys::const_entity_ptr &e) const
+    bool selector::is_selecting(const phys::entity_ptr &e) const
     {
         const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_selected.find(e) != m_selected.end();
     }
 
-    bool selector::is_selected(const phys::const_entity_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
+    bool selector::is_selected(const phys::entity_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
 
-    void selector::select(const phys::const_entity_ptr &e) { m_selected.insert(e); }
+    void selector::select(const phys::entity_ptr &e) { m_selected.insert(e); }
 
-    void selector::deselect(const phys::const_entity_ptr &e) { m_selected.erase(e); }
+    void selector::deselect(const phys::entity_ptr &e) { m_selected.erase(e); }
     void selector::draw_select_box() const
     {
         if (!m_selecting)
@@ -76,7 +76,7 @@ namespace phys_demo
         m_app->window().draw(vertices, 5, sf::LineStrip);
     }
 
-    const std::unordered_set<phys::const_entity_ptr> &selector::get() const { return m_selected; }
+    const std::unordered_set<phys::entity_ptr> &selector::get() const { return m_selected; }
 
     geo::aabb2D selector::select_box() const
     {

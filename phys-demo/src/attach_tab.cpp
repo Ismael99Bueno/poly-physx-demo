@@ -8,6 +8,8 @@ namespace phys_demo
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
         static attacher::attach_type type = m_attacher.type();
+
+        ImGui::PushItemWidth(200);
         if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
             m_attacher.type(type);
 
@@ -38,6 +40,7 @@ namespace phys_demo
         ImGui::Spacing();
         ImGui::Spacing();
         render_attach_color_pickers();
+        ImGui::PopItemWidth();
     }
 
     void attach_tab::render_spring_constraint_list(phys::app *papp)

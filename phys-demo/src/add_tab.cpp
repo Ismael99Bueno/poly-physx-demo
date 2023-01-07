@@ -8,9 +8,11 @@ namespace phys_demo
 {
     void add_tab::render(phys::app *papp)
     {
+        ImGui::PushItemWidth(200);
         render_shapes_list();
         render_entity_inputs();
         render_color_picker(papp);
+        ImGui::PopItemWidth();
     }
 
     void add_tab::render_shapes_list()

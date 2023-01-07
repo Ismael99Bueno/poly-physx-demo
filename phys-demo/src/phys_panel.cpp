@@ -77,7 +77,7 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("Gravitational"))
+            if (ImGui::TreeNode("Gravitational"))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravitational.size(), m_app->engine().size());
                 static bool auto_include = m_gravitational.auto_include();
@@ -90,19 +90,63 @@ namespace phys_demo
                     m_gravitational.mag(mag);
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Electrical (attractive)"))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_gravitational.size(), m_app->engine().size());
-                ImGui::TreePop();
-            }
             if (ImGui::TreeNode("Electrical (repulsive)"))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravity.size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_repulsive.size(), m_app->engine().size());
+                static bool auto_include = m_repulsive.auto_include();
+                if (ImGui::Checkbox("Add automatically", &auto_include))
+                    m_repulsive.auto_include(auto_include);
+
+                render_add_remove_buttons(m_repulsive);
+                static float mag = m_repulsive.mag();
+                static std::uint32_t exp = m_repulsive.exp();
+
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                    m_repulsive.mag(mag);
+
+                ImGui::Text("1/r^%u", exp);
+                ImGui::SameLine();
+                if (ImGui::DragInt("Exponent", (int *)&exp, 0.2f, 1, 15))
+                    m_repulsive.exp(exp);
+
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNode("Electrical (attractive)"))
+            {
+                ImGui::Text("Entities: %zu/%zu", m_attractive.size(), m_app->engine().size());
+                static bool auto_include = m_attractive.auto_include();
+                if (ImGui::Checkbox("Add automatically", &auto_include))
+                    m_attractive.auto_include(auto_include);
+
+                render_add_remove_buttons(m_attractive);
+                static float mag = -m_attractive.mag();
+                static std::uint32_t exp = m_attractive.exp();
+
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                    m_attractive.mag(-mag);
+
+                ImGui::Text("1/r^%u", exp);
+                ImGui::SameLine();
+                if (ImGui::DragInt("Exponent", (int *)&exp, 0.2f, 1, 15))
+                    m_attractive.exp(exp);
+
                 ImGui::TreePop();
             }
             if (ImGui::TreeNode("Exponential"))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravity.size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_exponential.size(), m_app->engine().size());
+                static bool auto_include = m_exponential.auto_include();
+                if (ImGui::Checkbox("Add automatically", &auto_include))
+                    m_exponential.auto_include(auto_include);
+
+                render_add_remove_buttons(m_exponential);
+                static float mag = m_exponential.mag(), exp = m_exponential.exp();
+
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                    m_exponential.mag(mag);
+                if (ImGui::DragFloat("Exponent", &exp, 0.2f, -15.f, 15.f))
+                    m_exponential.exp(exp);
+
                 ImGui::TreePop();
             }
             ImGui::PopItemWidth();

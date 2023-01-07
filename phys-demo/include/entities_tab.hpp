@@ -15,7 +15,7 @@ namespace phys_demo
     private:
         selector &m_selector;
 
-        bool render_entity_data(const phys::entity2D &e, std::int8_t sign = 1) const;
+        bool render_entity_data(phys::entity2D &e, std::int8_t sign = 1) const;
     };
 }
 
