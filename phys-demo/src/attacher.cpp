@@ -11,25 +11,14 @@ namespace phys_demo
     {
         const auto validate = [this](const std::size_t index)
         {
+            const auto &constraints = m_app->engine().compeller().constraints();
             for (auto it = m_rigid_bars.begin(); it != m_rigid_bars.end();)
-            {
-                const auto &constraints = m_app->engine().compeller().constraints();
                 if (std::find(constraints.begin(), constraints.end(), *it) == constraints.end())
-                {
-                    delete *it;
                     it = m_rigid_bars.erase(it);
-                }
                 else
                     ++it;
-            }
         };
         m_app->engine().on_entity_removal(validate);
-    }
-
-    attacher::~attacher()
-    {
-        for (const auto &rb : m_rigid_bars)
-            delete rb;
     }
 
     void attacher::try_attach_first()
@@ -63,7 +52,7 @@ namespace phys_demo
         case RIGID_BAR:
         {
             const float dist = (m_e1->pos() + m_joint1).dist(e2->pos() + joint2);
-            phys::rigid_bar2D *rb = new phys::rigid_bar2D(m_e1, e2, m_joint1, joint2, dist);
+            const std::shared_ptr<phys::rigid_bar2D> rb = std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
             rb->stiffness(m_ctr_stiffness);
             rb->dampening(m_ctr_dampening);
             m_rigid_bars.emplace_back(rb);
@@ -109,7 +98,7 @@ namespace phys_demo
             prm::spring_line sp_line(p1, p2, m_color);
             m_app->window().draw(sp_line);
         }
-        for (const phys::rigid_bar2D *rb : m_rigid_bars)
+        for (const auto &rb : m_rigid_bars)
         {
             const alg::vec2 p1 = (rb->e1()->pos() + rb->joint1()) * WORLD_TO_PIXEL,
                             p2 = (rb->e2()->pos() + rb->joint2()) * WORLD_TO_PIXEL;
@@ -127,7 +116,7 @@ namespace phys_demo
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }
 
-    const std::vector<phys::rigid_bar2D *> &attacher::rbars() const { return m_rigid_bars; }
+    const std::vector<std::shared_ptr<phys::rigid_bar2D>> &attacher::rbars() const { return m_rigid_bars; }
 
     float attacher::sp_stiffness() const { return m_sp_stiffness; }
     float attacher::sp_dampening() const { return m_sp_dampening; }

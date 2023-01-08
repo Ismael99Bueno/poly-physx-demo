@@ -18,7 +18,6 @@ namespace phys_demo
         };
 
         attacher(demo_app *papp);
-        ~attacher();
 
         void try_attach_first();
         void try_attach_second();
@@ -36,7 +35,7 @@ namespace phys_demo
         const attach_type &type() const;
         void type(const attach_type &type);
 
-        const std::vector<phys::rigid_bar2D *> &rbars() const;
+        const std::vector<std::shared_ptr<phys::rigid_bar2D>> &rbars() const;
 
         float sp_stiffness() const;
         float sp_dampening() const;
@@ -61,7 +60,7 @@ namespace phys_demo
             m_ctr_stiffness = 500.f,
             m_ctr_dampening = 30.f;
         attach_type m_attach_type = SPRING;
-        std::vector<phys::rigid_bar2D *> m_rigid_bars;
+        std::vector<std::shared_ptr<phys::rigid_bar2D>> m_rigid_bars;
         sf::Color m_color = sf::Color::Magenta;
     };
 }

@@ -67,7 +67,7 @@ namespace phys_demo
             for (std::size_t i = 0; i < m_attacher.rbars().size(); i++)
                 if (ImGui::TreeNode((void *)(intptr_t)(i + sp_count), "Rigid bar %zu", i))
                 {
-                    phys::rigid_bar2D *rb = m_attacher.rbars()[i];
+                    const std::shared_ptr<phys::rigid_bar2D> &rb = m_attacher.rbars()[i];
                     float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
 
                     ImGui::Text("Stress - %f", rb->value());
