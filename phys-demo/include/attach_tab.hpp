@@ -16,7 +16,8 @@ namespace phys_demo
         attacher &m_attacher;
 
         void render_spring_constraint_list(phys::app *papp);
-        void render_attach_color_pickers();
+        void render_spring_color_pickers(phys::app *papp);
+        void render_rb_color_pickers(phys::app *papp);
     };
 }
 

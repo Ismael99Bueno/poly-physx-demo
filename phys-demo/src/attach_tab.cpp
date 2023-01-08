@@ -39,7 +39,15 @@ namespace phys_demo
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
-        render_attach_color_pickers();
+        switch (type)
+        {
+        case attacher::SPRING:
+            render_spring_color_pickers(papp);
+            break;
+        case attacher::RIGID_BAR:
+            render_rb_color_pickers(papp);
+            break;
+        }
         ImGui::PopItemWidth();
     }
 
@@ -81,15 +89,26 @@ namespace phys_demo
                 }
     }
 
-    void attach_tab::render_attach_color_pickers()
+    void attach_tab::render_spring_color_pickers(phys::app *papp)
     {
-        const sf::Color &color = m_attacher.color();
+        const sf::Color &color = papp->springs_color();
         static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            m_attacher.color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp->springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            m_attacher.color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp->springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+    }
+
+    void attach_tab::render_rb_color_pickers(phys::app *papp)
+    {
+        const sf::Color &color = papp->rigid_bars_color();
+        static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
+            papp->rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+        ImGui::SameLine();
+        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+            papp->rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
 }

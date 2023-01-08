@@ -75,43 +75,22 @@ namespace phys_demo
         case SPRING:
         {
             prm::spring_line sp_line((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL,
-                                     m_app->pixel_mouse(), m_color);
+                                     m_app->pixel_mouse(), m_app->springs_color());
             m_app->window().draw(sp_line);
             break;
         }
         case RIGID_BAR:
         {
             prm::thick_line tl((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL,
-                               m_app->pixel_mouse(), 8.f, m_color);
+                               m_app->pixel_mouse(), 8.f, m_app->rigid_bars_color());
             m_app->window().draw(tl);
             break;
         }
         }
     }
 
-    void attacher::draw_springs_and_bars()
-    {
-        for (const phys::spring2D &sp : m_app->engine().springs())
-        {
-            const alg::vec2 p1 = (sp.e1()->pos() + sp.joint1()) * WORLD_TO_PIXEL,
-                            p2 = (sp.e2()->pos() + sp.joint2()) * WORLD_TO_PIXEL;
-            prm::spring_line sp_line(p1, p2, m_color);
-            m_app->window().draw(sp_line);
-        }
-        for (const auto &rb : m_rigid_bars)
-        {
-            const alg::vec2 p1 = (rb->e1()->pos() + rb->joint1()) * WORLD_TO_PIXEL,
-                            p2 = (rb->e2()->pos() + rb->joint2()) * WORLD_TO_PIXEL;
-            prm::thick_line tl(p1, p2, 8.f, m_color);
-            m_app->window().draw(tl);
-        }
-    }
-
     void attacher::cancel() { m_e1 = nullptr; }
     bool attacher::has_first() const { return (bool)m_e1; }
-
-    const sf::Color &attacher::color() { return m_color; }
-    void attacher::color(const sf::Color &color) { m_color = color; }
 
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }

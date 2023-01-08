@@ -28,7 +28,6 @@ namespace phys_demo
             const auto [pos, vel] = m_adder.pos_vel_upon_addition();
             m_previewer.preview(pos, vel);
         }
-        m_attacher.draw_springs_and_bars();
         if (m_attacher.has_first())
         {
             m_attacher.rotate_joint();
