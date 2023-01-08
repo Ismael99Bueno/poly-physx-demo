@@ -25,7 +25,7 @@ namespace phys_demo
         const selector &m_selector;
 
         void render_forces_and_inters();
-        void render_add_remove_buttons(const std::shared_ptr<phys::entity_set> &set) const;
+        void render_add_remove_buttons(phys::entity_set &set) const;
     };
 }
 

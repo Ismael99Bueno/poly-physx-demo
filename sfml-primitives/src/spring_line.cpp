@@ -23,6 +23,15 @@ namespace prm
     void spring_line::right_padding(const float right_padding) { m_right_padding = right_padding; }
     void spring_line::min_height(const float min_height) { m_min_height = min_height; }
 
+    const alg::vec2 &spring_line::p1() const { return m_p1; }
+    const alg::vec2 &spring_line::p2() const { return m_p2; }
+
+    const sf::Color &spring_line::color() const { return m_color; }
+    void spring_line::color(const sf::Color &c) { m_color = c; }
+
+    void spring_line::p1(const alg::vec2 &p1) { m_p1 = p1; }
+    void spring_line::p2(const alg::vec2 &p2) { m_p2 = p2; }
+
     void spring_line::draw(sf::RenderTarget &target, sf::RenderStates states) const
     {
         flat_line fl(m_p1, m_p2, m_color);

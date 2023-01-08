@@ -62,7 +62,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravity->auto_include(auto_include);
 
-                render_add_remove_buttons(m_gravity);
+                render_add_remove_buttons(*m_gravity);
                 static float mag = m_gravity->mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -200.f, 200.f, "%.1f"))
                     m_gravity->mag(mag);
@@ -75,7 +75,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_drag->auto_include(auto_include);
 
-                render_add_remove_buttons(m_drag);
+                render_add_remove_buttons(*m_drag);
                 static float linmag = m_drag->lin_mag(), angmag = m_drag->ang_mag();
                 if (ImGui::DragFloat("Linear magnitude", &linmag, 0.2f, 0.f, 20.f))
                     m_drag->lin_mag(linmag);
@@ -91,7 +91,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravitational->auto_include(auto_include);
 
-                render_add_remove_buttons(m_gravitational);
+                render_add_remove_buttons(*m_gravitational);
                 static float mag = m_gravitational->mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
                     m_gravitational->mag(mag);
@@ -104,7 +104,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_repulsive->auto_include(auto_include);
 
-                render_add_remove_buttons(m_repulsive);
+                render_add_remove_buttons(*m_repulsive);
                 static float mag = m_repulsive->mag();
                 static std::uint32_t exp = m_repulsive->exp();
 
@@ -125,7 +125,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_attractive->auto_include(auto_include);
 
-                render_add_remove_buttons(m_attractive);
+                render_add_remove_buttons(*m_attractive);
                 static float mag = -m_attractive->mag();
                 static std::uint32_t exp = m_attractive->exp();
 
@@ -146,7 +146,7 @@ namespace phys_demo
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_exponential->auto_include(auto_include);
 
-                render_add_remove_buttons(m_exponential);
+                render_add_remove_buttons(*m_exponential);
                 static float mag = m_exponential->mag(), exp = m_exponential->exp();
 
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
@@ -160,20 +160,20 @@ namespace phys_demo
         }
     }
 
-    void phys_panel::render_add_remove_buttons(const std::shared_ptr<phys::entity_set> &set) const
+    void phys_panel::render_add_remove_buttons(phys::entity_set &set) const
     {
         if (ImGui::Button("Add all"))
             for (const phys::entity2D &e : m_app->engine().entities())
-                set->include({&m_app->engine().entities(), e.index()});
+                set.include({&m_app->engine().entities(), e.index()});
         ImGui::SameLine();
         if (ImGui::Button("Remove all"))
-            set->clear();
+            set.clear();
         if (ImGui::Button("Add selected"))
             for (const auto &e : m_selector.get())
-                set->include(e);
+                set.include(e);
         ImGui::SameLine();
         if (ImGui::Button("Remove selected"))
             for (const auto &e : m_selector.get())
-                set->exclude(e);
+                set.exclude(e);
     }
 }

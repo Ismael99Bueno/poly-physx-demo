@@ -25,6 +25,15 @@ namespace prm
         void right_padding(float right_padding);
         void min_height(float min_height);
 
+        const alg::vec2 &p1() const;
+        const alg::vec2 &p2() const;
+
+        const sf::Color &color() const;
+        void color(const sf::Color &c);
+
+        void p1(const alg::vec2 &p1);
+        void p2(const alg::vec2 &p2);
+
     private:
         alg::vec2 m_p1, m_p2;
         sf::Color m_color;
