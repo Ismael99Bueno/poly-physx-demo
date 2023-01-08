@@ -31,7 +31,7 @@ namespace phys_demo
         m_attacher.draw_springs_and_bars();
         if (m_attacher.has_first())
         {
-            // m_attacher.rotate_joint();
+            m_attacher.rotate_joint();
             m_attacher.draw_unattached_joint();
         }
 #ifdef DEBUG

@@ -74,7 +74,11 @@ namespace phys_demo
         m_e1 = nullptr;
     }
 
-    void attacher::rotate_joint() { m_joint1.rotate(m_e1->angpos() - m_last_angle); }
+    void attacher::rotate_joint()
+    {
+        m_joint1.rotate(m_e1->angpos() - m_last_angle);
+        m_last_angle = m_e1->angpos();
+    }
     void attacher::draw_unattached_joint()
     {
         switch (m_attach_type)
