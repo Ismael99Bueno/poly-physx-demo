@@ -14,15 +14,10 @@ namespace rk
     class integrator
     {
     private:
-        using vector = std::vector<float>;
-        using matrix = std::vector<std::vector<float>>;
-        using uint8 = std::uint8_t;
-        using uint32 = std::uint32_t;
-
     public:
         integrator() = delete;
         integrator(const butcher_tableau &tb,
-                   vector &state,
+                   std::vector<float> &state,
                    float tolerance = 1e-6,
                    float min_dt = 1e-6,
                    float max_dt = 1.f);
@@ -31,7 +26,7 @@ namespace rk
         bool raw_forward(float &t,
                          float dt,
                          T &params,
-                         vector (*ode)(float, const vector &, T &))
+                         std::vector<float> (*ode)(float, const std::vector<float> &, T &))
         {
             PERF_FUNCTION()
             DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the current value - current: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
@@ -39,7 +34,7 @@ namespace rk
             update_kvec(t, dt, m_state, params, ode);
             if (m_tableau.embedded())
             {
-                const vector aux_state = generate_solution(dt, m_state, m_tableau.coefs2());
+                const std::vector<float> aux_state = generate_solution(dt, m_state, m_tableau.coefs2());
                 m_state = generate_solution(dt, m_state, m_tableau.coefs1());
                 m_error = embedded_error(m_state, aux_state);
             }
@@ -54,8 +49,8 @@ namespace rk
         bool reiterative_forward(float &t,
                                  float &dt,
                                  T &params,
-                                 vector (*ode)(float, const vector &, T &),
-                                 uint8 reiterations = 2)
+                                 std::vector<float> (*ode)(float, const std::vector<float> &, T &),
+                                 std::uint8_t reiterations = 2)
         {
             PERF_FUNCTION()
             DBG_ASSERT(reiterations >= 2, "The amount of reiterations has to be greater than 1, otherwise the algorithm will break.\n")
@@ -67,10 +62,10 @@ namespace rk
                 dt = std::clamp(dt * timestep_factor(), m_min_dt, m_max_dt);
             for (;;)
             {
-                vector sol1 = m_state;
+                std::vector<float> sol1 = m_state;
                 update_kvec(t, dt, m_state, params, ode);
-                const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs());
-                for (uint8 i = 0; i < reiterations; i++)
+                const std::vector<float> sol2 = generate_solution(dt, m_state, m_tableau.coefs());
+                for (std::uint8_t i = 0; i < reiterations; i++)
                 {
                     update_kvec(t, dt / reiterations, sol1, params, ode);
                     sol1 = generate_solution(dt / reiterations, sol1, m_tableau.coefs());
@@ -97,7 +92,7 @@ namespace rk
         bool embedded_forward(float &t,
                               float &dt,
                               T &params,
-                              vector (*ode)(float, const vector &, T &))
+                              std::vector<float> (*ode)(float, const std::vector<float> &, T &))
         {
             PERF_FUNCTION()
             DBG_ASSERT(m_tableau.embedded(), "Cannot perform embedded adaptive stepsize without an embedded solution.\n")
@@ -109,8 +104,8 @@ namespace rk
             for (;;)
             {
                 update_kvec(t, dt, m_state, params, ode);
-                const vector sol2 = generate_solution(dt, m_state, m_tableau.coefs2());
-                const vector sol1 = generate_solution(dt, m_state, m_tableau.coefs1());
+                const std::vector<float> sol2 = generate_solution(dt, m_state, m_tableau.coefs2());
+                const std::vector<float> sol1 = generate_solution(dt, m_state, m_tableau.coefs1());
                 m_error = embedded_error(sol1, sol2);
 
                 const bool too_small = dt_too_small(dt);
@@ -135,13 +130,13 @@ namespace rk
         const butcher_tableau &tableau() const;
         butcher_tableau &tableau();
 
-        const vector &state() const;
-        vector &state();
+        const std::vector<float> &state() const;
+        std::vector<float> &state();
 
-        const vector &step() const;
+        const std::vector<float> &step() const;
 
         void tableau(const butcher_tableau &tableau);
-        void state(vector &state);
+        void state(std::vector<float> &state);
 
         float tolerance() const;
         float min_dt() const;
@@ -154,40 +149,40 @@ namespace rk
 
     private:
         butcher_tableau m_tableau;
-        vector &m_state, m_step;
-        matrix m_kvec;
+        std::vector<float> &m_state, m_step;
+        std::vector<std::vector<float>> m_kvec;
         float m_tolerance, m_min_dt, m_max_dt, m_error;
         bool m_valid;
 
-        vector generate_solution(float dt,
-                                 const vector &state,
-                                 const vector &coefs);
+        std::vector<float> generate_solution(float dt,
+                                             const std::vector<float> &state,
+                                             const std::vector<float> &coefs);
 
         bool dt_too_small(float dt) const;
         bool dt_too_big(float dt) const;
         bool dt_off_bounds(float dt) const;
-        static float embedded_error(const vector &sol1, const vector &sol2);
-        float reiterative_error(const vector &sol1, const vector &sol2) const;
+        static float embedded_error(const std::vector<float> &sol1, const std::vector<float> &sol2);
+        float reiterative_error(const std::vector<float> &sol1, const std::vector<float> &sol2) const;
         float timestep_factor() const;
 
         template <typename T>
         void update_kvec(float t,
                          float dt,
-                         const vector &state,
+                         const std::vector<float> &state,
                          T &params,
-                         vector (*ode)(float, const vector &, T &))
+                         std::vector<float> (*ode)(float, const std::vector<float> &, T &))
         {
             PERF_FUNCTION()
             DBG_ASSERT(state.size() == m_kvec[0].size(), "State and k-vectors size mismatch! - state size: %zu, k-vectors size: %zu\n", state.size(), m_kvec[0].size())
-            vector aux_state(state.size());
+            std::vector<float> aux_state(state.size());
 
             m_kvec[0] = ode(t, state, params);
-            for (uint8 i = 1; i < m_tableau.stage(); i++)
+            for (std::uint8_t i = 1; i < m_tableau.stage(); i++)
             {
                 for (std::size_t j = 0; j < state.size(); j++)
                 {
                     float k_sum = 0.f;
-                    for (uint8 k = 0; k < i; k++)
+                    for (std::uint8_t k = 0; k < i; k++)
                         k_sum += m_tableau.beta()[i - 1][k] * m_kvec[k][j];
                     aux_state[j] = state[j] + k_sum * dt;
                 }

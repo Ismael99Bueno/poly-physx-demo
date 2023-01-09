@@ -5,7 +5,7 @@
 namespace rk
 {
     integrator::integrator(const butcher_tableau &tb,
-                           vector &state,
+                           std::vector<float> &state,
                            const float tolerance,
                            const float min_dt,
                            const float max_dt) : m_tableau(tb),
@@ -20,17 +20,17 @@ namespace rk
         resize();
     }
 
-    integrator::vector integrator::generate_solution(const float dt,
-                                                     const vector &state,
-                                                     const vector &coefs)
+    std::vector<float> integrator::generate_solution(const float dt,
+                                                     const std::vector<float> &state,
+                                                     const std::vector<float> &coefs)
     {
         PERF_FUNCTION()
-        vector sol;
+        std::vector<float> sol;
         sol.reserve(state.size());
         for (std::size_t j = 0; j < state.size(); j++)
         {
             float sum = 0.f;
-            for (uint8 i = 0; i < m_tableau.stage(); i++)
+            for (std::uint8_t i = 0; i < m_tableau.stage(); i++)
                 sum += coefs[i] * m_kvec[i][j];
             m_valid &= !isnan(sum);
             const float step = sum * dt;
@@ -60,7 +60,7 @@ namespace rk
     bool integrator::dt_too_big(const float dt) const { return dt > m_max_dt; }
     bool integrator::dt_off_bounds(const float dt) const { return dt_too_small(dt) || dt_too_big(dt); }
 
-    float integrator::embedded_error(const vector &sol1, const vector &sol2)
+    float integrator::embedded_error(const std::vector<float> &sol1, const std::vector<float> &sol2)
     {
         float result = 0.f;
         for (std::size_t i = 0; i < sol1.size(); i++)
@@ -68,9 +68,9 @@ namespace rk
         return result;
     }
 
-    float integrator::reiterative_error(const vector &sol1, const vector &sol2) const
+    float integrator::reiterative_error(const std::vector<float> &sol1, const std::vector<float> &sol2) const
     {
-        const uint32 coeff = ipow(2, m_tableau.order()) - 1;
+        const std::uint32_t coeff = ipow(2, m_tableau.order()) - 1;
         return embedded_error(sol1, sol2) / coeff;
     }
 
@@ -81,13 +81,13 @@ namespace rk
 
     void integrator::reserve(std::size_t size)
     {
-        for (vector &v : m_kvec)
+        for (std::vector<float> &v : m_kvec)
             v.reserve(size);
     }
 
     void integrator::resize()
     {
-        for (vector &v : m_kvec)
+        for (std::vector<float> &v : m_kvec)
             v.resize(m_state.size());
         m_step.resize(m_state.size());
     }
@@ -95,10 +95,10 @@ namespace rk
     const butcher_tableau &integrator::tableau() const { return m_tableau; }
     butcher_tableau &integrator::tableau() { return m_tableau; }
 
-    const integrator::vector &integrator::state() const { return m_state; }
-    integrator::vector &integrator::state() { return m_state; }
+    const std::vector<float> &integrator::state() const { return m_state; }
+    std::vector<float> &integrator::state() { return m_state; }
 
-    const integrator::vector &integrator::step() const { return m_step; }
+    const std::vector<float> &integrator::step() const { return m_step; }
 
     void integrator::tableau(const butcher_tableau &tableau)
     {
@@ -106,7 +106,7 @@ namespace rk
         m_kvec.resize(m_tableau.stage());
         resize();
     }
-    void integrator::state(vector &state)
+    void integrator::state(std::vector<float> &state)
     {
         m_state = state;
         resize();
