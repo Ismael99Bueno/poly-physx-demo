@@ -73,19 +73,11 @@ namespace phys_demo
         switch (m_attach_type)
         {
         case SPRING:
-        {
-            prm::spring_line sp_line((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL,
-                                     m_app->pixel_mouse(), m_app->springs_color());
-            m_app->window().draw(sp_line);
+            m_app->draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, m_app->pixel_mouse());
             break;
-        }
         case RIGID_BAR:
-        {
-            prm::thick_line tl((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL,
-                               m_app->pixel_mouse(), 8.f, m_app->rigid_bars_color());
-            m_app->window().draw(tl);
+            m_app->draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, m_app->pixel_mouse());
             break;
-        }
         }
     }
 
