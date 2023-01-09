@@ -10,6 +10,7 @@
 #include "previewer.hpp"
 #include "adder.hpp"
 #include "attacher.hpp"
+#include "outline_manager.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -22,6 +23,7 @@ namespace phys_demo
 
     private:
         void on_update() override;
+        void on_late_update() override;
         void on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
@@ -30,11 +32,12 @@ namespace phys_demo
         previewer m_previewer = previewer(this);
         adder m_adder = adder(this);
         attacher m_attacher = attacher(this);
+        outline_manager m_outline_manager = outline_manager(this);
 
-        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector, m_attacher);
+        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector, m_attacher, m_outline_manager);
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
-        phys_panel m_phys_panel = phys_panel(m_selector);
+        phys_panel m_phys_panel = phys_panel(m_selector, m_outline_manager);
 
         sf::Clock m_clock;
         ImFont *m_font;

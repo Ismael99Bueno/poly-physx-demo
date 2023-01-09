@@ -3,19 +3,21 @@
 
 #include "app.hpp"
 #include "selector.hpp"
+#include "outline_manager.hpp"
 
 namespace phys_demo
 {
     class entities_tab
     {
     public:
-        entities_tab(selector &s);
-        void render(phys::app *papp);
+        entities_tab(selector &s, outline_manager &o);
 
+        void render(phys::app *papp);
         void add_borders(phys::app *papp);
 
     private:
         selector &m_selector;
+        outline_manager &m_outline_manager;
 
         bool render_entity_data(phys::entity2D &e, std::int8_t sign = 1) const;
     };

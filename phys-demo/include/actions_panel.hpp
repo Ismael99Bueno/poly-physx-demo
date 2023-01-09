@@ -21,7 +21,7 @@ namespace phys_demo
             ENTITIES,
             NONE
         };
-        actions_panel(grabber &g, selector &s, attacher &a);
+        actions_panel(grabber &g, selector &s, attacher &a, outline_manager &o);
 
         actions action() const;
         const entity_template &templ();

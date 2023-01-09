@@ -26,24 +26,26 @@ namespace phys_demo
             const auto [pos, vel] = m_adder.pos_vel_upon_addition();
             m_previewer.preview(pos, vel);
         }
-        if (m_attacher.has_first())
-        {
-            m_attacher.rotate_joint();
-            m_attacher.draw_unattached_joint();
-        }
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
 #endif
     }
 
+    void demo_app::on_late_update()
+    {
+        if (m_attacher.has_first())
+        {
+            m_attacher.rotate_joint();
+            m_attacher.draw_unattached_joint();
+        }
+        m_outline_manager.reset_priorities();
+    }
+
     void demo_app::on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape)
     {
-        const float ampl = 1.5f, freq = 2.5f;
-
         if (m_selector.is_selecting(e))
-            shape.setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
-        else
-            shape.setOutlineThickness(0);
+            m_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
+        m_outline_manager.paint_outline(e.index(), shape);
     }
 
     void demo_app::on_event(sf::Event &event)

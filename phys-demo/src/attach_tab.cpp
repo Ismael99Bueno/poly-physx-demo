@@ -2,7 +2,7 @@
 
 namespace phys_demo
 {
-    attach_tab::attach_tab(attacher &a) : m_attacher(a) {}
+    attach_tab::attach_tab(attacher &a, outline_manager &o) : m_attacher(a), m_outline_manager(o) {}
 
     void attach_tab::render(phys::app *papp)
     {
@@ -60,11 +60,17 @@ namespace phys_demo
         if (ImGui::CollapsingHeader("Springs"))
             for (std::size_t i = 0; i < springs.size(); i++)
             {
-                if (ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i))
+                phys::spring2D &sp = springs[i];
+                const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
+                if (expanded || ImGui::IsItemHovered())
                 {
-                    phys::spring2D &sp = springs[i];
-                    float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
+                    m_outline_manager.load_outline(sp.e1().index(), papp->springs_color(), 4);
+                    m_outline_manager.load_outline(sp.e2().index(), papp->springs_color(), 4);
+                }
 
+                if (expanded)
+                {
+                    float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
                     ImGui::Text("Stress - %f", std::get<alg::vec2>(sp.force()).norm());
                     if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 50.f))
                         sp.stiffness(stf);
@@ -76,6 +82,7 @@ namespace phys_demo
                 }
                 else
                     ImGui::SameLine();
+
                 ImGui::PushID(i);
                 if (ImGui::Button("Remove"))
                     to_remove = i;
@@ -92,11 +99,17 @@ namespace phys_demo
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)
             {
-                if (ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i))
+                auto &rb = static_cast<phys::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
+                const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i);
+                if (expanded || ImGui::IsItemHovered())
                 {
-                    auto &rb = static_cast<phys::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
-                    float stf = rb.stiffness(), dmp = rb.dampening(), len = rb.length();
+                    m_outline_manager.load_outline(rb.e1().index(), papp->rigid_bars_color(), 4);
+                    m_outline_manager.load_outline(rb.e2().index(), papp->rigid_bars_color(), 4);
+                }
 
+                if (expanded)
+                {
+                    float stf = rb.stiffness(), dmp = rb.dampening(), len = rb.length();
                     ImGui::Text("Stress - %f", rb.value());
                     if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 2000.f))
                         rb.stiffness(stf);
@@ -108,6 +121,7 @@ namespace phys_demo
                 }
                 else
                     ImGui::SameLine();
+
                 ImGui::PushID(-i - 1);
                 if (ImGui::Button("Remove"))
                     to_remove = ctrs[i];

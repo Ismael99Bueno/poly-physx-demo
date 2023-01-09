@@ -4,13 +4,14 @@
 #include "app.hpp"
 #include "phys_prefabs.hpp"
 #include "selector.hpp"
+#include "outline_manager.hpp"
 
 namespace phys_demo
 {
     class phys_panel : public phys::layer
     {
     public:
-        phys_panel(const selector &s);
+        phys_panel(const selector &s, outline_manager &o);
 
     private:
         void on_attach(phys::app *papp) override;
@@ -23,9 +24,11 @@ namespace phys_demo
         std::shared_ptr<gravitational> m_gravitational;
         std::shared_ptr<exponential> m_exponential;
         const selector &m_selector;
+        outline_manager &m_outline_manager;
 
         void render_forces_and_inters();
         void render_add_remove_buttons(phys::entity_set &set) const;
+        bool tree_node_hovering_outline(const char *name, const phys::entity_set &set);
     };
 }
 

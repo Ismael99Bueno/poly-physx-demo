@@ -4,7 +4,7 @@
 
 namespace phys_demo
 {
-    entities_tab::entities_tab(selector &s) : m_selector(s) {}
+    entities_tab::entities_tab(selector &s, outline_manager &o) : m_selector(s), m_outline_manager(o) {}
 
     void entities_tab::render(phys::app *papp)
     {
@@ -24,6 +24,7 @@ namespace phys_demo
                 {
                     if (!render_entity_data(*e))
                         ImGui::SameLine();
+
                     ImGui::PushID(e.id());
                     if (ImGui::Button("Deselect"))
                         to_deselect = e;
@@ -46,6 +47,7 @@ namespace phys_demo
 
                     if (!render_entity_data(e, -1))
                         ImGui::SameLine();
+
                     ImGui::PushID(e.id());
                     if (ImGui::Button(m_selector.is_selected(e_ptr) ? "Deselect" : "Select"))
                     {
@@ -73,6 +75,8 @@ namespace phys_demo
     bool entities_tab::render_entity_data(phys::entity2D &e, std::int8_t sign) const
     {
         const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %llu", e.id());
+        if (expanded || ImGui::IsItemHovered())
+            m_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
         {
             float pos[2] = {e.pos().x, e.pos().y},

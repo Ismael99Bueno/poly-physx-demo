@@ -5,13 +5,14 @@
 
 namespace phys_demo
 {
-    phys_panel::phys_panel(const selector &s) : m_selector(s),
-                                                m_gravity(std::make_shared<gravity>()),
-                                                m_drag(std::make_shared<drag>()),
-                                                m_repulsive(std::make_shared<electrical>()),
-                                                m_attractive(std::make_shared<electrical>()),
-                                                m_gravitational(std::make_shared<gravitational>()),
-                                                m_exponential(std::make_shared<exponential>()) {}
+    phys_panel::phys_panel(const selector &s, outline_manager &o) : m_selector(s),
+                                                                    m_outline_manager(o),
+                                                                    m_gravity(std::make_shared<gravity>()),
+                                                                    m_drag(std::make_shared<drag>()),
+                                                                    m_repulsive(std::make_shared<electrical>()),
+                                                                    m_attractive(std::make_shared<electrical>()),
+                                                                    m_gravitational(std::make_shared<gravitational>()),
+                                                                    m_exponential(std::make_shared<exponential>()) {}
 
     void phys_panel::on_attach(phys::app *papp)
     {
@@ -55,7 +56,7 @@ namespace phys_demo
         if (ImGui::CollapsingHeader("Forces & Interactions"))
         {
             ImGui::PushItemWidth(200);
-            if (ImGui::TreeNode("Gravity"))
+            if (tree_node_hovering_outline("Gravity", *m_gravity))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravity->size(), m_app->engine().size());
                 static bool auto_include = m_gravity->auto_include();
@@ -66,9 +67,11 @@ namespace phys_demo
                 static float mag = m_gravity->mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -200.f, 200.f, "%.1f"))
                     m_gravity->mag(mag);
+
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Drag"))
+
+            if (tree_node_hovering_outline("Drag", *m_drag))
             {
                 ImGui::Text("Entities: %zu/%zu", m_drag->size(), m_app->engine().size());
                 static bool auto_include = m_drag->auto_include();
@@ -84,7 +87,8 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Gravitational"))
+
+            if (tree_node_hovering_outline("Gravitational", *m_gravitational))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), m_app->engine().size());
                 static bool auto_include = m_gravitational->auto_include();
@@ -95,9 +99,11 @@ namespace phys_demo
                 static float mag = m_gravitational->mag();
                 if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
                     m_gravitational->mag(mag);
+
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Electrical (repulsive)"))
+
+            if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
             {
                 ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), m_app->engine().size());
                 static bool auto_include = m_repulsive->auto_include();
@@ -118,7 +124,8 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Electrical (attractive)"))
+
+            if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
             {
                 ImGui::Text("Entities: %zu/%zu", m_attractive->size(), m_app->engine().size());
                 static bool auto_include = m_attractive->auto_include();
@@ -139,7 +146,8 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Exponential"))
+
+            if (tree_node_hovering_outline("Exponential", *m_exponential))
             {
                 ImGui::Text("Entities: %zu/%zu", m_exponential->size(), m_app->engine().size());
                 static bool auto_include = m_exponential->auto_include();
@@ -156,6 +164,7 @@ namespace phys_demo
 
                 ImGui::TreePop();
             }
+
             ImGui::PopItemWidth();
         }
     }
@@ -164,16 +173,30 @@ namespace phys_demo
     {
         if (ImGui::Button("Add all"))
             for (const phys::entity2D &e : m_app->engine().entities())
-                set.include({&m_app->engine().entities(), e.index()});
+            {
+                const phys::const_entity_ptr &e_ptr = {&m_app->engine().entities(), e.index()};
+                if (!set.contains(e_ptr))
+                    set.include(e_ptr);
+            }
         ImGui::SameLine();
         if (ImGui::Button("Remove all"))
             set.clear();
         if (ImGui::Button("Add selected"))
             for (const auto &e : m_selector.get())
-                set.include(e);
+                if (!set.contains(e))
+                    set.include(e);
         ImGui::SameLine();
         if (ImGui::Button("Remove selected"))
             for (const auto &e : m_selector.get())
                 set.exclude(e);
+    }
+
+    bool phys_panel::tree_node_hovering_outline(const char *name, const phys::entity_set &set)
+    {
+        const bool expanded = ImGui::TreeNode(name);
+        if (expanded || ImGui::IsItemHovered())
+            for (const auto &e : set.entities())
+                m_outline_manager.load_outline(e.index(), sf::Color::Blue, 2);
+        return expanded;
     }
 }
