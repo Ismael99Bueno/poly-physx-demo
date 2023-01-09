@@ -35,7 +35,8 @@ namespace phys_demo
                 m_attacher.ctr_dampening(ctr_dmp);
             break;
         }
-        render_spring_constraint_list(papp);
+        render_springs_list(papp);
+        render_rigid_bars_list(papp);
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
@@ -51,14 +52,17 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void attach_tab::render_spring_constraint_list(phys::app *papp)
+    void attach_tab::render_springs_list(phys::app *papp)
     {
-        const std::size_t sp_count = papp->engine().springs().size();
+        auto &springs = papp->engine().springs();
+        std::size_t to_remove = springs.size();
+
         if (ImGui::CollapsingHeader("Springs"))
-            for (std::size_t i = 0; i < sp_count; i++)
+            for (std::size_t i = 0; i < springs.size(); i++)
+            {
                 if (ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i))
                 {
-                    phys::spring2D &sp = papp->engine().springs()[i];
+                    phys::spring2D &sp = springs[i];
                     float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
 
                     ImGui::Text("Stress - %f", std::get<alg::vec2>(sp.force()).norm());
@@ -70,23 +74,47 @@ namespace phys_demo
                         sp.length(len);
                     ImGui::TreePop();
                 }
+                else
+                    ImGui::SameLine();
+                ImGui::PushID(i);
+                if (ImGui::Button("Remove"))
+                    to_remove = i;
+                ImGui::PopID();
+            }
+        papp->engine().remove_spring(to_remove);
+    }
+
+    void attach_tab::render_rigid_bars_list(phys::app *papp)
+    {
+        auto &ctrs = papp->engine().compeller().constraints();
+        std::shared_ptr<phys::constraint_interface> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
-            for (std::size_t i = 0; i < m_attacher.rbars().size(); i++)
-                if (ImGui::TreeNode((void *)(intptr_t)(i + sp_count), "Rigid bar %zu", i))
+            for (std::size_t i = 0; i < ctrs.size(); i++)
+            {
+                if (ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i))
                 {
-                    const std::shared_ptr<phys::rigid_bar2D> &rb = m_attacher.rbars()[i];
-                    float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
+                    auto &rb = static_cast<phys::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
+                    float stf = rb.stiffness(), dmp = rb.dampening(), len = rb.length();
 
-                    ImGui::Text("Stress - %f", rb->value());
+                    ImGui::Text("Stress - %f", rb.value());
                     if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 2000.f))
-                        rb->stiffness(stf);
+                        rb.stiffness(stf);
                     if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 100.f))
-                        rb->dampening(dmp);
+                        rb.dampening(dmp);
                     if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
-                        rb->length(len);
+                        rb.length(len);
                     ImGui::TreePop();
                 }
+                else
+                    ImGui::SameLine();
+                ImGui::PushID(-i - 1);
+                if (ImGui::Button("Remove"))
+                    to_remove = ctrs[i];
+                ImGui::PopID();
+            }
+        if (to_remove)
+            papp->engine().compeller().remove_constraint(to_remove);
     }
 
     void attach_tab::render_spring_color_pickers(phys::app *papp)

@@ -31,8 +31,6 @@ namespace phys_demo
         const attach_type &type() const;
         void type(const attach_type &type);
 
-        const std::vector<std::shared_ptr<phys::rigid_bar2D>> &rbars() const;
-
         float sp_stiffness() const;
         float sp_dampening() const;
         float sp_length() const;
@@ -56,7 +54,6 @@ namespace phys_demo
             m_ctr_stiffness = 500.f,
             m_ctr_dampening = 30.f;
         attach_type m_attach_type = SPRING;
-        std::vector<std::shared_ptr<phys::rigid_bar2D>> m_rigid_bars;
     };
 }
 

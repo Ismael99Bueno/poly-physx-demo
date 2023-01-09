@@ -7,19 +7,7 @@
 
 namespace phys_demo
 {
-    attacher::attacher(demo_app *papp) : m_app(papp)
-    {
-        const auto validate = [this](const std::size_t index)
-        {
-            const auto &constraints = m_app->engine().compeller().constraints();
-            for (auto it = m_rigid_bars.begin(); it != m_rigid_bars.end();)
-                if (std::find(constraints.begin(), constraints.end(), *it) == constraints.end())
-                    it = m_rigid_bars.erase(it);
-                else
-                    ++it;
-        };
-        m_app->engine().on_entity_removal(validate);
-    }
+    attacher::attacher(demo_app *papp) : m_app(papp) {}
 
     void attacher::try_attach_first()
     {
@@ -55,7 +43,6 @@ namespace phys_demo
             const std::shared_ptr<phys::rigid_bar2D> rb = std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
             rb->stiffness(m_ctr_stiffness);
             rb->dampening(m_ctr_dampening);
-            m_rigid_bars.emplace_back(rb);
             m_app->engine().compeller().add_constraint(rb);
             break;
         }
@@ -86,8 +73,6 @@ namespace phys_demo
 
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }
-
-    const std::vector<std::shared_ptr<phys::rigid_bar2D>> &attacher::rbars() const { return m_rigid_bars; }
 
     float attacher::sp_stiffness() const { return m_sp_stiffness; }
     float attacher::sp_dampening() const { return m_sp_dampening; }

@@ -11,7 +11,7 @@ namespace phys_demo
             papp->engine().clear_entities();
         ImGui::SameLine();
         if (ImGui::Button("Add borders"))
-            ((demo_app *)papp)->add_borders();
+            static_cast<demo_app *>(papp)->add_borders();
         phys::entity_ptr to_deselect = nullptr, to_select = nullptr;
         const phys::entity2D *to_remove = nullptr;
         if (ImGui::CollapsingHeader("Selected entities"))
