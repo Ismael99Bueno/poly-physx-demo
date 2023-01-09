@@ -13,7 +13,11 @@ namespace phys_demo
                                                 m_attach_tab(a),
                                                 m_entities_tab(s) {}
 
-    void actions_panel::on_attach(phys::app *papp) { m_app = papp; }
+    void actions_panel::on_attach(phys::app *papp)
+    {
+        m_app = papp;
+        m_entities_tab.add_borders(papp);
+    }
 
     void actions_panel::on_update()
     {

@@ -19,7 +19,6 @@ namespace phys_demo
     {
     public:
         demo_app();
-        void add_borders();
 
     private:
         void on_update() override;

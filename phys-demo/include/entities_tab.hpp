@@ -12,6 +12,8 @@ namespace phys_demo
         entities_tab(selector &s);
         void render(phys::app *papp);
 
+        void add_borders(phys::app *papp);
+
     private:
         selector &m_selector;
 
