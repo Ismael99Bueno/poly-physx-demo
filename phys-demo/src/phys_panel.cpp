@@ -25,6 +25,9 @@ namespace phys_demo
         eng.add_interaction(m_attractive);
         eng.add_interaction(m_exponential);
 
+        m_attractive->exp(1);
+        m_attractive->mag(20.f);
+
         const auto auto_include = [this](phys::entity_ptr e)
         {
             if (m_gravity->auto_include())
@@ -65,7 +68,7 @@ namespace phys_demo
 
                 render_add_remove_buttons(*m_gravity);
                 static float mag = m_gravity->mag();
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -200.f, 200.f, "%.1f"))
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -600.f, 600.f, "%.1f"))
                     m_gravity->mag(mag);
 
                 ImGui::TreePop();
@@ -97,7 +100,7 @@ namespace phys_demo
 
                 render_add_remove_buttons(*m_gravitational);
                 static float mag = m_gravitational->mag();
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
                     m_gravitational->mag(mag);
 
                 ImGui::TreePop();
@@ -114,7 +117,7 @@ namespace phys_demo
                 static float mag = m_repulsive->mag();
                 static std::uint32_t exp = m_repulsive->exp();
 
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
                     m_repulsive->mag(mag);
 
                 ImGui::Text("1/r^%u", exp);
@@ -136,7 +139,7 @@ namespace phys_demo
                 static float mag = -m_attractive->mag();
                 static std::uint32_t exp = m_attractive->exp();
 
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
                     m_attractive->mag(-mag);
 
                 ImGui::Text("1/r^%u", exp);
@@ -157,7 +160,7 @@ namespace phys_demo
                 render_add_remove_buttons(*m_exponential);
                 static float mag = m_exponential->mag(), exp = m_exponential->exp();
 
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 200.f, "%.1f"))
+                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
                     m_exponential->mag(mag);
                 if (ImGui::DragFloat("Exponent", &exp, 0.2f, -15.f, 15.f))
                     m_exponential->exp(exp);

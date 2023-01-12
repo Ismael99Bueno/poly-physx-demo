@@ -19,7 +19,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_mag = 0.f;
+        float m_mag = -10.f;
         bool m_auto_include = false;
 
         friend class phys_panel;
@@ -41,7 +41,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_lin_mag = 0.f, m_ang_mag = 0.f;
+        float m_lin_mag = 5.f, m_ang_mag = 1.f;
         bool m_auto_include = false;
 
         friend class phys_panel;
@@ -60,7 +60,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_mag = 0.f;
+        float m_mag = 150.f;
         bool m_auto_include = false;
 
         friend class phys_panel;
@@ -82,7 +82,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_mag = 0.f;
+        float m_mag = 200.f;
         std::uint32_t m_exp = 2;
         bool m_auto_include = false;
 
@@ -105,7 +105,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_mag = 0.f, m_exp = 1.f;
+        float m_mag = 20.f, m_exp = 1.f;
         bool m_auto_include = false;
 
         friend class phys_panel;

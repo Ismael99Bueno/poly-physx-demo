@@ -19,9 +19,9 @@ namespace phys_demo
             static float sp_stf = m_attacher.sp_stiffness(),
                          sp_dmp = m_attacher.sp_dampening(),
                          sp_len = m_attacher.sp_length();
-            if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 50.f))
+            if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
                 m_attacher.sp_stiffness(sp_stf);
-            if (ImGui::DragFloat("Dampening", &sp_dmp, 0.3f, 0.f, 10.f))
+            if (ImGui::DragFloat("Dampening", &sp_dmp, 0.3f, 0.f, 50.f))
                 m_attacher.sp_dampening(sp_dmp);
             if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
                 m_attacher.sp_length(sp_len);
@@ -31,7 +31,7 @@ namespace phys_demo
                          ctr_dmp = m_attacher.ctr_dampening();
             if (ImGui::DragFloat("Stiffness", &ctr_stf, 0.3f, 0.f, 2000.f, "%.1f"))
                 m_attacher.ctr_stiffness(ctr_stf);
-            if (ImGui::DragFloat("Dampening", &ctr_dmp, 0.3f, 0.f, 100.f, "%.2f"))
+            if (ImGui::DragFloat("Dampening", &ctr_dmp, 0.3f, 0.f, 500.f, "%.2f"))
                 m_attacher.ctr_dampening(ctr_dmp);
             break;
         }

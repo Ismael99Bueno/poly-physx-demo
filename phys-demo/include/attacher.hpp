@@ -48,7 +48,7 @@ namespace phys_demo
         phys::entity_ptr m_e1;
         alg::vec2 m_joint1;
         float m_last_angle,
-            m_sp_stiffness = 10.f,
+            m_sp_stiffness = 1.f,
             m_sp_dampening = 0.f,
             m_sp_length = 0.f,
             m_ctr_stiffness = 500.f,
