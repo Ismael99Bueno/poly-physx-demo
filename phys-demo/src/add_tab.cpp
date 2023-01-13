@@ -52,7 +52,12 @@ namespace phys_demo
     void add_tab::render_entity_inputs()
     {
         ImGui::DragFloat("Mass", &m_templ.mass, 0.2f, 1.f, 100.f);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
+
         ImGui::DragFloat("Charge", &m_templ.charge, 0.2f, 1.f, 100.f);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (m_shape_type)
         {
         case BOX:
@@ -60,16 +65,23 @@ namespace phys_demo
             break;
         case RECT:
             ImGui::DragFloat("Width", &m_templ.width, 0.2f, 1.f, 100.f);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
             ImGui::DragFloat("Height", &m_templ.height, 0.2f, 1.f, 100.f);
             break;
         case NGON:
-            ImGui::DragFloat("Radius", &m_templ.radius, 0.2f, 1.f, 100.f);
             ImGui::SliderInt("Sides", (int *)&m_templ.sides, 3, 30);
+            ImGui::DragFloat("Radius", &m_templ.radius, 0.2f, 1.f, 100.f);
             break;
         default:
             break;
         }
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
+
         ImGui::Checkbox("Dynamic", &m_templ.dynamic);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
     }
 
     void add_tab::render_color_picker(phys::app *papp)

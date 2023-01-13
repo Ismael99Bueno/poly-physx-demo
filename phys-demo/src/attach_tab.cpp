@@ -21,18 +21,32 @@ namespace phys_demo
                          sp_len = m_attacher.sp_length();
             if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
                 m_attacher.sp_stiffness(sp_stf);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("How stiff the spring will be.");
+
             if (ImGui::DragFloat("Dampening", &sp_dmp, 0.3f, 0.f, 50.f))
                 m_attacher.sp_dampening(sp_dmp);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("How much the spring will resist to movement.");
+
             if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
                 m_attacher.sp_length(sp_len);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
             break;
         case attacher::RIGID_BAR:
             static float ctr_stf = m_attacher.ctr_stiffness(),
                          ctr_dmp = m_attacher.ctr_dampening();
             if (ImGui::DragFloat("Stiffness", &ctr_stf, 0.3f, 0.f, 2000.f, "%.1f"))
                 m_attacher.ctr_stiffness(ctr_stf);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
+
             if (ImGui::DragFloat("Dampening", &ctr_dmp, 0.3f, 0.f, 500.f, "%.2f"))
                 m_attacher.ctr_dampening(ctr_dmp);
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+                ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
+
             break;
         }
         render_springs_list(papp);

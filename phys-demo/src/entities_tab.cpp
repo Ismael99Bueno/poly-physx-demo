@@ -10,33 +10,43 @@ namespace phys_demo
     {
         if (ImGui::Button("Remove all"))
             papp->engine().clear_entities();
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("Removes all entities (including borders!)");
+
         ImGui::SameLine();
+
         if (ImGui::Button("Add borders"))
             add_borders(papp);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
+
         phys::entity_ptr to_deselect = nullptr, to_select = nullptr;
         const phys::entity2D *to_remove = nullptr;
-        if (ImGui::CollapsingHeader("Selected entities"))
-        {
-            if (m_selector.get().empty())
-                ImGui::Text("Select entities by dragging your mouse cursor!");
-            else
-                for (const auto &e : m_selector.get())
-                {
-                    if (!render_entity_data(*e))
-                        ImGui::SameLine();
 
-                    ImGui::PushID(e.id());
-                    if (ImGui::Button("Deselect"))
-                        to_deselect = e;
-                    ImGui::PopID();
+        const bool sel_expanded = ImGui::CollapsingHeader("Selected entities");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("A list of all the currently selected entities.");
+        if (sel_expanded)
+            for (const auto &e : m_selector.get())
+            {
+                if (!render_entity_data(*e))
                     ImGui::SameLine();
-                    ImGui::PushID(-e.id());
-                    if (ImGui::Button("Remove"))
-                        to_remove = e.raw();
-                    ImGui::PopID();
-                }
-        }
-        if (ImGui::CollapsingHeader("Entities"))
+
+                ImGui::PushID(e.id());
+                if (ImGui::Button("Deselect"))
+                    to_deselect = e;
+                ImGui::PopID();
+                ImGui::SameLine();
+                ImGui::PushID(e.id());
+                if (ImGui::Button("Remove"))
+                    to_remove = e.raw();
+                ImGui::PopID();
+            }
+
+        const bool ent_expanded = ImGui::CollapsingHeader("Entities");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("A list of all current entities.");
+        if (ent_expanded)
         {
             if (papp->engine().entities().empty())
                 ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
@@ -48,7 +58,7 @@ namespace phys_demo
                     if (!render_entity_data(e, -1))
                         ImGui::SameLine();
 
-                    ImGui::PushID(e.id());
+                    ImGui::PushID(-e.id());
                     if (ImGui::Button(m_selector.is_selected(e_ptr) ? "Deselect" : "Select"))
                     {
                         if (m_selector.is_selected(e_ptr))

@@ -15,8 +15,14 @@ namespace phys_demo
         ImGui::PushItemWidth(200);
         if (ImGui::DragFloat("Stiffness", &stf, 0.2f, 0.f, 500.f, "%.1f"))
             m_grabber.stiffness(stf);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("How stiff the grab spring will be.");
+
         if (ImGui::DragFloat("Dampening", &dmp, 0.2f, 0.f, 50.f, "%.2f"))
             m_grabber.dampening(dmp);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("How much the grab spring will resist to movement.");
+
         if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip))
             m_grabber.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
         ImGui::SameLine();
