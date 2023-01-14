@@ -15,12 +15,8 @@ namespace phys_demo
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         m_app->engine().add_entity(pos, templ.dynamic ? vel : alg::vec2(),
-                                   std::atan2f(vel.y, vel.x),
-                                   0.f,
-                                   templ.mass,
-                                   templ.charge,
-                                   templ.vertices,
-                                   templ.dynamic);
+                                   std::atan2f(vel.y, vel.x), 0.f, templ.mass,
+                                   templ.charge, templ.vertices, templ.dynamic);
         m_adding = false;
     }
 

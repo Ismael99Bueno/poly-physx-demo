@@ -1,7 +1,7 @@
 #ifndef ENTITY_TEMPLATE_HPP
 #define ENTITY_TEMPLATE_HPP
 
-#include "polygon2D.hpp"
+#include "entity2D.hpp"
 #include <vector>
 
 #define INITIAL 5.f
@@ -20,6 +20,8 @@ namespace phys_demo
               height = INITIAL, radius = 0.6f * INITIAL;
         std::uint32_t sides = 3;
         bool dynamic = true;
+
+        static entity_template from_entity(const phys::entity2D &e);
     };
 }
 

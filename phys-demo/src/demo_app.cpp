@@ -26,6 +26,8 @@ namespace phys_demo
             const auto [pos, vel] = m_adder.pos_vel_upon_addition();
             m_previewer.preview(pos, vel);
         }
+        if (m_copy_paste.has_copy())
+            m_copy_paste.preview();
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
 #endif
@@ -53,6 +55,7 @@ namespace phys_demo
         switch (event.type)
         {
         case sf::Event::MouseButtonPressed:
+            m_copy_paste.delete_copy();
             switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
@@ -106,6 +109,11 @@ namespace phys_demo
                 m_attacher.cancel();
                 break;
             }
+            case sf::Keyboard::C:
+                m_copy_paste.copy();
+                break;
+            case sf::Keyboard::V:
+                m_copy_paste.paste();
             default:
                 break;
             }
