@@ -1,6 +1,6 @@
 #include "outline_manager.hpp"
 #include "entity_ptr.hpp"
-#include "debug.h"
+#include "debug.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 

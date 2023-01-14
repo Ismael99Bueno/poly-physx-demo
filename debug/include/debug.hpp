@@ -1,5 +1,5 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+#ifndef DEBUG_HPP
+#define DEBUG_HPP
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,11 +25,27 @@
         fprintf(stderr, __VA_ARGS__);                                                                    \
         exit(EXIT_FAILURE);                                                                              \
     }
+
+#define DBG_LOG_ALLOCATOR()                                 \
+    void *operator new(std::size_t size)                    \
+    {                                                       \
+        void *ptr = std::malloc(size);                      \
+        printf("Allocating %zu bytes at %p.\n", size, ptr); \
+        return ptr;                                         \
+    }                                                       \
+                                                            \
+    void operator delete(void *ptr) noexcept                \
+    {                                                       \
+        printf("Deallocating %p.\n", ptr);                  \
+        std::free(ptr);                                     \
+    }
+
 #else
 #define DBG_LOG(...)
 #define DBG_LOG_IF(cond, \
                    ...)
 #define DBG_ASSERT(cond, \
                    ...)
+#define DBG_LOG_ALLOCATOR()
 #endif
 #endif

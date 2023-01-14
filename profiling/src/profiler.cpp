@@ -1,5 +1,5 @@
 #include "profiler.hpp"
-#include "debug.h"
+#include "debug.hpp"
 #include <cmath>
 
 namespace perf

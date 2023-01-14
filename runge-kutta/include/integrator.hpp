@@ -2,7 +2,7 @@
 #define INTEGRATOR_HPP
 
 #include "butcher_tableau.hpp"
-#include "debug.h"
+#include "debug.hpp"
 #include "perf.hpp"
 #include <cstdint>
 #include <cmath>
