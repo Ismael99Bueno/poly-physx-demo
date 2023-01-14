@@ -84,7 +84,7 @@ namespace phys_demo
 
     bool entities_tab::render_entity_data(phys::entity2D &e, std::int8_t sign) const
     {
-        const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %llu", e.id());
+        const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %zu", e.id());
         if (expanded || ImGui::IsItemHovered())
             m_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)

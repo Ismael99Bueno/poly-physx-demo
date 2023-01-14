@@ -6,7 +6,6 @@
 #include "entities_tab.hpp"
 #include "attach_tab.hpp"
 #include "add_tab.hpp"
-#include "entity_template.hpp"
 
 namespace phys_demo
 {

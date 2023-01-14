@@ -24,24 +24,24 @@ namespace phys_demo
         {
         case BOX:
         {
-            const alg::vec2 size = alg::vec2(m_templ.size, m_templ.size) * WORLD_TO_PIXEL,
+            const alg::vec2 size = alg::vec2(m_size, m_size) * WORLD_TO_PIXEL,
                             pos = alg::vec2(550.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
         case RECT:
         {
-            const alg::vec2 size = alg::vec2(m_templ.width, m_templ.height) * WORLD_TO_PIXEL,
+            const alg::vec2 size = alg::vec2(m_width, m_height) * WORLD_TO_PIXEL,
                             pos = alg::vec2(550.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
         case NGON:
         {
-            const float radius = m_templ.radius * WORLD_TO_PIXEL;
+            const float radius = m_radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 550.f, pos.y - 30.f}, radius, ImColor(ImVec4(color)), m_templ.sides);
+            draw_list->AddNgonFilled({pos.x + 550.f, pos.y - 30.f}, radius, ImColor(ImVec4(color)), m_sides);
             break;
         }
         default:
@@ -61,17 +61,17 @@ namespace phys_demo
         switch (m_shape_type)
         {
         case BOX:
-            ImGui::DragFloat("Size", &m_templ.size, 0.2f, 1.f, 100.f);
+            ImGui::DragFloat("Size", &m_size, 0.2f, 1.f, 100.f);
             break;
         case RECT:
-            ImGui::DragFloat("Width", &m_templ.width, 0.2f, 1.f, 100.f);
+            ImGui::DragFloat("Width", &m_width, 0.2f, 1.f, 100.f);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
-            ImGui::DragFloat("Height", &m_templ.height, 0.2f, 1.f, 100.f);
+            ImGui::DragFloat("Height", &m_height, 0.2f, 1.f, 100.f);
             break;
         case NGON:
-            ImGui::SliderInt("Sides", (int *)&m_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &m_templ.radius, 0.2f, 1.f, 100.f);
+            ImGui::SliderInt("Sides", (int *)&m_sides, 3, 30);
+            ImGui::DragFloat("Radius", &m_radius, 0.2f, 1.f, 100.f);
             break;
         default:
             break;
@@ -98,13 +98,13 @@ namespace phys_demo
         switch (m_shape_type)
         {
         case BOX:
-            m_templ.box();
+            m_templ.vertices = geo::polygon2D::box(m_size);
             break;
         case RECT:
-            m_templ.rect();
+            m_templ.vertices = geo::polygon2D::rect(m_width, m_height);
             break;
         case NGON:
-            m_templ.ngon();
+            m_templ.vertices = geo::polygon2D::ngon(m_radius, m_sides);
         default:
             break;
         }

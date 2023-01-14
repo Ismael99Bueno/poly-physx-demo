@@ -1,7 +1,7 @@
 #ifndef PREVIEWER_HPP
 #define PREVIEWER_HPP
 
-#include "entity_template.hpp"
+#include "templates.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo

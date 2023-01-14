@@ -2,7 +2,7 @@
 #define ADD_TAB_HPP
 
 #include "app.hpp"
-#include "entity_template.hpp"
+#include "templates.hpp"
 
 namespace phys_demo
 {
@@ -25,6 +25,8 @@ namespace phys_demo
         entity_template m_templ;
         shape_type m_shape_type = BOX;
         float m_entity_color[3] = {0.f, 1.f, 0.f};
+        float m_size = 5.f, m_width = 5.f, m_height = 5.f, m_radius = 0.6f * 5.f;
+        std::uint32_t m_sides = 3;
 
         void render_shapes_list();
         void render_entity_inputs();

@@ -26,7 +26,7 @@ namespace phys_demo
             const bool has_first = m_entities.find(sp.e1().id()) != m_entities.end(),
                        has_second = m_entities.find(sp.e2().id()) != m_entities.end();
             if (has_first && has_second)
-                m_springs.emplace_back(sp);
+                m_springs.emplace_back(spring_template::from_spring(sp));
         }
         for (const auto &ctr : m_app->engine().compeller().constraints())
         {
@@ -34,7 +34,7 @@ namespace phys_demo
             const bool has_first = m_entities.find(rb.e1().id()) != m_entities.end(),
                        has_second = m_entities.find(rb.e2().id()) != m_entities.end();
             if (has_first && has_second)
-                m_rbars.emplace_back(rb);
+                m_rbars.emplace_back(rigid_bar_template::from_bar(rb));
         }
         m_has_copy = true;
     }
@@ -51,29 +51,22 @@ namespace phys_demo
                                                             alg::vec2(), 0.f, 0.f, tmpl.mass,
                                                             tmpl.charge, poly.vertices(), tmpl.dynamic);
         }
-        for (phys::spring2D &sp : m_springs)
+        for (spring_template &spt : m_springs)
         {
-            const auto &e1 = added_entities.at(sp.e1().id()),
-                       &e2 = added_entities.at(sp.e2().id());
-            sp.e1(e1);
-            sp.e2(e2);
+            const phys::entity_ptr &e1 = added_entities.at(spt.id1),
+                                   &e2 = added_entities.at(spt.id2);
+
+            const phys::spring2D sp(e1, e2, spt.joint1, spt.joint2, spt.length);
             m_app->engine().add_spring(sp);
         }
-        for (phys::rigid_bar2D &rb : m_rbars)
+        for (rigid_bar_template &rbt : m_rbars)
         {
-            const auto &e1 = added_entities[rb.e1().id()],
-                       &e2 = added_entities[rb.e2().id()];
-            rb.add_entities({e1, e2});
+            const phys::entity_ptr &e1 = added_entities[rbt.id1],
+                                   &e2 = added_entities[rbt.id2];
+
+            const phys::rigid_bar2D rb(e1, e2, rbt.joint1, rbt.joint2, rbt.length);
             m_app->engine().compeller().add_constraint(std::make_shared<phys::rigid_bar2D>(rb));
         }
-        m_entities.clear();
-        m_ref_pos = alg::vec2();
-        for (const auto &[id, e] : added_entities)
-        {
-            m_entities[e.id()] = std::make_pair(entity_template::from_entity(*e), sf::ConvexShape());
-            m_ref_pos += e->pos();
-        }
-        m_ref_pos /= m_selector.get().size();
     }
 
     void copy_paste::preview()
@@ -90,21 +83,27 @@ namespace phys_demo
             m_app->draw_entity(poly.vertices(), shape, col);
         }
 
-        for (const phys::spring2D &sp : m_springs)
+        for (const spring_template &spt : m_springs)
         {
+            const entity_template &e1 = m_entities.at(spt.id1).first,
+                                  &e2 = m_entities.at(spt.id2).first;
+
             sf::Color col = m_app->springs_color();
             col.a = 120;
 
-            m_app->draw_spring((sp.e1()->pos() + sp.joint1() + offset) * WORLD_TO_PIXEL,
-                               (sp.e2()->pos() + sp.joint2() + offset) * WORLD_TO_PIXEL,
+            m_app->draw_spring((e1.pos + spt.joint1 + offset) * WORLD_TO_PIXEL,
+                               (e2.pos + spt.joint2 + offset) * WORLD_TO_PIXEL,
                                col);
         }
-        for (const phys::rigid_bar2D &rb : m_rbars)
+        for (const rigid_bar_template &rbt : m_rbars)
         {
+            const entity_template &e1 = m_entities.at(rbt.id1).first,
+                                  &e2 = m_entities.at(rbt.id2).first;
+
             sf::Color col = m_app->rigid_bars_color();
             col.a = 120;
-            m_app->draw_rigid_bar((rb.e1()->pos() + rb.joint1() + offset) * WORLD_TO_PIXEL,
-                                  (rb.e2()->pos() + rb.joint2() + offset) * WORLD_TO_PIXEL,
+            m_app->draw_rigid_bar((e1.pos + rbt.joint1 + offset) * WORLD_TO_PIXEL,
+                                  (e2.pos + rbt.joint2 + offset) * WORLD_TO_PIXEL,
                                   col);
         }
     }

@@ -1,7 +1,7 @@
 #ifndef ADDER_HPP
 #define ADDER_HPP
 
-#include "entity_template.hpp"
+#include "templates.hpp"
 
 namespace phys_demo
 {
