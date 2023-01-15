@@ -16,7 +16,7 @@ int main()
 
     const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
     const float thck = 20.f;
-    const phys::entity_ptr e1 = env.add_entity({-w - 0.4f * thck, 0.f}),
+    const phys::entity2D_ptr e1 = env.add_entity({-w - 0.4f * thck, 0.f}),
                            e2 = env.add_entity({w + 0.4f * thck, 0.f}),
                            e3 = env.add_entity({0.f, -h - 0.4f * thck}),
                            e4 = env.add_entity({0.f, h + 0.4f * thck});

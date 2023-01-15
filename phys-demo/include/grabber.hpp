@@ -1,7 +1,7 @@
 #ifndef GRABBER_HPP
 #define GRABBER_HPP
 
-#include "entity_ptr.hpp"
+#include "entity2D_ptr.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
@@ -30,7 +30,7 @@ namespace phys_demo
 
     private:
         demo_app *m_app;
-        phys::entity_ptr m_grabbed;
+        phys::entity2D_ptr m_grabbed;
         alg::vec2 m_joint;
         float m_stiffness = 10.f, m_dampening = 1.f, m_angle;
         sf::Color m_color = sf::Color::Cyan;

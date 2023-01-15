@@ -1,7 +1,7 @@
 #ifndef ATTACHER_HPP
 #define ATTACHER_HPP
 
-#include "entity_ptr.hpp"
+#include "entity2D_ptr.hpp"
 #include "rigid_bar2D.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -46,7 +46,7 @@ namespace phys_demo
 
     private:
         demo_app *m_app;
-        phys::entity_ptr m_e1;
+        phys::entity2D_ptr m_e1;
         alg::vec2 m_joint1;
         float m_last_angle,
             m_sp_stiffness = 1.f,

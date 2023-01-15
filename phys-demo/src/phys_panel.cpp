@@ -28,7 +28,7 @@ namespace phys_demo
         m_attractive->exp(1);
         m_attractive->mag(20.f);
 
-        const auto auto_include = [this](phys::entity_ptr e)
+        const auto auto_include = [this](phys::entity2D_ptr e)
         {
             if (m_gravity->auto_include())
                 m_gravity->include(e);
@@ -172,12 +172,12 @@ namespace phys_demo
         }
     }
 
-    void phys_panel::render_add_remove_buttons(phys::entity_set &set) const
+    void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const
     {
         if (ImGui::Button("Add all"))
             for (const phys::entity2D &e : m_app->engine().entities())
             {
-                const phys::const_entity_ptr &e_ptr = {&m_app->engine().entities(), e.index()};
+                const phys::const_entity2D_ptr &e_ptr = {&m_app->engine().entities(), e.index()};
                 if (!set.contains(e_ptr))
                     set.include(e_ptr);
             }
@@ -194,7 +194,7 @@ namespace phys_demo
                 set.exclude(e);
     }
 
-    bool phys_panel::tree_node_hovering_outline(const char *name, const phys::entity_set &set)
+    bool phys_panel::tree_node_hovering_outline(const char *name, const phys::entity2D_set &set)
     {
         const bool expanded = ImGui::TreeNode(name);
         if (expanded || ImGui::IsItemHovered())

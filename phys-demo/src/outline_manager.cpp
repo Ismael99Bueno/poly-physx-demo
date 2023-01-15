@@ -1,5 +1,5 @@
 #include "outline_manager.hpp"
-#include "entity_ptr.hpp"
+#include "entity2D_ptr.hpp"
 #include "debug.hpp"
 #include "demo_app.hpp"
 #include <cmath>
@@ -10,7 +10,7 @@ namespace phys_demo
     {
         m_outline_colors.reserve(allocations);
 
-        const auto on_addition = [this](phys::entity_ptr e)
+        const auto on_addition = [this](phys::entity2D_ptr e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
         const auto on_removal = [this](const std::size_t index)

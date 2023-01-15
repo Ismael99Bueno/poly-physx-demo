@@ -48,7 +48,7 @@ namespace phys_demo
     void copy_paste::paste()
     {
         const alg::vec2 offset = m_app->world_mouse() - m_ref_pos;
-        std::unordered_map<std::size_t, phys::entity_ptr> added_entities;
+        std::unordered_map<std::size_t, phys::entity2D_ptr> added_entities;
         for (const auto &[id, pair] : m_entities)
         {
             const entity_template &tmpl = pair.first;
@@ -59,7 +59,7 @@ namespace phys_demo
         }
         for (spring_template &spt : m_springs)
         {
-            const phys::entity_ptr &e1 = added_entities.at(spt.id1),
+            const phys::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                    &e2 = added_entities.at(spt.id2);
 
             const phys::spring2D sp(e1, e2, spt.joint1, spt.joint2, spt.length);
@@ -67,7 +67,7 @@ namespace phys_demo
         }
         for (rigid_bar_template &rbt : m_rbars)
         {
-            const phys::entity_ptr &e1 = added_entities[rbt.id1],
+            const phys::entity2D_ptr &e1 = added_entities[rbt.id1],
                                    &e2 = added_entities[rbt.id2];
 
             const phys::rigid_bar2D rb(e1, e2, rbt.joint1, rbt.joint2, rbt.length);

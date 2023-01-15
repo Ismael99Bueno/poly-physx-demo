@@ -27,8 +27,8 @@ namespace phys_demo
         outline_manager &m_outline_manager;
 
         void render_forces_and_inters();
-        void render_add_remove_buttons(phys::entity_set &set) const;
-        bool tree_node_hovering_outline(const char *name, const phys::entity_set &set);
+        void render_add_remove_buttons(phys::entity2D_set &set) const;
+        bool tree_node_hovering_outline(const char *name, const phys::entity2D_set &set);
     };
 }
 

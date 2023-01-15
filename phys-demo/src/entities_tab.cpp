@@ -20,7 +20,7 @@ namespace phys_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
 
-        phys::entity_ptr to_deselect = nullptr, to_select = nullptr;
+        phys::entity2D_ptr to_deselect = nullptr, to_select = nullptr;
         const phys::entity2D *to_remove = nullptr;
 
         const bool sel_expanded = ImGui::CollapsingHeader("Selected entities");
@@ -53,7 +53,7 @@ namespace phys_demo
             else
                 for (phys::entity2D &e : papp->engine().entities())
                 {
-                    const phys::entity_ptr e_ptr = {&papp->engine().entities(), e.index()};
+                    const phys::entity2D_ptr e_ptr = {&papp->engine().entities(), e.index()};
 
                     if (!render_entity_data(e, -1))
                         ImGui::SameLine();
@@ -133,7 +133,7 @@ namespace phys_demo
         const float thck = 20.f;
         phys::engine2D &eng = papp->engine();
 
-        const phys::entity_ptr e1 = eng.add_entity({-w - 0.4f * thck, 0.f}),
+        const phys::entity2D_ptr e1 = eng.add_entity({-w - 0.4f * thck, 0.f}),
                                e2 = eng.add_entity({w + 0.4f * thck, 0.f}),
                                e3 = eng.add_entity({0.f, -h - 0.4f * thck}),
                                e4 = eng.add_entity({0.f, h + 0.4f * thck});

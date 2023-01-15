@@ -110,7 +110,7 @@ namespace phys_demo
     void attach_tab::render_rigid_bars_list(phys::app *papp)
     {
         auto &ctrs = papp->engine().compeller().constraints();
-        std::shared_ptr<phys::constraint_interface> to_remove = nullptr;
+        std::shared_ptr<phys::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)

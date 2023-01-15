@@ -36,7 +36,7 @@ namespace phys_demo
         m_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape)
     {
         if (m_selector.is_selecting(e))
             m_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
@@ -94,7 +94,7 @@ namespace phys_demo
             case sf::Keyboard::Backspace:
             {
                 const auto selected = m_selector.get();
-                for (phys::const_entity_ptr e : selected)
+                for (phys::const_entity2D_ptr e : selected)
                     if (e.try_validate())
                         engine().remove_entity(e);
                 m_attacher.cancel();
@@ -116,7 +116,7 @@ namespace phys_demo
 
     void demo_app::draw_interaction_lines()
     {
-        const phys::const_entity_ptr e1 = engine()[world_mouse()];
+        const phys::const_entity2D_ptr e1 = engine()[world_mouse()];
         if (e1)
             for (const auto &inter : engine().interactions())
                 if (inter->contains(e1))
