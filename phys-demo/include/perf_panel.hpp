@@ -20,7 +20,7 @@ namespace phys_demo
 
     private:
         void on_attach(phys::app *papp) override;
-        void on_update() override;
+        void on_render() override;
 
         phys::app *m_app;
         time_unit m_unit = MILLISECONDS;

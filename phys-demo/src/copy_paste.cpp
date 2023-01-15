@@ -11,6 +11,12 @@ namespace phys_demo
         m_rbars.reserve(50);
     }
 
+    void copy_paste::render()
+    {
+        if (m_has_copy)
+            preview();
+    }
+
     void copy_paste::copy()
     {
         delete_copy();
@@ -115,7 +121,4 @@ namespace phys_demo
         m_rbars.clear();
         m_has_copy = false;
     }
-
-    bool copy_paste::has_copy() const { return m_has_copy; }
-
 }

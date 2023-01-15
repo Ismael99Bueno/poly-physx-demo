@@ -19,14 +19,13 @@ namespace phys_demo
 
         attacher(demo_app *papp);
 
+        void update();
+        void render();
+
         void try_attach_first();
         void try_attach_second();
 
-        void rotate_joint();
-        void draw_unattached_joint();
-
         void cancel();
-        bool has_first() const;
 
         const attach_type &type() const;
         void type(const attach_type &type);
@@ -43,6 +42,8 @@ namespace phys_demo
         void ctr_stiffness(float ctr_stiffness);
         void ctr_dampening(float ctr_dampening);
 
+        bool has_first() const;
+
     private:
         demo_app *m_app;
         phys::entity_ptr m_e1;
@@ -54,6 +55,9 @@ namespace phys_demo
             m_ctr_stiffness = 500.f,
             m_ctr_dampening = 30.f;
         attach_type m_attach_type = SPRING;
+
+        void rotate_joint();
+        void draw_unattached_joint();
     };
 }
 

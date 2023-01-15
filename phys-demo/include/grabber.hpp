@@ -12,8 +12,10 @@ namespace phys_demo
     public:
         grabber(demo_app *papp);
 
+        void update();
+        void render();
+
         void try_grab_entity();
-        void move_grabbed_entity();
 
         void null();
 
@@ -26,8 +28,6 @@ namespace phys_demo
         void stiffness(float stiffness);
         void dampening(float dampening);
 
-        explicit operator bool() const;
-
     private:
         demo_app *m_app;
         phys::entity_ptr m_grabbed;
@@ -35,6 +35,7 @@ namespace phys_demo
         float m_stiffness = 10.f, m_dampening = 1.f, m_angle;
         sf::Color m_color = sf::Color::Cyan;
 
+        void move_grabbed_entity();
         void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint);
     };
 }

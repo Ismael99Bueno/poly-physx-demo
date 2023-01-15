@@ -7,7 +7,6 @@
 #include "engine_panel.hpp"
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
-#include "previewer.hpp"
 #include "adder.hpp"
 #include "attacher.hpp"
 #include "outline_manager.hpp"
@@ -25,12 +24,12 @@ namespace phys_demo
     private:
         void on_update() override;
         void on_late_update() override;
+        void on_render() override;
         void on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
         grabber m_grabber = grabber(this);
         selector m_selector = selector(this);
-        previewer m_previewer = previewer(this);
         adder m_adder = adder(this);
         attacher m_attacher = attacher(this);
         outline_manager m_outline_manager = outline_manager(this);
@@ -43,7 +42,6 @@ namespace phys_demo
 
         sf::Clock m_clock;
 
-        void draw_quad_tree(const phys::quad_tree2D &qt);
         void draw_interaction_lines();
     };
 }

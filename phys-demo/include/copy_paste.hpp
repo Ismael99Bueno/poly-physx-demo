@@ -14,12 +14,10 @@ namespace phys_demo
     public:
         copy_paste(demo_app *papp, const selector &s);
 
+        void render();
         void copy();
         void paste();
         void delete_copy();
-        void preview();
-
-        bool has_copy() const;
 
     private:
         demo_app *m_app;
@@ -29,6 +27,8 @@ namespace phys_demo
         std::vector<spring_template> m_springs;
         std::vector<rigid_bar_template> m_rbars;
         bool m_has_copy = false;
+
+        void preview();
     };
 }
 

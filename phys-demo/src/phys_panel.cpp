@@ -46,7 +46,7 @@ namespace phys_demo
         eng.on_entity_addition(auto_include);
     }
 
-    void phys_panel::on_update()
+    void phys_panel::on_render()
     {
         ImGui::Begin("Physics");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);

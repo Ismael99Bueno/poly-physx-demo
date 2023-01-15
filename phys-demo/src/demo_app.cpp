@@ -15,19 +15,17 @@ namespace phys_demo
 
     void demo_app::on_update()
     {
+        m_grabber.update();
+    }
+
+    void demo_app::on_render()
+    {
         draw_interaction_lines();
-        if (m_grabber)
-            m_grabber.move_grabbed_entity();
-        m_selector.draw_select_box();
-        if (m_engine_panel.visualize_quad_tree())
-            draw_quad_tree(engine().collider().quad_tree());
-        if (m_adder.adding())
-        {
-            const auto [pos, vel] = m_adder.pos_vel_upon_addition();
-            m_previewer.preview(pos, vel);
-        }
-        if (m_copy_paste.has_copy())
-            m_copy_paste.preview();
+        m_grabber.render();
+        m_selector.render();
+        m_adder.render();
+        m_copy_paste.render();
+        m_attacher.render();
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
 #endif
@@ -35,19 +33,13 @@ namespace phys_demo
 
     void demo_app::on_late_update()
     {
-        if (m_attacher.has_first())
-        {
-            m_attacher.rotate_joint();
-            m_attacher.draw_unattached_joint();
-        }
-        m_outline_manager.reset_priorities();
+        m_outline_manager.update();
     }
 
     void demo_app::on_entity_draw(const phys::entity_ptr &e, sf::ConvexShape &shape)
     {
         if (m_selector.is_selecting(e))
             m_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
-        m_outline_manager.paint_outline(e.index(), shape);
     }
 
     void demo_app::on_event(sf::Event &event)
@@ -59,8 +51,7 @@ namespace phys_demo
             switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
-                m_adder.setup();
-                m_previewer.setup(&m_actions_panel.templ());
+                m_adder.setup(&m_actions_panel.templ());
                 break;
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
@@ -84,7 +75,7 @@ namespace phys_demo
             switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
-                m_adder.add(m_actions_panel.templ());
+                m_adder.add();
                 break;
             case actions_panel::GRAB:
                 m_grabber.null();
@@ -120,24 +111,6 @@ namespace phys_demo
             break;
         default:
             break;
-        }
-    }
-
-    void demo_app::draw_quad_tree(const phys::quad_tree2D &qt)
-    {
-        if (qt.partitioned())
-            for (const auto &child : qt.children())
-                draw_quad_tree(*child);
-        else
-        {
-            const alg::vec2 &mm = qt.aabb().min(),
-                            &mx = qt.aabb().max();
-            prm::flat_line_strip fls({alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
-                                      mx * WORLD_TO_PIXEL,
-                                      alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
-                                      mm * WORLD_TO_PIXEL,
-                                      alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
-            window().draw(fls);
         }
     }
 

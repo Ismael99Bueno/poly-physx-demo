@@ -19,12 +19,8 @@ namespace phys_demo
             RKF78
         };
 
-    public:
-        bool visualize_quad_tree() const;
-
-    private:
         void on_attach(phys::app *papp) override;
-        void on_update() override;
+        void on_render() override;
 
         phys::app *m_app;
         integ_method m_method = RK4;
@@ -39,6 +35,8 @@ namespace phys_demo
         void render_collision_params() const;
         void render_coldet_list();
         void render_quad_tree_params();
+
+        void draw_quad_tree(const phys::quad_tree2D &qt);
     };
 }
 

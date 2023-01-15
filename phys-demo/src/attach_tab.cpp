@@ -1,4 +1,6 @@
 #include "attach_tab.hpp"
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 namespace phys_demo
 {

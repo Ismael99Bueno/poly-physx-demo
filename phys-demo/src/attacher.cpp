@@ -9,6 +9,17 @@ namespace phys_demo
 {
     attacher::attacher(demo_app *papp) : m_app(papp) {}
 
+    void attacher::update()
+    {
+        if (m_e1)
+            rotate_joint();
+    }
+    void attacher::render()
+    {
+        if (m_e1)
+            draw_unattached_joint();
+    }
+
     void attacher::try_attach_first()
     {
         const alg::vec2 mpos = m_app->world_mouse();
@@ -69,7 +80,6 @@ namespace phys_demo
     }
 
     void attacher::cancel() { m_e1 = nullptr; }
-    bool attacher::has_first() const { return (bool)m_e1; }
 
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }
@@ -85,5 +95,7 @@ namespace phys_demo
     void attacher::sp_length(float sp_length) { m_sp_length = sp_length; }
     void attacher::ctr_stiffness(float ctr_stiffness) { m_ctr_stiffness = ctr_stiffness; }
     void attacher::ctr_dampening(float ctr_dampening) { m_ctr_dampening = ctr_dampening; }
+
+    bool attacher::has_first() const { return (bool)m_e1; }
 
 }

@@ -3,11 +3,12 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include "flat_line_strip.hpp"
 
 namespace phys_demo
 {
     void engine_panel::on_attach(phys::app *papp) { m_app = papp; }
-    void engine_panel::on_update()
+    void engine_panel::on_render()
     {
         ImGui::Begin("Engine");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
@@ -16,10 +17,10 @@ namespace phys_demo
             render_integration();
         if (ImGui::CollapsingHeader("Collisions"))
             render_collision();
+        if (m_visualize_qt)
+            draw_quad_tree(m_app->engine().collider().quad_tree());
         ImGui::End();
     }
-
-    bool engine_panel::visualize_quad_tree() const { return m_visualize_qt; }
 
     void engine_panel::render_integration()
     {
@@ -169,5 +170,23 @@ namespace phys_demo
         if (ImGui::SliderInt("Refresh period", &period, 1, 150))
             collider.quad_tree_build_period(period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
+    }
+
+    void engine_panel::draw_quad_tree(const phys::quad_tree2D &qt)
+    {
+        if (qt.partitioned())
+            for (const auto &child : qt.children())
+                draw_quad_tree(*child);
+        else
+        {
+            const alg::vec2 &mm = qt.aabb().min(),
+                            &mx = qt.aabb().max();
+            prm::flat_line_strip fls({alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
+                                      mx * WORLD_TO_PIXEL,
+                                      alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
+                                      mm * WORLD_TO_PIXEL,
+                                      alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            m_app->window().draw(fls);
+        }
     }
 }

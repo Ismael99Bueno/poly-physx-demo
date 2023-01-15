@@ -7,7 +7,7 @@
 namespace phys_demo
 {
     void perf_panel::on_attach(phys::app *papp) { m_app = papp; }
-    void perf_panel::on_update()
+    void perf_panel::on_render()
     {
 #ifdef PERF
         render_full();

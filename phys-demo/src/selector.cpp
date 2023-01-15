@@ -31,6 +31,12 @@ namespace phys_demo
         m_app->engine().on_entity_removal(validate);
     }
 
+    void selector::render()
+    {
+        if (m_selecting)
+            draw_select_box();
+    }
+
     void selector::begin_select(const bool clear_previous)
     {
         if (clear_previous)
@@ -61,8 +67,6 @@ namespace phys_demo
     void selector::deselect(const phys::entity_ptr &e) { m_selected.erase(e); }
     void selector::draw_select_box() const
     {
-        if (!m_selecting)
-            return;
         const geo::aabb2D aabb = select_box();
         const alg::vec2 &mm = aabb.min(),
                         &mx = aabb.max();

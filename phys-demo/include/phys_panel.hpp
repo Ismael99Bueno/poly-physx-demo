@@ -15,7 +15,7 @@ namespace phys_demo
 
     private:
         void on_attach(phys::app *papp) override;
-        void on_update() override;
+        void on_render() override;
 
         const phys::app *m_app;
         std::shared_ptr<gravity> m_gravity;

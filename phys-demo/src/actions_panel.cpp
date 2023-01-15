@@ -20,7 +20,7 @@ namespace phys_demo
         m_entities_tab.add_borders(papp);
     }
 
-    void actions_panel::on_update()
+    void actions_panel::on_render()
     {
         ImGui::Begin("Actions");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);

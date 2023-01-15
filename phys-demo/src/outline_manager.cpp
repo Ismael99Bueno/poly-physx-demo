@@ -21,19 +21,28 @@ namespace phys_demo
 
         papp->engine().on_entity_addition(on_addition);
         papp->engine().on_entity_removal(on_removal);
+        m_app = papp;
     }
 
-    void outline_manager::paint_outline(const std::size_t index, sf::ConvexShape &shape) const
+    void outline_manager::update()
     {
-        const auto &[priority, color] = m_outline_colors[index];
-        shape.setOutlineColor(color);
-        if (priority)
+        paint_outlines(m_app->shapes());
+        reset_priorities();
+    }
+    void outline_manager::paint_outlines(std::vector<sf::ConvexShape> &shapes) const
+    {
+        for (std::size_t i = 0; i < shapes.size(); i++)
         {
-            const float ampl = 1.5f, freq = 2.5f;
-            shape.setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
+            const auto &[priority, color] = m_outline_colors[i];
+            shapes[i].setOutlineColor(color);
+            if (priority)
+            {
+                const float ampl = 1.5f, freq = 2.5f;
+                shapes[i].setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
+            }
+            else
+                shapes[i].setOutlineThickness(0.f);
         }
-        else
-            shape.setOutlineThickness(0.f);
     }
 
     void outline_manager::load_outline(const std::size_t index,

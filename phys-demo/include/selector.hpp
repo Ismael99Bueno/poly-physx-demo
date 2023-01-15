@@ -13,6 +13,8 @@ namespace phys_demo
     public:
         selector(demo_app *papp);
 
+        void render();
+
         void begin_select(bool clear_previous = true);
         void end_select();
 
@@ -22,7 +24,6 @@ namespace phys_demo
         void select(const phys::entity_ptr &e);
         void deselect(const phys::entity_ptr &e);
 
-        void draw_select_box() const;
         const std::unordered_set<phys::entity_ptr> &get() const;
 
     private:
@@ -31,6 +32,7 @@ namespace phys_demo
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 
+        void draw_select_box() const;
         geo::aabb2D select_box() const;
     };
 }

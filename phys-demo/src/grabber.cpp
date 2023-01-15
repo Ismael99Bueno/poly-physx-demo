@@ -16,6 +16,18 @@ namespace phys_demo
         m_app->engine().on_entity_removal(validate);
     }
 
+    void grabber::update()
+    {
+        if (m_grabbed)
+            move_grabbed_entity();
+    }
+
+    void grabber::render()
+    {
+        if (m_grabbed)
+            draw_spring(m_app->pixel_mouse(), m_joint.rotated(m_grabbed->angpos() - m_angle));
+    }
+
     void grabber::try_grab_entity()
     {
         const alg::vec2 mpos = m_app->world_mouse();
@@ -36,7 +48,6 @@ namespace phys_demo
 
         m_grabbed->add_force(force);
         m_grabbed->add_torque(torque);
-        draw_spring(m_app->pixel_mouse(), rot_joint);
     }
 
     void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint)
@@ -56,9 +67,4 @@ namespace phys_demo
 
     void grabber::stiffness(float stiffness) { m_stiffness = stiffness; }
     void grabber::dampening(float dampening) { m_dampening = dampening; }
-
-    grabber::operator bool() const
-    {
-        return (bool)m_grabbed;
-    }
 }
