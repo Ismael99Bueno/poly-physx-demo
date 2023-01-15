@@ -11,7 +11,7 @@ int main()
 {
     PERF_SET_MAX_FILE_MB(300)
 
-    PERF_BEGIN_SESSION("runtime", perf::profiler::profile_export::SAVE_HIERARCHY)
+    PERF_BEGIN_SESSION("runtime", perf::profiler::profile_export::HIERARCHY)
     phys_env::environment env(rk::rk4);
 
     const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;

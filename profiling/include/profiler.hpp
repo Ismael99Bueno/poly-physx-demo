@@ -21,8 +21,8 @@ namespace perf
     public:
         enum profile_export
         {
-            TO_FILE = 0x01,
-            SAVE_HIERARCHY = 0x02
+            FILE = 0x01,
+            HIERARCHY = 0x02
         };
 
         profiler(const profiler &) = delete;

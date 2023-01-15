@@ -14,9 +14,9 @@ namespace perf
     {
         m_name = name;
         m_export = pexport;
-        if (m_export & TO_FILE)
+        if (m_export & FILE)
             open_file();
-        if (m_export & SAVE_HIERARCHY)
+        if (m_export & HIERARCHY)
         {
             DBG_ASSERT(m_current_hierarchy.empty(), "Starting a new profile session with an unfinished hierarchy from the last session. Number of pending parents: %zu.\n", m_current_hierarchy.size())
         }
@@ -24,20 +24,20 @@ namespace perf
 
     void profiler::begin_timer()
     {
-        if (m_export & SAVE_HIERARCHY)
+        if (m_export & HIERARCHY)
             m_current_hierarchy.push({});
     }
     void profiler::end_timer(const profile_result &result)
     {
-        if (m_export & TO_FILE)
+        if (m_export & FILE)
             write(result);
-        if ((m_export & SAVE_HIERARCHY))
+        if ((m_export & HIERARCHY))
             add_to_hierarchy(result);
     }
 
     void profiler::end_session()
     {
-        if (m_export & TO_FILE)
+        if (m_export & FILE)
         {
             close_file();
             m_runs = 0;
