@@ -7,15 +7,13 @@
 
 namespace phys_demo
 {
-    attacher::attacher(demo_app *papp) : m_app(papp) {}
-
     void attacher::update()
     {
         if (!m_e1)
             return;
         rotate_joint();
         if (m_auto_length)
-            m_sp_length = m_app->world_mouse().dist(m_e1->pos() + m_joint1);
+            m_sp_length = demo_app::get().world_mouse().dist(m_e1->pos() + m_joint1);
     }
     void attacher::render()
     {
@@ -25,8 +23,8 @@ namespace phys_demo
 
     void attacher::try_attach_first()
     {
-        const alg::vec2 mpos = m_app->world_mouse();
-        const auto e1 = m_app->engine()[mpos];
+        const alg::vec2 mpos = demo_app::get().world_mouse();
+        const auto e1 = demo_app::get().engine()[mpos];
         if (!e1)
             return;
         m_e1 = e1;
@@ -36,8 +34,8 @@ namespace phys_demo
 
     void attacher::try_attach_second()
     {
-        const alg::vec2 mpos = m_app->world_mouse();
-        const auto e2 = m_app->engine()[mpos];
+        const alg::vec2 mpos = demo_app::get().world_mouse();
+        const auto e2 = demo_app::get().engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
         const alg::vec2 joint2 = mpos - e2->pos();
@@ -48,7 +46,7 @@ namespace phys_demo
             phys::spring2D sp(m_e1, e2, m_joint1, joint2, m_sp_length);
             sp.stiffness(m_sp_stiffness);
             sp.dampening(m_sp_dampening);
-            m_app->engine().add_spring(sp);
+            demo_app::get().engine().add_spring(sp);
             break;
         }
         case RIGID_BAR:
@@ -57,7 +55,7 @@ namespace phys_demo
             const std::shared_ptr<phys::rigid_bar2D> rb = std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
             rb->stiffness(m_ctr_stiffness);
             rb->dampening(m_ctr_dampening);
-            m_app->engine().compeller().add_constraint(rb);
+            demo_app::get().engine().compeller().add_constraint(rb);
             break;
         }
         }
@@ -74,10 +72,10 @@ namespace phys_demo
         switch (m_attach_type)
         {
         case SPRING:
-            m_app->draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, m_app->pixel_mouse());
+            demo_app::get().draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, demo_app::get().pixel_mouse());
             break;
         case RIGID_BAR:
-            m_app->draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, m_app->pixel_mouse());
+            demo_app::get().draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, demo_app::get().pixel_mouse());
             break;
         }
     }

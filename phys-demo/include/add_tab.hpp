@@ -1,7 +1,6 @@
 #ifndef ADD_TAB_HPP
 #define ADD_TAB_HPP
 
-#include "app.hpp"
 #include "templates.hpp"
 
 namespace phys_demo
@@ -17,7 +16,7 @@ namespace phys_demo
         };
 
         add_tab() = default;
-        void render(phys::app *papp);
+        void render();
 
         const entity_template &templ();
 
@@ -30,7 +29,7 @@ namespace phys_demo
 
         void render_shapes_list();
         void render_entity_inputs();
-        void render_color_picker(phys::app *papp);
+        void render_color_picker();
 
         void update_template();
     };

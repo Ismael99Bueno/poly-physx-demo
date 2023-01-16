@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include "demo_app.hpp"
 
 namespace phys_demo
 {
@@ -16,7 +17,6 @@ namespace phys_demo
 
     void phys_panel::on_attach(phys::app *papp)
     {
-        m_app = papp;
         phys::engine2D &eng = papp->engine();
         eng.add_force(m_gravity);
         eng.add_force(m_drag);
@@ -61,7 +61,7 @@ namespace phys_demo
             ImGui::PushItemWidth(200);
             if (tree_node_hovering_outline("Gravity", *m_gravity))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravity->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_gravity->size(), demo_app::get().engine().size());
                 static bool auto_include = m_gravity->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravity->auto_include(auto_include);
@@ -76,7 +76,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Drag", *m_drag))
             {
-                ImGui::Text("Entities: %zu/%zu", m_drag->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_drag->size(), demo_app::get().engine().size());
                 static bool auto_include = m_drag->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_drag->auto_include(auto_include);
@@ -93,7 +93,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Gravitational", *m_gravitational))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), demo_app::get().engine().size());
                 static bool auto_include = m_gravitational->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_gravitational->auto_include(auto_include);
@@ -108,7 +108,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
             {
-                ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), demo_app::get().engine().size());
                 static bool auto_include = m_repulsive->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_repulsive->auto_include(auto_include);
@@ -130,7 +130,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
             {
-                ImGui::Text("Entities: %zu/%zu", m_attractive->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_attractive->size(), demo_app::get().engine().size());
                 static bool auto_include = m_attractive->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_attractive->auto_include(auto_include);
@@ -152,7 +152,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Exponential", *m_exponential))
             {
-                ImGui::Text("Entities: %zu/%zu", m_exponential->size(), m_app->engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_exponential->size(), demo_app::get().engine().size());
                 static bool auto_include = m_exponential->auto_include();
                 if (ImGui::Checkbox("Add automatically", &auto_include))
                     m_exponential->auto_include(auto_include);
@@ -175,9 +175,9 @@ namespace phys_demo
     void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const
     {
         if (ImGui::Button("Add all"))
-            for (const phys::entity2D &e : m_app->engine().entities())
+            for (const phys::entity2D &e : demo_app::get().engine().entities())
             {
-                const phys::const_entity2D_ptr &e_ptr = {&m_app->engine().entities(), e.index()};
+                const phys::const_entity2D_ptr &e_ptr = {&demo_app::get().engine().entities(), e.index()};
                 if (!set.contains(e_ptr))
                     set.include(e_ptr);
             }

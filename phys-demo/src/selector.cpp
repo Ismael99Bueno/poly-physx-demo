@@ -6,9 +6,9 @@
 
 namespace phys_demo
 {
-    selector::selector(demo_app *papp) : m_app(papp)
+    selector::selector(phys::engine2D &engine, std::size_t allocations)
     {
-        m_selected.reserve(m_app->engine().entities().capacity());
+        m_selected.reserve(allocations);
         const auto validate = [this](const std::size_t index)
         {
             std::vector<phys::entity2D_ptr> invalids;
@@ -28,7 +28,7 @@ namespace phys_demo
             DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
             return !invalids.empty();
         };
-        m_app->engine().on_entity_removal(validate);
+        engine.on_entity_removal(validate);
     }
 
     void selector::render()
@@ -41,14 +41,14 @@ namespace phys_demo
     {
         if (clear_previous)
             m_selected.clear();
-        m_mpos_start = m_app->world_mouse();
+        m_mpos_start = demo_app::get().world_mouse();
         m_selecting = true;
     }
 
     void selector::end_select()
     {
         const geo::aabb2D aabb = select_box();
-        const auto in_area = m_app->engine()[aabb];
+        const auto in_area = demo_app::get().engine()[aabb];
         m_selected.insert(in_area.begin(), in_area.end());
         m_selecting = false;
     }
@@ -77,14 +77,14 @@ namespace phys_demo
         vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
         vertices[3].position = mm * WORLD_TO_PIXEL;
         vertices[4].position = vertices[0].position;
-        m_app->window().draw(vertices, 5, sf::LineStrip);
+        demo_app::get().window().draw(vertices, 5, sf::LineStrip);
     }
 
     const std::unordered_set<phys::entity2D_ptr> &selector::get() const { return m_selected; }
 
     geo::aabb2D selector::select_box() const
     {
-        const alg::vec2 mpos = m_app->world_mouse();
+        const alg::vec2 mpos = demo_app::get().world_mouse();
         return geo::aabb2D(alg::vec2(std::min(mpos.x, m_mpos_start.x),
                                      std::min(mpos.y, m_mpos_start.y)),
                            alg::vec2(std::max(mpos.x, m_mpos_start.x),

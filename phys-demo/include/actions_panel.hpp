@@ -1,11 +1,11 @@
 #ifndef ACTIONS_PANEL_HPP
 #define ACTIONS_PANEL_HPP
 
-#include "app.hpp"
 #include "grab_tab.hpp"
 #include "entities_tab.hpp"
 #include "attach_tab.hpp"
 #include "add_tab.hpp"
+#include "app.hpp"
 
 namespace phys_demo
 {
@@ -29,7 +29,6 @@ namespace phys_demo
         void on_attach(phys::app *papp) override;
         void on_render() override;
 
-        phys::app *m_app;
         add_tab m_add_tab;
         grab_tab m_grab_tab;
         attach_tab m_attach_tab;

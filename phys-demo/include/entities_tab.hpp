@@ -1,7 +1,7 @@
 #ifndef ENTITIES_TAB_HPP
 #define ENTITIES_TAB_HPP
 
-#include "app.hpp"
+#include "entity2D.hpp"
 #include "selector.hpp"
 #include "outline_manager.hpp"
 
@@ -12,8 +12,8 @@ namespace phys_demo
     public:
         entities_tab(selector &s, outline_manager &o);
 
-        void render(phys::app *papp);
-        void add_borders(phys::app *papp);
+        void render();
+        void add_borders(phys::engine2D &engine);
 
     private:
         selector &m_selector;

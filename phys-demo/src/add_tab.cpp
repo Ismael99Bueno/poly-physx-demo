@@ -2,16 +2,17 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include "demo_app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
-    void add_tab::render(phys::app *papp)
+    void add_tab::render()
     {
         ImGui::PushItemWidth(200);
         render_shapes_list();
         render_entity_inputs();
-        render_color_picker(papp);
+        render_color_picker();
         ImGui::PopItemWidth();
     }
 
@@ -84,13 +85,13 @@ namespace phys_demo
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
     }
 
-    void add_tab::render_color_picker(phys::app *papp)
+    void add_tab::render_color_picker()
     {
         if (ImGui::ColorPicker3("Entity color", m_entity_color, ImGuiColorEditFlags_NoTooltip))
-            papp->entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
+            demo_app::get().entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Entity color", m_entity_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            papp->entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
+            demo_app::get().entity_color(sf::Color(m_entity_color[0] * 255.f, m_entity_color[1] * 255.f, m_entity_color[2] * 255.f));
     }
 
     void add_tab::update_template()

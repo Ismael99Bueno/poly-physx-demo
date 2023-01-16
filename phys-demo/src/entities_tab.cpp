@@ -6,17 +6,17 @@ namespace phys_demo
 {
     entities_tab::entities_tab(selector &s, outline_manager &o) : m_selector(s), m_outline_manager(o) {}
 
-    void entities_tab::render(phys::app *papp)
+    void entities_tab::render()
     {
         if (ImGui::Button("Remove all"))
-            papp->engine().clear_entities();
+            demo_app::get().engine().clear_entities();
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Removes all entities (including borders!)");
 
         ImGui::SameLine();
 
         if (ImGui::Button("Add borders"))
-            add_borders(papp);
+            add_borders(demo_app::get().engine());
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
 
@@ -48,12 +48,12 @@ namespace phys_demo
             ImGui::SetTooltip("A list of all current entities.");
         if (ent_expanded)
         {
-            if (papp->engine().entities().empty())
+            if (demo_app::get().engine().entities().empty())
                 ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
             else
-                for (phys::entity2D &e : papp->engine().entities())
+                for (phys::entity2D &e : demo_app::get().engine().entities())
                 {
-                    const phys::entity2D_ptr e_ptr = {&papp->engine().entities(), e.index()};
+                    const phys::entity2D_ptr e_ptr = {&demo_app::get().engine().entities(), e.index()};
 
                     if (!render_entity_data(e, -1))
                         ImGui::SameLine();
@@ -79,7 +79,7 @@ namespace phys_demo
         if (to_deselect)
             m_selector.deselect(to_deselect);
         if (to_remove)
-            papp->engine().remove_entity(to_remove->index());
+            demo_app::get().engine().remove_entity(to_remove->index());
     }
 
     bool entities_tab::render_entity_data(phys::entity2D &e, std::int8_t sign) const
@@ -127,16 +127,15 @@ namespace phys_demo
         return expanded;
     }
 
-    void entities_tab::add_borders(phys::app *papp)
+    void entities_tab::add_borders(phys::engine2D &engine)
     {
         const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
         const float thck = 20.f;
-        phys::engine2D &eng = papp->engine();
 
-        const phys::entity2D_ptr e1 = eng.add_entity({-w - 0.4f * thck, 0.f}),
-                               e2 = eng.add_entity({w + 0.4f * thck, 0.f}),
-                               e3 = eng.add_entity({0.f, -h - 0.4f * thck}),
-                               e4 = eng.add_entity({0.f, h + 0.4f * thck});
+        const phys::entity2D_ptr e1 = engine.add_entity({-w - 0.4f * thck, 0.f}),
+                                 e2 = engine.add_entity({w + 0.4f * thck, 0.f}),
+                                 e3 = engine.add_entity({0.f, -h - 0.4f * thck}),
+                                 e4 = engine.add_entity({0.f, h + 0.4f * thck});
 
         e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
         e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));

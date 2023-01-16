@@ -14,12 +14,7 @@ namespace phys_demo
                                                        m_attach_tab(a, o),
                                                        m_entities_tab(s, o) {}
 
-    void actions_panel::on_attach(phys::app *papp)
-    {
-        m_app = papp;
-        m_entities_tab.add_borders(papp);
-    }
-
+    void actions_panel::on_attach(phys::app *papp) { m_entities_tab.add_borders(papp->engine()); }
     void actions_panel::on_render()
     {
         ImGui::Begin("Actions");
@@ -39,7 +34,7 @@ namespace phys_demo
         if (expanded)
         {
             m_action = ADD;
-            m_add_tab.render(m_app);
+            m_add_tab.render();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Grab"))
@@ -51,13 +46,13 @@ namespace phys_demo
         if (ImGui::BeginTabItem("Attach"))
         {
             m_action = ATTACH;
-            m_attach_tab.render(m_app);
+            m_attach_tab.render();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Entities"))
         {
             m_action = ENTITIES;
-            m_entities_tab.render(m_app);
+            m_entities_tab.render();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();

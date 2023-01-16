@@ -6,8 +6,6 @@
 
 namespace phys_demo
 {
-    adder::adder(demo_app *papp) : m_app(papp) {}
-
     void adder::render()
     {
         if (m_adding)
@@ -16,7 +14,7 @@ namespace phys_demo
 
     void adder::setup(const entity_template *tmpl)
     {
-        m_start_pos = m_app->world_mouse();
+        m_start_pos = demo_app::get().world_mouse();
         m_adding = true;
         m_templ = tmpl;
         setup_preview();
@@ -25,9 +23,9 @@ namespace phys_demo
     void adder::add()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        m_app->engine().add_entity(pos, m_templ->dynamic ? vel : alg::vec2(),
-                                   std::atan2f(vel.y, vel.x), 0.f, m_templ->mass,
-                                   m_templ->charge, m_templ->vertices, m_templ->dynamic);
+        demo_app::get().engine().add_entity(pos, m_templ->dynamic ? vel : alg::vec2(),
+                                            std::atan2f(vel.y, vel.x), 0.f, m_templ->mass,
+                                            m_templ->charge, m_templ->vertices, m_templ->dynamic);
         m_adding = false;
     }
 
@@ -35,14 +33,14 @@ namespace phys_demo
     {
         const float speed_mult = 0.5f;
         const alg::vec2 pos = m_start_pos,
-                        vel = speed_mult * (m_start_pos - m_app->world_mouse());
+                        vel = speed_mult * (m_start_pos - demo_app::get().world_mouse());
         return std::make_pair(pos, vel);
     }
 
     void adder::setup_preview()
     {
         m_preview.setPointCount(m_templ->vertices.size());
-        sf::Color color = m_app->entity_color();
+        sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview.setFillColor(color);
     }
@@ -55,7 +53,7 @@ namespace phys_demo
 
         for (std::size_t i = 0; i < poly.size(); i++)
             m_preview.setPoint(i, poly[i] * WORLD_TO_PIXEL);
-        m_app->window().draw(m_preview);
+        demo_app::get().window().draw(m_preview);
 
         const float max_arrow_length = 200.f;
         const alg::vec2 start = pos * WORLD_TO_PIXEL,
@@ -68,12 +66,12 @@ namespace phys_demo
         const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
                         antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
 
-        sf::Color color = m_app->entity_color();
+        sf::Color color = demo_app::get().entity_color();
         color.a = 120;
 
         prm::flat_line_strip fls({start, end, antler1}, color);
         prm::flat_line fl(end, antler2, color);
-        m_app->window().draw(fls);
-        m_app->window().draw(fl);
+        demo_app::get().window().draw(fls);
+        demo_app::get().window().draw(fl);
     }
 }

@@ -1,17 +1,16 @@
 #ifndef SELECTOR_HPP
 #define SELECTOR_HPP
 
-#include "entity2D_ptr.hpp"
+#include "engine2D.hpp"
 #include <unordered_set>
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
-    class demo_app;
     class selector
     {
     public:
-        selector(demo_app *papp);
+        selector(phys::engine2D &engine, std::size_t allocations = 100);
 
         void render();
 
@@ -27,7 +26,6 @@ namespace phys_demo
         const std::unordered_set<phys::entity2D_ptr> &get() const;
 
     private:
-        demo_app *m_app;
         std::unordered_set<phys::entity2D_ptr> m_selected;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;

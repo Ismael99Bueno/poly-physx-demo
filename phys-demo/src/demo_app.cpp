@@ -115,6 +115,12 @@ namespace phys_demo
         }
     }
 
+    demo_app &demo_app::get()
+    {
+        static demo_app app;
+        return app;
+    }
+
     void demo_app::draw_interaction_lines()
     {
         const phys::const_entity2D_ptr e1 = engine()[world_mouse()];

@@ -6,18 +6,16 @@
 
 namespace phys_demo
 {
-    class demo_app;
     class adder
     {
     public:
-        adder(demo_app *papp);
+        adder() = default;
 
         void render();
         void setup(const entity_template *tmpl);
         void add();
 
     private:
-        demo_app *m_app;
         alg::vec2 m_start_pos;
         bool m_adding = false;
 

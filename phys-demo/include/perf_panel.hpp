@@ -2,7 +2,7 @@
 #define PERF_PANEL_HPP
 
 #include "perf.hpp"
-#include "app.hpp"
+#include "layer.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
@@ -19,10 +19,8 @@ namespace phys_demo
         };
 
     private:
-        void on_attach(phys::app *papp) override;
         void on_render() override;
 
-        phys::app *m_app;
         time_unit m_unit = MILLISECONDS;
         int m_render_calls = 0;
 

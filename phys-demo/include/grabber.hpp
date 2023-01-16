@@ -1,16 +1,15 @@
 #ifndef GRABBER_HPP
 #define GRABBER_HPP
 
-#include "entity2D_ptr.hpp"
+#include "engine2D.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
-    class demo_app;
     class grabber
     {
     public:
-        grabber(demo_app *papp);
+        grabber(phys::engine2D &engine);
 
         void update();
         void render();
@@ -29,7 +28,6 @@ namespace phys_demo
         void dampening(float dampening);
 
     private:
-        demo_app *m_app;
         phys::entity2D_ptr m_grabbed;
         alg::vec2 m_joint;
         float m_stiffness = 10.f, m_dampening = 1.f, m_angle;

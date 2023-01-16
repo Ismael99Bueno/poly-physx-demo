@@ -1,7 +1,8 @@
 #ifndef ENGINE_PANEL_HPP
 #define ENGINE_PANEL_HPP
 
-#include "app.hpp"
+#include "quad_tree2D.hpp"
+#include "layer.hpp"
 
 namespace phys_demo
 {
@@ -19,10 +20,8 @@ namespace phys_demo
             RKF78
         };
 
-        void on_attach(phys::app *papp) override;
         void on_render() override;
 
-        phys::app *m_app;
         integ_method m_method = RK4;
         bool m_visualize_qt = false;
 

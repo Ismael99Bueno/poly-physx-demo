@@ -17,7 +17,6 @@ namespace phys_demo
         void on_attach(phys::app *papp) override;
         void on_render() override;
 
-        const phys::app *m_app;
         std::shared_ptr<gravity> m_gravity;
         std::shared_ptr<drag> m_drag;
         std::shared_ptr<electrical> m_repulsive, m_attractive;

@@ -7,7 +7,6 @@
 
 namespace phys_demo
 {
-    class demo_app;
     class attacher
     {
     public:
@@ -17,7 +16,7 @@ namespace phys_demo
             RIGID_BAR
         };
 
-        attacher(demo_app *papp);
+        attacher() = default;
 
         void update();
         void render();
@@ -48,7 +47,6 @@ namespace phys_demo
         void auto_length(bool auto_length);
 
     private:
-        demo_app *m_app;
         phys::entity2D_ptr m_e1;
         alg::vec2 m_joint1;
         float m_last_angle,

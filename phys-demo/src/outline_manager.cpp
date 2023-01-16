@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    outline_manager::outline_manager(demo_app *papp, const std::size_t allocations)
+    outline_manager::outline_manager(phys::engine2D &engine, const std::size_t allocations)
     {
         m_outline_colors.reserve(allocations);
 
@@ -19,14 +19,13 @@ namespace phys_demo
             m_outline_colors.pop_back();
         };
 
-        papp->engine().on_entity_addition(on_addition);
-        papp->engine().on_entity_removal(on_removal);
-        m_app = papp;
+        engine.on_entity_addition(on_addition);
+        engine.on_entity_removal(on_removal);
     }
 
     void outline_manager::update()
     {
-        paint_outlines(m_app->shapes());
+        paint_outlines(demo_app::get().shapes());
         reset_priorities();
     }
     void outline_manager::paint_outlines(std::vector<sf::ConvexShape> &shapes) const

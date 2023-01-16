@@ -2,11 +2,11 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "constants.hpp"
+#include "demo_app.hpp"
 #include <cmath>
 
 namespace phys_demo
 {
-    void perf_panel::on_attach(phys::app *papp) { m_app = papp; }
     void perf_panel::on_render()
     {
 #ifdef PERF
@@ -45,9 +45,9 @@ namespace phys_demo
         static bool limited = true;
         ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))
-            m_app->window().setFramerateLimit(limited ? fps : 0);
+            demo_app::get().window().setFramerateLimit(limited ? fps : 0);
         if (limited && ImGui::SliderInt("FPS Limit", &fps, MIN_FPS, MAX_FPS))
-            m_app->window().setFramerateLimit(fps);
+            demo_app::get().window().setFramerateLimit(fps);
         ImGui::PopItemWidth();
     }
 
@@ -63,12 +63,12 @@ namespace phys_demo
     void perf_panel::perf_panel::render_simple_time()
     {
         const int period = render_refresh_period();
-        static sf::Time sphysics = m_app->phys_time(), sdrawing = m_app->draw_time();
+        static sf::Time sphysics = demo_app::get().phys_time(), sdrawing = demo_app::get().draw_time();
         if (++m_render_calls >= period)
         {
             m_render_calls = 0;
-            sphysics = m_app->phys_time();
-            sdrawing = m_app->draw_time();
+            sphysics = demo_app::get().phys_time();
+            sdrawing = demo_app::get().draw_time();
         }
 
         static sf::Time max_physics = sphysics, max_drawing = sdrawing;

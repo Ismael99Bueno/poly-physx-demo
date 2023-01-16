@@ -19,21 +19,25 @@ namespace phys_demo
     class demo_app : public phys::app
     {
     public:
-        demo_app();
+        demo_app(const demo_app &papp) = delete;
+
+        static demo_app &get();
 
     private:
+        demo_app();
+
         void on_update() override;
         void on_late_update() override;
         void on_render() override;
         void on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
-        grabber m_grabber = grabber(this);
-        selector m_selector = selector(this);
-        adder m_adder = adder(this);
-        attacher m_attacher = attacher(this);
-        outline_manager m_outline_manager = outline_manager(this);
-        copy_paste m_copy_paste = copy_paste(this, m_selector);
+        grabber m_grabber = grabber(engine());
+        selector m_selector = selector(engine());
+        adder m_adder;
+        attacher m_attacher;
+        outline_manager m_outline_manager = outline_manager(engine());
+        copy_paste m_copy_paste = copy_paste(m_selector);
 
         actions_panel m_actions_panel = actions_panel(m_grabber, m_selector, m_attacher, m_outline_manager);
         engine_panel m_engine_panel;

@@ -1,12 +1,13 @@
 #include "attach_tab.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "demo_app.hpp"
 
 namespace phys_demo
 {
     attach_tab::attach_tab(attacher &a, outline_manager &o) : m_attacher(a), m_outline_manager(o) {}
 
-    void attach_tab::render(phys::app *papp)
+    void attach_tab::render()
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
         static attacher::attach_type type = m_attacher.type();
@@ -62,26 +63,26 @@ namespace phys_demo
 
             break;
         }
-        render_springs_list(papp);
-        render_rigid_bars_list(papp);
+        render_springs_list();
+        render_rigid_bars_list();
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
         switch (type)
         {
         case attacher::SPRING:
-            render_spring_color_pickers(papp);
+            render_spring_color_pickers();
             break;
         case attacher::RIGID_BAR:
-            render_rb_color_pickers(papp);
+            render_rb_color_pickers();
             break;
         }
         ImGui::PopItemWidth();
     }
 
-    void attach_tab::render_springs_list(phys::app *papp)
+    void attach_tab::render_springs_list()
     {
-        auto &springs = papp->engine().springs();
+        auto &springs = demo_app::get().engine().springs();
         std::size_t to_remove = springs.size();
 
         if (ImGui::CollapsingHeader("Springs"))
@@ -91,8 +92,8 @@ namespace phys_demo
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {
-                    m_outline_manager.load_outline(sp.e1().index(), papp->springs_color(), 4);
-                    m_outline_manager.load_outline(sp.e2().index(), papp->springs_color(), 4);
+                    m_outline_manager.load_outline(sp.e1().index(), demo_app::get().springs_color(), 4);
+                    m_outline_manager.load_outline(sp.e2().index(), demo_app::get().springs_color(), 4);
                 }
 
                 if (expanded)
@@ -115,12 +116,12 @@ namespace phys_demo
                     to_remove = i;
                 ImGui::PopID();
             }
-        papp->engine().remove_spring(to_remove);
+        demo_app::get().engine().remove_spring(to_remove);
     }
 
-    void attach_tab::render_rigid_bars_list(phys::app *papp)
+    void attach_tab::render_rigid_bars_list()
     {
-        auto &ctrs = papp->engine().compeller().constraints();
+        auto &ctrs = demo_app::get().engine().compeller().constraints();
         std::shared_ptr<phys::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
@@ -130,8 +131,8 @@ namespace phys_demo
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {
-                    m_outline_manager.load_outline(rb.e1().index(), papp->rigid_bars_color(), 4);
-                    m_outline_manager.load_outline(rb.e2().index(), papp->rigid_bars_color(), 4);
+                    m_outline_manager.load_outline(rb.e1().index(), demo_app::get().rigid_bars_color(), 4);
+                    m_outline_manager.load_outline(rb.e2().index(), demo_app::get().rigid_bars_color(), 4);
                 }
 
                 if (expanded)
@@ -155,29 +156,29 @@ namespace phys_demo
                 ImGui::PopID();
             }
         if (to_remove)
-            papp->engine().compeller().remove_constraint(to_remove);
+            demo_app::get().engine().compeller().remove_constraint(to_remove);
     }
 
-    void attach_tab::render_spring_color_pickers(phys::app *papp)
+    void attach_tab::render_spring_color_pickers()
     {
-        const sf::Color &color = papp->springs_color();
+        const sf::Color &color = demo_app::get().springs_color();
         static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp->springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            demo_app::get().springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            papp->springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            demo_app::get().springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
-    void attach_tab::render_rb_color_pickers(phys::app *papp)
+    void attach_tab::render_rb_color_pickers()
     {
-        const sf::Color &color = papp->rigid_bars_color();
+        const sf::Color &color = demo_app::get().rigid_bars_color();
         static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp->rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            demo_app::get().rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            papp->rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            demo_app::get().rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
 }
