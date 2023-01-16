@@ -44,6 +44,9 @@ namespace phys_demo
 
         bool has_first() const;
 
+        bool auto_length() const;
+        void auto_length(bool auto_length);
+
     private:
         demo_app *m_app;
         phys::entity2D_ptr m_e1;
@@ -54,6 +57,7 @@ namespace phys_demo
             m_sp_length = 0.f,
             m_ctr_stiffness = 500.f,
             m_ctr_dampening = 30.f;
+        bool m_auto_length = false;
         attach_type m_attach_type = SPRING;
 
         void rotate_joint();

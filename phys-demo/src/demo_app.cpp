@@ -16,6 +16,7 @@ namespace phys_demo
     void demo_app::on_update()
     {
         m_grabber.update();
+        m_attacher.update();
     }
 
     void demo_app::on_render()

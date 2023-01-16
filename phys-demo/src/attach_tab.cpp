@@ -21,6 +21,8 @@ namespace phys_demo
             static float sp_stf = m_attacher.sp_stiffness(),
                          sp_dmp = m_attacher.sp_dampening(),
                          sp_len = m_attacher.sp_length();
+            static bool auto_length = m_attacher.auto_length();
+
             if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
                 m_attacher.sp_stiffness(sp_stf);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
@@ -31,8 +33,17 @@ namespace phys_demo
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
-            if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
-                m_attacher.sp_length(sp_len);
+            if (ImGui::Checkbox("Auto adjust length", &auto_length))
+                m_attacher.auto_length(auto_length);
+
+            if (!auto_length)
+            {
+                if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
+                    m_attacher.sp_length(sp_len);
+            }
+            else
+                ImGui::Text("Length: %f", m_attacher.sp_length());
+
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
             break;

@@ -23,6 +23,7 @@ namespace phys_demo
     void actions_panel::on_render()
     {
         ImGui::Begin("Actions");
+        ImGui::HelpMarker("The Actions panel allows you to make high level changes to the simulation, such as adding, removing and grabbing entities, modify their properties or attach springs and rigid bars to them.");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_tabs();
         ImGui::End();
@@ -30,8 +31,12 @@ namespace phys_demo
 
     void actions_panel::render_tabs()
     {
-        ImGui::BeginTabBar("Hey");
-        if (ImGui::BeginTabItem("Add"))
+        ImGui::BeginTabBar("Actions tab bar");
+
+        bool expanded = ImGui::BeginTabItem("Add");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("Add entities");
+        if (expanded)
         {
             m_action = ADD;
             m_add_tab.render(m_app);

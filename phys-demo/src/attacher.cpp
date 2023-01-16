@@ -11,8 +11,11 @@ namespace phys_demo
 
     void attacher::update()
     {
-        if (m_e1)
-            rotate_joint();
+        if (!m_e1)
+            return;
+        rotate_joint();
+        if (m_auto_length)
+            m_sp_length = m_app->world_mouse().dist(m_e1->pos() + m_joint1);
     }
     void attacher::render()
     {
@@ -90,12 +93,15 @@ namespace phys_demo
     float attacher::ctr_stiffness() const { return m_ctr_stiffness; }
     float attacher::ctr_dampening() const { return m_ctr_dampening; }
 
-    void attacher::sp_stiffness(float sp_stiffness) { m_sp_stiffness = sp_stiffness; }
-    void attacher::sp_dampening(float sp_dampening) { m_sp_dampening = sp_dampening; }
-    void attacher::sp_length(float sp_length) { m_sp_length = sp_length; }
-    void attacher::ctr_stiffness(float ctr_stiffness) { m_ctr_stiffness = ctr_stiffness; }
-    void attacher::ctr_dampening(float ctr_dampening) { m_ctr_dampening = ctr_dampening; }
+    void attacher::sp_stiffness(const float sp_stiffness) { m_sp_stiffness = sp_stiffness; }
+    void attacher::sp_dampening(const float sp_dampening) { m_sp_dampening = sp_dampening; }
+    void attacher::sp_length(const float sp_length) { m_sp_length = sp_length; }
+    void attacher::ctr_stiffness(const float ctr_stiffness) { m_ctr_stiffness = ctr_stiffness; }
+    void attacher::ctr_dampening(const float ctr_dampening) { m_ctr_dampening = ctr_dampening; }
 
     bool attacher::has_first() const { return (bool)m_e1; }
+
+    bool attacher::auto_length() const { return m_auto_length; }
+    void attacher::auto_length(const bool auto_length) { m_auto_length = auto_length; }
 
 }
