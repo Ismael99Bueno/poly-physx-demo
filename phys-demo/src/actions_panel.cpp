@@ -6,13 +6,7 @@
 
 namespace phys_demo
 {
-    actions_panel::actions_panel(grabber &g,
-                                 selector &s,
-                                 attacher &a,
-                                 outline_manager &o) : m_add_tab(),
-                                                       m_grab_tab(g),
-                                                       m_attach_tab(a, o),
-                                                       m_entities_tab(s, o) {}
+    actions_panel::actions_panel() {}
 
     void actions_panel::on_attach(phys::app *papp) { m_entities_tab.add_borders(papp->engine()); }
     void actions_panel::on_render()

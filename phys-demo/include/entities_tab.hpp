@@ -10,15 +10,12 @@ namespace phys_demo
     class entities_tab
     {
     public:
-        entities_tab(selector &s, outline_manager &o);
+        entities_tab() = default;
 
         void render();
         void add_borders(phys::engine2D &engine);
 
     private:
-        selector &m_selector;
-        outline_manager &m_outline_manager;
-
         bool render_entity_data(phys::entity2D &e, std::int8_t sign = 1) const;
     };
 }

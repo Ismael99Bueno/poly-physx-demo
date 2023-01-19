@@ -6,14 +6,12 @@
 
 namespace phys_demo
 {
-    phys_panel::phys_panel(const selector &s, outline_manager &o) : m_selector(s),
-                                                                    m_outline_manager(o),
-                                                                    m_gravity(std::make_shared<gravity>()),
-                                                                    m_drag(std::make_shared<drag>()),
-                                                                    m_repulsive(std::make_shared<electrical>()),
-                                                                    m_attractive(std::make_shared<electrical>()),
-                                                                    m_gravitational(std::make_shared<gravitational>()),
-                                                                    m_exponential(std::make_shared<exponential>()) {}
+    phys_panel::phys_panel() : m_gravity(std::make_shared<gravity>()),
+                               m_drag(std::make_shared<drag>()),
+                               m_repulsive(std::make_shared<electrical>()),
+                               m_attractive(std::make_shared<electrical>()),
+                               m_gravitational(std::make_shared<gravitational>()),
+                               m_exponential(std::make_shared<exponential>()) {}
 
     void phys_panel::on_attach(phys::app *papp)
     {
@@ -184,13 +182,15 @@ namespace phys_demo
         ImGui::SameLine();
         if (ImGui::Button("Remove all"))
             set.clear();
+
+        const selector &slct = demo_app::get().selector();
         if (ImGui::Button("Add selected"))
-            for (const auto &e : m_selector.get())
+            for (const auto &e : slct.get())
                 if (!set.contains(e))
                     set.include(e);
         ImGui::SameLine();
         if (ImGui::Button("Remove selected"))
-            for (const auto &e : m_selector.get())
+            for (const auto &e : slct.get())
                 set.exclude(e);
     }
 
@@ -199,7 +199,7 @@ namespace phys_demo
         const bool expanded = ImGui::TreeNode(name);
         if (expanded || ImGui::IsItemHovered())
             for (const auto &e : set.entities())
-                m_outline_manager.load_outline(e.index(), sf::Color::Blue, 2);
+                demo_app::get().outline_manager().load_outline(e.index(), sf::Color::Blue, 2);
         return expanded;
     }
 }

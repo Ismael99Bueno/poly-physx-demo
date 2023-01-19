@@ -4,7 +4,7 @@
 
 namespace phys_demo
 {
-    copy_paste::copy_paste(const selector &s) : m_selector(s)
+    copy_paste::copy_paste()
     {
         m_entities.reserve(100);
         m_springs.reserve(50);
@@ -21,12 +21,14 @@ namespace phys_demo
     {
         delete_copy();
         m_ref_pos = alg::vec2();
-        for (const auto &e : m_selector.get())
+
+        const selector &slct = demo_app::get().selector();
+        for (const auto &e : slct.get())
         {
             m_entities[e.id()] = std::make_pair(entity_template::from_entity(*e), sf::ConvexShape());
             m_ref_pos += e->pos();
         }
-        m_ref_pos /= m_selector.get().size();
+        m_ref_pos /= slct.get().size();
         for (const phys::spring2D &sp : demo_app::get().engine().springs())
         {
             const bool has_first = m_entities.find(sp.e1().id()) != m_entities.end(),

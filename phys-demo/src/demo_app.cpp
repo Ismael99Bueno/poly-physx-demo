@@ -5,7 +5,9 @@
 
 namespace phys_demo
 {
-    demo_app::demo_app() : app()
+    demo_app::demo_app() : app(), m_grabber(engine()),
+                           m_selector(engine()),
+                           m_outline_manager(engine())
     {
         push_layer(&m_phys_panel);
         push_layer(&m_perf_panel);
@@ -140,4 +142,11 @@ namespace phys_demo
                             window().draw(fl);
                         }
     }
+
+    grabber &demo_app::grabber() { return m_grabber; }
+    selector &demo_app::selector() { return m_selector; }
+    adder &demo_app::adder() { return m_adder; }
+    attacher &demo_app::attacher() { return m_attacher; }
+    outline_manager &demo_app::outline_manager() { return m_outline_manager; }
+    copy_paste &demo_app::copy_paste() { return m_copy_paste; }
 }

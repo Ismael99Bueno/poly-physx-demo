@@ -8,11 +8,8 @@ namespace phys_demo
     class grab_tab
     {
     public:
-        grab_tab(grabber &g);
+        grab_tab() = default;
         void render();
-
-    private:
-        grabber &m_grabber;
     };
 }
 

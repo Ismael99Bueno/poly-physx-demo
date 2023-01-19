@@ -4,8 +4,6 @@
 
 namespace phys_demo
 {
-    entities_tab::entities_tab(selector &s, outline_manager &o) : m_selector(s), m_outline_manager(o) {}
-
     void entities_tab::render()
     {
         if (ImGui::Button("Remove all"))
@@ -26,8 +24,10 @@ namespace phys_demo
         const bool sel_expanded = ImGui::CollapsingHeader("Selected entities");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("A list of all the currently selected entities.");
+
+        selector &slct = demo_app::get().selector();
         if (sel_expanded)
-            for (const auto &e : m_selector.get())
+            for (const auto &e : slct.get())
             {
                 if (!render_entity_data(*e))
                     ImGui::SameLine();
@@ -59,9 +59,9 @@ namespace phys_demo
                         ImGui::SameLine();
 
                     ImGui::PushID(-e.id());
-                    if (ImGui::Button(m_selector.is_selected(e_ptr) ? "Deselect" : "Select"))
+                    if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
                     {
-                        if (m_selector.is_selected(e_ptr))
+                        if (slct.is_selected(e_ptr))
                             to_deselect = e_ptr;
                         else
                             to_select = e_ptr;
@@ -75,9 +75,9 @@ namespace phys_demo
                 }
         }
         if (to_select)
-            m_selector.select(to_select);
+            slct.select(to_select);
         if (to_deselect)
-            m_selector.deselect(to_deselect);
+            slct.deselect(to_deselect);
         if (to_remove)
             demo_app::get().engine().remove_entity(to_remove->index());
     }
@@ -86,7 +86,7 @@ namespace phys_demo
     {
         const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %zu", e.id());
         if (expanded || ImGui::IsItemHovered())
-            m_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
+            demo_app::get().outline_manager().load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
         {
             float pos[2] = {e.pos().x, e.pos().y},

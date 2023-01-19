@@ -9,13 +9,10 @@ namespace phys_demo
     class attach_tab
     {
     public:
-        attach_tab(attacher &a, outline_manager &o);
+        attach_tab() = default;
         void render();
 
     private:
-        attacher &m_attacher;
-        outline_manager &m_outline_manager;
-
         void render_springs_list();
         void render_rigid_bars_list();
         void render_spring_color_pickers();

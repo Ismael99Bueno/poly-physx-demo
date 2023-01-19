@@ -5,59 +5,59 @@
 
 namespace phys_demo
 {
-    attach_tab::attach_tab(attacher &a, outline_manager &o) : m_attacher(a), m_outline_manager(o) {}
-
     void attach_tab::render()
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
-        static attacher::attach_type type = m_attacher.type();
+
+        attacher &attch = demo_app::get().attacher();
+        static attacher::attach_type type = attch.type();
 
         ImGui::PushItemWidth(200);
         if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
-            m_attacher.type(type);
+            attch.type(type);
 
         switch (type)
         {
         case attacher::SPRING:
-            static float sp_stf = m_attacher.sp_stiffness(),
-                         sp_dmp = m_attacher.sp_dampening(),
-                         sp_len = m_attacher.sp_length();
-            static bool auto_length = m_attacher.auto_length();
+            static float sp_stf = attch.sp_stiffness(),
+                         sp_dmp = attch.sp_dampening(),
+                         sp_len = attch.sp_length();
+            static bool auto_length = attch.auto_length();
 
             if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
-                m_attacher.sp_stiffness(sp_stf);
+                attch.sp_stiffness(sp_stf);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the spring will be.");
 
             if (ImGui::DragFloat("Dampening", &sp_dmp, 0.3f, 0.f, 50.f))
-                m_attacher.sp_dampening(sp_dmp);
+                attch.sp_dampening(sp_dmp);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
             if (ImGui::Checkbox("Auto adjust length", &auto_length))
-                m_attacher.auto_length(auto_length);
+                attch.auto_length(auto_length);
 
             if (!auto_length)
             {
                 if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
-                    m_attacher.sp_length(sp_len);
+                    attch.sp_length(sp_len);
             }
             else
-                ImGui::Text("Length: %f", m_attacher.sp_length());
+                ImGui::Text("Length: %f", attch.sp_length());
 
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
             break;
         case attacher::RIGID_BAR:
-            static float ctr_stf = m_attacher.ctr_stiffness(),
-                         ctr_dmp = m_attacher.ctr_dampening();
+            static float ctr_stf = attch.ctr_stiffness(),
+                         ctr_dmp = attch.ctr_dampening();
             if (ImGui::DragFloat("Stiffness", &ctr_stf, 0.3f, 0.f, 2000.f, "%.1f"))
-                m_attacher.ctr_stiffness(ctr_stf);
+                attch.ctr_stiffness(ctr_stf);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
             if (ImGui::DragFloat("Dampening", &ctr_dmp, 0.3f, 0.f, 500.f, "%.2f"))
-                m_attacher.ctr_dampening(ctr_dmp);
+                attch.ctr_dampening(ctr_dmp);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
@@ -83,6 +83,8 @@ namespace phys_demo
     void attach_tab::render_springs_list()
     {
         auto &springs = demo_app::get().engine().springs();
+        outline_manager &outlmng = demo_app::get().outline_manager();
+
         std::size_t to_remove = springs.size();
 
         if (ImGui::CollapsingHeader("Springs"))
@@ -92,8 +94,8 @@ namespace phys_demo
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {
-                    m_outline_manager.load_outline(sp.e1().index(), demo_app::get().springs_color(), 4);
-                    m_outline_manager.load_outline(sp.e2().index(), demo_app::get().springs_color(), 4);
+                    outlmng.load_outline(sp.e1().index(), demo_app::get().springs_color(), 4);
+                    outlmng.load_outline(sp.e2().index(), demo_app::get().springs_color(), 4);
                 }
 
                 if (expanded)
@@ -122,6 +124,8 @@ namespace phys_demo
     void attach_tab::render_rigid_bars_list()
     {
         auto &ctrs = demo_app::get().engine().compeller().constraints();
+        outline_manager &outlmng = demo_app::get().outline_manager();
+
         std::shared_ptr<phys::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
@@ -131,8 +135,8 @@ namespace phys_demo
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {
-                    m_outline_manager.load_outline(rb.e1().index(), demo_app::get().rigid_bars_color(), 4);
-                    m_outline_manager.load_outline(rb.e2().index(), demo_app::get().rigid_bars_color(), 4);
+                    outlmng.load_outline(rb.e1().index(), demo_app::get().rigid_bars_color(), 4);
+                    outlmng.load_outline(rb.e2().index(), demo_app::get().rigid_bars_color(), 4);
                 }
 
                 if (expanded)

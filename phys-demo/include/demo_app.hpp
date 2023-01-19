@@ -23,6 +23,13 @@ namespace phys_demo
 
         static demo_app &get();
 
+        grabber &grabber();
+        selector &selector();
+        adder &adder();
+        attacher &attacher();
+        outline_manager &outline_manager();
+        copy_paste &copy_paste();
+
     private:
         demo_app();
 
@@ -32,17 +39,17 @@ namespace phys_demo
         void on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
 
-        grabber m_grabber = grabber(engine());
-        selector m_selector = selector(engine());
-        adder m_adder;
-        attacher m_attacher;
-        outline_manager m_outline_manager = outline_manager(engine());
-        copy_paste m_copy_paste = copy_paste(m_selector);
+        phys_demo::grabber m_grabber;
+        phys_demo::selector m_selector;
+        phys_demo::adder m_adder;
+        phys_demo::attacher m_attacher;
+        phys_demo::outline_manager m_outline_manager;
+        phys_demo::copy_paste m_copy_paste;
 
-        actions_panel m_actions_panel = actions_panel(m_grabber, m_selector, m_attacher, m_outline_manager);
+        actions_panel m_actions_panel;
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
-        phys_panel m_phys_panel = phys_panel(m_selector, m_outline_manager);
+        phys_panel m_phys_panel;
 
         sf::Clock m_clock;
 

@@ -11,7 +11,7 @@ namespace phys_demo
     class copy_paste
     {
     public:
-        copy_paste(const selector &s);
+        copy_paste();
 
         void render();
         void copy();
@@ -19,7 +19,6 @@ namespace phys_demo
         void delete_copy();
 
     private:
-        const selector &m_selector;
         alg::vec2 m_ref_pos;
         std::unordered_map<std::size_t, std::pair<entity_template, sf::ConvexShape>> m_entities;
         std::vector<spring_template> m_springs;
