@@ -16,7 +16,7 @@ namespace perf
         long long duration_per_call() const;
         long long duration_over_calls() const;
 
-        const std::string &name() const;
+        const char *name() const;
         std::uint32_t relative_calls() const;
         std::uint32_t total_calls() const;
         float relative_percent() const;
@@ -24,7 +24,7 @@ namespace perf
         const std::unordered_map<std::string, profile_stats> &children() const;
 
     private:
-        std::string m_name;
+        const char *m_name;
         long long m_duration_per_call = 0, m_duration_over_calls = 0;
         std::uint32_t m_relative_calls = 1, m_total_calls = 1;
 

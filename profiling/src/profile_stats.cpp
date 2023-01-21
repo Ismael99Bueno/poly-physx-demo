@@ -27,7 +27,7 @@ namespace perf
     long long profile_stats::duration_per_call() const { return m_duration_per_call; }
     long long profile_stats::duration_over_calls() const { return m_duration_over_calls; }
 
-    const std::string &profile_stats::name() const { return m_name; }
+    const char *profile_stats::name() const { return m_name; }
 
     std::uint32_t profile_stats::relative_calls() const { return m_relative_calls; }
     std::uint32_t profile_stats::total_calls() const { return m_total_calls; }

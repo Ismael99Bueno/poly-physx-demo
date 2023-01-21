@@ -54,6 +54,11 @@ namespace phys_demo
 
     void perf_panel::render_time_plot(const float last_physics, const float last_drawing) const
     {
+        static bool show_plot = false;
+        ImGui::Checkbox("Show plot", &show_plot);
+        if (!show_plot)
+            return;
+
         static std::size_t buffer_size = 3000;
         const float broad = 4.f;
 
@@ -164,11 +169,7 @@ namespace phys_demo
         if (hovered || ImGui::IsItemHovered())
             ImGui::SetTooltip("The time it took for the different project components (physics/drawing/total) to render the last frame.");
 
-        static bool show_plot = false;
-        ImGui::Checkbox("Show plot", &show_plot);
-        if (show_plot)
-            render_time_plot(sphysics.asSeconds(), sdrawing.asSeconds());
-
+        render_time_plot(sphysics.asSeconds(), sdrawing.asSeconds());
         render_fps(total.asSeconds());
         ImGui::Spacing();
         ImGui::Spacing();
@@ -183,7 +184,11 @@ namespace phys_demo
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_unit_slider();
         render_time_hierarchy("runtime");
-        render_time_plot(demo_app::get().phys_time().asSeconds(), demo_app::get().draw_time().asSeconds());
+
+        const float phys_time = demo_app::get().phys_time().asSeconds(),
+                    draw_time = demo_app::get().draw_time().asSeconds();
+        render_time_plot(phys_time, draw_time);
+        render_fps(phys_time + draw_time);
         ImGui::End();
     }
 
@@ -217,18 +222,15 @@ namespace phys_demo
             render_hierarchy(stats, 1.f, "ns", call);
             break;
         }
-
-        render_fps(stats.duration_over_calls() * 1.e-9f);
     }
 
     void perf_panel::render_hierarchy(const perf::profile_stats &stats, const float conversion,
                                       const char *unit, int &call) const
     {
-        if (ImGui::TreeNode((void *)(intptr_t)call, "%s (%.2f%%)", stats.name().c_str(), stats.relative_percent() * 100.0))
+        if (ImGui::TreeNode((void *)(intptr_t)call, "%s (%.2f %s, %.2f%%)", stats.name(), stats.duration_per_call() * conversion, unit, stats.relative_percent() * 100.0))
         {
             if (ImGui::CollapsingHeader("Details"))
             {
-                ImGui::Text("Execution: %f %s", stats.duration_per_call() * conversion, unit);
                 ImGui::Text("Time resources (current process): %f %s", stats.duration_over_calls() * conversion, unit);
                 ImGui::Text("Time resources (overall): %.2f%%", stats.total_percent() * 100.0);
                 ImGui::Text("Calls (current process): %u", stats.relative_calls());

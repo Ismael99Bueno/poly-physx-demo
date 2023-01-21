@@ -12,7 +12,7 @@ namespace perf
 {
     struct profile_result
     {
-        std::string name;
+        const char *name;
         long long start, end;
     };
 
