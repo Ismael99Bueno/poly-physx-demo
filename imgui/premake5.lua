@@ -3,7 +3,6 @@ project "imgui"
    cppdialect "C++20"
    staticruntime "on"
    kind "StaticLib"
-   defines "GL_SILENCE_DEPRECATION"
 
    targetdir("../bin/" .. outputdir)
    objdir("../build/" .. outputdir .. "/%{prj.name}")

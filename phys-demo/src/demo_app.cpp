@@ -2,6 +2,7 @@
 #include "constants.hpp"
 #include "flat_line_strip.hpp"
 #include "flat_line.hpp"
+#include "implot.h"
 
 namespace phys_demo
 {
@@ -31,6 +32,7 @@ namespace phys_demo
         m_attacher.render();
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
+        ImPlot::ShowDemoWindow();
 #endif
     }
 

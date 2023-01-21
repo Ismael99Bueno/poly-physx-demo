@@ -1,4 +1,5 @@
 #include "imgui-SFML.h"
+#include "implot.h"
 #include <imgui.h>
 
 #include <SFML/Config.hpp>
@@ -224,6 +225,7 @@ namespace
         {
             window = w;
             imContext = ImGui::CreateContext();
+            ImPlot::CreateContext();
 
             windowHasFocus = window->hasFocus();
             mouseMoved = false;
