@@ -1,6 +1,7 @@
 #include "perf_panel.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "implot.h"
 #include "constants.hpp"
 #include "demo_app.hpp"
 #include <cmath>
@@ -51,6 +52,55 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
+    void perf_panel::render_time_plot(const float last_physics, const float last_drawing) const
+    {
+        static std::size_t buffer_size = 3000;
+        const float broad = 4.f;
+
+        static float t = 0.f, pmax, dmax;
+        static std::size_t offset = 0;
+
+        if (pmax < last_physics)
+            pmax = last_physics;
+        if (dmax < last_drawing)
+            dmax = last_drawing;
+
+        static std::vector<alg::vec2> phys, draw, total;
+        phys.reserve(buffer_size);
+        draw.reserve(buffer_size);
+        total.reserve(buffer_size);
+        if (phys.size() < buffer_size)
+        {
+            phys.emplace_back(t, last_physics);
+            draw.emplace_back(t, last_drawing);
+            total.emplace_back(t, last_physics + last_drawing);
+            offset = 0;
+        }
+        else
+        {
+            phys[offset] = {t, last_physics};
+            draw[offset] = {t, last_drawing};
+            total[offset] = {t, last_physics + last_drawing};
+            offset = (offset + 1) % buffer_size;
+        }
+
+        if (ImPlot::BeginPlot("##Performance"))
+        {
+            ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
+            ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, pmax + dmax, ImGuiCond_Always);
+            ImPlot::PlotLine("Physics", &phys.data()->x, &phys.data()->y, phys.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PlotLine("Drawing", &draw.data()->x, &draw.data()->y, draw.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::EndPlot();
+        }
+        t += last_physics + last_drawing;
+        pmax *= 0.9999f;
+        dmax *= 0.9999f;
+    }
+
     void perf_panel::render_simple()
     {
         ImGui::Begin("Performance");
@@ -84,26 +134,40 @@ namespace phys_demo
             max_drawing = sdrawing;
         const sf::Time total = sphysics + sdrawing, max_total = max_physics + max_drawing;
 
+        bool hovered = false;
         switch (m_unit)
         {
         case SECONDS:
             ImGui::Text("Physics: %f s (%f s)", sphysics.asSeconds(), max_physics.asSeconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Drawing: %f s (%f s)", sdrawing.asSeconds(), max_drawing.asSeconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %f s (%f s)", total.asSeconds(), max_total.asSeconds());
             break;
         case MILLISECONDS:
             ImGui::Text("Physics: %d ms (%d ms)", sphysics.asMilliseconds(), max_physics.asMilliseconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Drawing: %d ms (%d ms)", sdrawing.asMilliseconds(), max_drawing.asMilliseconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %d ms (%d ms)", total.asMilliseconds(), max_total.asMilliseconds());
             break;
         case MICROSECONDS:
             ImGui::Text("Physics: %lld us (%lld us)", sphysics.asMicroseconds(), max_physics.asMicroseconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Drawing: %lld us (%lld us)", sdrawing.asMicroseconds(), max_drawing.asMicroseconds());
+            hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %lld us (%lld us)", total.asMicroseconds(), max_total.asMicroseconds());
             break;
         default:
             break;
         }
+        if (hovered || ImGui::IsItemHovered())
+            ImGui::SetTooltip("The time it took for the different project components (physics/drawing/total) to render the last frame.");
+
+        static bool show_plot = false;
+        ImGui::Checkbox("Show plot", &show_plot);
+        if (show_plot)
+            render_time_plot(sphysics.asSeconds(), sdrawing.asSeconds());
 
         render_fps(total.asSeconds());
         ImGui::Spacing();
@@ -119,6 +183,7 @@ namespace phys_demo
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_unit_slider();
         render_time_hierarchy("runtime");
+        render_time_plot(demo_app::get().phys_time().asSeconds(), demo_app::get().draw_time().asSeconds());
         ImGui::End();
     }
 

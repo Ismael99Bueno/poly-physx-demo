@@ -27,6 +27,7 @@ namespace phys_demo
         void render_unit_slider();
         int render_refresh_period() const;
         void render_fps(float frame_time) const;
+        void render_time_plot(float last_physics, float last_drawing) const;
 
         void render_simple();
         void render_simple_time();
