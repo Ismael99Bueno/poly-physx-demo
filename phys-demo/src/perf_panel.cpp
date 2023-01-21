@@ -89,7 +89,7 @@ namespace phys_demo
             offset = (offset + 1) % buffer_size;
         }
 
-        if (ImPlot::BeginPlot("##Performance"))
+        if (ImPlot::BeginPlot("##Performance", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
         {
             ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
