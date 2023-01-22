@@ -22,10 +22,9 @@ namespace phys_demo
         void on_render() override;
 
         time_unit m_unit = MILLISECONDS;
-        int m_render_calls = 0;
 
         void render_unit_slider();
-        int render_refresh_period() const;
+        void render_smooth_factor();
         void render_fps(float frame_time) const;
         void render_time_plot(float last_physics, float last_drawing) const;
 

@@ -30,13 +30,13 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    int perf_panel::render_refresh_period() const
+    void perf_panel::render_smooth_factor()
     {
-        static int refresh_period = 1;
+        static float smoothness = demo_app::get().time_measure_smoothness();
         ImGui::PushItemWidth(200);
-        ImGui::SliderInt("Refresh period", &refresh_period, 1, 1000);
+        if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.95f))
+            demo_app::get().time_measure_smoothness(smoothness);
         ImGui::PopItemWidth();
-        return refresh_period;
     }
 
     void perf_panel::render_fps(const float frame_time) const
@@ -208,48 +208,43 @@ namespace phys_demo
 
     void perf_panel::perf_panel::render_simple_time()
     {
-        const int period = render_refresh_period();
-        static sf::Time sphysics = demo_app::get().phys_time(), sdrawing = demo_app::get().draw_time();
-        if (++m_render_calls >= period)
-        {
-            m_render_calls = 0;
-            sphysics = demo_app::get().phys_time();
-            sdrawing = demo_app::get().draw_time();
-        }
+        render_smooth_factor();
+        const sf::Time &physics = demo_app::get().phys_time(),
+                       &drawing = demo_app::get().draw_time();
 
-        static sf::Time max_physics = sphysics, max_drawing = sdrawing;
+        static sf::Time max_physics = physics, max_drawing = drawing;
         if (ImGui::Button("Reset maximums"))
         {
             max_physics = sf::Time::Zero;
             max_drawing = sf::Time::Zero;
         }
 
-        if (sphysics > max_physics)
-            max_physics = sphysics;
-        if (sdrawing > max_drawing)
-            max_drawing = sdrawing;
-        const sf::Time total = sphysics + sdrawing, max_total = max_physics + max_drawing;
+        if (physics > max_physics)
+            max_physics = physics;
+        if (drawing > max_drawing)
+            max_drawing = drawing;
+        const sf::Time total = physics + drawing, max_total = max_physics + max_drawing;
         bool hovered = false;
         switch (m_unit)
         {
         case SECONDS:
-            ImGui::Text("Physics: %f s (%f s)", sphysics.asSeconds(), max_physics.asSeconds());
+            ImGui::Text("Physics: %f s (%f s)", physics.asSeconds(), max_physics.asSeconds());
             hovered |= ImGui::IsItemHovered();
-            ImGui::Text("Drawing: %f s (%f s)", sdrawing.asSeconds(), max_drawing.asSeconds());
+            ImGui::Text("Drawing: %f s (%f s)", drawing.asSeconds(), max_drawing.asSeconds());
             hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %f s (%f s)", total.asSeconds(), max_total.asSeconds());
             break;
         case MILLISECONDS:
-            ImGui::Text("Physics: %d ms (%d ms)", sphysics.asMilliseconds(), max_physics.asMilliseconds());
+            ImGui::Text("Physics: %d ms (%d ms)", physics.asMilliseconds(), max_physics.asMilliseconds());
             hovered |= ImGui::IsItemHovered();
-            ImGui::Text("Drawing: %d ms (%d ms)", sdrawing.asMilliseconds(), max_drawing.asMilliseconds());
+            ImGui::Text("Drawing: %d ms (%d ms)", drawing.asMilliseconds(), max_drawing.asMilliseconds());
             hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %d ms (%d ms)", total.asMilliseconds(), max_total.asMilliseconds());
             break;
         case MICROSECONDS:
-            ImGui::Text("Physics: %lld us (%lld us)", sphysics.asMicroseconds(), max_physics.asMicroseconds());
+            ImGui::Text("Physics: %lld us (%lld us)", physics.asMicroseconds(), max_physics.asMicroseconds());
             hovered |= ImGui::IsItemHovered();
-            ImGui::Text("Drawing: %lld us (%lld us)", sdrawing.asMicroseconds(), max_drawing.asMicroseconds());
+            ImGui::Text("Drawing: %lld us (%lld us)", drawing.asMicroseconds(), max_drawing.asMicroseconds());
             hovered |= ImGui::IsItemHovered();
             ImGui::Text("Total: %lld us (%lld us)", total.asMicroseconds(), max_total.asMicroseconds());
             break;
@@ -259,7 +254,7 @@ namespace phys_demo
         if (hovered || ImGui::IsItemHovered())
             ImGui::SetTooltip("The time it took for the different project components (physics/drawing/total) to render the last frame.");
 
-        render_time_plot(sphysics.asSeconds(), sdrawing.asSeconds());
+        render_time_plot(physics.asSeconds(), drawing.asSeconds());
         render_fps(total.asSeconds());
         ImGui::Spacing();
         ImGui::Spacing();
