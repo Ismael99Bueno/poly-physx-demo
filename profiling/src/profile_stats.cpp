@@ -35,5 +35,5 @@ namespace perf
     float profile_stats::relative_percent() const { return m_relative_percent; }
     float profile_stats::total_percent() const { return m_total_percent; }
 
-    const std::unordered_map<std::string, profile_stats> &profile_stats::children() const { return m_children; }
+    const std::unordered_map<const char *, profile_stats> &profile_stats::children() const { return m_children; }
 }

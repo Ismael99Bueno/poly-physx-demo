@@ -138,7 +138,6 @@ namespace phys_demo
         if (sdrawing > max_drawing)
             max_drawing = sdrawing;
         const sf::Time total = sphysics + sdrawing, max_total = max_physics + max_drawing;
-
         bool hovered = false;
         switch (m_unit)
         {
@@ -235,6 +234,30 @@ namespace phys_demo
                 ImGui::Text("Time resources (overall): %.2f%%", stats.total_percent() * 100.0);
                 ImGui::Text("Calls (current process): %u", stats.relative_calls());
                 ImGui::Text("Calls (overall): %u", stats.total_calls());
+
+                ImGui::PushID(-call);
+                if (ImPlot::BeginPlot("##Pie", ImVec2(1500, 500), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
+                {
+                    const std::size_t size = stats.children().size();
+                    const char *labels[size + 1];
+                    float percents[size + 1];
+                    std::size_t index = 0;
+                    float leftovers = 1.f;
+                    for (const auto &[name, child] : stats.children())
+                    {
+                        labels[index] = name;
+                        percents[index++] = child.relative_percent() * 100.f;
+                        leftovers -= child.relative_percent();
+                    }
+                    labels[index] = "Unprofiled";
+                    percents[index] = leftovers * 100.f;
+
+                    ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
+                    ImPlot::SetupLegend(ImPlotLocation_West, ImPlotLegendFlags_Outside);
+                    ImPlot::PlotPieChart(labels, percents, size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
+                    ImPlot::EndPlot();
+                }
+                ImGui::PopID();
             }
 
             for (const auto &[name, child] : stats.children())
