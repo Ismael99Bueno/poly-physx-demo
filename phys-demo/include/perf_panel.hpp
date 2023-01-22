@@ -29,13 +29,14 @@ namespace phys_demo
         void render_fps(float frame_time) const;
         void render_time_plot(float last_physics, float last_drawing) const;
 
-        void render_simple();
-        void render_simple_time();
-
 #ifdef PERF
         void render_full();
         void render_time_hierarchy(const std::string &name);
         void render_hierarchy(const perf::profile_stats &stats, float conversion, const char *unit, int &call) const;
+
+#else
+        void render_simple();
+        void render_simple_time();
 #endif
     };
 }
