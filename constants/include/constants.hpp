@@ -10,5 +10,6 @@
 #define DEFAULT_FPS 120
 #define MIN_FPS 30
 #define MAX_FPS 240
+#define PERF_SESSION_NAME "runtime"
 
 #endif

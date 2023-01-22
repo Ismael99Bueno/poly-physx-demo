@@ -24,6 +24,17 @@ namespace perf
             pstats.compute_relative_durations(*this);
     }
 
+    void profile_stats::smooth_stats(const profile_stats &stats, const float smoothness)
+    {
+        m_duration_per_call = (long long)((1.f - smoothness) * m_duration_per_call + smoothness * stats.duration_per_call());
+        m_duration_over_calls = (long long)((1.f - smoothness) * m_duration_over_calls + smoothness * stats.duration_over_calls());
+        m_relative_percent = (1.f - smoothness) * m_relative_percent + smoothness * stats.relative_percent();
+        m_total_percent = (1.f - smoothness) * m_total_percent + smoothness * stats.total_percent();
+        for (auto &[name, child] : m_children)
+            if (stats.children().find(name) != stats.children().end())
+                child.smooth_stats(stats.children().at(name), smoothness);
+    }
+
     long long profile_stats::duration_per_call() const { return m_duration_per_call; }
     long long profile_stats::duration_over_calls() const { return m_duration_over_calls; }
 

@@ -76,6 +76,8 @@ namespace perf
     void profiler::end_hierarchy(profile_stats &head)
     {
         head.compute_relative_durations();
+        if (m_smoothness != 0.f)
+            head.smooth_stats(m_hierarchy.at(m_name), m_smoothness);
         m_hierarchy[m_name] = head;
     }
 
@@ -144,4 +146,7 @@ namespace perf
 
     const std::string &profiler::path() const { return m_path; }
     void profiler::path(const std::string &path) { m_path = path; }
+
+    float profiler::smoothness() const { return m_smoothness; }
+    void profiler::smoothness(const float smoothness) { m_smoothness = smoothness; }
 }

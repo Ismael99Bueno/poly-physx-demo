@@ -16,6 +16,8 @@ namespace perf
         long long duration_per_call() const;
         long long duration_over_calls() const;
 
+        void smooth_stats(const profile_stats &stats, float smoothness);
+
         const char *name() const;
         std::uint32_t relative_calls() const;
         std::uint32_t total_calls() const;

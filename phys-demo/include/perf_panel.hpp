@@ -30,7 +30,7 @@ namespace phys_demo
 
 #ifdef PERF
         void render_full();
-        void render_time_hierarchy(const std::string &name);
+        void render_time_hierarchy();
         void render_hierarchy(const perf::profile_stats &stats, float conversion, const char *unit, int &call) const;
 
 #else

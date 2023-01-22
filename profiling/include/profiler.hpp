@@ -45,6 +45,9 @@ namespace perf
         const std::string &path() const;
         void path(const std::string &path);
 
+        float smoothness() const;
+        void smoothness(float smoothness);
+
     private:
         profiler() = default;
 
@@ -54,6 +57,7 @@ namespace perf
         profile_export m_export;
         std::unordered_map<std::string, profile_stats> m_hierarchy;
         std::stack<profile_stats> m_current_hierarchy;
+        float m_smoothness = 0.f;
 
         void end_hierarchy(profile_stats &head);
         void add_to_hierarchy(const profile_result &result);

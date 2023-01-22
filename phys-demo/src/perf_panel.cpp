@@ -34,8 +34,11 @@ namespace phys_demo
     {
         static float smoothness = demo_app::get().time_measure_smoothness();
         ImGui::PushItemWidth(200);
-        if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.95f))
+        if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.99f, "%.2f"))
+        {
             demo_app::get().time_measure_smoothness(smoothness);
+            perf::profiler::get().smoothness(smoothness);
+        }
         ImGui::PopItemWidth();
     }
 
@@ -113,7 +116,8 @@ namespace phys_demo
         ImGui::Begin("Performance");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_unit_slider();
-        render_time_hierarchy("runtime");
+        render_smooth_factor();
+        render_time_hierarchy();
 
         const float phys_time = demo_app::get().phys_time().asSeconds(),
                     draw_time = demo_app::get().draw_time().asSeconds();
@@ -122,20 +126,13 @@ namespace phys_demo
         ImGui::End();
     }
 
-    void perf_panel::render_time_hierarchy(const std::string &name)
+    void perf_panel::render_time_hierarchy()
     {
         const auto &hierarchy = perf::profiler::get().hierarchy();
-        if (hierarchy.find(name) == hierarchy.end())
+        if (hierarchy.find(PERF_SESSION_NAME) == hierarchy.end())
             return;
 
-        static perf::profile_stats stats = hierarchy.at(name);
-        const int period = render_refresh_period();
-        if (++m_render_calls >= period)
-        {
-            m_render_calls = 0;
-            stats = hierarchy.at(name);
-        }
-
+        const perf::profile_stats &stats = hierarchy.at(PERF_SESSION_NAME);
         int call = 0;
         switch (m_unit)
         {
@@ -157,12 +154,12 @@ namespace phys_demo
     void perf_panel::render_hierarchy(const perf::profile_stats &stats, const float conversion,
                                       const char *unit, int &call) const
     {
-        if (ImGui::TreeNode((void *)(intptr_t)call, "%s (%.2f %s, %.2f%%)", stats.name(), stats.duration_per_call() * conversion, unit, stats.relative_percent() * 100.0))
+        if (ImGui::TreeNode((void *)(intptr_t)call, "%s (%.2f %s, %.2f%%)", stats.name(), stats.duration_over_calls() * conversion, unit, stats.relative_percent() * 100.0))
         {
             if (ImGui::CollapsingHeader("Details"))
             {
-                ImGui::Text("Time resources (current process): %f %s", stats.duration_over_calls() * conversion, unit);
-                ImGui::Text("Time resources (overall): %.2f%%", stats.total_percent() * 100.0);
+                ImGui::Text("Duration per execution: %f %s", stats.duration_per_call() * conversion, unit);
+                ImGui::Text("Overall performance impact: %.2f %s (%.2f%%)", stats.duration_per_call() * stats.total_calls() * conversion, unit, stats.total_percent() * 100.0);
                 ImGui::Text("Calls (current process): %u", stats.relative_calls());
                 ImGui::Text("Calls (overall): %u", stats.total_calls());
 
