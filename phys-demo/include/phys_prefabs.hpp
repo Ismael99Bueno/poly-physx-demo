@@ -19,7 +19,7 @@ namespace phys_demo
         void auto_include(bool auto_include);
 
     private:
-        float m_mag = -10.f;
+        float m_mag = -35.f;
         bool m_auto_include = false;
 
         friend class phys_panel;

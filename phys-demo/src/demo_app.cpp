@@ -18,12 +18,14 @@ namespace phys_demo
 
     void demo_app::on_update()
     {
+        PERF_FUNCTION()
         m_grabber.update();
         m_attacher.update();
     }
 
     void demo_app::on_render()
     {
+        PERF_FUNCTION()
         draw_interaction_lines();
         m_grabber.render();
         m_selector.render();
@@ -38,6 +40,7 @@ namespace phys_demo
 
     void demo_app::on_late_update()
     {
+        PERF_FUNCTION()
         m_outline_manager.update();
     }
 
@@ -127,6 +130,7 @@ namespace phys_demo
 
     void demo_app::draw_interaction_lines()
     {
+        PERF_FUNCTION()
         const phys::const_entity2D_ptr e1 = engine()[world_mouse()];
         if (e1)
             for (const auto &inter : engine().interactions())

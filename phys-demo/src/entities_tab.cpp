@@ -137,8 +137,8 @@ namespace phys_demo
                                  e3 = engine.add_entity({0.f, -h - 0.4f * thck}),
                                  e4 = engine.add_entity({0.f, h + 0.4f * thck});
 
-        e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
-        e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
+        e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.2f * thck)));
+        e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.2f * thck)));
         e3->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
         e4->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
 
