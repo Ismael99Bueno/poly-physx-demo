@@ -17,9 +17,9 @@ namespace rk
     public:
         integrator() = delete;
         integrator(const butcher_tableau &tb,
-                   std::vector<float> &state,
-                   float tolerance = 1e-6,
-                   float min_dt = 1e-6,
+                   const std::vector<float> &state = {},
+                   float tolerance = 1e-6f,
+                   float min_dt = 1e-6f,
                    float max_dt = 1.f);
 
         template <typename T>
@@ -125,7 +125,7 @@ namespace rk
         }
 
         void reserve(std::size_t size);
-        void resize();
+        void resize_to_state();
 
         const butcher_tableau &tableau() const;
         butcher_tableau &tableau();
@@ -149,7 +149,7 @@ namespace rk
 
     private:
         butcher_tableau m_tableau;
-        std::vector<float> &m_state, m_step;
+        std::vector<float> m_state, m_step;
         std::vector<std::vector<float>> m_kvec;
         float m_tolerance, m_min_dt, m_max_dt, m_error;
         bool m_valid;

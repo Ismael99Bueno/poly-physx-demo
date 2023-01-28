@@ -5,7 +5,7 @@
 namespace rk
 {
     integrator::integrator(const butcher_tableau &tb,
-                           std::vector<float> &state,
+                           const std::vector<float> &state,
                            const float tolerance,
                            const float min_dt,
                            const float max_dt) : m_tableau(tb),
@@ -17,7 +17,7 @@ namespace rk
                                                  m_valid(true)
     {
         m_kvec.resize(m_tableau.stage());
-        resize();
+        resize_to_state();
     }
 
     std::vector<float> integrator::generate_solution(const float dt,
@@ -81,11 +81,12 @@ namespace rk
 
     void integrator::reserve(std::size_t size)
     {
+        m_state.reserve(size);
         for (std::vector<float> &v : m_kvec)
             v.reserve(size);
     }
 
-    void integrator::resize()
+    void integrator::resize_to_state()
     {
         for (std::vector<float> &v : m_kvec)
             v.resize(m_state.size());
@@ -104,12 +105,12 @@ namespace rk
     {
         m_tableau = tableau;
         m_kvec.resize(m_tableau.stage());
-        resize();
+        resize_to_state();
     }
     void integrator::state(std::vector<float> &state)
     {
         m_state = state;
-        resize();
+        resize_to_state();
     }
 
     float integrator::tolerance() const { return m_tolerance; }
