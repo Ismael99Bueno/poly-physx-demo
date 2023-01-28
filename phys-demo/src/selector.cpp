@@ -70,7 +70,6 @@ namespace phys_demo
         const geo::aabb2D aabb = select_box();
         const alg::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
-        const alg::vec2 hdim = 0.5f * (mx - mm);
         sf::Vertex vertices[5];
         vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
         vertices[1].position = mx * WORLD_TO_PIXEL;

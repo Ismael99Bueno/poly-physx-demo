@@ -82,7 +82,7 @@ namespace alg
 
     vec2 operator*(const float lhs, const vec2 &rhs) { return rhs * lhs; }
 
-    vec2 operator/(const float lhs, const vec2 &rhs) { return lhs / rhs; }
+    vec2 operator/(const float lhs, const vec2 &rhs) { return {lhs / rhs.x, lhs / rhs.y}; }
 
     vec2 operator*=(vec2 &lhs, const vec2 &rhs) { return lhs = lhs * rhs; }
 
