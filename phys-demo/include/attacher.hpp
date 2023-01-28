@@ -18,11 +18,11 @@ namespace phys_demo
 
         attacher() = default;
 
-        void update();
-        void render();
+        void update(bool snap_e2_to_center);
+        void render(bool snap_e2_to_center);
 
-        void try_attach_first();
-        void try_attach_second();
+        void try_attach_first(bool snap_e1_to_center);
+        void try_attach_second(bool snap_e2_to_center);
 
         void cancel();
 
@@ -55,11 +55,11 @@ namespace phys_demo
             m_sp_length = 0.f,
             m_ctr_stiffness = 500.f,
             m_ctr_dampening = 30.f;
-        bool m_auto_length = false;
+        bool m_auto_length = false, m_snap_e1_to_center;
         attach_type m_attach_type = SPRING;
 
         void rotate_joint();
-        void draw_unattached_joint();
+        void draw_unattached_joint(bool snap_e2_to_center);
     };
 }
 

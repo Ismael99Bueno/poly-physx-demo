@@ -20,7 +20,7 @@ namespace phys_demo
     {
         PERF_FUNCTION()
         m_grabber.update();
-        m_attacher.update();
+        m_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
     }
 
     void demo_app::on_render()
@@ -31,7 +31,7 @@ namespace phys_demo
         m_selector.render();
         m_adder.render();
         m_copy_paste.render();
-        m_attacher.render();
+        m_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
         ImPlot::ShowDemoWindow();
@@ -66,9 +66,9 @@ namespace phys_demo
                 break;
             case actions_panel::ATTACH:
                 if (m_attacher.has_first())
-                    m_attacher.try_attach_second();
+                    m_attacher.try_attach_second(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 else
-                    m_attacher.try_attach_first();
+                    m_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             case actions_panel::ENTITIES:
                 m_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));

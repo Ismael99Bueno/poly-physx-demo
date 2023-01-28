@@ -7,43 +7,59 @@
 
 namespace phys_demo
 {
-    void attacher::update()
+    void attacher::update(const bool snap_e2_to_center)
     {
         if (!m_e1)
             return;
-        rotate_joint();
+        if (!m_snap_e1_to_center)
+            rotate_joint();
+
         if (m_auto_length)
-            m_sp_length = demo_app::get().world_mouse().dist(m_e1->pos() + m_joint1);
+        {
+            float length = demo_app::get().world_mouse().dist(m_e1->pos() + m_joint1);
+            if (snap_e2_to_center)
+            {
+                const alg::vec2 mpos = demo_app::get().world_mouse();
+                const auto e2 = demo_app::get().engine()[mpos];
+                if (e2)
+                    length = e2->pos().dist(m_e1->pos() + m_joint1);
+            }
+            m_sp_length = length;
+        }
     }
-    void attacher::render()
+    void attacher::render(const bool snap_e2_to_center)
     {
         if (m_e1)
-            draw_unattached_joint();
+            draw_unattached_joint(snap_e2_to_center);
     }
 
-    void attacher::try_attach_first()
+    void attacher::try_attach_first(const bool snap_e1_to_center)
     {
         const alg::vec2 mpos = demo_app::get().world_mouse();
         const auto e1 = demo_app::get().engine()[mpos];
         if (!e1)
             return;
         m_e1 = e1;
-        m_joint1 = mpos - e1->pos();
-        m_last_angle = e1->angpos();
+        m_joint1 = snap_e1_to_center ? alg::vec2() : (mpos - e1->pos());
+        if (!snap_e1_to_center)
+            m_last_angle = e1->angpos();
     }
 
-    void attacher::try_attach_second()
+    void attacher::try_attach_second(const bool snap_e2_to_center)
     {
         const alg::vec2 mpos = demo_app::get().world_mouse();
         const auto e2 = demo_app::get().engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
-        const alg::vec2 joint2 = mpos - e2->pos();
+        const alg::vec2 joint2 = snap_e2_to_center ? alg::vec2() : (mpos - e2->pos());
+
+        const bool no_joints = m_snap_e1_to_center && snap_e2_to_center;
         switch (m_attach_type)
         {
         case SPRING:
         {
-            phys::spring2D sp(m_e1, e2, m_joint1, joint2, m_sp_length);
+            phys::spring2D sp = no_joints ? phys::spring2D(m_e1, e2, m_sp_length)
+                                          : phys::spring2D(m_e1, e2, m_joint1, joint2, m_sp_length);
             sp.stiffness(m_sp_stiffness);
             sp.dampening(m_sp_dampening);
             demo_app::get().engine().add_spring(sp);
@@ -52,7 +68,8 @@ namespace phys_demo
         case RIGID_BAR:
         {
             const float dist = (m_e1->pos() + m_joint1).dist(e2->pos() + joint2);
-            const std::shared_ptr<phys::rigid_bar2D> rb = std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
+            const std::shared_ptr<phys::rigid_bar2D> rb = no_joints ? std::make_shared<phys::rigid_bar2D>(m_e1, e2, dist)
+                                                                    : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
             rb->stiffness(m_ctr_stiffness);
             rb->dampening(m_ctr_dampening);
             demo_app::get().engine().compeller().add_constraint(rb);
@@ -67,15 +84,18 @@ namespace phys_demo
         m_joint1.rotate(m_e1->angpos() - m_last_angle);
         m_last_angle = m_e1->angpos();
     }
-    void attacher::draw_unattached_joint()
+    void attacher::draw_unattached_joint(const bool snap_e2_to_center)
     {
+        const alg::vec2 mpos = demo_app::get().world_mouse();
+        const auto e2 = demo_app::get().engine()[mpos];
+        const alg::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : demo_app::get().pixel_mouse();
         switch (m_attach_type)
         {
         case SPRING:
-            demo_app::get().draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, demo_app::get().pixel_mouse());
+            demo_app::get().draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
             break;
         case RIGID_BAR:
-            demo_app::get().draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, demo_app::get().pixel_mouse());
+            demo_app::get().draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
             break;
         }
     }
