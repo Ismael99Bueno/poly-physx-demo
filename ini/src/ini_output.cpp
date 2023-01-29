@@ -23,7 +23,7 @@ namespace ini
 
     void ini_output::close()
     {
-        DBG_ASSERT(m_stream.is_open(), "A file must be opened to close it!\n")
+        DBG_ASSERT(m_stream.is_open(), "A file must be opened to be able to close it!\n")
         m_stream.close();
     }
 }

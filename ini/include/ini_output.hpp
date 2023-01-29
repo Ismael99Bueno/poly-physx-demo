@@ -16,14 +16,18 @@ namespace ini
         void begin_section(const char *section);
 
         template <typename T>
-        void write(const char *key, const T &value) { m_stream << key << "=" << value << "\n"; }
+        void write(const char *key, const T &value)
+        {
+            DBG_ASSERT(m_current_section, "A section must be started to begin writing!\n")
+            m_stream << key << "=" << value << "\n";
+        }
 
         void end_section();
         void close();
 
     private:
         std::ofstream m_stream;
-        const char *m_current_section;
+        const char *m_current_section = nullptr;
     };
 }
 

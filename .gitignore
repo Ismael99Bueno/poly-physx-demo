@@ -5,7 +5,7 @@
 .vscode
 profile-results/
 .vs/
-imgui.ini
+*.ini
 *.xcworkspace/
 **.xcodeproj
 fonts/

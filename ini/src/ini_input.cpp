@@ -8,16 +8,28 @@ namespace ini
         parse_ini();
     }
 
-    bool ini_input::contains_section(const std::string &section) const { return m_sections.find(section) != m_sections.end(); }
-    bool ini_input::constains_key(const std::string &section, const std::string &key) const
+    void ini_input::begin_section(const char *section)
     {
-        DBG_ASSERT(m_sections.find(section) != m_sections.end(), "Section %s not found!\n", section.c_str())
+        DBG_ASSERT(!m_current_section, "Another section is currently open!\n")
+        m_current_section = section;
+    }
+
+    void ini_input::end_section()
+    {
+        DBG_ASSERT(m_current_section, "Cannot end section if none was started!\n")
+        m_current_section = nullptr;
+    }
+
+    bool ini_input::contains_section(const char *section) const { return m_sections.find(section) != m_sections.end(); }
+    bool ini_input::constains_key(const char *section, const char *key) const
+    {
+        DBG_ASSERT(m_sections.find(section) != m_sections.end(), "Section %s not found!\n", section)
         return m_sections.at(section).find(key) != m_sections.at(section).end();
     }
 
     void ini_input::close()
     {
-        DBG_ASSERT(m_stream.is_open(), "A file must be opened to close it!\n")
+        DBG_ASSERT(m_stream.is_open(), "A file must be opened to be able to close it!\n")
         m_stream.close();
     }
 

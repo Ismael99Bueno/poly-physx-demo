@@ -6,7 +6,7 @@
 
 namespace alg
 {
-    struct vec2
+    class vec2
     {
     public:
         float x = 0.f, y = 0.f;

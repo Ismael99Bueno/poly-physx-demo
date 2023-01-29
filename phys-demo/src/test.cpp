@@ -17,7 +17,9 @@ int main()
     out_ini.close();
 
     ini::ini_input in_ini("test.ini");
-    const float val = in_ini.read<float>("test", "key2", std::atof);
+    in_ini.begin_section("test");
+    const float val = in_ini.read<float>("key2", std::atof);
+    in_ini.end_section();
 
     std::cout << val << "\n";
 }
