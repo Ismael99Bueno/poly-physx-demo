@@ -1,36 +1,23 @@
-#include <SFML/Graphics.hpp>
-
+#include "ini_input.hpp"
+#include "ini_output.hpp"
 #include <iostream>
-#include "tableaus.hpp"
-#include "environment.hpp"
-#include "spring2D.hpp"
-#include "perf.hpp"
-#include "constants.hpp"
 
 int main()
 {
-    PERF_SET_MAX_FILE_MB(300)
+    ini::ini_output out_ini("test.ini");
 
-    PERF_BEGIN_SESSION("runtime", perf::profiler::profile_export::HIERARCHY)
-    phys_env::environment env(rk::rk4);
+    out_ini.begin_section("test");
+    out_ini.write("key1", 0.5f);
+    out_ini.write("key2", 0.5543f);
+    out_ini.end_section();
+    out_ini.begin_section("test2");
+    out_ini.write("key3", 345);
+    out_ini.write("key4", "helo");
+    out_ini.end_section();
+    out_ini.close();
 
-    const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
-    const float thck = 20.f;
-    const phys::entity2D_ptr e1 = env.add_entity({-w - 0.4f * thck, 0.f}),
-                           e2 = env.add_entity({w + 0.4f * thck, 0.f}),
-                           e3 = env.add_entity({0.f, -h - 0.4f * thck}),
-                           e4 = env.add_entity({0.f, h + 0.4f * thck});
+    ini::ini_input in_ini("test.ini");
+    const float val = in_ini.read<float>("test", "key2", std::atof);
 
-    e1->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
-    e2->shape(geo::polygon2D(geo::polygon2D::rect(thck, 2.f * h - 0.6f * thck)));
-    e3->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
-    e4->shape(geo::polygon2D(geo::polygon2D::rect(2.f * w, thck)));
-
-    e1->dynamic(false);
-    e2->dynamic(false);
-    e3->dynamic(false);
-    e4->dynamic(false);
-
-    env.run();
-    PERF_END_SESSION()
+    std::cout << val << "\n";
 }
