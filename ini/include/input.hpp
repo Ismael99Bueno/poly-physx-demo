@@ -1,5 +1,5 @@
-#ifndef INI_INPUT_HPP
-#define INI_INPUT_HPP
+#ifndef INPUT_HPP
+#define INPUT_HPP
 
 #include <fstream>
 #include <unordered_map>
@@ -9,11 +9,11 @@
 
 namespace ini
 {
-    class ini_input
+    class input
     {
     public:
-        ini_input() = delete;
-        ini_input(const char *filepath);
+        input() = delete;
+        input(const char *filepath);
 
         void begin_section(const char *section);
 

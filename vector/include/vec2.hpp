@@ -3,10 +3,11 @@
 
 #include <fstream>
 #include <SFML/System/Vector2.hpp>
+#include "saveable.hpp"
 
 namespace alg
 {
-    class vec2
+    class vec2 : ini::saveable
     {
     public:
         float x = 0.f, y = 0.f;

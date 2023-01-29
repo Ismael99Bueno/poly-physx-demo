@@ -1,5 +1,5 @@
-#ifndef INI_OUTPUT_HPP
-#define INI_OUTPUT_HPP
+#ifndef OUTPUT_HPP
+#define OUTPUT_HPP
 
 #include <fstream>
 #include "debug.hpp"
@@ -7,11 +7,11 @@
 
 namespace ini
 {
-    class ini_output
+    class output
     {
     public:
-        ini_output() = delete;
-        ini_output(const char *filepath);
+        output() = delete;
+        output(const char *filepath);
 
         void begin_section(const char *section);
 
