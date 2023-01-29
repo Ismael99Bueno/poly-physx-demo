@@ -37,7 +37,6 @@ namespace perf
         void compute_relative_durations(const profile_stats &parent);
 
         friend class profiler;
-        friend std::ostream &operator<<(std::ostream &stream, const profile_stats &other);
     };
 }
 

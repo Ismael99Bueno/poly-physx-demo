@@ -10,8 +10,8 @@
 #define PERF_SCOPE(name) perf::timer tm##__LINE__(name);
 #define PERF_FUNCTION() perf::timer tm##__LINE__(__FUNCTION__);
 #define PERF_SET_MAX_FILE_MB(size) perf::profiler::get().max_mb(size);
-#define PERF_SET_EXTENSION(extension) perf::profiler::get().extension(extension);
-#define PERF_SET_PATH(path) perf::profiler::get().path(path);
+#define PERF_SET_EXTENSION(ext) perf::profiler::get().extension(ext);
+#define PERF_SET_PATH(pth) perf::profiler::get().path(pth);
 #else
 #define PERF_BEGIN_SESSION(pexport, name)
 #define PERF_END_SESSION()
