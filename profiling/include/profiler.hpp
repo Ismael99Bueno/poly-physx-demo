@@ -28,7 +28,7 @@ namespace perf
         profiler(const profiler &) = delete;
         static profiler &get();
 
-        void begin_session(profile_export pexport, const std::string &name = "results");
+        void begin_session(std::uint8_t pexport, const std::string &name = "results");
         void begin_timer();
         void end_timer(const profile_result &result);
         void end_session();
@@ -54,7 +54,7 @@ namespace perf
         std::ofstream m_output;
         std::uint32_t m_count = 0, m_runs = 0, m_max_mb = 200;
         std::string m_name, m_extension = ".json", m_path = "profile-results/";
-        profile_export m_export;
+        std::uint8_t m_export;
         std::unordered_map<std::string, profile_stats> m_hierarchy;
         std::stack<profile_stats> m_current_hierarchy;
         float m_smoothness = 0.f;

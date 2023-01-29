@@ -10,7 +10,7 @@ namespace perf
         return p;
     }
 
-    void profiler::begin_session(profile_export pexport, const std::string &name)
+    void profiler::begin_session(std::uint8_t pexport, const std::string &name)
     {
         m_name = name;
         m_export = pexport;
@@ -57,12 +57,12 @@ namespace perf
             open_file();
         }
         if (m_count++ > 0)
-            m_output << ",";
+            m_output << ",\n";
 
         std::string name = result.name;
         std::replace(name.begin(), name.end(), '"', '\'');
 
-        m_output << "{";
+        m_output << "\t\t{";
         m_output << "\"cat\":\"function\",";
         m_output << "\"dur\":" << result.end - result.start << ",";
         m_output << "\"name\":\"" << name << "\",";
@@ -128,12 +128,12 @@ namespace perf
 
     void profiler::write_header()
     {
-        m_output << "{\"otherData\": {},\"traceEvents\":[";
+        m_output << "{\n\t\"otherData\": {},\"traceEvents\":\n\t[\n";
     }
 
     void profiler::write_footer()
     {
-        m_output << "]}";
+        m_output << "\n\t]\n}\n";
     }
 
     const std::unordered_map<std::string, profile_stats> &profiler::hierarchy() const { return m_hierarchy; }
