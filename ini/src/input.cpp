@@ -8,28 +8,22 @@ namespace ini
         parse_ini();
     }
 
-    void input::begin_section(const char *section)
+    input::~input() { close(); }
+
+    const std::string &input::readstr(const std::string &key) const
     {
-        DBG_ASSERT(!m_current_section, "Another section is currently open!\n")
-        m_current_section = section;
+        DBG_ASSERT(!m_current_section.empty(), "A section must be started before reading!\n")
+        const std::string sec_key = build_key(key);
+        DBG_ASSERT(m_kv_pairs.find(sec_key) != m_kv_pairs.end(), "Key %s not found in m_current_section %s!\n", key.c_str(), m_current_section.c_str())
+        return m_kv_pairs.at(sec_key);
     }
 
-    void input::end_section()
-    {
-        DBG_ASSERT(m_current_section, "Cannot end section if none was started!\n")
-        m_current_section = nullptr;
-    }
-
-    bool input::contains_section(const char *section) const { return m_sections.find(section) != m_sections.end(); }
-    bool input::constains_key(const char *section, const char *key) const
-    {
-        DBG_ASSERT(m_sections.find(section) != m_sections.end(), "Section %s not found!\n", section)
-        return m_sections.at(section).find(key) != m_sections.at(section).end();
-    }
+    float input::readf(const std::string &key) const { return read<float>(key, std::atof); }
+    std::int64_t input::readi(const std::string &key) const { return read<std::int64_t>(key, std::atoll); }
 
     void input::close()
     {
-        DBG_ASSERT(m_stream.is_open(), "A file must be opened to be able to close it!\n")
+        DBG_ASSERT(m_current_section.empty(), "A section is still open: %s\n", m_current_section.c_str())
         m_stream.close();
     }
 
@@ -91,7 +85,7 @@ namespace ini
                 if (c == '\n')
                 {
                     state = READY;
-                    m_sections[section][key] = value;
+                    m_kv_pairs[build_key(section, key)] = value;
                     key.clear();
                     value.clear();
                     break;

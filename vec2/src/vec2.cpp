@@ -7,6 +7,18 @@ namespace alg
 
     vec2::vec2(const sf::Vector2f &v2) : x(v2.x), y(v2.y) {}
 
+    void vec2::write(ini::output &out) const
+    {
+        out.write("x", x);
+        out.write("y", y);
+    }
+
+    void vec2::read(const ini::input &in)
+    {
+        x = in.readf("x");
+        y = in.readf("y");
+    }
+
     float vec2::sum() const { return x + y; }
 
     float vec2::dot(const vec2 &v) const { return x * v.x + y * v.y; }

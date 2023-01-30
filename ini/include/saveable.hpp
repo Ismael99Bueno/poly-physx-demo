@@ -9,8 +9,11 @@ namespace ini
     class saveable
     {
     public:
-        virtual void save(output &parser) = 0;
-        virtual void load(const input &parser) = 0;
+        saveable() = default;
+        virtual ~saveable() = default;
+
+        virtual void write(output &out) const = 0;
+        virtual void read(const input &in) = 0;
     };
 }
 
