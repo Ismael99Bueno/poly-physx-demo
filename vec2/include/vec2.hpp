@@ -13,7 +13,7 @@ namespace alg
         float x = 0.f, y = 0.f;
 
         void write(ini::output &out) const override;
-        void read(const ini::input &in) override;
+        void read(ini::input &in) override;
 
         vec2() = default;
         vec2(float x, float y);

@@ -13,7 +13,7 @@ namespace alg
         out.write("y", y);
     }
 
-    void vec2::read(const ini::input &in)
+    void vec2::read(ini::input &in)
     {
         x = in.readf("x");
         y = in.readf("y");

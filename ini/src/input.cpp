@@ -27,6 +27,10 @@ namespace ini
         m_stream.close();
     }
 
+    bool input::contains_key(const std::string &key) const { return m_kv_pairs.find(build_key(key)) != m_kv_pairs.end(); }
+    bool input::contains_section(const std::string &section) const { return m_parsed_sections.find(section) != m_parsed_sections.end(); }
+    bool input::contains_section() const { return contains_section(m_current_section); }
+
     void input::parse_ini()
     {
         parse_state state = READY;
@@ -63,6 +67,7 @@ namespace ini
             case SECTION:
                 if (c == '\n')
                 {
+                    m_parsed_sections.insert(section);
                     state = KEY;
                     break;
                 }
@@ -71,7 +76,11 @@ namespace ini
                 break;
 
             case KEY:
-                DBG_ASSERT(c != '\n', "Tried to parse empty key: %s\n", key.c_str())
+                if (c == '\n')
+                {
+                    state = READY;
+                    break;
+                }
                 if (c == '=')
                 {
                     state = VALUE;

@@ -14,6 +14,9 @@ namespace ini
         virtual void begin_section(const std::string &section);
         virtual void end_section();
 
+        const std::string &section() const;
+        const std::string &subsection() const;
+
     protected:
         std::string m_current_section;
 

@@ -6,7 +6,7 @@ workspace "physics-engine-2D"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-include "vector"
+include "vec2"
 include "runge-kutta"
 include "geometry"
 include "vec-ptr"

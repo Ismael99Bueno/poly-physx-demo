@@ -31,4 +31,7 @@ namespace ini
         return section + "$" + key;
     }
     std::string section_builder::build_key(const std::string &key) const { return build_key(m_current_section, key); }
+
+    const std::string &section_builder::section() const { return m_current_section; }
+    const std::string &section_builder::subsection() const { return m_sections.back(); }
 }
