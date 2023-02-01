@@ -4,7 +4,7 @@ namespace ini
 {
     input::input(const char *filepath) : m_stream(filepath)
     {
-        DBG_ASSERT(m_stream.is_open(), "Failed to open file at %s\n", filepath)
+        DBG_LOG_IF(!m_stream.is_open(), "Failed to open file at %s\n", filepath)
         parse_ini();
     }
 
@@ -30,6 +30,7 @@ namespace ini
     bool input::contains_key(const std::string &key) const { return m_kv_pairs.find(build_key(key)) != m_kv_pairs.end(); }
     bool input::contains_section(const std::string &section) const { return m_parsed_sections.find(section) != m_parsed_sections.end(); }
     bool input::contains_section() const { return contains_section(m_current_section); }
+    bool input::is_open() const { return m_stream.is_open(); }
 
     void input::parse_ini()
     {

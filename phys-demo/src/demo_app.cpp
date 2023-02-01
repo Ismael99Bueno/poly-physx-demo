@@ -14,6 +14,29 @@ namespace phys_demo
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
         push_layer(&m_actions_panel);
+        load("/Users/ismael/CC++/physics-engine-2D/last.ini");
+    }
+
+    demo_app::~demo_app() { save("/Users/ismael/CC++/physics-engine-2D/last.ini"); }
+
+    void demo_app::save(const std::string &filepath) const
+    {
+        ini::output out(filepath.c_str());
+        out.begin_section("demo-app");
+        engine().write(out);
+        out.end_section();
+        out.close();
+    }
+
+    void demo_app::load(const std::string &filepath)
+    {
+        ini::input in(filepath.c_str());
+        if (!in.is_open())
+            return;
+        in.begin_section("demo-app");
+        engine().read(in);
+        in.end_section();
+        in.close();
     }
 
     void demo_app::on_update()

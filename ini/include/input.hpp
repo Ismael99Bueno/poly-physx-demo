@@ -28,6 +28,7 @@ namespace ini
         bool contains_key(const std::string &key) const;
         bool contains_section(const std::string &section) const;
         bool contains_section() const;
+        bool is_open() const;
 
     private:
         enum parse_state

@@ -20,8 +20,12 @@ namespace phys_demo
     {
     public:
         demo_app(const demo_app &papp) = delete;
+        ~demo_app();
 
         static demo_app &get();
+
+        void save(const std::string &filepath) const;
+        void load(const std::string &filepath);
 
         grabber &grabber();
         selector &selector();
