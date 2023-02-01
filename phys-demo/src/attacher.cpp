@@ -43,6 +43,7 @@ namespace phys_demo
         m_joint1 = snap_e1_to_center ? alg::vec2() : (mpos - e1->pos());
         if (!snap_e1_to_center)
             m_last_angle = e1->angpos();
+        m_snap_e1_to_center = snap_e1_to_center;
     }
 
     void attacher::try_attach_second(const bool snap_e2_to_center)
