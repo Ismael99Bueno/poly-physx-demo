@@ -6,18 +6,23 @@
 
 namespace phys_demo
 {
-    class engine_panel : public phys::layer
+    class engine_panel : public phys::layer, ini::saveable
     {
+    public:
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
+
+    private:
         enum integ_method
         {
-            RK1,
-            RK2,
-            RK4,
-            RK38,
-            RKF12,
-            RKF45,
-            RKFCK45,
-            RKF78
+            RK1 = 0,
+            RK2 = 1,
+            RK4 = 2,
+            RK38 = 3,
+            RKF12 = 4,
+            RKF45 = 5,
+            RKFCK45 = 6,
+            RKF78 = 7
         };
 
         void on_render() override;

@@ -10,41 +10,28 @@ namespace phys_demo
         const char *attach_types[2] = {"Spring", "Rigid bar"};
 
         attacher &attch = demo_app::get().attacher();
-        attacher::attach_type type = attch.type();
 
         ImGui::PushItemWidth(200);
-        if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
-            attch.type(type);
+        ImGui::ListBox("Attach type", (int *)&attch.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
 
-        switch (type)
+        switch (attch.p_attach)
         {
         case attacher::SPRING:
         {
-            float sp_stf = attch.sp_stiffness(),
-                  sp_dmp = attch.sp_dampening(),
-                  sp_len = attch.sp_length();
-            bool auto_length = attch.auto_length();
-
-            if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
-                attch.sp_stiffness(sp_stf);
+            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, 150.f);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the spring will be.");
 
-            if (ImGui::DragFloat("Dampening", &sp_dmp, 0.3f, 0.f, 50.f))
-                attch.sp_dampening(sp_dmp);
+            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, 50.f);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
-            if (ImGui::Checkbox("Auto adjust length", &auto_length))
-                attch.auto_length(auto_length);
+            ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
 
-            if (!auto_length)
-            {
-                if (ImGui::DragFloat("Length", &sp_len, 0.3f, 0.f, 100.f))
-                    attch.sp_length(sp_len);
-            }
+            if (!attch.p_auto_length)
+                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, 100.f);
             else
-                ImGui::Text("Length: %f", attch.sp_length());
+                ImGui::Text("Length: %f", attch.p_sp_length);
 
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
@@ -52,15 +39,11 @@ namespace phys_demo
         }
         case attacher::RIGID_BAR:
         {
-            float rb_stf = attch.rb_stiffness(),
-                  rb_dmp = attch.rb_dampening();
-            if (ImGui::DragFloat("Stiffness", &rb_stf, 0.3f, 0.f, 2000.f, "%.1f"))
-                attch.rb_stiffness(rb_stf);
+            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, 2000.f, "%.1f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
-            if (ImGui::DragFloat("Dampening", &rb_dmp, 0.3f, 0.f, 500.f, "%.2f"))
-                attch.rb_dampening(rb_dmp);
+            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, 500.f, "%.2f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
@@ -72,7 +55,7 @@ namespace phys_demo
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
-        switch (type)
+        switch (attch.p_attach)
         {
         case attacher::SPRING:
             render_spring_color_pickers();

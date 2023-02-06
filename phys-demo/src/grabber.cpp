@@ -43,7 +43,7 @@ namespace phys_demo
         const alg::vec2 rot_joint = m_joint.rotated(m_grabbed->angpos() - m_angle);
         const alg::vec2 relpos = mpos - (m_grabbed->pos() + rot_joint),
                         relvel = mdelta - m_grabbed->vel_at(rot_joint),
-                        force = m_stiffness * relpos + m_dampening * relvel;
+                        force = p_stiffness * relpos + p_dampening * relvel;
         const float torque = rot_joint.cross(force);
 
         m_grabbed->add_force(force);
@@ -52,7 +52,7 @@ namespace phys_demo
 
     void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint)
     {
-        prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL, m_color);
+        prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL, p_color);
         sl.right_padding(30.f);
         sl.left_padding(15.f);
         demo_app::get().window().draw(sl);
@@ -60,26 +60,18 @@ namespace phys_demo
 
     void grabber::write(ini::output &out) const
     {
-        out.write("stiffness", m_stiffness);
-        out.write("dampening", m_dampening);
-        out.write("r", (int)m_color.r);
-        out.write("g", (int)m_color.g);
-        out.write("b", (int)m_color.b);
+        out.write("stiffness", p_stiffness);
+        out.write("dampening", p_dampening);
+        out.write("r", (int)p_color.r);
+        out.write("g", (int)p_color.g);
+        out.write("b", (int)p_color.b);
     }
     void grabber::read(ini::input &in)
     {
-        m_stiffness = in.readf("stiffness");
-        m_dampening = in.readf("dampening");
-        m_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+        p_stiffness = in.readf("stiffness");
+        p_dampening = in.readf("dampening");
+        p_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
     }
 
     void grabber::null() { m_grabbed = nullptr; }
-    const sf::Color &grabber::spring_color() const { return m_color; }
-    void grabber::spring_color(const sf::Color &color) { m_color = color; }
-
-    float grabber::stiffness() const { return m_stiffness; }
-    float grabber::dampening() const { return m_dampening; }
-
-    void grabber::stiffness(float stiffness) { m_stiffness = stiffness; }
-    void grabber::dampening(float dampening) { m_dampening = dampening; }
 }

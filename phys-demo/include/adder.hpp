@@ -25,11 +25,11 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        entity_template templ;
-        shape_type shape = BOX;
-        float entity_color[3] = {0.f, 1.f, 0.f};
-        float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
-        std::uint32_t sides = 3;
+        entity_template p_templ;
+        shape_type p_shape = BOX;
+        sf::Color p_entity_color = sf::Color::Green;
+        float p_size = 5.f, p_width = 5.f, p_height = 5.f, p_radius = 0.6f * 5.f;
+        std::uint32_t p_sides = 3;
 
     private:
         alg::vec2 m_start_pos;

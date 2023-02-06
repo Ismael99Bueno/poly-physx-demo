@@ -9,26 +9,23 @@ namespace phys_demo
     {
         grabber &grb = demo_app::get().grabber();
 
-        const sf::Color &color = grb.spring_color();
-        float sp_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        sf::Color &color = grb.p_color;
+        float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
-        float stf = grb.stiffness(), dmp = grb.dampening();
         ImGui::PushItemWidth(200);
-        if (ImGui::DragFloat("Stiffness", &stf, 0.2f, 0.f, 500.f, "%.1f"))
-            grb.stiffness(stf);
+        ImGui::DragFloat("Stiffness", &grb.p_stiffness, 0.2f, 0.f, 500.f, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("How stiff the grab spring will be.");
 
-        if (ImGui::DragFloat("Dampening", &dmp, 0.2f, 0.f, 50.f, "%.2f"))
-            grb.dampening(dmp);
+        ImGui::DragFloat("Dampening", &grb.p_dampening, 0.2f, 0.f, 50.f, "%.2f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("How much the grab spring will resist to movement.");
 
-        if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip))
-            grb.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
+        if (ImGui::ColorPicker3("Spring color", imcolor, ImGuiColorEditFlags_NoTooltip))
+            color = {(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)};
         ImGui::SameLine();
-        if (ImGui::ColorPicker3("Spring color", sp_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            grb.spring_color(sf::Color(sp_color[0] * 255.f, sp_color[1] * 255.f, sp_color[2] * 255.f));
+        if (ImGui::ColorPicker3("Spring color", imcolor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+            color = {(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)};
         ImGui::PopItemWidth();
     }
 }

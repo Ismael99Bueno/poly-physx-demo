@@ -21,10 +21,6 @@ namespace phys_demo
             NONE
         };
         actions_panel();
-
-        // void write(ini::output &out) const override;
-        // void read(ini::input &in) override;
-
         actions action() const;
 
     private:

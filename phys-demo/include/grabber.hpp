@@ -21,20 +21,13 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        const sf::Color &spring_color() const;
-        void spring_color(const sf::Color &color);
-
-        float stiffness() const;
-        float dampening() const;
-
-        void stiffness(float stiffness);
-        void dampening(float dampening);
+        float p_stiffness = 10.f, p_dampening = 1.f;
+        sf::Color p_color = sf::Color::Cyan;
 
     private:
         phys::entity2D_ptr m_grabbed;
         alg::vec2 m_joint;
-        float m_stiffness = 10.f, m_dampening = 1.f, m_angle;
-        sf::Color m_color = sf::Color::Cyan;
+        float m_angle;
 
         void move_grabbed_entity();
         void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint);

@@ -8,6 +8,16 @@
 
 namespace phys_demo
 {
+    void perf_panel::write(ini::output &out) const
+    {
+        out.write("time_unit", m_unit);
+    }
+
+    void perf_panel::read(ini::input &in)
+    {
+        m_unit = (time_unit)in.readi("time_unit");
+    }
+
     void perf_panel::on_render()
     {
 #ifdef PERF

@@ -8,6 +8,18 @@
 
 namespace phys_demo
 {
+    void engine_panel::write(ini::output &out) const
+    {
+        out.write("method", m_method);
+        out.write("visualize_qt", m_visualize_qt);
+    }
+
+    void engine_panel::read(ini::input &in)
+    {
+        m_method = (integ_method)in.readi("method");
+        m_visualize_qt = (bool)in.readi("visualize_qt");
+    }
+
     void engine_panel::on_render()
     {
         ImGui::Begin("Engine");

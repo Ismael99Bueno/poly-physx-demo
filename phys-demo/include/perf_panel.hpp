@@ -3,11 +3,12 @@
 
 #include "perf.hpp"
 #include "layer.hpp"
+#include "saveable.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
 {
-    class perf_panel : public phys::layer
+    class perf_panel : public phys::layer, ini::saveable
     {
     public:
         enum time_unit
@@ -17,6 +18,9 @@ namespace phys_demo
             MICROSECONDS = 2,
             NANOSECONDS = 3,
         };
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
     private:
         void on_render() override;

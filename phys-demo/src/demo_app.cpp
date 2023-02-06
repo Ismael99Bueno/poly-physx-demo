@@ -22,6 +22,9 @@ namespace phys_demo
     void demo_app::write(ini::output &out) const
     {
         app::write(out);
+        out.begin_section("adder");
+        m_adder.write(out);
+        out.end_section();
         out.begin_section("grabber");
         m_grabber.write(out);
         out.end_section();
@@ -31,10 +34,19 @@ namespace phys_demo
         out.begin_section("attacher");
         m_attacher.write(out);
         out.end_section();
+        out.begin_section("engine_panel");
+        m_engine_panel.write(out);
+        out.end_section();
+        out.begin_section("perf_panel");
+        m_perf_panel.write(out);
+        out.end_section();
     }
     void demo_app::read(ini::input &in)
     {
         app::read(in);
+        in.begin_section("adder");
+        m_adder.read(in);
+        in.end_section();
         in.begin_section("grabber");
         m_grabber.read(in);
         in.end_section();
@@ -43,6 +55,12 @@ namespace phys_demo
         in.end_section();
         in.begin_section("attacher");
         m_attacher.read(in);
+        in.end_section();
+        in.begin_section("engine_panel");
+        m_engine_panel.read(in);
+        in.end_section();
+        in.begin_section("perf_panel");
+        m_perf_panel.read(in);
         in.end_section();
     }
 
