@@ -7,7 +7,7 @@
 
 namespace phys_demo
 {
-    class selector
+    class selector : ini::saveable
     {
     public:
         selector(phys::engine2D &engine, std::size_t allocations = 100);
@@ -22,6 +22,9 @@ namespace phys_demo
 
         void select(const phys::entity2D_ptr &e);
         void deselect(const phys::entity2D_ptr &e);
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
         const std::unordered_set<phys::entity2D_ptr> &get() const;
 

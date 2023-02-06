@@ -24,8 +24,8 @@ namespace phys_demo
 
         static demo_app &get();
 
-        void save(const std::string &filepath) const;
-        void load(const std::string &filepath);
+        void save(const std::string &filename) const;
+        void load(const std::string &filename);
 
         grabber &grabber();
         selector &selector();
@@ -42,6 +42,9 @@ namespace phys_demo
         void on_render() override;
         void on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
         phys_demo::grabber m_grabber;
         phys_demo::selector m_selector;

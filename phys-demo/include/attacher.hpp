@@ -7,13 +7,13 @@
 
 namespace phys_demo
 {
-    class attacher
+    class attacher : ini::saveable
     {
     public:
         enum attach_type
         {
-            SPRING,
-            RIGID_BAR
+            SPRING = 0,
+            RIGID_BAR = 1
         };
 
         attacher() = default;
@@ -26,20 +26,23 @@ namespace phys_demo
 
         void cancel();
 
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
+
         const attach_type &type() const;
         void type(const attach_type &type);
 
         float sp_stiffness() const;
         float sp_dampening() const;
         float sp_length() const;
-        float ctr_stiffness() const;
-        float ctr_dampening() const;
+        float rb_stiffness() const;
+        float rb_dampening() const;
 
         void sp_stiffness(float sp_stiffness);
         void sp_dampening(float sp_dampening);
         void sp_length(float sp_length);
-        void ctr_stiffness(float ctr_stiffness);
-        void ctr_dampening(float ctr_dampening);
+        void rb_stiffness(float rb_stiffness);
+        void rb_dampening(float rb_dampening);
 
         bool has_first() const;
 
@@ -53,8 +56,8 @@ namespace phys_demo
             m_sp_stiffness = 1.f,
             m_sp_dampening = 0.f,
             m_sp_length = 0.f,
-            m_ctr_stiffness = 500.f,
-            m_ctr_dampening = 30.f;
+            m_rb_stiffness = 500.f,
+            m_rb_dampening = 30.f;
         bool m_auto_length = false, m_snap_e1_to_center;
         attach_type m_attach_type = SPRING;
 

@@ -3,6 +3,7 @@
 #include "flat_line_strip.hpp"
 #include "flat_line.hpp"
 #include "implot.h"
+#include <filesystem>
 
 namespace phys_demo
 {
@@ -14,27 +15,62 @@ namespace phys_demo
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
         push_layer(&m_actions_panel);
-        load("/Users/ismael/CC++/physics-engine-2D/last.ini");
     }
 
-    demo_app::~demo_app() { save("/Users/ismael/CC++/physics-engine-2D/last.ini"); }
+    demo_app::~demo_app() { save("last.ini"); }
 
-    void demo_app::save(const std::string &filepath) const
+    void demo_app::write(ini::output &out) const
     {
+        app::write(out);
+        out.begin_section("grabber");
+        m_grabber.write(out);
+        out.end_section();
+        out.begin_section("selector");
+        m_selector.write(out);
+        out.end_section();
+        out.begin_section("attacher");
+        m_attacher.write(out);
+        out.end_section();
+    }
+    void demo_app::read(ini::input &in)
+    {
+        app::read(in);
+        in.begin_section("grabber");
+        m_grabber.read(in);
+        in.end_section();
+        in.begin_section("selector");
+        m_selector.read(in);
+        in.end_section();
+        in.begin_section("attacher");
+        m_attacher.read(in);
+        in.end_section();
+    }
+
+    void demo_app::save(const std::string &filename) const
+    {
+        if (!std::filesystem::exists("saves/"))
+            std::filesystem::create_directory("saves/");
+
+        const std::string filepath = "saves/" + filename;
         ini::output out(filepath.c_str());
         out.begin_section("demo-app");
-        engine().write(out);
+        write(out);
         out.end_section();
         out.close();
     }
 
-    void demo_app::load(const std::string &filepath)
+    void demo_app::load(const std::string &filename)
     {
+        if (!std::filesystem::exists("saves/"))
+            std::filesystem::create_directory("saves/");
+
+        const std::string filepath = "saves/" + filename;
         ini::input in(filepath.c_str());
+
         if (!in.is_open())
             return;
         in.begin_section("demo-app");
-        engine().read(in);
+        read(in);
         in.end_section();
         in.close();
     }

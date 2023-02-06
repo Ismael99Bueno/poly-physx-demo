@@ -58,6 +58,21 @@ namespace phys_demo
         demo_app::get().window().draw(sl);
     }
 
+    void grabber::write(ini::output &out) const
+    {
+        out.write("stiffness", m_stiffness);
+        out.write("dampening", m_dampening);
+        out.write("r", (int)m_color.r);
+        out.write("g", (int)m_color.g);
+        out.write("b", (int)m_color.b);
+    }
+    void grabber::read(ini::input &in)
+    {
+        m_stiffness = in.readf("stiffness");
+        m_dampening = in.readf("dampening");
+        m_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+    }
+
     void grabber::null() { m_grabbed = nullptr; }
     const sf::Color &grabber::spring_color() const { return m_color; }
     void grabber::spring_color(const sf::Color &color) { m_color = color; }

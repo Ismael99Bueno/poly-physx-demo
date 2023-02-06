@@ -71,8 +71,8 @@ namespace phys_demo
             const float dist = (m_e1->pos() + m_joint1).dist(e2->pos() + joint2);
             const std::shared_ptr<phys::rigid_bar2D> rb = no_joints ? std::make_shared<phys::rigid_bar2D>(m_e1, e2, dist)
                                                                     : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
-            rb->stiffness(m_ctr_stiffness);
-            rb->dampening(m_ctr_dampening);
+            rb->stiffness(m_rb_stiffness);
+            rb->dampening(m_rb_dampening);
             demo_app::get().engine().compeller().add_constraint(rb);
             break;
         }
@@ -103,20 +103,42 @@ namespace phys_demo
 
     void attacher::cancel() { m_e1 = nullptr; }
 
+    void attacher::write(ini::output &out) const
+    {
+        out.write("sp_stiffness", m_sp_stiffness);
+        out.write("sp_dampening", m_sp_dampening);
+        out.write("sp_length", m_sp_length);
+        out.write("rb_stiffness", m_rb_stiffness);
+        out.write("rb_dampening", m_rb_dampening);
+        out.write("auto_length", m_auto_length);
+        out.write("attach_type", m_attach_type);
+    }
+
+    void attacher::read(ini::input &in)
+    {
+        m_sp_stiffness = in.readf("sp_stiffness");
+        m_sp_dampening = in.readf("sp_dampening");
+        m_sp_length = in.readf("sp_length");
+        m_rb_stiffness = in.readf("rb_stiffness");
+        m_rb_dampening = in.readf("rb_dampening");
+        m_auto_length = (bool)in.readi("auto_length");
+        m_attach_type = (attach_type)in.readi("attach_type");
+    }
+
     const attacher::attach_type &attacher::type() const { return m_attach_type; }
     void attacher::type(const attach_type &type) { m_attach_type = type; }
 
     float attacher::sp_stiffness() const { return m_sp_stiffness; }
     float attacher::sp_dampening() const { return m_sp_dampening; }
     float attacher::sp_length() const { return m_sp_length; }
-    float attacher::ctr_stiffness() const { return m_ctr_stiffness; }
-    float attacher::ctr_dampening() const { return m_ctr_dampening; }
+    float attacher::rb_stiffness() const { return m_rb_stiffness; }
+    float attacher::rb_dampening() const { return m_rb_dampening; }
 
     void attacher::sp_stiffness(const float sp_stiffness) { m_sp_stiffness = sp_stiffness; }
     void attacher::sp_dampening(const float sp_dampening) { m_sp_dampening = sp_dampening; }
     void attacher::sp_length(const float sp_length) { m_sp_length = sp_length; }
-    void attacher::ctr_stiffness(const float ctr_stiffness) { m_ctr_stiffness = ctr_stiffness; }
-    void attacher::ctr_dampening(const float ctr_dampening) { m_ctr_dampening = ctr_dampening; }
+    void attacher::rb_stiffness(const float rb_stiffness) { m_rb_stiffness = rb_stiffness; }
+    void attacher::rb_dampening(const float rb_dampening) { m_rb_dampening = rb_dampening; }
 
     bool attacher::has_first() const { return (bool)m_e1; }
 

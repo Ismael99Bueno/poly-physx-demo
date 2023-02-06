@@ -7,7 +7,7 @@
 
 namespace alg
 {
-    class vec2 : public ini::saveable
+    class vec2 : ini::saveable
     {
     public:
         float x = 0.f, y = 0.f;

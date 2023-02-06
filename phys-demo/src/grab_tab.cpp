@@ -10,9 +10,9 @@ namespace phys_demo
         grabber &grb = demo_app::get().grabber();
 
         const sf::Color &color = grb.spring_color();
-        static float sp_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        float sp_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
-        static float stf = grb.stiffness(), dmp = grb.dampening();
+        float stf = grb.stiffness(), dmp = grb.dampening();
         ImGui::PushItemWidth(200);
         if (ImGui::DragFloat("Stiffness", &stf, 0.2f, 0.f, 500.f, "%.1f"))
             grb.stiffness(stf);

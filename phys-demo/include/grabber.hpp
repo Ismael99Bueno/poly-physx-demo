@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class grabber
+    class grabber : ini::saveable
     {
     public:
         grabber(phys::engine2D &engine);
@@ -17,6 +17,9 @@ namespace phys_demo
         void try_grab_entity();
 
         void null();
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
         const sf::Color &spring_color() const;
         void spring_color(const sf::Color &color);

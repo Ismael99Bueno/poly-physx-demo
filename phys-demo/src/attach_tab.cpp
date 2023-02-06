@@ -10,7 +10,7 @@ namespace phys_demo
         const char *attach_types[2] = {"Spring", "Rigid bar"};
 
         attacher &attch = demo_app::get().attacher();
-        static attacher::attach_type type = attch.type();
+        attacher::attach_type type = attch.type();
 
         ImGui::PushItemWidth(200);
         if (ImGui::ListBox("Attach type", (int *)&type, attach_types, IM_ARRAYSIZE(attach_types)))
@@ -19,10 +19,11 @@ namespace phys_demo
         switch (type)
         {
         case attacher::SPRING:
-            static float sp_stf = attch.sp_stiffness(),
-                         sp_dmp = attch.sp_dampening(),
-                         sp_len = attch.sp_length();
-            static bool auto_length = attch.auto_length();
+        {
+            float sp_stf = attch.sp_stiffness(),
+                  sp_dmp = attch.sp_dampening(),
+                  sp_len = attch.sp_length();
+            bool auto_length = attch.auto_length();
 
             if (ImGui::DragFloat("Stiffness", &sp_stf, 0.3f, 0.f, 150.f))
                 attch.sp_stiffness(sp_stf);
@@ -48,20 +49,23 @@ namespace phys_demo
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
             break;
+        }
         case attacher::RIGID_BAR:
-            static float ctr_stf = attch.ctr_stiffness(),
-                         ctr_dmp = attch.ctr_dampening();
-            if (ImGui::DragFloat("Stiffness", &ctr_stf, 0.3f, 0.f, 2000.f, "%.1f"))
-                attch.ctr_stiffness(ctr_stf);
+        {
+            float rb_stf = attch.rb_stiffness(),
+                  rb_dmp = attch.rb_dampening();
+            if (ImGui::DragFloat("Stiffness", &rb_stf, 0.3f, 0.f, 2000.f, "%.1f"))
+                attch.rb_stiffness(rb_stf);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
-            if (ImGui::DragFloat("Dampening", &ctr_dmp, 0.3f, 0.f, 500.f, "%.2f"))
-                attch.ctr_dampening(ctr_dmp);
+            if (ImGui::DragFloat("Dampening", &rb_dmp, 0.3f, 0.f, 500.f, "%.2f"))
+                attch.rb_dampening(rb_dmp);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
             break;
+        }
         }
         render_springs_list();
         render_rigid_bars_list();
@@ -166,7 +170,7 @@ namespace phys_demo
     void attach_tab::render_spring_color_pickers()
     {
         const sf::Color &color = demo_app::get().springs_color();
-        static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
             demo_app::get().springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
         ImGui::SameLine();
@@ -177,7 +181,7 @@ namespace phys_demo
     void attach_tab::render_rb_color_pickers()
     {
         const sf::Color &color = demo_app::get().rigid_bars_color();
-        static float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
             demo_app::get().rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
         ImGui::SameLine();

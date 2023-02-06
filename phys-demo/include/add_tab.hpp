@@ -5,7 +5,7 @@
 
 namespace phys_demo
 {
-    class add_tab
+    class add_tab : ini::saveable
     {
     public:
         enum shape_type
@@ -17,6 +17,9 @@ namespace phys_demo
 
         add_tab() = default;
         void render();
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
         const entity_template &templ();
 

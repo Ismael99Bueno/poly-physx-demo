@@ -16,6 +16,32 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
+    void add_tab::write(ini::output &out) const
+    {
+        out.write("shape_type", m_shape_type);
+        out.write("r", m_entity_color[0]);
+        out.write("g", m_entity_color[1]);
+        out.write("b", m_entity_color[2]);
+        out.write("size", m_size);
+        out.write("width", m_width);
+        out.write("height", m_height);
+        out.write("radius", m_radius);
+        out.write("sides", m_sides);
+    }
+
+    void add_tab::read(ini::input &in)
+    {
+        m_shape_type = (shape_type)in.readi("shape_type");
+        m_entity_color[0] = in.readf("r");
+        m_entity_color[1] = in.readf("g");
+        m_entity_color[2] = in.readf("b");
+        m_size = in.readf("size");
+        m_width = in.readf("width");
+        m_height = in.readf("height");
+        m_radius = in.readf("radius");
+        m_sides = in.readi("sides");
+    }
+
     void add_tab::render_shapes_list()
     {
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};

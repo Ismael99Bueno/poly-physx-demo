@@ -79,6 +79,27 @@ namespace phys_demo
         demo_app::get().window().draw(vertices, 5, sf::LineStrip);
     }
 
+    void selector::write(ini::output &out) const
+    {
+        const std::string key = "selected";
+        for (const auto &e : m_selected)
+            out.write(key + std::to_string(e.index()), e.index());
+    }
+
+    void selector::read(ini::input &in)
+    {
+        m_selected.clear();
+        const std::string key = "selected";
+        for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
+        {
+            const std::string full_key = key + std::to_string(i);
+            if (!in.contains_key(full_key))
+                continue;
+            const std::size_t idx = in.readi(full_key);
+            m_selected.insert({&demo_app::get().engine().entities(), idx});
+        }
+    }
+
     const std::unordered_set<phys::entity2D_ptr> &selector::get() const { return m_selected; }
 
     geo::aabb2D selector::select_box() const
