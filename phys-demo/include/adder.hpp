@@ -6,23 +6,39 @@
 
 namespace phys_demo
 {
-    class adder
+    class adder : ini::saveable
     {
     public:
+        enum shape_type
+        {
+            BOX = 0,
+            RECT = 1,
+            NGON = 2
+        };
+
         adder() = default;
 
         void render();
-        void setup(const entity_template *tmpl);
+        void setup();
         void add();
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
+
+        entity_template templ;
+        shape_type shape = BOX;
+        float entity_color[3] = {0.f, 1.f, 0.f};
+        float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
+        std::uint32_t sides = 3;
 
     private:
         alg::vec2 m_start_pos;
         bool m_adding = false;
 
-        const entity_template *m_templ;
         sf::ConvexShape m_preview;
 
         std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
+        void update_template();
         void setup_preview();
         void preview();
     };

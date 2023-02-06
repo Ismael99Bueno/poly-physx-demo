@@ -9,7 +9,7 @@
 
 namespace phys_demo
 {
-    class actions_panel : public phys::layer, ini::saveable
+    class actions_panel : public phys::layer
     {
     public:
         enum actions
@@ -22,11 +22,10 @@ namespace phys_demo
         };
         actions_panel();
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        // void write(ini::output &out) const override;
+        // void read(ini::input &in) override;
 
         actions action() const;
-        const entity_template &templ();
 
     private:
         void on_attach(phys::app *papp) override;

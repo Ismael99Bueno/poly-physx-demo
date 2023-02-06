@@ -12,21 +12,47 @@ namespace phys_demo
             preview();
     }
 
-    void adder::setup(const entity_template *tmpl)
+    void adder::setup()
     {
         m_start_pos = demo_app::get().world_mouse();
         m_adding = true;
-        m_templ = tmpl;
+        update_template();
         setup_preview();
     }
 
     void adder::add()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        demo_app::get().engine().add_entity(pos, m_templ->dynamic ? vel : alg::vec2(),
-                                            std::atan2f(vel.y, vel.x), 0.f, m_templ->mass,
-                                            m_templ->charge, m_templ->vertices, m_templ->dynamic);
+        demo_app::get().engine().add_entity(pos, templ.dynamic ? vel : alg::vec2(),
+                                            std::atan2f(vel.y, vel.x), 0.f, templ.mass,
+                                            templ.charge, templ.vertices, templ.dynamic);
         m_adding = false;
+    }
+
+    void adder::write(ini::output &out) const
+    {
+        out.write("shape", shape);
+        out.write("r", entity_color[0]);
+        out.write("g", entity_color[1]);
+        out.write("b", entity_color[2]);
+        out.write("size", size);
+        out.write("width", width);
+        out.write("height", height);
+        out.write("radius", radius);
+        out.write("sides", sides);
+    }
+
+    void adder::read(ini::input &in)
+    {
+        shape = (shape_type)in.readi("shape");
+        entity_color[0] = in.readf("r");
+        entity_color[1] = in.readf("g");
+        entity_color[2] = in.readf("b");
+        size = in.readf("size");
+        width = in.readf("width");
+        height = in.readf("height");
+        radius = in.readf("radius");
+        sides = in.readi("sides");
     }
 
     std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
@@ -37,9 +63,26 @@ namespace phys_demo
         return std::make_pair(pos, vel);
     }
 
+    void adder::update_template()
+    {
+        switch (shape)
+        {
+        case BOX:
+            templ.vertices = geo::polygon2D::box(size);
+            break;
+        case RECT:
+            templ.vertices = geo::polygon2D::rect(width, height);
+            break;
+        case NGON:
+            templ.vertices = geo::polygon2D::ngon(radius, sides);
+        default:
+            break;
+        }
+    }
+
     void adder::setup_preview()
     {
-        m_preview.setPointCount(m_templ->vertices.size());
+        m_preview.setPointCount(templ.vertices.size());
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview.setFillColor(color);
@@ -48,7 +91,7 @@ namespace phys_demo
     void adder::preview()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        geo::polygon2D poly(pos, m_templ->vertices);
+        geo::polygon2D poly(pos, templ.vertices);
         poly.rotation(std::atan2f(vel.y, vel.x));
 
         for (std::size_t i = 0; i < poly.size(); i++)

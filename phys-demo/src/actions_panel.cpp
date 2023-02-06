@@ -58,6 +58,4 @@ namespace phys_demo
             return NONE;
         return m_action;
     }
-
-    const entity_template &actions_panel::templ() { return m_add_tab.templ(); }
 }

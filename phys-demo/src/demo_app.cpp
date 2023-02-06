@@ -118,7 +118,7 @@ namespace phys_demo
             switch (m_actions_panel.action())
             {
             case actions_panel::ADD:
-                m_adder.setup(&m_actions_panel.templ());
+                m_adder.setup();
                 break;
             case actions_panel::GRAB:
                 m_grabber.try_grab_entity();
