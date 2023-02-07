@@ -5,7 +5,10 @@ namespace ini
     input::input(const char *filepath) : m_stream(filepath)
     {
         DBG_LOG_IF(!m_stream.is_open(), "Failed to open file at %s\n", filepath)
+        if (!m_stream.is_open())
+            return;
         parse_ini();
+        DBG_LOG("Successfully loaded '%s' session, with %zu sections and %zu total keys.\n", filepath, m_parsed_sections.size(), m_kv_pairs.size())
     }
 
     input::~input() { close(); }

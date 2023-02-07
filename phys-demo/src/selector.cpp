@@ -6,9 +6,13 @@
 
 namespace phys_demo
 {
-    selector::selector(phys::engine2D &engine, std::size_t allocations)
+    selector::selector(std::size_t allocations)
     {
         m_selected.reserve(allocations);
+    }
+
+    void selector::start()
+    {
         const auto validate = [this](const std::size_t index)
         {
             std::vector<phys::entity2D_ptr> invalids;
@@ -28,7 +32,7 @@ namespace phys_demo
             DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
             return !invalids.empty();
         };
-        engine.on_entity_removal(validate);
+        demo_app::get().engine().on_entity_removal(validate);
     }
 
     void selector::render()

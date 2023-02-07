@@ -8,7 +8,6 @@ namespace phys_demo
 {
     actions_panel::actions_panel() {}
 
-    void actions_panel::on_attach(phys::app *papp) { m_entities_tab.add_borders(papp->engine()); }
     void actions_panel::on_render()
     {
         ImGui::Begin("Actions");

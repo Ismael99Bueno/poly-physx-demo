@@ -7,9 +7,7 @@
 
 namespace phys_demo
 {
-    demo_app::demo_app() : app(), m_grabber(engine()),
-                           m_selector(engine()),
-                           m_outline_manager(engine())
+    demo_app::demo_app() : app()
     {
         push_layer(&m_phys_panel);
         push_layer(&m_perf_panel);
@@ -18,6 +16,15 @@ namespace phys_demo
     }
 
     demo_app::~demo_app() { save("last.ini"); }
+
+    void demo_app::on_start()
+    {
+        m_grabber.start();
+        m_selector.start();
+        m_outline_manager.start();
+        if (!load("last.ini"))
+            add_borders();
+    }
 
     void demo_app::write(ini::output &out) const
     {
@@ -77,7 +84,7 @@ namespace phys_demo
         out.close();
     }
 
-    void demo_app::load(const std::string &filename)
+    bool demo_app::load(const std::string &filename)
     {
         if (!std::filesystem::exists("saves/"))
             std::filesystem::create_directory("saves/");
@@ -86,11 +93,12 @@ namespace phys_demo
         ini::input in(filepath.c_str());
 
         if (!in.is_open())
-            return;
+            return false;
         in.begin_section("demo-app");
         read(in);
         in.end_section();
         in.close();
+        return true;
     }
 
     void demo_app::on_update()
@@ -224,6 +232,27 @@ namespace phys_demo
                                               c1, c2);
                             window().draw(fl);
                         }
+    }
+
+    void demo_app::add_borders()
+    {
+        const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+        const float thck = 20.f;
+
+        const phys::entity2D_ptr e1 = engine().add_entity({-w - 0.5f * thck, 0.f}),
+                                 e2 = engine().add_entity({w + 0.5f * thck, 0.f}),
+                                 e3 = engine().add_entity({0.f, -h - 0.5f * thck}),
+                                 e4 = engine().add_entity({0.f, h + 0.5f * thck});
+
+        e1->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
+        e2->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
+        e3->shape(geo::polygon2D::rect(2.f * w, thck));
+        e4->shape(geo::polygon2D::rect(2.f * w, thck));
+
+        e1->dynamic(false);
+        e2->dynamic(false);
+        e3->dynamic(false);
+        e4->dynamic(false);
     }
 
     grabber &demo_app::grabber() { return m_grabber; }

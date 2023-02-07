@@ -6,9 +6,13 @@
 
 namespace phys_demo
 {
-    outline_manager::outline_manager(phys::engine2D &engine, const std::size_t allocations)
+    outline_manager::outline_manager(const std::size_t allocations)
     {
         m_outline_colors.reserve(allocations);
+    }
+
+    void outline_manager::start()
+    {
 
         const auto on_addition = [this](phys::entity2D_ptr e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
@@ -19,8 +23,8 @@ namespace phys_demo
             m_outline_colors.pop_back();
         };
 
-        engine.on_entity_addition(on_addition);
-        engine.on_entity_removal(on_removal);
+        demo_app::get().engine().on_entity_addition(on_addition);
+        demo_app::get().engine().on_entity_removal(on_removal);
     }
 
     void outline_manager::update()

@@ -24,7 +24,6 @@ namespace phys_demo
         actions action() const;
 
     private:
-        void on_attach(phys::app *papp) override;
         void on_render() override;
 
         add_tab m_add_tab;

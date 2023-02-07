@@ -9,8 +9,9 @@ namespace phys_demo
     class grabber : ini::saveable
     {
     public:
-        grabber(phys::engine2D &engine);
+        grabber() = default;
 
+        void start();
         void update();
         void render();
 

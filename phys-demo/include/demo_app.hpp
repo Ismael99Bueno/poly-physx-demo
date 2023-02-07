@@ -25,7 +25,8 @@ namespace phys_demo
         static demo_app &get();
 
         void save(const std::string &filename) const;
-        void load(const std::string &filename);
+        bool load(const std::string &filename);
+        void add_borders();
 
         grabber &grabber();
         selector &selector();
@@ -37,6 +38,7 @@ namespace phys_demo
     private:
         demo_app();
 
+        void on_start() override;
         void on_update() override;
         void on_late_update() override;
         void on_render() override;

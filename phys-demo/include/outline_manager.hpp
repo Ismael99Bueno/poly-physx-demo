@@ -9,8 +9,9 @@ namespace phys_demo
     class outline_manager
     {
     public:
-        outline_manager(phys::engine2D &engine, std::size_t allocations = 100);
+        outline_manager(std::size_t allocations = 100);
 
+        void start();
         void update();
         void load_outline(std::size_t index, const sf::Color &color, std::uint32_t priority);
 

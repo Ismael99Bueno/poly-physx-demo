@@ -6,14 +6,14 @@
 
 namespace phys_demo
 {
-    grabber::grabber(phys::engine2D &engine)
+    void grabber::start()
     {
         const auto validate = [this](const std::size_t index)
         {
             if (m_grabbed && !m_grabbed.try_validate())
                 m_grabbed = nullptr;
         };
-        engine.on_entity_removal(validate);
+        demo_app::get().engine().on_entity_removal(validate);
     }
 
     void grabber::update()

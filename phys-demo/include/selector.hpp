@@ -10,8 +10,9 @@ namespace phys_demo
     class selector : ini::saveable
     {
     public:
-        selector(phys::engine2D &engine, std::size_t allocations = 100);
+        selector(std::size_t allocations = 100);
 
+        void start();
         void render();
 
         void begin_select(bool clear_previous = true);
