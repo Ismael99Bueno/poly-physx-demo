@@ -56,6 +56,82 @@ namespace rk
         return result;
     }
 
+    void integrator::write(ini::output &out) const
+    {
+        out.write("tolerance", m_tolerance);
+        out.write("min_dt", m_min_dt);
+        out.write("max_dt", m_max_dt);
+        out.write("error", m_error);
+        out.write("valid", m_valid);
+
+        out.begin_section("tableau");
+        m_tableau.write(out);
+        out.end_section();
+
+        std::string key = "state";
+        for (std::size_t i = 0; i < m_state.size(); i++)
+            out.write(key + std::to_string(i), m_state[i]);
+
+        std::string key = "step";
+        for (std::size_t i = 0; i < m_step.size(); i++)
+            out.write(key + std::to_string(i), m_step[i]);
+
+        std::string key = "kvec";
+        for (std::size_t i = 0; i < m_kvec.size(); i++)
+            for (std::size_t j = 0; j < m_kvec[i].size(); j++)
+                out.write(key + std::to_string(i) + std::to_string(j), m_kvec[i][j]);
+    }
+
+    void integrator::read(ini::input &in)
+    {
+        m_tolerance = in.readf("tolerance");
+        m_min_dt = in.readf("min_dt");
+        m_max_dt = in.readf("max_dt");
+        m_error = in.readf("error");
+        m_valid = (bool)in.readi("valid");
+
+        in.begin_section("tableau");
+        m_tableau.read(in);
+        in.end_section();
+
+        m_state.clear();
+        std::string key = "state";
+        std::size_t index = 0;
+        while (true)
+        {
+            const std::string full_key = key + std::to_string(index);
+            if (!in.contains_key(full_key))
+                break;
+            m_state.emplace_back(in.readf(full_key));
+        }
+
+        m_step.clear();
+        key = "step";
+        index = 0;
+        while (true)
+        {
+            const std::string full_key = key + std::to_string(index);
+            if (!in.contains_key(full_key))
+                break;
+            m_step.emplace_back(in.readf(full_key));
+        }
+
+        m_kvec.clear();
+        key = "kvec";
+        index = 0;
+        for (std::size_t i = 0; i < m_tableau.stage(); i++)
+        {
+            m_kvec.emplace_back().reserve(m_state.size());
+            while (true)
+            {
+                const std::string full_key = key + std::to_string(i) + std::to_string(index);
+                if (!in.contains_key(full_key))
+                    break;
+                m_kvec[i].emplace_back(in.readf(full_key));
+            }
+        }
+    }
+
     bool integrator::dt_too_small(const float dt) const { return dt < m_min_dt; }
     bool integrator::dt_too_big(const float dt) const { return dt > m_max_dt; }
     bool integrator::dt_off_bounds(const float dt) const { return dt_too_small(dt) || dt_too_big(dt); }

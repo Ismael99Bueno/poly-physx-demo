@@ -11,11 +11,11 @@
 
 namespace rk
 {
-    class integrator
+    class integrator : ini::saveable
     {
     private:
     public:
-        integrator() = delete;
+        integrator() = default;
         integrator(const butcher_tableau &tb,
                    const std::vector<float> &state = {},
                    float tolerance = 1e-6f,
@@ -123,6 +123,9 @@ namespace rk
             DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
         void reserve(std::size_t size);
         void resize_to_state();
