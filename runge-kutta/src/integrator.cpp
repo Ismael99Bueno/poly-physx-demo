@@ -72,11 +72,11 @@ namespace rk
         for (std::size_t i = 0; i < m_state.size(); i++)
             out.write(key + std::to_string(i), m_state[i]);
 
-        std::string key = "step";
+        key = "step";
         for (std::size_t i = 0; i < m_step.size(); i++)
             out.write(key + std::to_string(i), m_step[i]);
 
-        std::string key = "kvec";
+        key = "kvec";
         for (std::size_t i = 0; i < m_kvec.size(); i++)
             for (std::size_t j = 0; j < m_kvec[i].size(); j++)
                 out.write(key + std::to_string(i) + std::to_string(j), m_kvec[i][j]);
@@ -99,7 +99,7 @@ namespace rk
         std::size_t index = 0;
         while (true)
         {
-            const std::string full_key = key + std::to_string(index);
+            const std::string full_key = key + std::to_string(index++);
             if (!in.contains_key(full_key))
                 break;
             m_state.emplace_back(in.readf(full_key));
@@ -110,7 +110,7 @@ namespace rk
         index = 0;
         while (true)
         {
-            const std::string full_key = key + std::to_string(index);
+            const std::string full_key = key + std::to_string(index++);
             if (!in.contains_key(full_key))
                 break;
             m_step.emplace_back(in.readf(full_key));
@@ -118,13 +118,13 @@ namespace rk
 
         m_kvec.clear();
         key = "kvec";
-        index = 0;
         for (std::size_t i = 0; i < m_tableau.stage(); i++)
         {
             m_kvec.emplace_back().reserve(m_state.size());
+            index = 0;
             while (true)
             {
-                const std::string full_key = key + std::to_string(i) + std::to_string(index);
+                const std::string full_key = key + std::to_string(i) + std::to_string(index++);
                 if (!in.contains_key(full_key))
                     break;
                 m_kvec[i].emplace_back(in.readf(full_key));
@@ -170,7 +170,6 @@ namespace rk
     }
 
     const butcher_tableau &integrator::tableau() const { return m_tableau; }
-    butcher_tableau &integrator::tableau() { return m_tableau; }
 
     const std::vector<float> &integrator::state() const { return m_state; }
     std::vector<float> &integrator::state() { return m_state; }

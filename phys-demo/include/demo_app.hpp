@@ -20,7 +20,6 @@ namespace phys_demo
     {
     public:
         demo_app(const demo_app &papp) = delete;
-        ~demo_app();
 
         static demo_app &get();
 
@@ -44,6 +43,7 @@ namespace phys_demo
         void on_render() override;
         void on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
+        void on_end() override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

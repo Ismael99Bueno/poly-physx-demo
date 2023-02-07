@@ -13,6 +13,49 @@ namespace phys_demo
                                m_gravitational(std::make_shared<gravitational>()),
                                m_exponential(std::make_shared<exponential>()) {}
 
+    void phys_panel::write(ini::output &out) const
+    {
+        out.begin_section("gravity");
+        m_gravity->write(out);
+        out.end_section();
+        out.begin_section("drag");
+        m_drag->write(out);
+        out.end_section();
+        out.begin_section("repulsive");
+        m_repulsive->write(out);
+        out.end_section();
+        out.begin_section("attractive");
+        m_attractive->write(out);
+        out.end_section();
+        out.begin_section("gravitational");
+        m_gravitational->write(out);
+        out.end_section();
+        out.begin_section("exponential");
+        m_exponential->write(out);
+        out.end_section();
+    }
+    void phys_panel::read(ini::input &in)
+    {
+        in.begin_section("gravity");
+        m_gravity->read(in);
+        in.end_section();
+        in.begin_section("drag");
+        m_drag->read(in);
+        in.end_section();
+        in.begin_section("repulsive");
+        m_repulsive->read(in);
+        in.end_section();
+        in.begin_section("attractive");
+        m_attractive->read(in);
+        in.end_section();
+        in.begin_section("gravitational");
+        m_gravitational->read(in);
+        in.end_section();
+        in.begin_section("exponential");
+        m_exponential->read(in);
+        in.end_section();
+    }
+
     void phys_panel::on_attach(phys::app *papp)
     {
         phys::engine2D &eng = papp->engine();
@@ -23,22 +66,22 @@ namespace phys_demo
         eng.add_interaction(m_attractive);
         eng.add_interaction(m_exponential);
 
-        m_attractive->exp(1);
-        m_attractive->mag(20.f);
+        m_attractive->p_exp = 1;
+        m_attractive->p_mag = 20.f;
 
         const auto auto_include = [this](phys::entity2D_ptr e)
         {
-            if (m_gravity->auto_include())
+            if (m_gravity->p_auto_include)
                 m_gravity->include(e);
-            if (m_drag->auto_include())
+            if (m_drag->p_auto_include)
                 m_drag->include(e);
-            if (m_gravitational->auto_include())
+            if (m_gravitational->p_auto_include)
                 m_gravitational->include(e);
-            if (m_repulsive->auto_include())
+            if (m_repulsive->p_auto_include)
                 m_repulsive->include(e);
-            if (m_attractive->auto_include())
+            if (m_attractive->p_auto_include)
                 m_attractive->include(e);
-            if (m_exponential->auto_include())
+            if (m_exponential->p_auto_include)
                 m_exponential->include(e);
         };
         eng.on_entity_addition(auto_include);
@@ -60,31 +103,21 @@ namespace phys_demo
             if (tree_node_hovering_outline("Gravity", *m_gravity))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravity->size(), demo_app::get().engine().size());
-                static bool auto_include = m_gravity->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_gravity->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_gravity->p_auto_include);
 
                 render_add_remove_buttons(*m_gravity);
-                static float mag = m_gravity->mag();
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, -600.f, 600.f, "%.1f"))
-                    m_gravity->mag(mag);
-
+                ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
                 ImGui::TreePop();
             }
 
             if (tree_node_hovering_outline("Drag", *m_drag))
             {
                 ImGui::Text("Entities: %zu/%zu", m_drag->size(), demo_app::get().engine().size());
-                static bool auto_include = m_drag->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_drag->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_drag->p_auto_include);
 
                 render_add_remove_buttons(*m_drag);
-                static float linmag = m_drag->lin_mag(), angmag = m_drag->ang_mag();
-                if (ImGui::DragFloat("Linear magnitude", &linmag, 0.2f, 0.f, 20.f))
-                    m_drag->lin_mag(linmag);
-                if (ImGui::DragFloat("Angular magnitude", &angmag, 0.2f, 0.f, 20.f))
-                    m_drag->ang_mag(angmag);
+                ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
+                ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
 
                 ImGui::TreePop();
             }
@@ -92,14 +125,10 @@ namespace phys_demo
             if (tree_node_hovering_outline("Gravitational", *m_gravitational))
             {
                 ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), demo_app::get().engine().size());
-                static bool auto_include = m_gravitational->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_gravitational->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_gravitational->p_auto_include);
 
                 render_add_remove_buttons(*m_gravitational);
-                static float mag = m_gravitational->mag();
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
-                    m_gravitational->mag(mag);
+                ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
 
                 ImGui::TreePop();
             }
@@ -107,21 +136,14 @@ namespace phys_demo
             if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
             {
                 ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), demo_app::get().engine().size());
-                static bool auto_include = m_repulsive->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_repulsive->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_repulsive->p_auto_include);
 
                 render_add_remove_buttons(*m_repulsive);
-                static float mag = m_repulsive->mag();
-                static std::uint32_t exp = m_repulsive->exp();
+                ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
 
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
-                    m_repulsive->mag(mag);
-
-                ImGui::Text("1/r^%u", exp);
+                ImGui::Text("1/r^%u", m_repulsive->p_exp);
                 ImGui::SameLine();
-                if (ImGui::DragInt("Exponent", (int *)&exp, 0.2f, 1, 15))
-                    m_repulsive->exp(exp);
+                ImGui::DragInt("Exponent", (int *)&m_repulsive->p_exp, 0.2f, 1, 15);
 
                 ImGui::TreePop();
             }
@@ -129,21 +151,14 @@ namespace phys_demo
             if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
             {
                 ImGui::Text("Entities: %zu/%zu", m_attractive->size(), demo_app::get().engine().size());
-                static bool auto_include = m_attractive->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_attractive->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_attractive->p_auto_include);
 
                 render_add_remove_buttons(*m_attractive);
-                static float mag = -m_attractive->mag();
-                static std::uint32_t exp = m_attractive->exp();
+                ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
 
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
-                    m_attractive->mag(-mag);
-
-                ImGui::Text("1/r^%u", exp);
+                ImGui::Text("1/r^%u", m_attractive->p_exp);
                 ImGui::SameLine();
-                if (ImGui::DragInt("Exponent", (int *)&exp, 0.2f, 1, 15))
-                    m_attractive->exp(exp);
+                ImGui::DragInt("Exponent", (int *)&m_attractive->p_exp, 0.2f, 1, 15);
 
                 ImGui::TreePop();
             }
@@ -151,17 +166,11 @@ namespace phys_demo
             if (tree_node_hovering_outline("Exponential", *m_exponential))
             {
                 ImGui::Text("Entities: %zu/%zu", m_exponential->size(), demo_app::get().engine().size());
-                static bool auto_include = m_exponential->auto_include();
-                if (ImGui::Checkbox("Add automatically", &auto_include))
-                    m_exponential->auto_include(auto_include);
+                ImGui::Checkbox("Add automatically", &m_exponential->p_auto_include);
 
                 render_add_remove_buttons(*m_exponential);
-                static float mag = m_exponential->mag(), exp = m_exponential->exp();
-
-                if (ImGui::DragFloat("Magnitude", &mag, 0.6f, 0.f, 600.f, "%.1f"))
-                    m_exponential->mag(mag);
-                if (ImGui::DragFloat("Exponent", &exp, 0.2f, -15.f, 15.f))
-                    m_exponential->exp(exp);
+                ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, 0.f, 600.f, "%.1f");
+                ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.2f, -15.f, 15.f);
 
                 ImGui::TreePop();
             }

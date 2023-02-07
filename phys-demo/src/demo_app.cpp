@@ -15,8 +15,6 @@ namespace phys_demo
         push_layer(&m_actions_panel);
     }
 
-    demo_app::~demo_app() { save("last.ini"); }
-
     void demo_app::on_start()
     {
         m_grabber.start();
@@ -25,6 +23,8 @@ namespace phys_demo
         if (!load("last.ini"))
             add_borders();
     }
+
+    void demo_app::on_end() { save("last.ini"); }
 
     void demo_app::write(ini::output &out) const
     {
@@ -47,6 +47,9 @@ namespace phys_demo
         out.begin_section("perf_panel");
         m_perf_panel.write(out);
         out.end_section();
+        out.begin_section("phys_panel");
+        m_phys_panel.write(out);
+        out.end_section();
     }
     void demo_app::read(ini::input &in)
     {
@@ -68,6 +71,9 @@ namespace phys_demo
         in.end_section();
         in.begin_section("perf_panel");
         m_perf_panel.read(in);
+        in.end_section();
+        in.begin_section("phys_panel");
+        m_phys_panel.read(in);
         in.end_section();
     }
 

@@ -131,7 +131,6 @@ namespace rk
         void resize_to_state();
 
         const butcher_tableau &tableau() const;
-        butcher_tableau &tableau();
 
         const std::vector<float> &state() const;
         std::vector<float> &state();

@@ -8,10 +8,13 @@
 
 namespace phys_demo
 {
-    class phys_panel : public phys::layer
+    class phys_panel : public phys::layer, ini::saveable
     {
     public:
         phys_panel();
+
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
     private:
         void on_attach(phys::app *papp) override;

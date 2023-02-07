@@ -41,6 +41,7 @@ namespace phys_demo
         bool paused = demo_app::get().paused();
         if (ImGui::Checkbox("Pause", &paused))
             demo_app::get().paused(paused);
+
         if (integ.tableau().embedded())
         {
             const float error = integ.error();

@@ -94,14 +94,11 @@ namespace phys_demo
     {
         m_selected.clear();
         const std::string key = "selected";
-        for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
-        {
-            const std::string full_key = key + std::to_string(i);
-            if (!in.contains_key(full_key))
-                continue;
-            const std::size_t idx = in.readi(full_key);
-            m_selected.insert({&demo_app::get().engine().entities(), idx});
-        }
+        auto &entities = demo_app::get().engine().entities();
+
+        for (const phys::entity2D &e : entities)
+            if (in.contains_key(key + std::to_string(e.index())))
+                m_selected.insert({&entities, e.index()});
     }
 
     const std::unordered_set<phys::entity2D_ptr> &selector::get() const { return m_selected; }
