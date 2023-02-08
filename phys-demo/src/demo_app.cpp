@@ -84,7 +84,7 @@ namespace phys_demo
 
         const std::string filepath = "saves/" + filename;
         ini::output out(filepath.c_str());
-        out.begin_section("demo-app");
+        out.begin_section("demo_app");
         write(out);
         out.end_section();
         out.close();
@@ -100,7 +100,7 @@ namespace phys_demo
 
         if (!in.is_open())
             return false;
-        in.begin_section("demo-app");
+        in.begin_section("demo_app");
         read(in);
         in.end_section();
         in.close();
