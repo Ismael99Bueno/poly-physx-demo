@@ -4,7 +4,7 @@
 
 namespace phys_demo
 {
-    void entities_tab::render()
+    void entities_tab::render() const
     {
         if (ImGui::Button("Remove all"))
             demo_app::get().engine().clear_entities();

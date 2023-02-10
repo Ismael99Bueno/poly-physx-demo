@@ -9,12 +9,12 @@ namespace phys_demo
     {
     public:
         add_tab() = default;
-        void render();
+        void render() const;
 
     private:
-        void render_shapes_list();
-        void render_entity_inputs();
-        void render_color_picker();
+        void render_shapes_list() const;
+        void render_entity_inputs() const;
+        void render_color_picker() const;
     };
 }
 

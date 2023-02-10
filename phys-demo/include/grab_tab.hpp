@@ -9,7 +9,7 @@ namespace phys_demo
     {
     public:
         grab_tab() = default;
-        void render();
+        void render() const;
     };
 }
 

@@ -12,7 +12,7 @@ namespace phys_demo
     public:
         entities_tab() = default;
 
-        void render();
+        void render() const;
 
     private:
         bool render_entity_data(phys::entity2D &e, std::int8_t sign = 1) const;

@@ -3,6 +3,7 @@
 #include "flat_line_strip.hpp"
 #include "flat_line.hpp"
 #include "implot.h"
+#include "constants.hpp"
 #include <filesystem>
 
 namespace phys_demo
@@ -13,6 +14,7 @@ namespace phys_demo
         push_layer(&m_perf_panel);
         push_layer(&m_engine_panel);
         push_layer(&m_actions_panel);
+        push_layer(&m_menu_bar);
     }
 
     void demo_app::on_start()
@@ -20,15 +22,19 @@ namespace phys_demo
         m_grabber.start();
         m_selector.start();
         m_outline_manager.start();
-        if (!load("last.ini"))
+        save(DEFAULT_SAVE);
+        if (!load(LAST_SAVE))
             add_borders();
     }
 
-    void demo_app::on_end() { save("last.ini"); }
+    void demo_app::on_end() { save(LAST_SAVE); }
 
     void demo_app::write(ini::output &out) const
     {
         app::write(out);
+        out.write("session", m_session);
+        out.write("has_session", m_has_session);
+
         out.begin_section("adder");
         m_adder.write(out);
         out.end_section();
@@ -54,6 +60,9 @@ namespace phys_demo
     void demo_app::read(ini::input &in)
     {
         app::read(in);
+        m_session = in.readstr("session");
+        m_has_session = (bool)in.readi("has_session");
+
         in.begin_section("adder");
         m_adder.read(in);
         in.end_section();
@@ -79,10 +88,10 @@ namespace phys_demo
 
     void demo_app::save(const std::string &filename) const
     {
-        if (!std::filesystem::exists("saves/"))
-            std::filesystem::create_directory("saves/");
+        if (!std::filesystem::exists(SAVES_DIR))
+            std::filesystem::create_directory(SAVES_DIR);
 
-        const std::string filepath = "saves/" + filename;
+        const std::string filepath = SAVES_DIR + filename;
         ini::output out(filepath.c_str());
         out.begin_section("demo_app");
         write(out);
@@ -92,10 +101,10 @@ namespace phys_demo
 
     bool demo_app::load(const std::string &filename)
     {
-        if (!std::filesystem::exists("saves/"))
-            std::filesystem::create_directory("saves/");
+        if (!std::filesystem::exists(SAVES_DIR))
+            std::filesystem::create_directory(SAVES_DIR);
 
-        const std::string filepath = "saves/" + filename;
+        const std::string filepath = SAVES_DIR + filename;
         ini::input in(filepath.c_str());
 
         if (!in.is_open())
@@ -105,6 +114,17 @@ namespace phys_demo
         in.end_section();
         in.close();
         return true;
+    }
+
+    void demo_app::save() const
+    {
+        DBG_ASSERT(m_has_session, "No current session active. Must specify a specific session name to save.\n")
+        save(m_session);
+    }
+    bool demo_app::load()
+    {
+        DBG_ASSERT(m_has_session, "No current session active. Must specify a specific session name to load.\n")
+        return load(m_session);
     }
 
     void demo_app::on_update()
@@ -267,4 +287,12 @@ namespace phys_demo
     attacher &demo_app::attacher() { return m_attacher; }
     outline_manager &demo_app::outline_manager() { return m_outline_manager; }
     copy_paste &demo_app::copy_paste() { return m_copy_paste; }
+
+    const std::string &demo_app::session() const { return m_session; }
+    void demo_app::session(const std::string &session)
+    {
+        m_session = session;
+        m_has_session = true;
+    }
+    bool demo_app::has_session() const { return m_has_session; }
 }

@@ -11,5 +11,8 @@
 #define MIN_FPS 30
 #define MAX_FPS 240
 #define PERF_SESSION_NAME "runtime"
+#define SAVES_DIR "saves/"
+#define DEFAULT_SAVE "default.ini"
+#define LAST_SAVE "last.ini"
 
 #endif

@@ -11,7 +11,7 @@ namespace phys_demo
                                m_repulsive(std::make_shared<electrical>()),
                                m_attractive(std::make_shared<electrical>()),
                                m_gravitational(std::make_shared<gravitational>()),
-                               m_exponential(std::make_shared<exponential>()) {}
+                               m_exponential(std::make_shared<exponential>()) { m_gravity->p_auto_include = true; }
 
     void phys_panel::write(ini::output &out) const
     {

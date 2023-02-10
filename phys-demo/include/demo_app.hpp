@@ -7,6 +7,7 @@
 #include "engine_panel.hpp"
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
+#include "menu_bar.hpp"
 #include "adder.hpp"
 #include "attacher.hpp"
 #include "outline_manager.hpp"
@@ -25,6 +26,8 @@ namespace phys_demo
 
         void save(const std::string &filename) const;
         bool load(const std::string &filename);
+        void save() const;
+        bool load();
         void add_borders();
 
         grabber &grabber();
@@ -33,6 +36,10 @@ namespace phys_demo
         attacher &attacher();
         outline_manager &outline_manager();
         copy_paste &copy_paste();
+
+        const std::string &session() const;
+        void session(const std::string &session);
+        bool has_session() const;
 
     private:
         demo_app();
@@ -59,7 +66,10 @@ namespace phys_demo
         engine_panel m_engine_panel;
         perf_panel m_perf_panel;
         phys_panel m_phys_panel;
+        menu_bar m_menu_bar;
 
+        std::string m_session;
+        bool m_has_session = false;
         sf::Clock m_clock;
 
         void draw_interaction_lines();

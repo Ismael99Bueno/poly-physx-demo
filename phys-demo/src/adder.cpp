@@ -32,6 +32,9 @@ namespace phys_demo
 
     void adder::write(ini::output &out) const
     {
+        out.write("mass", p_templ.mass);
+        out.write("charge", p_templ.charge);
+        out.write("dynamic", p_templ.dynamic);
         out.write("shape", p_shape);
         out.write("r", (int)p_entity_color.r);
         out.write("g", (int)p_entity_color.g);
@@ -45,6 +48,9 @@ namespace phys_demo
 
     void adder::read(ini::input &in)
     {
+        p_templ.mass = in.readf("mass");
+        p_templ.charge = in.readf("charge");
+        p_templ.dynamic = (bool)in.readi("dynamic");
         p_shape = (shape_type)in.readi("shape");
         p_entity_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
         p_size = in.readf("size");

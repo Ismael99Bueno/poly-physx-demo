@@ -5,7 +5,7 @@
 
 namespace phys_demo
 {
-    void attach_tab::render()
+    void attach_tab::render() const
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
 
@@ -67,7 +67,7 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void attach_tab::render_springs_list()
+    void attach_tab::render_springs_list() const
     {
         auto &springs = demo_app::get().engine().springs();
         outline_manager &outlmng = demo_app::get().outline_manager();
@@ -108,7 +108,7 @@ namespace phys_demo
         demo_app::get().engine().remove_spring(to_remove);
     }
 
-    void attach_tab::render_rigid_bars_list()
+    void attach_tab::render_rigid_bars_list() const
     {
         auto &ctrs = demo_app::get().engine().compeller().constraints();
         outline_manager &outlmng = demo_app::get().outline_manager();
@@ -150,7 +150,7 @@ namespace phys_demo
             demo_app::get().engine().compeller().remove_constraint(to_remove);
     }
 
-    void attach_tab::render_spring_color_pickers()
+    void attach_tab::render_spring_color_pickers() const
     {
         const sf::Color &color = demo_app::get().springs_color();
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
@@ -161,7 +161,7 @@ namespace phys_demo
             demo_app::get().springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
-    void attach_tab::render_rb_color_pickers()
+    void attach_tab::render_rb_color_pickers() const
     {
         const sf::Color &color = demo_app::get().rigid_bars_color();
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};

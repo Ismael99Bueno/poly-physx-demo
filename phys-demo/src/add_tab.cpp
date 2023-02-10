@@ -7,7 +7,7 @@
 
 namespace phys_demo
 {
-    void add_tab::render()
+    void add_tab::render() const
     {
         ImGui::PushItemWidth(200);
         render_shapes_list();
@@ -16,7 +16,7 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void add_tab::render_shapes_list()
+    void add_tab::render_shapes_list() const
     {
         adder &addr = demo_app::get().adder();
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};
@@ -52,7 +52,7 @@ namespace phys_demo
         }
     }
 
-    void add_tab::render_entity_inputs()
+    void add_tab::render_entity_inputs() const
     {
         adder &addr = demo_app::get().adder();
         ImGui::DragFloat("Mass", &addr.p_templ.mass, 0.2f, 1.f, 100.f);
@@ -88,7 +88,7 @@ namespace phys_demo
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
     }
 
-    void add_tab::render_color_picker()
+    void add_tab::render_color_picker() const
     {
         sf::Color &color = demo_app::get().adder().p_entity_color;
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};

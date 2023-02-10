@@ -10,13 +10,13 @@ namespace phys_demo
     {
     public:
         attach_tab() = default;
-        void render();
+        void render() const;
 
     private:
-        void render_springs_list();
-        void render_rigid_bars_list();
-        void render_spring_color_pickers();
-        void render_rb_color_pickers();
+        void render_springs_list() const;
+        void render_rigid_bars_list() const;
+        void render_spring_color_pickers() const;
+        void render_rb_color_pickers() const;
     };
 }
 

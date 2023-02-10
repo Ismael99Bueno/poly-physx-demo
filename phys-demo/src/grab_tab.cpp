@@ -5,7 +5,7 @@
 
 namespace phys_demo
 {
-    void grab_tab::render()
+    void grab_tab::render() const
     {
         grabber &grb = demo_app::get().grabber();
 
