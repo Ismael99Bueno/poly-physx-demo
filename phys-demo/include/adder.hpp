@@ -27,7 +27,6 @@ namespace phys_demo
 
         entity_template p_templ;
         shape_type p_shape = BOX;
-        sf::Color p_entity_color = sf::Color::Green;
         float p_size = 5.f, p_width = 5.f, p_height = 5.f, p_radius = 0.6f * 5.f;
         std::uint32_t p_sides = 3;
 

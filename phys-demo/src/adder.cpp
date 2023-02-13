@@ -14,7 +14,6 @@ namespace phys_demo
 
     void adder::setup()
     {
-        demo_app::get().entity_color(p_entity_color);
         m_start_pos = demo_app::get().world_mouse();
         m_adding = true;
         update_template();
@@ -36,9 +35,6 @@ namespace phys_demo
         out.write("charge", p_templ.charge);
         out.write("dynamic", p_templ.dynamic);
         out.write("shape", p_shape);
-        out.write("r", (int)p_entity_color.r);
-        out.write("g", (int)p_entity_color.g);
-        out.write("b", (int)p_entity_color.b);
         out.write("size", p_size);
         out.write("width", p_width);
         out.write("height", p_height);
@@ -52,7 +48,6 @@ namespace phys_demo
         p_templ.charge = in.readf("charge");
         p_templ.dynamic = (bool)in.readi("dynamic");
         p_shape = (shape_type)in.readi("shape");
-        p_entity_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
         p_size = in.readf("size");
         p_width = in.readf("width");
         p_height = in.readf("height");

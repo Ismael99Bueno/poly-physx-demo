@@ -262,6 +262,9 @@ namespace phys_demo
 
     void demo_app::add_borders()
     {
+        const sf::Color prev_color = entity_color();
+        entity_color(sf::Color(86, 113, 137));
+
         const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
         const float thck = 20.f;
 
@@ -279,6 +282,7 @@ namespace phys_demo
         e2->dynamic(false);
         e3->dynamic(false);
         e4->dynamic(false);
+        entity_color(prev_color);
     }
 
     grabber &demo_app::grabber() { return m_grabber; }

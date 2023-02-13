@@ -4,6 +4,7 @@
 #include "perf.hpp"
 #include "layer.hpp"
 #include "saveable.hpp"
+#include "constants.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
@@ -26,10 +27,11 @@ namespace phys_demo
         void on_render() override;
 
         time_unit m_unit = MILLISECONDS;
+        int m_fps = DEFAULT_FPS;
 
         void render_unit_slider();
         void render_smooth_factor();
-        void render_fps(float frame_time) const;
+        void render_fps(float frame_time);
         void render_time_plot(float last_physics, float last_drawing) const;
 
 #ifdef PERF

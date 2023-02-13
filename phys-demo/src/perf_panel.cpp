@@ -2,7 +2,6 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "implot.h"
-#include "constants.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 
@@ -11,11 +10,13 @@ namespace phys_demo
     void perf_panel::write(ini::output &out) const
     {
         out.write("time_unit", m_unit);
+        out.write("framerate", m_fps);
     }
 
     void perf_panel::read(ini::input &in)
     {
         m_unit = (time_unit)in.readi("time_unit");
+        m_fps = in.readi("framerate");
     }
 
     void perf_panel::on_render()
@@ -42,7 +43,7 @@ namespace phys_demo
 
     void perf_panel::render_smooth_factor()
     {
-        static float smoothness = demo_app::get().time_measure_smoothness();
+        float smoothness = demo_app::get().time_measure_smoothness();
         ImGui::PushItemWidth(200);
         if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.99f, "%.2f"))
         {
@@ -52,16 +53,17 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void perf_panel::render_fps(const float frame_time) const
+    void perf_panel::render_fps(const float frame_time)
     {
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
-        static int fps = DEFAULT_FPS;
-        static bool limited = true;
+        bool limited = demo_app::get().framerate() > 0;
+
         ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))
-            demo_app::get().window().setFramerateLimit(limited ? fps : 0);
-        if (limited && ImGui::SliderInt("FPS Limit", &fps, MIN_FPS, MAX_FPS))
-            demo_app::get().window().setFramerateLimit(fps);
+            demo_app::get().framerate(limited ? m_fps : 0);
+
+        if (limited && ImGui::SliderInt("FPS Limit", &m_fps, MIN_FPS, MAX_FPS))
+            demo_app::get().framerate(m_fps);
         ImGui::PopItemWidth();
     }
 
@@ -75,7 +77,7 @@ namespace phys_demo
         static std::size_t buffer_size = 3000;
         const float broad = 4.f;
 
-        static float t = 0.f, pmax, dmax;
+        static float t = 0.f, pmax = last_physics, dmax = last_drawing;
         static std::size_t offset = 0;
 
         if (pmax < last_physics)
@@ -83,10 +85,16 @@ namespace phys_demo
         if (dmax < last_drawing)
             dmax = last_drawing;
 
-        static std::vector<alg::vec2> phys, draw, total;
-        phys.reserve(buffer_size);
-        draw.reserve(buffer_size);
-        total.reserve(buffer_size);
+        struct arr2
+        {
+            arr2(const float x, const float y) : x(x), y(y) {}
+            float x, y;
+        };
+
+        static std::vector<arr2> phys, draw, total;
+        // phys.reserve(buffer_size);
+        // draw.reserve(buffer_size);
+        // total.reserve(buffer_size);
         if (phys.size() < buffer_size)
         {
             phys.emplace_back(t, last_physics);

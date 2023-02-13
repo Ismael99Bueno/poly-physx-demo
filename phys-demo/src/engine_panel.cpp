@@ -60,8 +60,8 @@ namespace phys_demo
     void engine_panel::render_sliders()
     {
         float dt = demo_app::get().timestep();
-        static int integ_per_frame = demo_app::get().integrations_per_frame();
-        static bool align_dt = demo_app::get().aligned_timestep();
+        int integ_per_frame = demo_app::get().integrations_per_frame();
+        bool align_dt = demo_app::get().aligned_timestep();
         if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
             demo_app::get().aligned_timestep(align_dt);
 
@@ -139,11 +139,11 @@ namespace phys_demo
     {
         ImGui::PushItemWidth(250);
         phys::collider2D &collider = demo_app::get().engine().collider();
-        static bool enabled = collider.enabled();
+        bool enabled = collider.enabled();
         if (ImGui::Checkbox("Enable", &enabled))
             collider.enabled(enabled);
 
-        static float stiffness = collider.stiffness(), dampening = collider.dampening();
+        float stiffness = collider.stiffness(), dampening = collider.dampening();
         if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, 10000.f, "%.1f"))
             collider.stiffness(stiffness);
         if (ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, 50.f))
@@ -157,7 +157,7 @@ namespace phys_demo
         phys::collider2D &collider = demo_app::get().engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
-        static int coldet = collider.coldet();
+        int coldet = collider.coldet();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
             collider.coldet((phys::collider2D::coldet_method)coldet);
 
