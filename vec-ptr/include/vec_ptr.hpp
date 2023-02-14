@@ -1,7 +1,7 @@
 #ifndef VEC_PTR
 #define VEC_PTR
 
-#include <vector>
+#include "state.hpp"
 #include <cstdint>
 
 namespace utils
@@ -10,14 +10,14 @@ namespace utils
     {
     public:
         const_vec_ptr() = default;
-        const_vec_ptr(const std::vector<float> *buffer, std::size_t index = 0);
+        const_vec_ptr(const rk::state *buffer, std::size_t index = 0);
 
         const float &operator[](const std::size_t idx) const;
 
         explicit operator bool() const;
 
     private:
-        const std::vector<float> *m_buffer = nullptr;
+        const rk::state *m_buffer = nullptr;
         std::size_t m_index = 0;
     };
 
@@ -25,7 +25,7 @@ namespace utils
     {
     public:
         vec_ptr() = default;
-        vec_ptr(std::vector<float> *buffer, std::size_t index = 0);
+        vec_ptr(rk::state *buffer, std::size_t index = 0);
 
         float &operator[](const std::size_t idx) const;
 
@@ -33,7 +33,7 @@ namespace utils
         operator const_vec_ptr() const;
 
     private:
-        std::vector<float> *m_buffer = nullptr;
+        rk::state *m_buffer = nullptr;
         std::size_t m_index = 0;
     };
 

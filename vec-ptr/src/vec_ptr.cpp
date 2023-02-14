@@ -3,7 +3,7 @@
 
 namespace utils
 {
-    const_vec_ptr::const_vec_ptr(const std::vector<float> *buffer, std::size_t index) : m_buffer(buffer), m_index(index) {}
+    const_vec_ptr::const_vec_ptr(const rk::state *buffer, std::size_t index) : m_buffer(buffer), m_index(index) {}
 
     const float &const_vec_ptr::operator[](const std::size_t idx) const
     {
@@ -12,7 +12,7 @@ namespace utils
     }
     const_vec_ptr::operator bool() const { return m_buffer; }
 
-    vec_ptr::vec_ptr(std::vector<float> *buffer, std::size_t index) : m_buffer(buffer), m_index(index) {}
+    vec_ptr::vec_ptr(rk::state *buffer, std::size_t index) : m_buffer(buffer), m_index(index) {}
 
     float &vec_ptr::operator[](const std::size_t idx) const
     {
