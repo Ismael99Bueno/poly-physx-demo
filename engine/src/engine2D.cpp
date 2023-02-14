@@ -12,7 +12,7 @@ namespace phys
                                                         m_integ(table)
     {
         m_entities.reserve(allocations);
-        m_integ.reserve(6 * allocations);
+        m_integ.state().reserve(6 * allocations);
     }
     engine2D::engine2D(const engine2D &eng) : m_entities(eng.m_entities),
                                               m_collider(&m_entities, 2 * eng.size(),
@@ -24,7 +24,7 @@ namespace phys
     {
         for (entity2D &e : m_entities)
         {
-            e.m_buffer = utils::vec_ptr(&m_integ.state(), e.index());
+            e.m_state = &m_integ.state();
             m_collider.add_entity_intervals({&m_entities, e.index()});
         }
         m_springs.reserve(eng.m_springs.capacity());
@@ -35,14 +35,14 @@ namespace phys
                 m_springs.emplace_back(sp.e1(), sp.e2(), sp.length());
     }
 
-    void engine2D::retrieve(const std::vector<float> &state)
+    void engine2D::retrieve(const std::vector<float> &vars_buffer)
     {
         PERF_FUNCTION()
         for (std::size_t i = 0; i < m_entities.size(); i++)
-            m_entities[i].retrieve(utils::const_vec_ptr(&state, 6 * i));
+            m_entities[i].retrieve(vars_buffer);
     }
 
-    void engine2D::retrieve() { retrieve(m_integ.state()); }
+    void engine2D::retrieve() { retrieve(m_integ.state().vars()); }
 
     bool engine2D::raw_forward(float &timestep)
     {
@@ -88,7 +88,7 @@ namespace phys
 
     void engine2D::register_forces_onto_entities()
     {
-        const std::vector<float> step = m_integ.step();
+        const std::vector<float> step = m_integ.state().step();
         for (std::size_t i = 0; i < m_entities.size(); i++)
         {
             const std::size_t index = 6 * i;
@@ -178,17 +178,16 @@ namespace phys
     {
         entity2D &e = m_entities.emplace_back(pos, vel, angpos, angvel, mass, charge, vertices, dynamic);
         const entity2D_ptr e_ptr = {&m_entities, m_entities.size() - 1};
-        std::vector<float> &state = m_integ.state();
 
+        rk::state &state = m_integ.state();
         e.m_index = m_entities.size() - 1;
-        e.m_buffer = utils::vec_ptr(&state, state.size());
+        e.m_state = &state;
 
-        state.insert(state.end(), {pos.x, pos.y, angpos,
-                                   vel.x, vel.y, angvel});
+        state.append({pos.x, pos.y, angpos,
+                      vel.x, vel.y, angvel});
         m_collider.add_entity_intervals(e_ptr);
-
         e.retrieve();
-        m_integ.resize_to_state();
+
         DBG_LOG("Added entity with index %zu and id %zu.\n", e.m_index, e.m_id)
 #ifdef DEBUG
         for (std::size_t i = 0; i < m_entities.size() - 1; i++)
@@ -202,7 +201,7 @@ namespace phys
     void engine2D::remove_entity(const std::size_t index)
     {
         DBG_ASSERT(index < m_entities.size(), "Index exceeds entity array bounds - index: %zu, size: %zu\n", index, m_entities.size())
-        std::vector<float> &state = m_integ.state();
+        rk::state &state = m_integ.state();
 
         if (index == m_entities.size() - 1)
             m_entities.pop_back();
@@ -211,13 +210,12 @@ namespace phys
             m_entities[index] = m_entities.back();
             m_entities.pop_back();
             m_entities[index].m_index = index;
-            m_entities[index].m_buffer = utils::vec_ptr(&state, 6 * index);
+            m_entities[index].m_state = &state;
         }
 
         for (std::size_t i = 0; i < 6; i++)
             state[6 * index + i] = state[state.size() - 6 + i];
         state.resize(6 * m_entities.size());
-        m_integ.resize_to_state();
 
         m_collider.validate();
         m_compeller.validate();
