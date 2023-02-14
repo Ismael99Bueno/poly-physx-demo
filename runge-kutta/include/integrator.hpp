@@ -155,7 +155,7 @@ namespace rk
         bool m_valid;
 
         std::vector<float> generate_solution(float dt,
-                                             const std::vector<float> &state,
+                                             const std::vector<float> &vars,
                                              const std::vector<float> &coefs);
 
         bool dt_too_small(float dt) const;

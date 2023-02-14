@@ -28,7 +28,7 @@ namespace rk
             float sum = 0.f;
             for (std::uint8_t i = 0; i < m_tableau.stage(); i++)
                 sum += coefs[i] * m_state.m_kvec[i][j];
-            m_valid &= !isnan(sum);
+            m_valid &= !std::isnan(sum);
 
             const float step = sum * dt;
             m_state.m_step[j] = step;
