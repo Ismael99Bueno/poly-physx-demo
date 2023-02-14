@@ -16,6 +16,17 @@ namespace phys_demo
             NGON = 2
         };
 
+        struct add_template : private ini::saveable
+        {
+            entity_template entity_templ;
+            shape_type shape = BOX;
+            float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
+            std::uint32_t sides = 3;
+
+            void write(ini::output &out) const override;
+            void read(ini::input &in) override;
+        };
+
         adder() = default;
 
         void render();
@@ -25,10 +36,7 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        entity_template p_templ;
-        shape_type p_shape = BOX;
-        float p_size = 5.f, p_width = 5.f, p_height = 5.f, p_radius = 0.6f * 5.f;
-        std::uint32_t p_sides = 3;
+        add_template p_current_templ;
 
     private:
         alg::vec2 m_start_pos;

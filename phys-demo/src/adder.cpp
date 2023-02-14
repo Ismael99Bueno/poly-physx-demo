@@ -23,36 +23,52 @@ namespace phys_demo
     void adder::add()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        demo_app::get().engine().add_entity(pos, p_templ.dynamic ? vel : alg::vec2(),
-                                            std::atan2f(vel.y, vel.x), 0.f, p_templ.mass,
-                                            p_templ.charge, p_templ.vertices, p_templ.dynamic);
+        const entity_template &entity_templ = p_current_templ.entity_templ;
+
+        demo_app::get().engine().add_entity(pos, entity_templ.dynamic ? vel : alg::vec2(),
+                                            std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+                                            entity_templ.charge, entity_templ.vertices, entity_templ.dynamic);
         m_adding = false;
+    }
+
+    void adder::add_template::write(ini::output &out) const
+    {
+        out.write("mass", entity_templ.mass);
+        out.write("charge", entity_templ.charge);
+        out.write("dynamic", entity_templ.dynamic);
+        out.write("shape", shape);
+        out.write("size", size);
+        out.write("width", width);
+        out.write("height", height);
+        out.write("radius", radius);
+        out.write("sides", sides);
+    }
+
+    void adder::add_template::read(ini::input &in)
+    {
+        entity_templ.mass = in.readf("mass");
+        entity_templ.charge = in.readf("charge");
+        entity_templ.dynamic = (bool)in.readi("dynamic");
+        shape = (shape_type)in.readi("shape");
+        size = in.readf("size");
+        width = in.readf("width");
+        height = in.readf("height");
+        radius = in.readf("radius");
+        sides = in.readi("sides");
     }
 
     void adder::write(ini::output &out) const
     {
-        out.write("mass", p_templ.mass);
-        out.write("charge", p_templ.charge);
-        out.write("dynamic", p_templ.dynamic);
-        out.write("shape", p_shape);
-        out.write("size", p_size);
-        out.write("width", p_width);
-        out.write("height", p_height);
-        out.write("radius", p_radius);
-        out.write("sides", p_sides);
+        out.begin_section("current");
+        p_current_templ.write(out);
+        out.end_section();
     }
 
     void adder::read(ini::input &in)
     {
-        p_templ.mass = in.readf("mass");
-        p_templ.charge = in.readf("charge");
-        p_templ.dynamic = (bool)in.readi("dynamic");
-        p_shape = (shape_type)in.readi("shape");
-        p_size = in.readf("size");
-        p_width = in.readf("width");
-        p_height = in.readf("height");
-        p_radius = in.readf("radius");
-        p_sides = in.readi("sides");
+        in.begin_section("current");
+        p_current_templ.read(in);
+        in.end_section();
     }
 
     std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
@@ -65,16 +81,17 @@ namespace phys_demo
 
     void adder::update_template()
     {
-        switch (p_shape)
+        auto &vertices = p_current_templ.entity_templ.vertices;
+        switch (p_current_templ.shape)
         {
         case BOX:
-            p_templ.vertices = geo::polygon2D::box(p_size);
+            vertices = geo::polygon2D::box(p_current_templ.size);
             break;
         case RECT:
-            p_templ.vertices = geo::polygon2D::rect(p_width, p_height);
+            vertices = geo::polygon2D::rect(p_current_templ.width, p_current_templ.height);
             break;
         case NGON:
-            p_templ.vertices = geo::polygon2D::ngon(p_radius, p_sides);
+            vertices = geo::polygon2D::ngon(p_current_templ.radius, p_current_templ.sides);
         default:
             break;
         }
@@ -82,7 +99,7 @@ namespace phys_demo
 
     void adder::setup_preview()
     {
-        m_preview.setPointCount(p_templ.vertices.size());
+        m_preview.setPointCount(p_current_templ.entity_templ.vertices.size());
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview.setFillColor(color);
@@ -91,7 +108,7 @@ namespace phys_demo
     void adder::preview()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        geo::polygon2D poly(pos, p_templ.vertices);
+        geo::polygon2D poly(pos, p_current_templ.entity_templ.vertices);
         poly.rotation(std::atan2f(vel.y, vel.x));
 
         for (std::size_t i = 0; i < poly.size(); i++)
