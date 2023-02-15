@@ -9,14 +9,60 @@ namespace phys_demo
 {
     void add_tab::render() const
     {
+
         ImGui::PushItemWidth(200);
-        render_saved_entities();
+        render_menu_bar();
+        // render_saved_entities();
         render_shapes_list();
         render_entity_inputs();
-        render_entity_saving();
+        // render_entity_saving();
         ImGui::Spacing();
         render_color_picker();
         ImGui::PopItemWidth();
+    }
+
+    void add_tab::render_menu_bar() const
+    {
+        adder &addr = demo_app::get().adder();
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("Entities"))
+            {
+                if (ImGui::MenuItem("Save", nullptr, nullptr, addr.has_saved_entity()))
+                    addr.save_template();
+                if (ImGui::MenuItem("Load", nullptr, nullptr, addr.has_saved_entity()))
+                    addr.load_template();
+                if (ImGui::BeginMenu("Save as..."))
+                {
+                    static char buffer[24];
+                    if (ImGui::InputText("##", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
+                    {
+                        for (char *c = buffer; *c != '\0'; c++)
+                            if (*c == ' ')
+                                *c = '-';
+                        addr.save_template(buffer);
+                        buffer[0] = '\0';
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Load as..."))
+                {
+                    std::string selected;
+                    for (const auto &[name, templ] : addr.templates())
+                    {
+                        if (ImGui::MenuItem(name.c_str()))
+                            selected = name;
+                    }
+                    if (!selected.empty())
+                        addr.load_template(selected);
+                    ImGui::EndMenu();
+                }
+
+                ImGui::EndMenu();
+            }
+            ImGui::BeginMenu(addr.has_saved_entity() ? ("Current entity: " + addr.p_current_templ.name).c_str() : "No entity template. Select 'Save as...' to create one", false);
+            ImGui::EndMenuBar();
+        }
     }
 
     void add_tab::render_saved_entities() const
@@ -112,11 +158,11 @@ namespace phys_demo
     void add_tab::render_entity_inputs() const
     {
         adder &addr = demo_app::get().adder();
-        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, 100.f);
+        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, 1000.f);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
-        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, 100.f);
+        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, 1000.f);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (addr.p_current_templ.shape)

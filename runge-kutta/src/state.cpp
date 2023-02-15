@@ -2,8 +2,8 @@
 
 namespace rk
 {
-    state::state(const std::vector<float> &st, const std::uint8_t stage) : m_vars(st),
-                                                                           m_kvec(stage)
+    state::state(const std::vector<float> &vars, const std::uint8_t stage) : m_vars(vars),
+                                                                             m_kvec(stage)
     {
         resize();
     }

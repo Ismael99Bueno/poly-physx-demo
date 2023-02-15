@@ -18,6 +18,7 @@ namespace phys_demo
 
         struct add_template : private ini::saveable
         {
+            std::string name;
             entity_template entity_templ;
             shape_type shape = BOX;
             float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
@@ -37,11 +38,15 @@ namespace phys_demo
         void save_template(const std::string &name);
         void load_template(const std::string &name);
         void erase_template(const std::string &name);
+        void save_template();
+        void load_template();
+        void erase_template();
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
         const std::map<std::string, add_template> &templates() const;
+        bool has_saved_entity() const;
 
         add_template p_current_templ;
 

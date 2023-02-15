@@ -29,6 +29,7 @@ namespace phys_demo
                     app.window().close();
                 ImGui::EndMenu();
             }
+            ImGui::BeginMenu(app.has_session() ? ("Current session: " + app.session()).c_str() : "No current session. Select 'Save as...' to create one", false);
             ImGui::EndMainMenuBar();
         }
     }

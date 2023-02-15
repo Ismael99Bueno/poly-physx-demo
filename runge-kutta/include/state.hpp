@@ -29,7 +29,7 @@ namespace rk
 
     private:
         state() = default;
-        state(const std::vector<float> &st, std::uint8_t stage);
+        state(const std::vector<float> &vars, std::uint8_t stage);
 
         void resize();
         void resize_kvec(std::uint8_t stage);

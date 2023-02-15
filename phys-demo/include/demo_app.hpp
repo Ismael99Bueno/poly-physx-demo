@@ -28,6 +28,7 @@ namespace phys_demo
         bool load(const std::string &filename);
         void save() const;
         bool load();
+
         void add_borders();
 
         grabber &grabber();

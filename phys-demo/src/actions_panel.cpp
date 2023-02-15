@@ -10,7 +10,7 @@ namespace phys_demo
 
     void actions_panel::on_render()
     {
-        ImGui::Begin("Actions");
+        ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar);
         ImGui::HelpMarker("The Actions panel allows you to make high level changes to the simulation, such as adding, removing and grabbing entities, modify their properties or attach springs and rigid bars to them.");
         // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
         render_tabs();

@@ -33,6 +33,7 @@ namespace phys_demo
 
     void adder::save_template(const std::string &name)
     {
+        p_current_templ.name = name;
         m_templates[name] = p_current_templ;
         m_templates[name].color = demo_app::get().entity_color();
     }
@@ -43,8 +44,21 @@ namespace phys_demo
     }
     void adder::erase_template(const std::string &name) { m_templates.erase(name); }
 
+    void adder::save_template()
+    {
+        m_templates[p_current_templ.name] = p_current_templ;
+        m_templates[p_current_templ.name].color = demo_app::get().entity_color();
+    }
+    void adder::load_template() { load_template(p_current_templ.name); }
+    void adder::erase_template()
+    {
+        erase_template(p_current_templ.name);
+        p_current_templ.name.clear();
+    }
+
     void adder::add_template::write(ini::output &out) const
     {
+        out.write("name", name);
         out.write("mass", entity_templ.mass);
         out.write("charge", entity_templ.charge);
         out.write("dynamic", entity_templ.dynamic);
@@ -54,10 +68,14 @@ namespace phys_demo
         out.write("height", height);
         out.write("radius", radius);
         out.write("sides", sides);
+        out.write("r", (int)color.r);
+        out.write("g", (int)color.g);
+        out.write("b", (int)color.b);
     }
 
     void adder::add_template::read(ini::input &in)
     {
+        name = in.readstr("name");
         entity_templ.mass = in.readf("mass");
         entity_templ.charge = in.readf("charge");
         entity_templ.dynamic = (bool)in.readi("dynamic");
@@ -67,6 +85,7 @@ namespace phys_demo
         height = in.readf("height");
         radius = in.readf("radius");
         sides = in.readi("sides");
+        color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
     }
 
     void adder::write(ini::output &out) const
@@ -114,6 +133,8 @@ namespace phys_demo
     {
         return m_templates;
     }
+
+    bool adder::has_saved_entity() const { return !p_current_templ.name.empty(); }
 
     std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
     {
