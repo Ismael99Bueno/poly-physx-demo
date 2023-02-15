@@ -22,6 +22,7 @@ namespace phys_demo
             shape_type shape = BOX;
             float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
             std::uint32_t sides = 3;
+            sf::Color color;
 
             void write(ini::output &out) const override;
             void read(ini::input &in) override;
@@ -33,12 +34,20 @@ namespace phys_demo
         void setup();
         void add();
 
+        void save_template(const std::string &name);
+        void load_template(const std::string &name);
+        void erase_template(const std::string &name);
+
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
+
+        const std::map<std::string, add_template> &templates() const;
 
         add_template p_current_templ;
 
     private:
+        std::map<std::string, add_template> m_templates;
+
         alg::vec2 m_start_pos;
         bool m_adding = false;
 

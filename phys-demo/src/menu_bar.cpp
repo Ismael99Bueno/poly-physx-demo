@@ -19,11 +19,9 @@ namespace phys_demo
                     app.load(DEFAULT_SAVE);
                     app.add_borders();
                 }
-                if (app.has_session())
-                {
-                    save_item();
-                    load_item();
-                }
+
+                save_item();
+                load_item();
                 save_as_item();
                 load_as_item();
 
@@ -52,7 +50,7 @@ namespace phys_demo
 
     void menu_bar::save_item() const
     {
-        if (ImGui::MenuItem("Save"))
+        if (ImGui::MenuItem("Save", nullptr, nullptr, demo_app::get().has_session()))
             demo_app::get().save();
     }
 
@@ -60,15 +58,19 @@ namespace phys_demo
     {
         if (ImGui::BeginMenu("Save as..."))
         {
-            static char buff[24];
+            static char buffer[24];
             ImGui::PushItemWidth(400);
-            if (ImGui::InputText("Save file", buff, IM_ARRAYSIZE(buff), ImGuiInputTextFlags_EnterReturnsTrue))
+            if (ImGui::InputText("Save file", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                const std::string savefile(buff);
+                for (char *c = buffer; *c != '\0'; c++)
+                    if (*c == ' ')
+                        *c = '-';
+
+                const std::string savefile(buffer);
                 demo_app &app = demo_app::get();
                 app.session(savefile + ".ini");
                 app.save(savefile + ".ini");
-                buff[0] = '\0';
+                buffer[0] = '\0';
             }
             ImGui::PopItemWidth();
             ImGui::EndMenu();
@@ -77,7 +79,7 @@ namespace phys_demo
 
     void menu_bar::load_item() const
     {
-        if (ImGui::MenuItem("Load"))
+        if (ImGui::MenuItem("Load", nullptr, nullptr, demo_app::get().has_session()))
             demo_app::get().load();
     }
 

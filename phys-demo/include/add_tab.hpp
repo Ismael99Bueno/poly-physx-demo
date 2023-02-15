@@ -12,8 +12,10 @@ namespace phys_demo
         void render() const;
 
     private:
+        void render_saved_entities() const;
         void render_shapes_list() const;
         void render_entity_inputs() const;
+        void render_entity_saving() const;
         void render_color_picker() const;
     };
 }

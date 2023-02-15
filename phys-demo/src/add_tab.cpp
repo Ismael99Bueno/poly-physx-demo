@@ -10,9 +10,66 @@ namespace phys_demo
     void add_tab::render() const
     {
         ImGui::PushItemWidth(200);
+        render_saved_entities();
         render_shapes_list();
         render_entity_inputs();
+        render_entity_saving();
+        ImGui::Spacing();
         render_color_picker();
+        ImGui::PopItemWidth();
+    }
+
+    void add_tab::render_saved_entities() const
+    {
+        ImGui::PushItemWidth(200);
+        if (ImGui::CollapsingHeader("Saved entities"))
+        {
+            adder &addr = demo_app::get().adder();
+            std::string to_load = "", to_erase = "";
+
+            int id = 0;
+            for (const auto &[name, templ] : addr.templates())
+            {
+                if (ImGui::TreeNode((void *)(intptr_t)(++id), "%s", name.c_str()))
+                {
+                    ImGui::Text("Mass: %.3f", templ.entity_templ.mass);
+                    ImGui::Text("Charge: %.3f", templ.entity_templ.charge);
+                    switch (templ.shape)
+                    {
+                    case adder::BOX:
+                        ImGui::Text("Size: %.3f", templ.size);
+                        break;
+                    case adder::RECT:
+                        ImGui::Text("Width: %.3f", templ.width);
+                        ImGui::Text("Height: %.3f", templ.height);
+                        break;
+                    case adder::NGON:
+                        ImGui::Text("Radius: %.3f", templ.radius);
+                        ImGui::Text("Sides: %u", templ.sides);
+                        break;
+                    }
+                    ImGui::Text("Dynamic: %d", templ.entity_templ.dynamic);
+                    ImGui::TreePop();
+                }
+                else
+                    ImGui::SameLine();
+                ImGui::PushID(id);
+                if (ImGui::Button("Load"))
+                    to_load = name;
+                ImGui::PopID();
+
+                ImGui::SameLine();
+                ImGui::PushID(-id);
+                if (ImGui::Button("Remove"))
+                    to_erase = name;
+                ImGui::PopID();
+            }
+
+            if (!to_load.empty())
+                addr.load_template(to_load);
+            if (!to_erase.empty())
+                addr.erase_template(to_erase);
+        }
         ImGui::PopItemWidth();
     }
 
@@ -86,6 +143,20 @@ namespace phys_demo
         ImGui::Checkbox("Dynamic", &addr.p_current_templ.entity_templ.dynamic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
+    }
+
+    void add_tab::render_entity_saving() const
+    {
+        static char buffer[24] = "MyEntity-1";
+        const bool pressed_enter = ImGui::InputText("##", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue);
+        ImGui::SameLine();
+        const bool pressed_save = ImGui::Button("Save entity");
+        for (char *c = buffer; *c != '\0'; c++)
+            if (*c == ' ')
+                *c = '-';
+
+        if (pressed_enter || pressed_save)
+            demo_app::get().adder().save_template(buffer);
     }
 
     void add_tab::render_color_picker() const

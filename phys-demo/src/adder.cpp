@@ -31,6 +31,18 @@ namespace phys_demo
         m_adding = false;
     }
 
+    void adder::save_template(const std::string &name)
+    {
+        m_templates[name] = p_current_templ;
+        m_templates[name].color = demo_app::get().entity_color();
+    }
+    void adder::load_template(const std::string &name)
+    {
+        p_current_templ = m_templates[name];
+        demo_app::get().entity_color(p_current_templ.color);
+    }
+    void adder::erase_template(const std::string &name) { m_templates.erase(name); }
+
     void adder::add_template::write(ini::output &out) const
     {
         out.write("mass", entity_templ.mass);
@@ -62,6 +74,16 @@ namespace phys_demo
         out.begin_section("current");
         p_current_templ.write(out);
         out.end_section();
+
+        std::size_t index = 0;
+        const std::string section = "template";
+        for (const auto &[name, templ] : m_templates)
+        {
+            out.begin_section(section + std::to_string(index++));
+            out.write("name", name);
+            templ.write(out);
+            out.end_section();
+        }
     }
 
     void adder::read(ini::input &in)
@@ -69,6 +91,28 @@ namespace phys_demo
         in.begin_section("current");
         p_current_templ.read(in);
         in.end_section();
+
+        std::size_t index = 0;
+        const std::string section = "template";
+        while (true)
+        {
+            const std::string full_section = section + std::to_string(index++);
+            in.begin_section(full_section);
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            const std::string name = in.readstr("name");
+            if (m_templates.find(name) == m_templates.end()) // Entities persist over saves
+                m_templates[name].read(in);
+            in.end_section();
+        }
+    }
+
+    const std::map<std::string, adder::add_template> &adder::templates() const
+    {
+        return m_templates;
     }
 
     std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
