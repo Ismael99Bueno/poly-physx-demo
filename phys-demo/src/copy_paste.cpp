@@ -22,7 +22,7 @@ namespace phys_demo
         delete_copy();
         m_ref_pos = alg::vec2();
 
-        const selector &slct = demo_app::get().selector();
+        const selector &slct = demo_app::get().p_selector;
         for (const auto &e : slct.get())
         {
             m_entities[e.id()] = std::make_pair(entity_template::from_entity(*e), sf::ConvexShape());

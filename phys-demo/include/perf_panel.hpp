@@ -20,6 +20,8 @@ namespace phys_demo
             NANOSECONDS = 3,
         };
 
+        bool p_enabled = true;
+
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 

@@ -23,6 +23,8 @@ namespace phys_demo
         actions_panel();
         actions action() const;
 
+        bool p_enabled = true;
+
     private:
         void on_render() override;
 

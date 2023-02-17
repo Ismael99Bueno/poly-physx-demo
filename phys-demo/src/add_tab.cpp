@@ -21,7 +21,7 @@ namespace phys_demo
 
     void add_tab::render_menu_bar() const
     {
-        adder &addr = demo_app::get().adder();
+        adder &addr = demo_app::get().p_adder;
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("Entities"))
@@ -65,7 +65,7 @@ namespace phys_demo
 
     void add_tab::render_shapes_list() const
     {
-        adder &addr = demo_app::get().adder();
+        adder &addr = demo_app::get().p_adder;
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};
         ImGui::ListBox("Shapes", (int *)&addr.p_current_templ.shape, shapes, IM_ARRAYSIZE(shapes));
 
@@ -101,7 +101,7 @@ namespace phys_demo
 
     void add_tab::render_entity_inputs() const
     {
-        adder &addr = demo_app::get().adder();
+        adder &addr = demo_app::get().p_adder;
         ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, 1000.f);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");

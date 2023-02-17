@@ -22,15 +22,18 @@ namespace phys_demo
 
     void engine_panel::on_render()
     {
-        ImGui::Begin("Engine");
-        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
-        ImGui::Text("Entities: %zu", demo_app::get().engine().size());
-        if (ImGui::CollapsingHeader("Integration"))
-            render_integration();
-        if (ImGui::CollapsingHeader("Collisions"))
-            render_collision();
-        if (m_visualize_qt)
-            draw_quad_tree(demo_app::get().engine().collider().quad_tree());
+        if (!p_enabled)
+            return;
+        if (ImGui::Begin("Engine", &p_enabled))
+        {
+            ImGui::Text("Entities: %zu", demo_app::get().engine().size());
+            if (ImGui::CollapsingHeader("Integration"))
+                render_integration();
+            if (ImGui::CollapsingHeader("Collisions"))
+                render_collision();
+            if (m_visualize_qt)
+                draw_quad_tree(demo_app::get().engine().collider().quad_tree());
+        }
         ImGui::End();
     }
 

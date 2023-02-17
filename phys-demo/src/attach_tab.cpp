@@ -9,7 +9,7 @@ namespace phys_demo
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
 
-        attacher &attch = demo_app::get().attacher();
+        attacher &attch = demo_app::get().p_attacher;
 
         ImGui::PushItemWidth(200);
         ImGui::ListBox("Attach type", (int *)&attch.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
@@ -70,7 +70,7 @@ namespace phys_demo
     void attach_tab::render_springs_list() const
     {
         auto &springs = demo_app::get().engine().springs();
-        outline_manager &outlmng = demo_app::get().outline_manager();
+        outline_manager &outlmng = demo_app::get().p_outline_manager;
 
         std::size_t to_remove = springs.size();
 
@@ -111,7 +111,7 @@ namespace phys_demo
     void attach_tab::render_rigid_bars_list() const
     {
         auto &ctrs = demo_app::get().engine().compeller().constraints();
-        outline_manager &outlmng = demo_app::get().outline_manager();
+        outline_manager &outlmng = demo_app::get().p_outline_manager;
 
         std::shared_ptr<phys::constraint_interface2D> to_remove = nullptr;
 

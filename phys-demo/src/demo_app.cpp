@@ -10,18 +10,18 @@ namespace phys_demo
 {
     demo_app::demo_app() : app()
     {
-        push_layer(&m_phys_panel);
-        push_layer(&m_perf_panel);
-        push_layer(&m_engine_panel);
-        push_layer(&m_actions_panel);
-        push_layer(&m_menu_bar);
+        push_layer(&p_phys_panel);
+        push_layer(&p_perf_panel);
+        push_layer(&p_engine_panel);
+        push_layer(&p_actions_panel);
+        push_layer(&p_menu_bar);
     }
 
     void demo_app::on_start()
     {
-        m_grabber.start();
-        m_selector.start();
-        m_outline_manager.start();
+        p_grabber.start();
+        p_selector.start();
+        p_outline_manager.start();
         save(DEFAULT_SAVE);
         if (!load(LAST_SAVE))
             add_borders();
@@ -35,26 +35,31 @@ namespace phys_demo
         out.write("session", m_session);
         out.write("has_session", m_has_session);
 
+        out.write("actions_enabled", p_actions_panel.p_enabled);
+        out.write("engine_enabled", p_engine_panel.p_enabled);
+        out.write("phys_enabled", p_phys_panel.p_enabled);
+        out.write("perf_enabled", p_perf_panel.p_enabled);
+
         out.begin_section("adder");
-        m_adder.write(out);
+        p_adder.write(out);
         out.end_section();
         out.begin_section("grabber");
-        m_grabber.write(out);
+        p_grabber.write(out);
         out.end_section();
         out.begin_section("selector");
-        m_selector.write(out);
+        p_selector.write(out);
         out.end_section();
         out.begin_section("attacher");
-        m_attacher.write(out);
+        p_attacher.write(out);
         out.end_section();
         out.begin_section("engine_panel");
-        m_engine_panel.write(out);
+        p_engine_panel.write(out);
         out.end_section();
         out.begin_section("perf_panel");
-        m_perf_panel.write(out);
+        p_perf_panel.write(out);
         out.end_section();
         out.begin_section("phys_panel");
-        m_phys_panel.write(out);
+        p_phys_panel.write(out);
         out.end_section();
     }
     void demo_app::read(ini::input &in)
@@ -63,26 +68,31 @@ namespace phys_demo
         m_session = in.readstr("session");
         m_has_session = (bool)in.readi("has_session");
 
+        p_actions_panel.p_enabled = (bool)in.readi("actions_enabled");
+        p_engine_panel.p_enabled = (bool)in.readi("engine_enabled");
+        p_phys_panel.p_enabled = (bool)in.readi("phys_enabled");
+        p_perf_panel.p_enabled = (bool)in.readi("perf_enabled");
+
         in.begin_section("adder");
-        m_adder.read(in);
+        p_adder.read(in);
         in.end_section();
         in.begin_section("grabber");
-        m_grabber.read(in);
+        p_grabber.read(in);
         in.end_section();
         in.begin_section("selector");
-        m_selector.read(in);
+        p_selector.read(in);
         in.end_section();
         in.begin_section("attacher");
-        m_attacher.read(in);
+        p_attacher.read(in);
         in.end_section();
         in.begin_section("engine_panel");
-        m_engine_panel.read(in);
+        p_engine_panel.read(in);
         in.end_section();
         in.begin_section("perf_panel");
-        m_perf_panel.read(in);
+        p_perf_panel.read(in);
         in.end_section();
         in.begin_section("phys_panel");
-        m_phys_panel.read(in);
+        p_phys_panel.read(in);
         in.end_section();
     }
 
@@ -130,19 +140,19 @@ namespace phys_demo
     void demo_app::on_update()
     {
         PERF_FUNCTION()
-        m_grabber.update();
-        m_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+        p_grabber.update();
+        p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
     }
 
     void demo_app::on_render()
     {
         PERF_FUNCTION()
         draw_interaction_lines();
-        m_grabber.render();
-        m_selector.render();
-        m_adder.render();
-        m_copy_paste.render();
-        m_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+        p_grabber.render();
+        p_selector.render();
+        p_adder.render();
+        p_copy_paste.render();
+        p_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
         ImPlot::ShowDemoWindow();
@@ -152,13 +162,13 @@ namespace phys_demo
     void demo_app::on_late_update()
     {
         PERF_FUNCTION()
-        m_outline_manager.update();
+        p_outline_manager.update();
     }
 
     void demo_app::on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape)
     {
-        if (m_selector.is_selecting(e))
-            m_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
+        if (p_selector.is_selecting(e))
+            p_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
     }
 
     void demo_app::on_event(sf::Event &event)
@@ -166,23 +176,23 @@ namespace phys_demo
         switch (event.type)
         {
         case sf::Event::MouseButtonPressed:
-            m_copy_paste.delete_copy();
-            switch (m_actions_panel.action())
+            p_copy_paste.delete_copy();
+            switch (p_actions_panel.action())
             {
             case actions_panel::ADD:
-                m_adder.setup();
+                p_adder.setup();
                 break;
             case actions_panel::GRAB:
-                m_grabber.try_grab_entity();
+                p_grabber.try_grab_entity();
                 break;
             case actions_panel::ATTACH:
-                if (m_attacher.has_first())
-                    m_attacher.try_attach_second(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+                if (p_attacher.has_first())
+                    p_attacher.try_attach_second(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 else
-                    m_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+                    p_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             case actions_panel::ENTITIES:
-                m_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+                p_selector.begin_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             default:
                 break;
@@ -191,16 +201,16 @@ namespace phys_demo
 
         case sf::Event::MouseButtonReleased:
         {
-            switch (m_actions_panel.action())
+            switch (p_actions_panel.action())
             {
             case actions_panel::ADD:
-                m_adder.add();
+                p_adder.add();
                 break;
             case actions_panel::GRAB:
-                m_grabber.null();
+                p_grabber.null();
                 break;
             case actions_panel::ENTITIES:
-                m_selector.end_select();
+                p_selector.end_select();
                 break;
             default:
                 break;
@@ -212,18 +222,18 @@ namespace phys_demo
             {
             case sf::Keyboard::Backspace:
             {
-                const auto selected = m_selector.get();
+                const auto selected = p_selector.get();
                 for (phys::const_entity2D_ptr e : selected)
                     if (e.try_validate())
                         engine().remove_entity(e);
-                m_attacher.cancel();
+                p_attacher.cancel();
                 break;
             }
             case sf::Keyboard::C:
-                m_copy_paste.copy();
+                p_copy_paste.copy();
                 break;
             case sf::Keyboard::V:
-                m_copy_paste.paste();
+                p_copy_paste.paste();
             default:
                 break;
             }
@@ -284,13 +294,6 @@ namespace phys_demo
         e4->dynamic(false);
         entity_color(prev_color);
     }
-
-    grabber &demo_app::grabber() { return m_grabber; }
-    selector &demo_app::selector() { return m_selector; }
-    adder &demo_app::adder() { return m_adder; }
-    attacher &demo_app::attacher() { return m_attacher; }
-    outline_manager &demo_app::outline_manager() { return m_outline_manager; }
-    copy_paste &demo_app::copy_paste() { return m_copy_paste; }
 
     const std::string &demo_app::session() const { return m_session; }
     void demo_app::session(const std::string &session)

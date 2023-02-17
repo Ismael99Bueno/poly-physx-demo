@@ -12,6 +12,8 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
+        bool p_enabled = true;
+
     private:
         enum integ_method
         {

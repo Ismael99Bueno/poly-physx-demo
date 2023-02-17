@@ -12,25 +12,45 @@ namespace phys_demo
         if (ImGui::BeginMainMenuBar())
         {
             demo_app &app = demo_app::get();
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::MenuItem("New"))
-                {
-                    app.load(DEFAULT_SAVE);
-                    app.add_borders();
-                }
-
-                save_item();
-                load_item();
-                save_as_item();
-                load_as_item();
-
-                if (ImGui::MenuItem("Exit"))
-                    app.window().close();
-                ImGui::EndMenu();
-            }
+            render_file_menu();
+            render_windows_menu();
             ImGui::BeginMenu(app.has_session() ? ("Current session: " + app.session()).c_str() : "No current session. Select 'Save as...' to create one", false);
             ImGui::EndMainMenuBar();
+        }
+    }
+
+    void menu_bar::render_file_menu() const
+    {
+        demo_app &app = demo_app::get();
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New"))
+            {
+                app.load(DEFAULT_SAVE);
+                app.add_borders();
+            }
+
+            save_item();
+            load_item();
+            save_as_item();
+            load_as_item();
+
+            if (ImGui::MenuItem("Exit"))
+                app.window().close();
+            ImGui::EndMenu();
+        }
+    }
+
+    void menu_bar::render_windows_menu() const
+    {
+        demo_app &app = demo_app::get();
+        if (ImGui::BeginMenu("Windows"))
+        {
+            ImGui::MenuItem("Actions", nullptr, &app.p_actions_panel.p_enabled);
+            ImGui::MenuItem("Engine", nullptr, &app.p_engine_panel.p_enabled);
+            ImGui::MenuItem("Physics", nullptr, &app.p_phys_panel.p_enabled);
+            ImGui::MenuItem("Performance", nullptr, &app.p_perf_panel.p_enabled);
+            ImGui::EndMenu();
         }
     }
 

@@ -31,16 +31,22 @@ namespace phys_demo
 
         void add_borders();
 
-        grabber &grabber();
-        selector &selector();
-        adder &adder();
-        attacher &attacher();
-        outline_manager &outline_manager();
-        copy_paste &copy_paste();
-
         const std::string &session() const;
         void session(const std::string &session);
         bool has_session() const;
+
+        grabber p_grabber;
+        selector p_selector;
+        adder p_adder;
+        attacher p_attacher;
+        outline_manager p_outline_manager;
+        copy_paste p_copy_paste;
+
+        actions_panel p_actions_panel;
+        engine_panel p_engine_panel;
+        perf_panel p_perf_panel;
+        phys_panel p_phys_panel;
+        menu_bar p_menu_bar;
 
     private:
         demo_app();
@@ -55,19 +61,6 @@ namespace phys_demo
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
-
-        phys_demo::grabber m_grabber;
-        phys_demo::selector m_selector;
-        phys_demo::adder m_adder;
-        phys_demo::attacher m_attacher;
-        phys_demo::outline_manager m_outline_manager;
-        phys_demo::copy_paste m_copy_paste;
-
-        actions_panel m_actions_panel;
-        engine_panel m_engine_panel;
-        perf_panel m_perf_panel;
-        phys_panel m_phys_panel;
-        menu_bar m_menu_bar;
 
         std::string m_session;
         bool m_has_session = false;

@@ -25,6 +25,8 @@ namespace rk
         const std::vector<float> &vars() const;
         const std::vector<float> &step() const;
 
+        void vars(const std::vector<float> &vars);
+
         std::size_t size() const;
 
     private:

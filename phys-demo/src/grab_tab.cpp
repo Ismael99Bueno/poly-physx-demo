@@ -7,7 +7,7 @@ namespace phys_demo
 {
     void grab_tab::render() const
     {
-        grabber &grb = demo_app::get().grabber();
+        grabber &grb = demo_app::get().p_grabber;
 
         sf::Color &color = grb.p_color;
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};

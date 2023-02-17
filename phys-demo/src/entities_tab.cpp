@@ -25,7 +25,7 @@ namespace phys_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("A list of all the currently selected entities.");
 
-        selector &slct = demo_app::get().selector();
+        selector &slct = demo_app::get().p_selector;
         if (sel_expanded)
             for (const auto &e : slct.get())
             {
@@ -86,7 +86,7 @@ namespace phys_demo
     {
         const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %zu", e.id());
         if (expanded || ImGui::IsItemHovered())
-            demo_app::get().outline_manager().load_outline(e.index(), sf::Color::Cyan, 5);
+            demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
         {
             float pos[2] = {e.pos().x, e.pos().y},

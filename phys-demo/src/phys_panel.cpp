@@ -89,9 +89,11 @@ namespace phys_demo
 
     void phys_panel::on_render()
     {
-        ImGui::Begin("Physics");
-        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
-        render_forces_and_inters();
+        if (!p_enabled)
+            return;
+
+        if (ImGui::Begin("Physics", &p_enabled))
+            render_forces_and_inters();
         ImGui::End();
     }
 
@@ -192,7 +194,7 @@ namespace phys_demo
         if (ImGui::Button("Remove all"))
             set.clear();
 
-        const selector &slct = demo_app::get().selector();
+        const selector &slct = demo_app::get().p_selector;
         if (ImGui::Button("Add selected"))
             for (const auto &e : slct.get())
                 if (!set.contains(e))
@@ -208,7 +210,7 @@ namespace phys_demo
         const bool expanded = ImGui::TreeNode(name);
         if (expanded || ImGui::IsItemHovered())
             for (const auto &e : set.entities())
-                demo_app::get().outline_manager().load_outline(e.index(), sf::Color::Blue, 2);
+                demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Blue, 2);
         return expanded;
     }
 }

@@ -131,16 +131,19 @@ namespace phys_demo
 
     void perf_panel::render_full()
     {
-        ImGui::Begin("Performance");
-        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
-        render_unit_slider();
-        render_smooth_factor();
-        render_time_hierarchy();
+        if (!p_enabled)
+            return;
+        if (ImGui::Begin("Performance", &p_enabled))
+        {
+            render_unit_slider();
+            render_smooth_factor();
+            render_time_hierarchy();
 
-        const float phys_time = demo_app::get().phys_time().asSeconds(),
-                    draw_time = demo_app::get().draw_time().asSeconds();
-        render_time_plot(phys_time, draw_time);
-        render_fps(phys_time + draw_time);
+            const float phys_time = demo_app::get().phys_time().asSeconds(),
+                        draw_time = demo_app::get().draw_time().asSeconds();
+            render_time_plot(phys_time, draw_time);
+            render_fps(phys_time + draw_time);
+        }
         ImGui::End();
     }
 
@@ -214,10 +217,13 @@ namespace phys_demo
 #else
     void perf_panel::render_simple()
     {
-        ImGui::Begin("Performance");
-        // ImGui::SetWindowFontScale(WINDOW_FONT_SCALE);
-        render_unit_slider();
-        render_simple_time();
+        if (!p_enabled)
+            return;
+        if (ImGui::Begin("Performance", &p_enabled))
+        {
+            render_unit_slider();
+            render_simple_time();
+        }
         ImGui::End();
     }
 
