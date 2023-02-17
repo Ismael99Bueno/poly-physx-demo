@@ -178,7 +178,9 @@ namespace phys_demo
 
         for (std::size_t i = 0; i < poly.size(); i++)
             m_preview.setPoint(i, poly[i] * WORLD_TO_PIXEL);
-        demo_app::get().window().draw(m_preview);
+
+        demo_app &papp = demo_app::get();
+        papp.window().draw(m_preview);
 
         const float max_arrow_length = 200.f;
         const alg::vec2 start = pos * WORLD_TO_PIXEL,
@@ -191,12 +193,12 @@ namespace phys_demo
         const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
                         antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
 
-        sf::Color color = demo_app::get().entity_color();
+        sf::Color color = papp.entity_color();
         color.a = 120;
 
         prm::flat_line_strip fls({start, end, antler1}, color);
         prm::flat_line fl(end, antler2, color);
-        demo_app::get().window().draw(fls);
-        demo_app::get().window().draw(fl);
+        papp.window().draw(fls);
+        papp.window().draw(fl);
     }
 }

@@ -30,8 +30,10 @@ namespace phys_demo
 
     void grabber::try_grab_entity()
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        m_grabbed = demo_app::get().engine()[mpos];
+        demo_app &papp = demo_app::get();
+
+        const alg::vec2 mpos = papp.world_mouse();
+        m_grabbed = papp.engine()[mpos];
         if (!m_grabbed)
             return;
         m_joint = mpos - m_grabbed->pos();
@@ -39,7 +41,9 @@ namespace phys_demo
     }
     void grabber::move_grabbed_entity()
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse(), mdelta = demo_app::get().world_mouse_delta();
+        demo_app &papp = demo_app::get();
+
+        const alg::vec2 mpos = papp.world_mouse(), mdelta = papp.world_mouse_delta();
         const alg::vec2 rot_joint = m_joint.rotated(m_grabbed->angpos() - m_angle);
         const alg::vec2 relpos = mpos - (m_grabbed->pos() + rot_joint),
                         relvel = mdelta - m_grabbed->vel_at(rot_joint),

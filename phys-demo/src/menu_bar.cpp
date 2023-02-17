@@ -100,8 +100,10 @@ namespace phys_demo
 
     void menu_bar::load_item() const
     {
-        if (ImGui::MenuItem("Load", nullptr, nullptr, demo_app::get().has_session()))
-            demo_app::get().load();
+        demo_app &papp = demo_app::get();
+
+        if (ImGui::MenuItem("Load", nullptr, nullptr, papp.has_session()))
+            papp.load();
     }
 
     void menu_bar::load_as_item() const

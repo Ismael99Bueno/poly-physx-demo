@@ -24,26 +24,30 @@ namespace phys_demo
     {
         if (!p_enabled)
             return;
+
+        demo_app &papp = demo_app::get();
         if (ImGui::Begin("Engine", &p_enabled))
         {
-            ImGui::Text("Entities: %zu", demo_app::get().engine().size());
+            ImGui::Text("Entities: %zu", papp.engine().size());
             if (ImGui::CollapsingHeader("Integration"))
                 render_integration();
             if (ImGui::CollapsingHeader("Collisions"))
                 render_collision();
             if (m_visualize_qt)
-                draw_quad_tree(demo_app::get().engine().collider().quad_tree());
+                draw_quad_tree(papp.engine().collider().quad_tree());
         }
         ImGui::End();
     }
 
     void engine_panel::render_integration()
     {
-        ImGui::Text("Simulation time: %.2f", demo_app::get().engine().elapsed());
-        const rk::integrator integ = demo_app::get().engine().integrator();
-        bool paused = demo_app::get().paused();
+        demo_app &papp = demo_app::get();
+
+        ImGui::Text("Simulation time: %.2f", papp.engine().elapsed());
+        const rk::integrator integ = papp.engine().integrator();
+        bool paused = papp.paused();
         if (ImGui::Checkbox("Pause", &paused))
-            demo_app::get().paused(paused);
+            papp.paused(paused);
 
         if (integ.tableau().embedded())
         {
@@ -62,24 +66,26 @@ namespace phys_demo
 
     void engine_panel::render_sliders()
     {
-        float dt = demo_app::get().timestep();
-        int integ_per_frame = demo_app::get().integrations_per_frame();
-        bool align_dt = demo_app::get().aligned_timestep();
+        demo_app &papp = demo_app::get();
+
+        float dt = papp.timestep();
+        int integ_per_frame = papp.integrations_per_frame();
+        bool align_dt = papp.aligned_timestep();
         if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
-            demo_app::get().aligned_timestep(align_dt);
+            papp.aligned_timestep(align_dt);
 
         ImGui::PushItemWidth(200);
         if (!align_dt)
         {
-            const rk::integrator &integ = demo_app::get().engine().integrator();
+            const rk::integrator &integ = papp.engine().integrator();
             if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt() * 10.f, integ.max_dt() * 0.1f, "%.5f", ImGuiSliderFlags_Logarithmic))
-                demo_app::get().timestep(dt);
+                papp.timestep(dt);
         }
         else
             ImGui::Text("Timestep: %f", dt);
 
         if (ImGui::SliderInt("Integrations per frame", &integ_per_frame, 1, 100))
-            demo_app::get().integrations_per_frame(integ_per_frame);
+            papp.integrations_per_frame(integ_per_frame);
         ImGui::PopItemWidth();
     }
 

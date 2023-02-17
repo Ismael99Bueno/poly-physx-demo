@@ -95,9 +95,10 @@ namespace phys_demo
         m_selected.clear();
         const std::string key = "selected";
 
-        for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
+        demo_app &papp = demo_app::get();
+        for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const phys::entity2D_ptr e = demo_app::get().engine()[i];
+            const phys::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 m_selected.insert(e);
         }

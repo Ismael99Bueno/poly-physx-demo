@@ -101,10 +101,12 @@ namespace phys_demo
     {
         if (ImGui::CollapsingHeader("Forces & Interactions"))
         {
+            demo_app &papp = demo_app::get();
+
             ImGui::PushItemWidth(200);
             if (tree_node_hovering_outline("Gravity", *m_gravity))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravity->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_gravity->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_gravity->p_auto_include);
 
                 render_add_remove_buttons(*m_gravity);
@@ -114,7 +116,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Drag", *m_drag))
             {
-                ImGui::Text("Entities: %zu/%zu", m_drag->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_drag->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_drag->p_auto_include);
 
                 render_add_remove_buttons(*m_drag);
@@ -126,7 +128,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Gravitational", *m_gravitational))
             {
-                ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_gravitational->p_auto_include);
 
                 render_add_remove_buttons(*m_gravitational);
@@ -137,7 +139,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
             {
-                ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_repulsive->p_auto_include);
 
                 render_add_remove_buttons(*m_repulsive);
@@ -152,7 +154,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
             {
-                ImGui::Text("Entities: %zu/%zu", m_attractive->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_attractive->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_attractive->p_auto_include);
 
                 render_add_remove_buttons(*m_attractive);
@@ -167,7 +169,7 @@ namespace phys_demo
 
             if (tree_node_hovering_outline("Exponential", *m_exponential))
             {
-                ImGui::Text("Entities: %zu/%zu", m_exponential->size(), demo_app::get().engine().size());
+                ImGui::Text("Entities: %zu/%zu", m_exponential->size(), papp.engine().size());
                 ImGui::Checkbox("Add automatically", &m_exponential->p_auto_include);
 
                 render_add_remove_buttons(*m_exponential);
@@ -183,10 +185,12 @@ namespace phys_demo
 
     void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const
     {
+        demo_app &papp = demo_app::get();
+
         if (ImGui::Button("Add all"))
-            for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
+            for (std::size_t i = 0; i < papp.engine().size(); i++)
             {
-                const phys::const_entity2D_ptr e = demo_app::get().engine()[i];
+                const phys::const_entity2D_ptr e = papp.engine()[i];
                 if (!set.contains(e))
                     set.include(e);
             }
@@ -194,7 +198,7 @@ namespace phys_demo
         if (ImGui::Button("Remove all"))
             set.clear();
 
-        const selector &slct = demo_app::get().p_selector;
+        const selector &slct = papp.p_selector;
         if (ImGui::Button("Add selected"))
             for (const auto &e : slct.get())
                 if (!set.contains(e))

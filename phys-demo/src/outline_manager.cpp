@@ -23,8 +23,9 @@ namespace phys_demo
             m_outline_colors.pop_back();
         };
 
-        demo_app::get().engine().on_entity_addition(on_addition);
-        demo_app::get().engine().on_entity_removal(on_removal);
+        demo_app &papp = demo_app::get();
+        papp.engine().on_entity_addition(on_addition);
+        papp.engine().on_entity_removal(on_removal);
     }
 
     void outline_manager::update()

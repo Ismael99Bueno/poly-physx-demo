@@ -65,11 +65,13 @@ namespace phys_demo
 
     void add_tab::render_shapes_list() const
     {
-        adder &addr = demo_app::get().p_adder;
+        demo_app &papp = demo_app::get();
+
+        adder &addr = papp.p_adder;
         const char *shapes[3] = {"Box", "Rectangle", "NGon"};
         ImGui::ListBox("Shapes", (int *)&addr.p_current_templ.shape, shapes, IM_ARRAYSIZE(shapes));
 
-        const sf::Color &color = demo_app::get().entity_color();
+        const sf::Color &color = papp.entity_color();
         switch (addr.p_current_templ.shape)
         {
         case adder::BOX:
@@ -137,13 +139,15 @@ namespace phys_demo
 
     void add_tab::render_color_picker() const
     {
-        const sf::Color &color = demo_app::get().entity_color();
+        demo_app &papp = demo_app::get();
+
+        const sf::Color &color = papp.entity_color();
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip))
-            demo_app::get().entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
+            papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            demo_app::get().entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
+            papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
     }
 }

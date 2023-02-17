@@ -14,13 +14,14 @@ namespace phys_demo
         if (!m_snap_e1_to_center)
             rotate_joint();
 
+        demo_app &papp = demo_app::get();
         if (p_auto_length)
         {
-            float length = demo_app::get().world_mouse().dist(m_e1->pos() + m_joint1);
+            float length = papp.world_mouse().dist(m_e1->pos() + m_joint1);
             if (snap_e2_to_center)
             {
-                const alg::vec2 mpos = demo_app::get().world_mouse();
-                const auto e2 = demo_app::get().engine()[mpos];
+                const alg::vec2 mpos = papp.world_mouse();
+                const auto e2 = papp.engine()[mpos];
                 if (e2)
                     length = e2->pos().dist(m_e1->pos() + m_joint1);
             }
@@ -35,8 +36,10 @@ namespace phys_demo
 
     void attacher::try_attach_first(const bool snap_e1_to_center)
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        const auto e1 = demo_app::get().engine()[mpos];
+        demo_app &papp = demo_app::get();
+
+        const alg::vec2 mpos = papp.world_mouse();
+        const auto e1 = papp.engine()[mpos];
         if (!e1)
             return;
         m_e1 = e1;
@@ -48,8 +51,10 @@ namespace phys_demo
 
     void attacher::try_attach_second(const bool snap_e2_to_center)
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        const auto e2 = demo_app::get().engine()[mpos];
+        demo_app &papp = demo_app::get();
+
+        const alg::vec2 mpos = papp.world_mouse();
+        const auto e2 = papp.engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
         const alg::vec2 joint2 = snap_e2_to_center ? alg::vec2() : (mpos - e2->pos());
@@ -63,7 +68,7 @@ namespace phys_demo
                                           : phys::spring2D(m_e1, e2, m_joint1, joint2, p_sp_length);
             sp.stiffness(p_sp_stiffness);
             sp.dampening(p_sp_dampening);
-            demo_app::get().engine().add_spring(sp);
+            papp.engine().add_spring(sp);
             break;
         }
         case RIGID_BAR:
@@ -73,7 +78,7 @@ namespace phys_demo
                                                                     : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
             rb->stiffness(p_rb_stiffness);
             rb->dampening(p_rb_dampening);
-            demo_app::get().engine().compeller().add_constraint(rb);
+            papp.engine().compeller().add_constraint(rb);
             break;
         }
         }
@@ -87,16 +92,18 @@ namespace phys_demo
     }
     void attacher::draw_unattached_joint(const bool snap_e2_to_center)
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        const auto e2 = demo_app::get().engine()[mpos];
-        const alg::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : demo_app::get().pixel_mouse();
+        demo_app &papp = demo_app::get();
+
+        const alg::vec2 mpos = papp.world_mouse();
+        const auto e2 = papp.engine()[mpos];
+        const alg::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
         switch (p_attach)
         {
         case SPRING:
-            demo_app::get().draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
+            papp.draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
             break;
         case RIGID_BAR:
-            demo_app::get().draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
+            papp.draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
             break;
         }
     }

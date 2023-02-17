@@ -43,11 +43,13 @@ namespace phys_demo
 
     void perf_panel::render_smooth_factor()
     {
-        float smoothness = demo_app::get().time_measure_smoothness();
+        demo_app &papp = demo_app::get();
+
+        float smoothness = papp.time_measure_smoothness();
         ImGui::PushItemWidth(200);
         if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.99f, "%.2f"))
         {
-            demo_app::get().time_measure_smoothness(smoothness);
+            papp.time_measure_smoothness(smoothness);
             perf::profiler::get().smoothness(smoothness);
         }
         ImGui::PopItemWidth();
@@ -55,15 +57,17 @@ namespace phys_demo
 
     void perf_panel::render_fps(const float frame_time)
     {
+        demo_app &papp = demo_app::get();
+
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
-        bool limited = demo_app::get().framerate() > 0;
+        bool limited = papp.framerate() > 0;
 
         ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))
-            demo_app::get().framerate(limited ? m_fps : 0);
+            papp.framerate(limited ? m_fps : 0);
 
         if (limited && ImGui::SliderInt("FPS Limit", &m_fps, MIN_FPS, MAX_FPS))
-            demo_app::get().framerate(m_fps);
+            papp.framerate(m_fps);
         ImGui::PopItemWidth();
     }
 
