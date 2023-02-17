@@ -184,11 +184,11 @@ namespace phys_demo
     void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const
     {
         if (ImGui::Button("Add all"))
-            for (const phys::entity2D &e : demo_app::get().engine().entities())
+            for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
             {
-                const phys::const_entity2D_ptr &e_ptr = {&demo_app::get().engine().entities(), e.index()};
-                if (!set.contains(e_ptr))
-                    set.include(e_ptr);
+                const phys::const_entity2D_ptr e = demo_app::get().engine()[i];
+                if (!set.contains(e))
+                    set.include(e);
             }
         ImGui::SameLine();
         if (ImGui::Button("Remove all"))

@@ -6,15 +6,16 @@ namespace phys_demo
 {
     void entities_tab::render() const
     {
+        demo_app &papp = demo_app::get();
         if (ImGui::Button("Remove all"))
-            demo_app::get().engine().clear_entities();
+            papp.engine().clear_entities();
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Removes all entities (including borders!)");
 
         ImGui::SameLine();
 
         if (ImGui::Button("Add borders"))
-            demo_app::get().add_borders();
+            papp.add_borders();
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
 
@@ -25,7 +26,7 @@ namespace phys_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("A list of all the currently selected entities.");
 
-        selector &slct = demo_app::get().p_selector;
+        selector &slct = papp.p_selector;
         if (sel_expanded)
             for (const auto &e : slct.get())
             {
@@ -48,12 +49,12 @@ namespace phys_demo
             ImGui::SetTooltip("A list of all current entities.");
         if (ent_expanded)
         {
-            if (demo_app::get().engine().entities().empty())
+            if (papp.engine().entities().unwrap().empty())
                 ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
             else
-                for (phys::entity2D &e : demo_app::get().engine().entities())
+                for (phys::entity2D &e : papp.engine().entities())
                 {
-                    const phys::entity2D_ptr e_ptr = {&demo_app::get().engine().entities(), e.index()};
+                    const phys::entity2D_ptr e_ptr = papp.engine()[e.index()];
 
                     if (!render_entity_data(e, -1))
                         ImGui::SameLine();
@@ -79,7 +80,7 @@ namespace phys_demo
         if (to_deselect)
             slct.deselect(to_deselect);
         if (to_remove)
-            demo_app::get().engine().remove_entity(to_remove->index());
+            papp.engine().remove_entity(to_remove->index());
     }
 
     bool entities_tab::render_entity_data(phys::entity2D &e, std::int8_t sign) const

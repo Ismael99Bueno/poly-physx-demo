@@ -15,11 +15,13 @@ namespace phys_demo
     {
         set.clear();
         const std::string key = "entity";
-        const auto &entities = demo_app::get().engine().entities();
 
-        for (const phys::entity2D &e : entities)
+        for (std::size_t i = 0; i < demo_app::get().engine().size(); i++)
+        {
+            const phys::const_entity2D_ptr e = demo_app::get().engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
-                set.include({&entities, e.index()});
+                set.include(e);
+        }
     }
 
     std::pair<alg::vec2, float> gravity::force(const phys::entity2D &e) const

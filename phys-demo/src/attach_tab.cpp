@@ -69,13 +69,14 @@ namespace phys_demo
 
     void attach_tab::render_springs_list() const
     {
-        auto &springs = demo_app::get().engine().springs();
+        auto springs = demo_app::get().engine().springs();
         outline_manager &outlmng = demo_app::get().p_outline_manager;
 
-        std::size_t to_remove = springs.size();
+        const std::size_t spring_count = springs.unwrap().size();
+        std::size_t to_remove = spring_count;
 
         if (ImGui::CollapsingHeader("Springs"))
-            for (std::size_t i = 0; i < springs.size(); i++)
+            for (std::size_t i = 0; i < spring_count; i++)
             {
                 phys::spring2D &sp = springs[i];
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
