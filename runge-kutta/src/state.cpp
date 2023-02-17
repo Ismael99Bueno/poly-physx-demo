@@ -117,7 +117,11 @@ namespace rk
     const std::vector<float> &state::vars() const { return m_vars; }
     const std::vector<float> &state::step() const { return m_step; }
 
-    void state::vars(const std::vector<float> &vars) { m_vars = vars; }
+    void state::vars(const std::vector<float> &vars)
+    {
+        m_vars = vars;
+        resize();
+    }
 
     std::size_t state::size() const { return m_vars.size(); }
 }

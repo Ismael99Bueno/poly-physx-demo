@@ -241,6 +241,10 @@ namespace phys_demo
         default:
             break;
         }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+            engine().checkpoint();
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+            engine().revert();
     }
 
     demo_app &demo_app::get()
