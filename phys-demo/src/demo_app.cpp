@@ -241,10 +241,6 @@ namespace phys_demo
         default:
             break;
         }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
-            engine().checkpoint();
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
-            engine().revert();
     }
 
     demo_app &demo_app::get()
@@ -256,9 +252,10 @@ namespace phys_demo
     void demo_app::draw_interaction_lines()
     {
         PERF_FUNCTION()
-        const phys::const_entity2D_ptr e1 = engine()[world_mouse()];
+        phys::engine2D &eng = engine();
+        const phys::const_entity2D_ptr e1 = eng[world_mouse()];
         if (e1)
-            for (const auto &inter : engine().interactions())
+            for (const auto &inter : eng.interactions())
                 if (inter->contains(e1))
                     for (const auto &e2 : inter->entities())
                         if (e1 != e2)
@@ -282,10 +279,11 @@ namespace phys_demo
         const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
         const float thck = 20.f;
 
-        const phys::entity2D_ptr e1 = engine().add_entity({-w - 0.5f * thck, 0.f}),
-                                 e2 = engine().add_entity({w + 0.5f * thck, 0.f}),
-                                 e3 = engine().add_entity({0.f, -h - 0.5f * thck}),
-                                 e4 = engine().add_entity({0.f, h + 0.5f * thck});
+        phys::engine2D &eng = engine();
+        const phys::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
+                                 e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
+                                 e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
+                                 e4 = eng.add_entity({0.f, h + 0.5f * thck});
 
         e1->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
         e2->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
