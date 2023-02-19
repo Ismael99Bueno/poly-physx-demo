@@ -33,7 +33,8 @@ namespace phys_demo
 
         void render();
         void setup();
-        void add(bool definitive = true);
+        void cancel();
+        phys::entity2D_ptr add(bool definitive = true);
 
         void save_template(const std::string &name);
         void load_template(const std::string &name);
@@ -49,6 +50,7 @@ namespace phys_demo
         bool has_saved_entity() const;
 
         add_template p_current_templ;
+        bool p_predict_path = true;
 
     private:
         std::map<std::string, add_template> m_templates;
@@ -63,7 +65,8 @@ namespace phys_demo
         void setup_preview();
         void preview();
 
-        void draw_velocity_arrow();
+        void draw_preview();
+        void draw_velocity_arrow() const;
     };
 }
 

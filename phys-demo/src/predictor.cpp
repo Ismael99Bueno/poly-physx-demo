@@ -1,5 +1,6 @@
 #include "predictor.hpp"
 #include "demo_app.hpp"
+#include "constants.hpp"
 
 namespace phys_demo
 {
@@ -19,12 +20,14 @@ namespace phys_demo
 
     void predictor::update()
     {
+        if (m_paths.empty())
+            return;
         demo_app &papp = demo_app::get();
         phys::engine2D &eng = papp.engine();
         for (auto &[e, path] : m_paths)
         {
             path.clear();
-            path.append(e->pos());
+            path.append(e->pos() * WORLD_TO_PIXEL);
         }
 
         eng.checkpoint();
@@ -54,7 +57,7 @@ namespace phys_demo
         for (std::size_t i = 0; i < p_steps; i++)
         {
             eng.raw_forward(p_dt);
-            path.append(e->pos());
+            path.append(e->pos() * WORLD_TO_PIXEL);
         }
         papp.window().draw(path);
         eng.revert();

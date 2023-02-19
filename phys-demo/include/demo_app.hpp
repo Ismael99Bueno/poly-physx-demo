@@ -12,6 +12,7 @@
 #include "attacher.hpp"
 #include "outline_manager.hpp"
 #include "copy_paste.hpp"
+#include "predictor.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -41,6 +42,7 @@ namespace phys_demo
         attacher p_attacher;
         outline_manager p_outline_manager;
         copy_paste p_copy_paste;
+        predictor p_predictor;
 
         actions_panel p_actions_panel;
         engine_panel p_engine_panel;

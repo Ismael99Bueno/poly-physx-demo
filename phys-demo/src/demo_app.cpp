@@ -22,6 +22,7 @@ namespace phys_demo
         p_grabber.start();
         p_selector.start();
         p_outline_manager.start();
+        p_predictor.start();
         save(DEFAULT_SAVE);
         if (!load(LAST_SAVE))
             add_borders();
@@ -142,6 +143,7 @@ namespace phys_demo
         PERF_FUNCTION()
         p_grabber.update();
         p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+        p_predictor.update();
     }
 
     void demo_app::on_render()
@@ -153,6 +155,7 @@ namespace phys_demo
         p_adder.render();
         p_copy_paste.render();
         p_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
+        p_predictor.render();
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
         ImPlot::ShowDemoWindow();
@@ -227,6 +230,7 @@ namespace phys_demo
                     if (e.try_validate())
                         engine().remove_entity(e);
                 p_attacher.cancel();
+                p_adder.cancel();
                 break;
             }
             case sf::Keyboard::C:

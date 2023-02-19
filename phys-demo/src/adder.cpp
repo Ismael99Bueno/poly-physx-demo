@@ -20,15 +20,21 @@ namespace phys_demo
         setup_preview();
     }
 
-    void adder::add(const bool definitive)
+    void adder::cancel() { m_adding = false; }
+
+    phys::entity2D_ptr adder::add(const bool definitive)
     {
+        if (!m_adding)
+            return nullptr;
+
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        demo_app::get().engine().add_entity(pos, entity_templ.dynamic ? vel : alg::vec2(),
-                                            std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                            entity_templ.charge, entity_templ.vertices, entity_templ.dynamic);
+        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.dynamic ? vel : alg::vec2(),
+                                                           std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+                                                           entity_templ.charge, entity_templ.vertices, entity_templ.dynamic);
         m_adding = !definitive;
+        return e;
     }
 
     void adder::save_template(const std::string &name)
@@ -172,10 +178,19 @@ namespace phys_demo
 
     void adder::preview()
     {
-        draw_velocity_arrow();
+        draw_preview();
+        if (p_predict_path)
+        {
+            demo_app &papp = demo_app::get();
+            const auto e = add(false);
+            papp.p_predictor.predict_and_render(e);
+            papp.engine().remove_entity(e);
+        }
+        else
+            draw_velocity_arrow();
     }
 
-    void adder::draw_velocity_arrow()
+    void adder::draw_preview()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         geo::polygon2D poly(pos, p_current_templ.entity_templ.vertices);
@@ -184,8 +199,13 @@ namespace phys_demo
         for (std::size_t i = 0; i < poly.size(); i++)
             m_preview.setPoint(i, poly[i] * WORLD_TO_PIXEL);
 
+        demo_app::get().window().draw(m_preview);
+    }
+
+    void adder::draw_velocity_arrow() const
+    {
         demo_app &papp = demo_app::get();
-        papp.window().draw(m_preview);
+        const auto [pos, vel] = pos_vel_upon_addition();
 
         const float max_arrow_length = 200.f;
         const alg::vec2 start = pos * WORLD_TO_PIXEL,
