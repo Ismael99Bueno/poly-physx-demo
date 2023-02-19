@@ -20,7 +20,7 @@ namespace phys_demo
         setup_preview();
     }
 
-    void adder::add()
+    void adder::add(const bool definitive)
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
@@ -28,7 +28,7 @@ namespace phys_demo
         demo_app::get().engine().add_entity(pos, entity_templ.dynamic ? vel : alg::vec2(),
                                             std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                             entity_templ.charge, entity_templ.vertices, entity_templ.dynamic);
-        m_adding = false;
+        m_adding = !definitive;
     }
 
     void adder::save_template(const std::string &name)
@@ -171,6 +171,11 @@ namespace phys_demo
     }
 
     void adder::preview()
+    {
+        draw_velocity_arrow();
+    }
+
+    void adder::draw_velocity_arrow()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         geo::polygon2D poly(pos, p_current_templ.entity_templ.vertices);

@@ -33,7 +33,7 @@ namespace phys_demo
 
         void render();
         void setup();
-        void add();
+        void add(bool definitive = true);
 
         void save_template(const std::string &name);
         void load_template(const std::string &name);
@@ -62,6 +62,8 @@ namespace phys_demo
         void update_template();
         void setup_preview();
         void preview();
+
+        void draw_velocity_arrow();
     };
 }
 
