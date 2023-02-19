@@ -33,9 +33,9 @@ namespace phys_demo
         paint_outlines(demo_app::get().shapes());
         reset_priorities();
     }
-    void outline_manager::paint_outlines(std::vector<sf::ConvexShape> &shapes) const
+    void outline_manager::paint_outlines(utils::vector_view<sf::ConvexShape> shapes) const
     {
-        for (std::size_t i = 0; i < shapes.size(); i++)
+        for (std::size_t i = 0; i < shapes.unwrap().size(); i++)
         {
             const auto &[priority, color] = m_outline_colors[i];
             shapes[i].setOutlineColor(color);
