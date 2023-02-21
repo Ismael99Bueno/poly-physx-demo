@@ -62,6 +62,9 @@ namespace phys_demo
         out.begin_section("phys_panel");
         p_phys_panel.write(out);
         out.end_section();
+        out.begin_section("predictor");
+        p_predictor.write(out);
+        out.end_section();
     }
     void demo_app::read(ini::input &in)
     {
@@ -94,6 +97,9 @@ namespace phys_demo
         in.end_section();
         in.begin_section("phys_panel");
         p_phys_panel.read(in);
+        in.end_section();
+        in.begin_section("predictor");
+        p_predictor.read(in);
         in.end_section();
     }
 
@@ -229,6 +235,7 @@ namespace phys_demo
                 for (phys::const_entity2D_ptr e : selected)
                     if (e.try_validate())
                         engine().remove_entity(*e);
+
                 p_attacher.cancel();
                 p_adder.cancel();
                 break;

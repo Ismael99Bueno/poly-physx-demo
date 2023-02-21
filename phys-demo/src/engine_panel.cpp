@@ -35,7 +35,7 @@ namespace phys_demo
                 render_collision();
             if (m_visualize_qt)
                 draw_quad_tree(papp.engine().collider().quad_tree());
-            if (ImGui::CollapsingHeader("Path prediction settings"))
+            if (ImGui::CollapsingHeader("Path prediction"))
                 render_path_prediction_settings();
         }
         ImGui::End();
@@ -198,14 +198,30 @@ namespace phys_demo
 
     void engine_panel::render_path_prediction_settings() const
     {
-        predictor &pred = demo_app::get().p_predictor;
+        demo_app &papp = demo_app::get();
+        predictor &pred = papp.p_predictor;
+        adder &addr = papp.p_adder;
 
         ImGui::PushItemWidth(350);
+        if (ImGui::Checkbox("Enabled", &pred.p_enabled))
+        {
+            static bool was_adder_predicting = addr.p_predict_path;
+            if (pred.p_enabled)
+                addr.p_predict_path = was_adder_predicting;
+            else
+            {
+                was_adder_predicting = addr.p_predict_path;
+                addr.p_predict_path = false;
+            }
+        }
+
         ImGui::SliderFloat("Timestep", &pred.p_dt, 1e-3f, 1e-1f, "%.3f", ImGuiSliderFlags_Logarithmic);
         ImGui::SliderInt("Integration steps", (int *)&pred.p_steps, 50, 500);
+
         ImGui::PushID(1999);
         ImGui::Checkbox("Collisions", &pred.p_with_collisions);
         ImGui::PopID();
+
         ImGui::PopItemWidth();
     }
 

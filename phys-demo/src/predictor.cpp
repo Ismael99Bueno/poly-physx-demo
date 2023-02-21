@@ -20,9 +20,10 @@ namespace phys_demo
 
     void predictor::update()
     {
-        PERF_PRETTY_FUNCTION()
-        if (m_paths.empty())
+        if (!p_enabled || m_paths.empty())
             return;
+
+        PERF_PRETTY_FUNCTION()
         demo_app &papp = demo_app::get();
         phys::engine2D &eng = papp.engine();
         for (auto &[e, path] : m_paths)
@@ -49,6 +50,8 @@ namespace phys_demo
 
     void predictor::render()
     {
+        if (!p_enabled)
+            return;
         PERF_PRETTY_FUNCTION()
         for (auto &[e, path] : m_paths)
             demo_app::get().window().draw(path);
@@ -94,5 +97,34 @@ namespace phys_demo
             if (e == *entt)
                 return true;
         return false;
+    }
+
+    void predictor::write(ini::output &out) const
+    {
+        out.write("enabled", p_enabled);
+        out.write("timestep", p_dt);
+        out.write("steps", p_steps);
+        out.write("with_collisions", p_with_collisions);
+
+        const std::string key = "entity";
+        for (const auto &[e, path] : m_paths)
+            out.write(key + std::to_string(e.index()), e.index());
+    }
+
+    void predictor::read(ini::input &in)
+    {
+        p_enabled = (bool)in.readi("enabled");
+        p_dt = in.readf("timestep");
+        p_steps = in.readi("steps");
+        p_with_collisions = (bool)in.readi("with_collisions");
+
+        const std::string key = "entity";
+        demo_app &papp = demo_app::get();
+        for (std::size_t i = 0; i < papp.engine().size(); i++)
+        {
+            const phys::entity2D_ptr e = papp.engine()[i];
+            if (in.contains_key(key + std::to_string(e.index())))
+                predict(e);
+        }
     }
 }

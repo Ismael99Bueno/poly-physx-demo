@@ -127,7 +127,7 @@ namespace phys_demo
             demo_app &papp = demo_app::get();
             predictor &pred = papp.p_predictor;
             bool predicting = pred.is_predicting(e);
-            if (ImGui::Checkbox("Predict path", &predicting))
+            if (pred.p_enabled && ImGui::Checkbox("Predict path", &predicting))
             {
                 if (predicting)
                     pred.predict(papp.engine()[e.index()]);

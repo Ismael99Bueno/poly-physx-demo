@@ -103,7 +103,9 @@ namespace phys_demo
 
     void add_tab::render_entity_inputs() const
     {
-        adder &addr = demo_app::get().p_adder;
+        demo_app &papp = demo_app::get();
+        adder &addr = papp.p_adder;
+
         ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, 1000.f);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
@@ -136,7 +138,8 @@ namespace phys_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
 
-        ImGui::Checkbox("Predict path", &addr.p_predict_path);
+        if (papp.p_predictor.p_enabled)
+            ImGui::Checkbox("Predict path", &addr.p_predict_path);
     }
 
     void add_tab::render_color_picker() const
