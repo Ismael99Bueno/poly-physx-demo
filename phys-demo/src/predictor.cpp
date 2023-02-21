@@ -20,6 +20,7 @@ namespace phys_demo
 
     void predictor::update()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_paths.empty())
             return;
         demo_app &papp = demo_app::get();
@@ -42,6 +43,7 @@ namespace phys_demo
 
     void predictor::render()
     {
+        PERF_PRETTY_FUNCTION()
         for (auto &[e, path] : m_paths)
             demo_app::get().window().draw(path);
     }
@@ -49,6 +51,7 @@ namespace phys_demo
     void predictor::predict(const phys::const_entity2D_ptr &e) { m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor()); }
     void predictor::predict_and_render(const phys::const_entity2D_ptr &e)
     {
+        PERF_FUNCTION()
         demo_app &papp = demo_app::get();
         phys::engine2D &eng = papp.engine();
         prm::flat_line_strip path(papp.shapes()[e.index()].getFillColor());

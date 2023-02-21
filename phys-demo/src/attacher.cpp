@@ -9,6 +9,7 @@ namespace phys_demo
 {
     void attacher::update(const bool snap_e2_to_center)
     {
+        PERF_PRETTY_FUNCTION()
         if (!m_e1)
             return;
         if (!m_snap_e1_to_center)
@@ -30,6 +31,7 @@ namespace phys_demo
     }
     void attacher::render(const bool snap_e2_to_center)
     {
+        PERF_PRETTY_FUNCTION()
         if (m_e1)
             draw_unattached_joint(snap_e2_to_center);
     }

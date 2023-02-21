@@ -8,6 +8,7 @@ namespace phys_demo
 {
     void adder::render()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_adding)
             preview();
     }

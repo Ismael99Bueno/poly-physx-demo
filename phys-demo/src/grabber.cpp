@@ -18,12 +18,14 @@ namespace phys_demo
 
     void grabber::update()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_grabbed)
             move_grabbed_entity();
     }
 
     void grabber::render()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_grabbed)
             draw_spring(demo_app::get().pixel_mouse(), m_joint.rotated(m_grabbed->angpos() - m_angle));
     }

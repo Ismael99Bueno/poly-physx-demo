@@ -13,6 +13,7 @@ namespace phys_demo
 
     void copy_paste::render()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_has_copy)
             preview();
     }

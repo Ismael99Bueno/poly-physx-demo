@@ -19,7 +19,7 @@ namespace rk
         integrator() = default;
         integrator(const butcher_tableau &tb,
                    const std::vector<float> &vars = {},
-                   float tolerance = 1e-6f,
+                   float tolerance = 1e-4f,
                    float min_dt = 1e-6f,
                    float max_dt = 1.f);
 

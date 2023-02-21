@@ -19,8 +19,8 @@ namespace phys_demo
         void predict(const phys::const_entity2D_ptr &e);
         void predict_and_render(const phys::const_entity2D_ptr &e);
 
-        float p_dt = 1e-2f;
-        std::uint32_t p_steps = 150;
+        float p_dt = 5e-2f;
+        std::uint32_t p_steps = 100;
 
     private:
         std::vector<std::pair<phys::const_entity2D_ptr, prm::flat_line_strip>> m_paths;

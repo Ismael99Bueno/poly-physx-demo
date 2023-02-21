@@ -37,6 +37,7 @@ namespace phys_demo
 
     void selector::render()
     {
+        PERF_PRETTY_FUNCTION()
         if (m_selecting)
             draw_select_box();
     }
