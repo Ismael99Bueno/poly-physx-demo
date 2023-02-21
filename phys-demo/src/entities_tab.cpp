@@ -123,6 +123,18 @@ namespace phys_demo
             ImGui::Text("Area - %f", e.shape().area());
             ImGui::Text("Inertia - %f", e.inertia());
             ImGui::Text(e.dynamic() ? "Dynamic" : "Static");
+
+            demo_app &papp = demo_app::get();
+            predictor &pred = papp.p_predictor;
+            bool predicting = pred.is_predicting(e);
+            if (ImGui::Checkbox("Predict path", &predicting))
+            {
+                if (predicting)
+                    pred.predict(papp.engine()[e.index()]);
+                else
+                    pred.stop_predicting(e);
+            }
+
             ImGui::TreePop();
         }
         return expanded;

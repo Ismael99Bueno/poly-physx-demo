@@ -35,6 +35,8 @@ namespace phys_demo
                 render_collision();
             if (m_visualize_qt)
                 draw_quad_tree(papp.engine().collider().quad_tree());
+            if (ImGui::CollapsingHeader("Path prediction settings"))
+                render_path_prediction_settings();
         }
         ImGui::End();
     }
@@ -192,6 +194,19 @@ namespace phys_demo
         if (ImGui::SliderInt("Refresh period", &period, 1, 150))
             collider.quad_tree_build_period(period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
+    }
+
+    void engine_panel::render_path_prediction_settings() const
+    {
+        predictor &pred = demo_app::get().p_predictor;
+
+        ImGui::PushItemWidth(350);
+        ImGui::SliderFloat("Timestep", &pred.p_dt, 1e-3f, 1e-1f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderInt("Integration steps", (int *)&pred.p_steps, 50, 500);
+        ImGui::PushID(1999);
+        ImGui::Checkbox("Collisions", &pred.p_with_collisions);
+        ImGui::PopID();
+        ImGui::PopItemWidth();
     }
 
     void engine_panel::draw_quad_tree(const phys::quad_tree2D &qt)

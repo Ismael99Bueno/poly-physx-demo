@@ -17,10 +17,14 @@ namespace phys_demo
         void render();
 
         void predict(const phys::const_entity2D_ptr &e);
-        void predict_and_render(const phys::const_entity2D_ptr &e);
+        void stop_predicting(const phys::entity2D &e);
+
+        void predict_and_render(const phys::entity2D &e);
+        bool is_predicting(const phys::entity2D &e) const;
 
         float p_dt = 5e-2f;
         std::uint32_t p_steps = 100;
+        bool p_with_collisions = false;
 
     private:
         std::vector<std::pair<phys::const_entity2D_ptr, prm::flat_line_strip>> m_paths;

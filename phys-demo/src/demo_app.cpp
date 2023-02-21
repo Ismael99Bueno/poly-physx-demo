@@ -228,7 +228,7 @@ namespace phys_demo
                 const auto selected = p_selector.get();
                 for (phys::const_entity2D_ptr e : selected)
                     if (e.try_validate())
-                        engine().remove_entity(e);
+                        engine().remove_entity(*e);
                 p_attacher.cancel();
                 p_adder.cancel();
                 break;

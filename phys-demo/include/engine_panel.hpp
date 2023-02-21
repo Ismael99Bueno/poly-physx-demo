@@ -41,6 +41,7 @@ namespace phys_demo
         void render_collision_params() const;
         void render_coldet_list();
         void render_quad_tree_params();
+        void render_path_prediction_settings() const;
 
         void draw_quad_tree(const phys::quad_tree2D &qt);
     };

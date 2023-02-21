@@ -135,6 +135,8 @@ namespace phys_demo
         ImGui::Checkbox("Dynamic", &addr.p_current_templ.entity_templ.dynamic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
+
+        ImGui::Checkbox("Predict path", &addr.p_predict_path);
     }
 
     void add_tab::render_color_picker() const

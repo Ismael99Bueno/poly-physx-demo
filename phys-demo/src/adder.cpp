@@ -184,8 +184,8 @@ namespace phys_demo
         {
             demo_app &papp = demo_app::get();
             const auto e = add(false);
-            papp.p_predictor.predict_and_render(e);
-            papp.engine().remove_entity(e);
+            papp.p_predictor.predict_and_render(*e);
+            papp.engine().remove_entity(*e);
         }
         else
             draw_velocity_arrow();
