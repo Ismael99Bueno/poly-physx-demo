@@ -180,9 +180,9 @@ namespace phys_demo
     void adder::preview()
     {
         draw_preview();
-        if (p_predict_path)
+        demo_app &papp = demo_app::get();
+        if (p_predict_path && papp.p_predictor.p_enabled)
         {
-            demo_app &papp = demo_app::get();
             const auto e = add(false);
             papp.p_predictor.predict_and_render(*e);
             papp.engine().remove_entity(*e);

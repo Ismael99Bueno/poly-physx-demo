@@ -5,6 +5,7 @@
 #include "constants.hpp"
 #include "flat_line_strip.hpp"
 #include "demo_app.hpp"
+#include <cmath>
 
 namespace phys_demo
 {
@@ -198,28 +199,18 @@ namespace phys_demo
 
     void engine_panel::render_path_prediction_settings() const
     {
-        demo_app &papp = demo_app::get();
-        predictor &pred = papp.p_predictor;
-        adder &addr = papp.p_adder;
+        predictor &pred = demo_app::get().p_predictor;
 
         ImGui::PushItemWidth(350);
-        if (ImGui::Checkbox("Enabled", &pred.p_enabled))
-        {
-            static bool was_adder_predicting = addr.p_predict_path;
-            if (pred.p_enabled)
-                addr.p_predict_path = was_adder_predicting;
-            else
-            {
-                was_adder_predicting = addr.p_predict_path;
-                addr.p_predict_path = false;
-            }
-        }
+        ImGui::Checkbox("Enabled", &pred.p_enabled);
 
         ImGui::SliderFloat("Timestep", &pred.p_dt, 1e-3f, 1e-1f, "%.3f", ImGuiSliderFlags_Logarithmic);
         ImGui::SliderInt("Integration steps", (int *)&pred.p_steps, 50, 500);
 
         ImGui::PushID(1999);
-        ImGui::Checkbox("Collisions", &pred.p_with_collisions);
+        if (ImGui::Checkbox("Collisions", &pred.p_with_collisions) && pred.p_with_collisions)
+            pred.p_dt = std::min(pred.p_dt, 2e-2f);
+
         ImGui::PopID();
 
         ImGui::PopItemWidth();
