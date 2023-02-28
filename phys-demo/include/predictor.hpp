@@ -1,7 +1,7 @@
 #ifndef PREDICTOR_HPP
 #define PREDICTOR_HPP
 
-#include "flat_line_strip.hpp"
+#include "thick_line_strip.hpp"
 #include "entity2D_ptr.hpp"
 #include <utility>
 
@@ -27,10 +27,11 @@ namespace phys_demo
 
         float p_dt = 5e-2f;
         std::uint32_t p_steps = 100;
+        float p_line_thickness = 6.f;
         bool p_with_collisions = false, p_enabled = true;
 
     private:
-        std::vector<std::pair<phys::const_entity2D_ptr, prm::flat_line_strip>> m_paths;
+        std::vector<std::pair<phys::const_entity2D_ptr, prm::thick_line_strip>> m_paths;
     };
 }
 

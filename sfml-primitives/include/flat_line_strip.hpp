@@ -20,6 +20,7 @@ namespace prm
         const sf::VertexArray &vertices() const;
 
         void color(const sf::Color &color);
+        void alpha(float alpha);
 
     private:
         sf::VertexArray m_vertices;

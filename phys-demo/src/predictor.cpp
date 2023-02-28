@@ -30,6 +30,7 @@ namespace phys_demo
         {
             path.clear();
             path.append(e->pos() * WORLD_TO_PIXEL);
+            path.thickness(p_line_thickness);
         }
 
         const bool collisions = eng.collider().enabled();
@@ -41,7 +42,11 @@ namespace phys_demo
         {
             eng.raw_forward(p_dt);
             for (auto &[e, path] : m_paths)
+            {
+                const float alpha = 1.f - (float)i / (float)(p_steps - 1);
                 path.append(e->pos() * WORLD_TO_PIXEL);
+                path.alpha(alpha);
+            }
         }
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
@@ -73,7 +78,8 @@ namespace phys_demo
         PERF_FUNCTION()
         demo_app &papp = demo_app::get();
         phys::engine2D &eng = papp.engine();
-        prm::flat_line_strip path(papp.shapes()[e.index()].getFillColor());
+        prm::thick_line_strip path(papp.shapes()[e.index()].getFillColor(), p_line_thickness);
+        path.append(e.pos() * WORLD_TO_PIXEL);
 
         const bool collisions = eng.collider().enabled();
         eng.checkpoint();
@@ -83,6 +89,7 @@ namespace phys_demo
         for (std::size_t i = 0; i < p_steps; i++)
         {
             eng.raw_forward(p_dt);
+            path.alpha(1.f - (float)i / (float)(p_steps - 1));
             path.append(e.pos() * WORLD_TO_PIXEL);
         }
         papp.window().draw(path);
@@ -103,6 +110,7 @@ namespace phys_demo
     {
         out.write("enabled", p_enabled);
         out.write("timestep", p_dt);
+        out.write("thickness", p_line_thickness);
         out.write("steps", p_steps);
         out.write("with_collisions", p_with_collisions);
 
@@ -115,6 +123,7 @@ namespace phys_demo
     {
         p_enabled = (bool)in.readi("enabled");
         p_dt = in.readf("timestep");
+        p_line_thickness = in.readf("thickness");
         p_steps = in.readi("steps");
         p_with_collisions = (bool)in.readi("with_collisions");
 

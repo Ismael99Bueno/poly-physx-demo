@@ -206,6 +206,7 @@ namespace phys_demo
 
         ImGui::SliderFloat("Timestep", &pred.p_dt, 1e-3f, 1e-1f, "%.3f", ImGuiSliderFlags_Logarithmic);
         ImGui::SliderInt("Integration steps", (int *)&pred.p_steps, 50, 500);
+        ImGui::SliderFloat("Line thickness", &pred.p_line_thickness, 1.f, 10.f, "%.1f");
 
         ImGui::PushID(1999);
         if (ImGui::Checkbox("Collisions", &pred.p_with_collisions) && pred.p_with_collisions)

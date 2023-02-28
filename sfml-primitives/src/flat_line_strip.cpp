@@ -16,15 +16,11 @@ namespace prm
         }
     }
 
-    void flat_line_strip::append(const alg::vec2 &point)
-    {
-        m_vertices.append({point, m_color});
-    }
-
+    void flat_line_strip::append(const alg::vec2 &point) { m_vertices.append({point, m_color}); }
     void flat_line_strip::clear() { m_vertices.clear(); }
-
     void flat_line_strip::draw(sf::RenderTarget &target, sf::RenderStates states) const
     {
+        DBG_ASSERT(m_vertices.getVertexCount() > 1, "The amount of points in a line strip must be greater than 1. Number of points: %zu.\n", m_vertices.getVertexCount())
         target.draw(m_vertices, states);
     }
 
@@ -32,4 +28,5 @@ namespace prm
     const sf::VertexArray &flat_line_strip::vertices() const { return m_vertices; }
 
     void flat_line_strip::color(const sf::Color &color) { m_color = color; }
+    void flat_line_strip::alpha(const float alpha) { m_color.a = (sf::Uint8)(255.f * alpha); }
 }
