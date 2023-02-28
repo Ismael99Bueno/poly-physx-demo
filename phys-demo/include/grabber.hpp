@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class grabber : ini::saveable
+    class grabber : public ini::saveable
     {
     public:
         grabber() = default;

@@ -8,7 +8,7 @@
 
 namespace phys_demo
 {
-    class phys_panel : public phys::layer, ini::saveable
+    class phys_panel : public phys::layer, public ini::saveable
     {
     public:
         phys_panel();
@@ -27,6 +27,15 @@ namespace phys_demo
         std::shared_ptr<electrical> m_repulsive, m_attractive;
         std::shared_ptr<gravitational> m_gravitational;
         std::shared_ptr<exponential> m_exponential;
+
+        const std::unordered_map<const char *, std::shared_ptr<ini::saveable>> m_saveables =
+            {
+                {"gravity", m_gravity},
+                {"drag", m_drag},
+                {"repulsive", m_repulsive},
+                {"attractive", m_attractive},
+                {"gravitational", m_gravitational},
+                {"exponential", m_exponential}};
 
         void render_forces_and_inters();
         void render_add_remove_buttons(phys::entity2D_set &set) const;

@@ -70,6 +70,17 @@ namespace phys_demo
         bool m_has_session = false;
         sf::Clock m_clock;
 
+        const std::unordered_map<const char *, ini::saveable *> m_saveables = {
+            {"adder", &p_adder},
+            {"grabber", &p_grabber},
+            {"selector", &p_selector},
+            {"attacher", &p_attacher},
+            {"engine_panel", &p_engine_panel},
+            {"perf_panel", &p_perf_panel},
+            {"phys_panel", &p_phys_panel},
+            {"predictor", &p_predictor},
+            {"trails", &p_trails}};
+
         void draw_interaction_lines();
     };
 }

@@ -7,7 +7,7 @@
 
 namespace phys_demo
 {
-    class attacher : ini::saveable
+    class attacher : public ini::saveable
     {
     public:
         enum attach_type

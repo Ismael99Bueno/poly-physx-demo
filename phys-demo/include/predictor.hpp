@@ -7,7 +7,7 @@
 
 namespace phys_demo
 {
-    class predictor : ini::saveable
+    class predictor : public ini::saveable
     {
     public:
         predictor() = default;

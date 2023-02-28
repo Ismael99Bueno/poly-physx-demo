@@ -6,7 +6,7 @@
 
 namespace rk
 {
-    class state : ini::saveable
+    class state : public ini::saveable
     {
     public:
         void push_back(float elm);

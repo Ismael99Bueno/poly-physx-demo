@@ -7,7 +7,7 @@
 
 namespace rk
 {
-    class butcher_tableau : ini::saveable
+    class butcher_tableau : public ini::saveable
     {
     private:
     public:

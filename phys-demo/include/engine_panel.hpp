@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class engine_panel : public phys::layer, ini::saveable
+    class engine_panel : public phys::layer, public ini::saveable
     {
     public:
         void write(ini::output &out) const override;

@@ -42,33 +42,12 @@ namespace phys_demo
         out.write("phys_enabled", p_phys_panel.p_enabled);
         out.write("perf_enabled", p_perf_panel.p_enabled);
 
-        out.begin_section("adder");
-        p_adder.write(out);
-        out.end_section();
-        out.begin_section("grabber");
-        p_grabber.write(out);
-        out.end_section();
-        out.begin_section("selector");
-        p_selector.write(out);
-        out.end_section();
-        out.begin_section("attacher");
-        p_attacher.write(out);
-        out.end_section();
-        out.begin_section("engine_panel");
-        p_engine_panel.write(out);
-        out.end_section();
-        out.begin_section("perf_panel");
-        p_perf_panel.write(out);
-        out.end_section();
-        out.begin_section("phys_panel");
-        p_phys_panel.write(out);
-        out.end_section();
-        out.begin_section("predictor");
-        p_predictor.write(out);
-        out.end_section();
-        out.begin_section("trails");
-        p_trails.write(out);
-        out.end_section();
+        for (const auto &[section, saveable] : m_saveables)
+        {
+            out.begin_section(section);
+            saveable->write(out);
+            out.end_section();
+        }
     }
     void demo_app::read(ini::input &in)
     {
@@ -81,33 +60,12 @@ namespace phys_demo
         p_phys_panel.p_enabled = (bool)in.readi("phys_enabled");
         p_perf_panel.p_enabled = (bool)in.readi("perf_enabled");
 
-        in.begin_section("adder");
-        p_adder.read(in);
-        in.end_section();
-        in.begin_section("grabber");
-        p_grabber.read(in);
-        in.end_section();
-        in.begin_section("selector");
-        p_selector.read(in);
-        in.end_section();
-        in.begin_section("attacher");
-        p_attacher.read(in);
-        in.end_section();
-        in.begin_section("engine_panel");
-        p_engine_panel.read(in);
-        in.end_section();
-        in.begin_section("perf_panel");
-        p_perf_panel.read(in);
-        in.end_section();
-        in.begin_section("phys_panel");
-        p_phys_panel.read(in);
-        in.end_section();
-        in.begin_section("predictor");
-        p_predictor.read(in);
-        in.end_section();
-        in.begin_section("trails");
-        p_trails.read(in);
-        in.end_section();
+        for (const auto &[section, saveable] : m_saveables)
+        {
+            in.begin_section(section);
+            saveable->read(in);
+            in.end_section();
+        }
     }
 
     void demo_app::save(const std::string &filename) const

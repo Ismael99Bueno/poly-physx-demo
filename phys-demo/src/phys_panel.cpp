@@ -15,45 +15,21 @@ namespace phys_demo
 
     void phys_panel::write(ini::output &out) const
     {
-        out.begin_section("gravity");
-        m_gravity->write(out);
-        out.end_section();
-        out.begin_section("drag");
-        m_drag->write(out);
-        out.end_section();
-        out.begin_section("repulsive");
-        m_repulsive->write(out);
-        out.end_section();
-        out.begin_section("attractive");
-        m_attractive->write(out);
-        out.end_section();
-        out.begin_section("gravitational");
-        m_gravitational->write(out);
-        out.end_section();
-        out.begin_section("exponential");
-        m_exponential->write(out);
-        out.end_section();
+        for (const auto &[section, saveable] : m_saveables)
+        {
+            out.begin_section(section);
+            saveable->write(out);
+            out.end_section();
+        }
     }
     void phys_panel::read(ini::input &in)
     {
-        in.begin_section("gravity");
-        m_gravity->read(in);
-        in.end_section();
-        in.begin_section("drag");
-        m_drag->read(in);
-        in.end_section();
-        in.begin_section("repulsive");
-        m_repulsive->read(in);
-        in.end_section();
-        in.begin_section("attractive");
-        m_attractive->read(in);
-        in.end_section();
-        in.begin_section("gravitational");
-        m_gravitational->read(in);
-        in.end_section();
-        in.begin_section("exponential");
-        m_exponential->read(in);
-        in.end_section();
+        for (const auto &[section, saveable] : m_saveables)
+        {
+            in.begin_section(section);
+            saveable->read(in);
+            in.end_section();
+        }
     }
 
     void phys_panel::on_attach(phys::app *papp)

@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class adder : ini::saveable
+    class adder : public ini::saveable
     {
     public:
         enum shape_type

@@ -7,7 +7,7 @@
 
 namespace phys_demo
 {
-    class selector : ini::saveable
+    class selector : public ini::saveable
     {
     public:
         selector(std::size_t allocations = 100);

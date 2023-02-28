@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class trail_manager : ini::saveable
+    class trail_manager : public ini::saveable
     {
     public:
         trail_manager() = default;

@@ -6,7 +6,7 @@
 
 namespace phys_demo
 {
-    class gravity : public phys::force2D, ini::saveable
+    class gravity : public phys::force2D, public ini::saveable
     {
     public:
         using phys::force2D::force2D;
@@ -19,7 +19,7 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class drag : public phys::force2D, ini::saveable
+    class drag : public phys::force2D, public ini::saveable
     {
     public:
         using phys::force2D::force2D;
@@ -32,7 +32,7 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class gravitational : public phys::interaction2D, ini::saveable
+    class gravitational : public phys::interaction2D, public ini::saveable
     {
     public:
         using phys::interaction2D::interaction2D;
@@ -45,7 +45,7 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class electrical : public phys::interaction2D, ini::saveable
+    class electrical : public phys::interaction2D, public ini::saveable
     {
     public:
         using phys::interaction2D::interaction2D;
@@ -59,7 +59,7 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class exponential : public phys::interaction2D, ini::saveable
+    class exponential : public phys::interaction2D, public ini::saveable
     {
     public:
         using phys::interaction2D::interaction2D;

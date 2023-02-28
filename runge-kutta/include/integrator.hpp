@@ -12,7 +12,7 @@
 
 namespace rk
 {
-    class integrator : ini::saveable
+    class integrator : public ini::saveable
     {
     private:
     public:
