@@ -16,14 +16,14 @@ namespace phys_demo
         demo_app::get().engine().on_entity_removal(validate);
     }
 
-    void grabber::update()
+    void grabber::update() const
     {
         PERF_PRETTY_FUNCTION()
         if (m_grabbed)
             move_grabbed_entity();
     }
 
-    void grabber::render()
+    void grabber::render() const
     {
         PERF_PRETTY_FUNCTION()
         if (m_grabbed)
@@ -41,7 +41,7 @@ namespace phys_demo
         m_joint = mpos - m_grabbed->pos();
         m_angle = m_grabbed->angpos();
     }
-    void grabber::move_grabbed_entity()
+    void grabber::move_grabbed_entity() const
     {
         demo_app &papp = demo_app::get();
 
@@ -56,7 +56,7 @@ namespace phys_demo
         m_grabbed->add_torque(torque);
     }
 
-    void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint)
+    void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint) const
     {
         prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL, p_color);
         sl.right_padding(30.f);

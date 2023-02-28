@@ -14,7 +14,7 @@ namespace phys_demo
 
         void start();
         void update();
-        void render();
+        void render() const;
 
         void predict(const phys::const_entity2D_ptr &e);
         void stop_predicting(const phys::entity2D &e);
@@ -25,10 +25,10 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        float p_dt = 5e-2f;
+        float p_dt = 3e-2f;
         std::uint32_t p_steps = 100;
         float p_line_thickness = 6.f;
-        bool p_with_collisions = false, p_enabled = true;
+        bool p_with_collisions = false, p_enabled = true, p_auto_predict = false;
 
     private:
         std::vector<std::pair<phys::const_entity2D_ptr, prm::thick_line_strip>> m_paths;

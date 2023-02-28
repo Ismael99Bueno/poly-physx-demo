@@ -19,7 +19,7 @@ namespace phys_demo
         attacher() = default;
 
         void update(bool snap_e2_to_center);
-        void render(bool snap_e2_to_center);
+        void render(bool snap_e2_to_center) const;
 
         void try_attach_first(bool snap_e1_to_center);
         void try_attach_second(bool snap_e2_to_center);
@@ -47,7 +47,7 @@ namespace phys_demo
         bool m_snap_e1_to_center;
 
         void rotate_joint();
-        void draw_unattached_joint(bool snap_e2_to_center);
+        void draw_unattached_joint(bool snap_e2_to_center) const;
     };
 }
 

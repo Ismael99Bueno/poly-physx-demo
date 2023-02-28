@@ -38,6 +38,8 @@ namespace phys_demo
                 draw_quad_tree(papp.engine().collider().quad_tree());
             if (ImGui::CollapsingHeader("Path prediction"))
                 render_path_prediction_settings();
+            if (ImGui::CollapsingHeader("Trails"))
+                render_trail_settings();
         }
         ImGui::End();
     }
@@ -211,9 +213,21 @@ namespace phys_demo
         ImGui::PushID(1999);
         if (ImGui::Checkbox("Collisions", &pred.p_with_collisions) && pred.p_with_collisions)
             pred.p_dt = std::min(pred.p_dt, 2e-2f);
-
         ImGui::PopID();
+        ImGui::Checkbox("Predict by default", &pred.p_auto_predict);
 
+        ImGui::PopItemWidth();
+    }
+
+    void engine_panel::render_trail_settings() const
+    {
+        trail_manager &trails = demo_app::get().p_trails;
+
+        ImGui::PushItemWidth(350);
+        ImGui::Checkbox("Enabled", &trails.p_enabled);
+        ImGui::SliderInt("Length", (int *)&trails.p_length, 50, 500);
+        ImGui::SliderFloat("Line thickness", &trails.p_line_thickness, 1.f, 10.f, "%.1f");
+        ImGui::Checkbox("Trails by default", &trails.p_auto_include);
         ImGui::PopItemWidth();
     }
 

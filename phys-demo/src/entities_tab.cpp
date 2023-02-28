@@ -135,6 +135,16 @@ namespace phys_demo
                     pred.stop_predicting(e);
             }
 
+            trail_manager &trails = papp.p_trails;
+            bool has_trail = trails.contains(e);
+
+            if (trails.p_enabled && ImGui::Checkbox("Trail", &has_trail))
+            {
+                if (has_trail)
+                    trails.include(papp.engine()[e.index()]);
+                else
+                    trails.exclude(e);
+            }
             ImGui::TreePop();
         }
         return expanded;

@@ -23,6 +23,7 @@ namespace phys_demo
         p_selector.start();
         p_outline_manager.start();
         p_predictor.start();
+        p_trails.start();
         save(DEFAULT_SAVE);
         if (!load(LAST_SAVE))
             add_borders();
@@ -65,6 +66,9 @@ namespace phys_demo
         out.begin_section("predictor");
         p_predictor.write(out);
         out.end_section();
+        out.begin_section("trails");
+        p_trails.write(out);
+        out.end_section();
     }
     void demo_app::read(ini::input &in)
     {
@@ -100,6 +104,9 @@ namespace phys_demo
         in.end_section();
         in.begin_section("predictor");
         p_predictor.read(in);
+        in.end_section();
+        in.begin_section("trails");
+        p_trails.read(in);
         in.end_section();
     }
 
@@ -150,6 +157,7 @@ namespace phys_demo
         p_grabber.update();
         p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.update();
+        p_trails.update();
     }
 
     void demo_app::on_render()
@@ -162,6 +170,7 @@ namespace phys_demo
         p_copy_paste.render();
         p_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.render();
+        p_trails.render();
 #ifdef DEBUG
         ImGui::ShowDemoWindow();
         ImPlot::ShowDemoWindow();
@@ -263,7 +272,7 @@ namespace phys_demo
     void demo_app::draw_interaction_lines()
     {
         PERF_FUNCTION()
-        phys::engine2D &eng = engine();
+        const phys::engine2D &eng = engine();
         const phys::const_entity2D_ptr e1 = eng[world_mouse()];
         if (e1)
             for (const auto &inter : eng.interactions())

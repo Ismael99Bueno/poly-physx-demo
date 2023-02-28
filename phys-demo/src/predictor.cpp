@@ -6,6 +6,11 @@ namespace phys_demo
 {
     void predictor::start()
     {
+        const auto on_addition = [this](phys::entity2D_ptr e)
+        {
+            if (p_enabled && p_auto_predict)
+                predict(e);
+        };
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_paths.begin(); it != m_paths.end();)
@@ -14,7 +19,10 @@ namespace phys_demo
                 else
                     ++it;
         };
-        demo_app::get().engine().on_entity_removal(on_removal);
+
+        demo_app &papp = demo_app::get();
+        papp.engine().on_entity_addition(on_addition);
+        papp.engine().on_entity_removal(on_removal);
         m_paths.reserve(p_steps);
     }
 
@@ -53,16 +61,20 @@ namespace phys_demo
         eng.revert();
     }
 
-    void predictor::render()
+    void predictor::render() const
     {
         if (!p_enabled)
             return;
         PERF_PRETTY_FUNCTION()
-        for (auto &[e, path] : m_paths)
+        for (const auto &[e, path] : m_paths)
             demo_app::get().window().draw(path);
     }
 
-    void predictor::predict(const phys::const_entity2D_ptr &e) { m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor()); }
+    void predictor::predict(const phys::const_entity2D_ptr &e)
+    {
+        if (!is_predicting(*e))
+            m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
+    }
     void predictor::stop_predicting(const phys::entity2D &e)
     {
         for (auto it = m_paths.begin(); it != m_paths.end(); ++it)
@@ -113,6 +125,7 @@ namespace phys_demo
         out.write("thickness", p_line_thickness);
         out.write("steps", p_steps);
         out.write("with_collisions", p_with_collisions);
+        out.write("auto_predict", p_auto_predict);
 
         const std::string key = "entity";
         for (const auto &[e, path] : m_paths)
@@ -126,6 +139,8 @@ namespace phys_demo
         p_line_thickness = in.readf("thickness");
         p_steps = in.readi("steps");
         p_with_collisions = (bool)in.readi("with_collisions");
+        p_auto_predict = (bool)in.readi("auto_predict");
+        m_paths.clear();
 
         const std::string key = "entity";
         demo_app &papp = demo_app::get();

@@ -13,6 +13,7 @@
 #include "outline_manager.hpp"
 #include "copy_paste.hpp"
 #include "predictor.hpp"
+#include "trail_manager.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -43,6 +44,7 @@ namespace phys_demo
         outline_manager p_outline_manager;
         copy_paste p_copy_paste;
         predictor p_predictor;
+        trail_manager p_trails;
 
         actions_panel p_actions_panel;
         engine_panel p_engine_panel;

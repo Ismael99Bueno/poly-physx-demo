@@ -12,8 +12,8 @@ namespace phys_demo
         grabber() = default;
 
         void start();
-        void update();
-        void render();
+        void update() const;
+        void render() const;
 
         void try_grab_entity();
 
@@ -30,8 +30,8 @@ namespace phys_demo
         alg::vec2 m_joint;
         float m_angle;
 
-        void move_grabbed_entity();
-        void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint);
+        void move_grabbed_entity() const;
+        void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint) const;
     };
 }
 

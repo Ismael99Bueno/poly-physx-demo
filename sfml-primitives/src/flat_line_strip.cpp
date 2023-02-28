@@ -25,6 +25,7 @@ namespace prm
     }
 
     const sf::Color &flat_line_strip::color() const { return m_color; }
+
     const sf::VertexArray &flat_line_strip::vertices() const { return m_vertices; }
 
     void flat_line_strip::color(const sf::Color &color) { m_color = color; }

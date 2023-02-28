@@ -35,7 +35,7 @@ namespace phys_demo
         demo_app::get().engine().on_entity_removal(validate);
     }
 
-    void selector::render()
+    void selector::render() const
     {
         PERF_PRETTY_FUNCTION()
         if (m_selecting)

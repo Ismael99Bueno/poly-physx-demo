@@ -13,7 +13,7 @@ namespace phys_demo
         selector(std::size_t allocations = 100);
 
         void start();
-        void render();
+        void render() const;
 
         void begin_select(bool clear_previous = true);
         void end_select();

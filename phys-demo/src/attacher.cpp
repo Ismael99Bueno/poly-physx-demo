@@ -29,7 +29,7 @@ namespace phys_demo
             p_sp_length = length;
         }
     }
-    void attacher::render(const bool snap_e2_to_center)
+    void attacher::render(const bool snap_e2_to_center) const
     {
         PERF_PRETTY_FUNCTION()
         if (m_e1)
@@ -92,7 +92,7 @@ namespace phys_demo
         m_joint1.rotate(m_e1->angpos() - m_last_angle);
         m_last_angle = m_e1->angpos();
     }
-    void attacher::draw_unattached_joint(const bool snap_e2_to_center)
+    void attacher::draw_unattached_joint(const bool snap_e2_to_center) const
     {
         demo_app &papp = demo_app::get();
 
