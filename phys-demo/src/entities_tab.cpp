@@ -64,10 +64,10 @@ namespace phys_demo
         avg_mass /= slct.get().size();
         avg_charge /= slct.get().size();
 
-        if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, 1000.f))
+        if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, 1000.f, "%.1f"))
             for (auto &e : slct.get())
                 e->mass(avg_mass);
-        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, 1000.f))
+        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, 1000.f, "%.1f"))
             for (auto &e : slct.get())
                 e->charge(avg_charge);
 
