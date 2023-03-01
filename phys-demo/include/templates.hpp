@@ -13,7 +13,7 @@ namespace phys_demo
         std::size_t index = 0, id = 0;
         float angpos = 0.f, angvel = 0.f, mass = 1.f, charge = 1.f;
         std::vector<alg::vec2> vertices;
-        bool dynamic = true;
+        bool kynematic = true;
 
         static entity_template from_entity(const phys::entity2D &e);
     };

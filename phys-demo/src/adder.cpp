@@ -31,9 +31,9 @@ namespace phys_demo
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.dynamic ? vel : alg::vec2(),
+        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kynematic ? vel : alg::vec2(),
                                                            std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                           entity_templ.charge, entity_templ.vertices, entity_templ.dynamic);
+                                                           entity_templ.charge, entity_templ.vertices, entity_templ.kynematic);
         m_adding = !definitive;
         return e;
     }
@@ -68,7 +68,7 @@ namespace phys_demo
         out.write("name", name);
         out.write("mass", entity_templ.mass);
         out.write("charge", entity_templ.charge);
-        out.write("dynamic", entity_templ.dynamic);
+        out.write("kynematic", entity_templ.kynematic);
         out.write("shape", shape);
         out.write("size", size);
         out.write("width", width);
@@ -85,7 +85,7 @@ namespace phys_demo
         name = in.readstr("name");
         entity_templ.mass = in.readf("mass");
         entity_templ.charge = in.readf("charge");
-        entity_templ.dynamic = (bool)in.readi("dynamic");
+        entity_templ.kynematic = (bool)in.readi("kynematic");
         shape = (shape_type)in.readi("shape");
         size = in.readf("size");
         width = in.readf("width");

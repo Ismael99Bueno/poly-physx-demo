@@ -134,7 +134,7 @@ namespace phys_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
 
-        ImGui::Checkbox("Dynamic", &addr.p_current_templ.entity_templ.dynamic);
+        ImGui::Checkbox("Kynematic", &addr.p_current_templ.entity_templ.kynematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
 

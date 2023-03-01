@@ -8,7 +8,7 @@ namespace phys_demo
         return {e.pos(), e.vel(), e.index(),
                 e.id(), e.angpos(), e.angvel(),
                 e.mass(), e.charge(),
-                e.shape().vertices(), e.dynamic()};
+                e.shape().vertices(), e.kynematic()};
     }
 
     spring_template spring_template::from_spring(const phys::spring2D &sp)
