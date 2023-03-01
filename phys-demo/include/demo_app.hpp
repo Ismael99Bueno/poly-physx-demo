@@ -32,6 +32,7 @@ namespace phys_demo
         bool load();
 
         void add_borders();
+        void remove_selected();
 
         const std::string &session() const;
         void session(const std::string &session);

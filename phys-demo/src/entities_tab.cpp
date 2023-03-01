@@ -6,6 +6,22 @@ namespace phys_demo
 {
     void entities_tab::render() const
     {
+        render_header_buttons();
+        const bool sel_expanded = ImGui::CollapsingHeader("Selected entities");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("A list of all the currently selected entities.");
+        if (sel_expanded)
+            render_selected_list();
+
+        const bool ent_expanded = ImGui::CollapsingHeader("Entities");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("A list of all current entities.");
+        if (ent_expanded)
+            render_full_list();
+    }
+
+    void entities_tab::render_header_buttons() const
+    {
         demo_app &papp = demo_app::get();
         if (ImGui::Button("Remove all"))
             papp.engine().clear_entities();
@@ -18,63 +34,100 @@ namespace phys_demo
             papp.add_borders();
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
+    }
+
+    void entities_tab::render_selected_list() const
+    {
+        demo_app &papp = demo_app::get();
+        selector &slct = papp.p_selector;
+        predictor &pred = papp.p_predictor;
+        trail_manager &trails = papp.p_trails;
+
+        if (slct.get().empty())
+        {
+            ImGui::Text("Select entities by dragging a box with your cursor!");
+            return;
+        }
+
+        float avg_mass = 0.f, avg_charge = 0.f;
+        bool dynamic = true, predicting = true, has_trail = true;
+
+        for (const auto &e : slct.get())
+        {
+            avg_mass += e->mass();
+            avg_charge += e->charge();
+            dynamic &= e->dynamic();
+            predicting &= papp.p_predictor.is_predicting(*e);
+            has_trail &= papp.p_trails.contains(*e);
+        }
+        avg_mass /= slct.get().size();
+        avg_charge /= slct.get().size();
+
+        if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, 1000.f))
+            for (auto &e : slct.get())
+                e->mass(avg_mass);
+        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, 1000.f))
+            for (auto &e : slct.get())
+                e->charge(avg_charge);
+
+        if (ImGui::Checkbox("Dynamic", &dynamic))
+            for (auto &e : slct.get())
+                e->dynamic(dynamic);
+
+        if (ImGui::Checkbox("Predict path", &predicting))
+            for (const auto &e : slct.get())
+            {
+                if (predicting)
+                    pred.predict(e);
+                else
+                    pred.stop_predicting(*e);
+            }
+
+        if (ImGui::Checkbox("Trail", &has_trail))
+            for (const auto &e : slct.get())
+            {
+                if (has_trail)
+                    trails.include(e);
+                else
+                    trails.exclude(*e);
+            }
+        if (ImGui::Button("Remove"))
+            papp.remove_selected();
+    }
+
+    void entities_tab::render_full_list() const
+    {
+        demo_app &papp = demo_app::get();
+        selector &slct = papp.p_selector;
 
         phys::entity2D_ptr to_deselect = nullptr, to_select = nullptr;
         const phys::entity2D *to_remove = nullptr;
 
-        const bool sel_expanded = ImGui::CollapsingHeader("Selected entities");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("A list of all the currently selected entities.");
-
-        selector &slct = papp.p_selector;
-        if (sel_expanded)
-            for (const auto &e : slct.get())
+        if (papp.engine().entities().unwrap().empty())
+            ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
+        else
+            for (phys::entity2D &e : papp.engine().entities())
             {
-                if (!render_entity_data(*e))
+                const phys::entity2D_ptr e_ptr = papp.engine()[e.index()];
+
+                if (!render_entity_data(e, -1))
                     ImGui::SameLine();
 
-                ImGui::PushID(e.id());
-                if (ImGui::Button("Deselect"))
-                    to_deselect = e;
+                ImGui::PushID(-e.id());
+                if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
+                {
+                    if (slct.is_selected(e_ptr))
+                        to_deselect = e_ptr;
+                    else
+                        to_select = e_ptr;
+                }
                 ImGui::PopID();
                 ImGui::SameLine();
-                ImGui::PushID(e.id());
+                ImGui::PushID(-e.id());
                 if (ImGui::Button("Remove"))
-                    to_remove = e.raw();
+                    to_remove = &e;
                 ImGui::PopID();
             }
-
-        const bool ent_expanded = ImGui::CollapsingHeader("Entities");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("A list of all current entities.");
-        if (ent_expanded)
-        {
-            if (papp.engine().entities().unwrap().empty())
-                ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
-            else
-                for (phys::entity2D &e : papp.engine().entities())
-                {
-                    const phys::entity2D_ptr e_ptr = papp.engine()[e.index()];
-
-                    if (!render_entity_data(e, -1))
-                        ImGui::SameLine();
-
-                    ImGui::PushID(-e.id());
-                    if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
-                    {
-                        if (slct.is_selected(e_ptr))
-                            to_deselect = e_ptr;
-                        else
-                            to_select = e_ptr;
-                    }
-                    ImGui::PopID();
-                    ImGui::SameLine();
-                    ImGui::PushID(-e.id());
-                    if (ImGui::Button("Remove"))
-                        to_remove = &e;
-                    ImGui::PopID();
-                }
-        }
         if (to_select)
             slct.select(to_select);
         if (to_deselect)
@@ -122,7 +175,10 @@ namespace phys_demo
                 e.charge(charge);
             ImGui::Text("Area - %f", e.shape().area());
             ImGui::Text("Inertia - %f", e.inertia());
-            ImGui::Text(e.dynamic() ? "Dynamic" : "Static");
+
+            bool dynamic = e.dynamic();
+            if (ImGui::Checkbox("Dynamic", &dynamic))
+                e.dynamic(dynamic);
 
             demo_app &papp = demo_app::get();
             predictor &pred = papp.p_predictor;

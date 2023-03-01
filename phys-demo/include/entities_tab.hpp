@@ -15,6 +15,10 @@ namespace phys_demo
         void render() const;
 
     private:
+        void render_header_buttons() const;
+        void render_selected_list() const;
+        void render_full_list() const;
+
         bool render_entity_data(phys::entity2D &e, std::int8_t sign = 1) const;
     };
 }

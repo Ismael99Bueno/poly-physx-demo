@@ -197,16 +197,8 @@ namespace phys_demo
             switch (event.key.code)
             {
             case sf::Keyboard::Backspace:
-            {
-                const auto selected = p_selector.get();
-                for (phys::const_entity2D_ptr e : selected)
-                    if (e.try_validate())
-                        engine().remove_entity(*e);
-
-                p_attacher.cancel();
-                p_adder.cancel();
+                remove_selected();
                 break;
-            }
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;
@@ -247,6 +239,17 @@ namespace phys_demo
                                               c1, c2);
                             window().draw(fl);
                         }
+    }
+
+    void demo_app::remove_selected()
+    {
+        const auto selected = p_selector.get();
+        for (phys::const_entity2D_ptr e : selected)
+            if (e.try_validate())
+                engine().remove_entity(*e);
+
+        p_attacher.cancel();
+        p_adder.cancel();
     }
 
     void demo_app::add_borders()
