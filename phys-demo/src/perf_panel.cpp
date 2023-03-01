@@ -60,7 +60,7 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
 
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
-        bool limited = papp.framerate() > 0;
+        bool limited = papp.framerate() != NO_FPS_LIMIT;
 
         ImGui::PushItemWidth(200);
         if (ImGui::Checkbox("Limit FPS", &limited))

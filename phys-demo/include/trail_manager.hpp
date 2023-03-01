@@ -22,7 +22,7 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        std::size_t p_length = 150;
+        std::size_t p_steps = 150, p_length = 5;
         float p_line_thickness = 6.f;
         bool p_enabled = true, p_auto_include = true;
 

@@ -1,4 +1,5 @@
 #include "trail_manager.hpp"
+#include "thick_line.hpp"
 #include "demo_app.hpp"
 
 namespace phys_demo
@@ -21,23 +22,26 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         papp.engine().on_entity_addition(on_addition);
         papp.engine().on_entity_removal(on_removal);
-        m_trails.reserve(p_length);
+        m_trails.reserve(p_steps);
     }
 
     void trail_manager::update()
     {
-        if (!p_enabled)
+        static std::size_t updates = 0;
+        if (!p_enabled || updates++ < p_length)
             return;
+        updates = 0;
+
         for (auto &[e, trail] : m_trails)
         {
             auto vertices = trail.vertices();
-            if (vertices.unwrap().size() >= p_length)
-                trail.erase(0, vertices.unwrap().size() - p_length + 1);
+            if (vertices.unwrap().size() >= p_steps)
+                trail.erase(0, vertices.unwrap().size() - p_steps + 1);
 
             trail.append(e->pos() * WORLD_TO_PIXEL);
             for (std::size_t i = 0; i < vertices.unwrap().size(); i++)
             {
-                const float alpha = (float)i / (float)(p_length - 1);
+                const float alpha = (float)i / (float)(p_steps - 1);
                 vertices[i].second.a = (sf::Uint8)(255.f * alpha);
             }
             trail.thickness(p_line_thickness);
@@ -48,9 +52,18 @@ namespace phys_demo
     {
         if (!p_enabled)
             return;
+
         for (const auto &[e, trail] : m_trails)
             if (trail.vertices().size() > 1)
-                demo_app::get().window().draw(trail);
+            {
+                demo_app &papp = demo_app::get();
+
+                const auto &[last_pos, last_color] = trail.vertices().back();
+                prm::thick_line tl(last_pos, e->pos() * WORLD_TO_PIXEL, p_line_thickness, last_color, true);
+
+                papp.window().draw(tl);
+                papp.window().draw(trail);
+            }
     }
 
     void trail_manager::include(const phys::const_entity2D_ptr &e)
@@ -77,6 +90,7 @@ namespace phys_demo
 
     void trail_manager::write(ini::output &out) const
     {
+        out.write("steps", p_steps);
         out.write("length", p_length);
         out.write("thickness", p_line_thickness);
         out.write("enabled", p_enabled);
@@ -88,6 +102,7 @@ namespace phys_demo
     }
     void trail_manager::read(ini::input &in)
     {
+        p_steps = in.readi("steps");
         p_length = in.readi("length");
         p_line_thickness = in.readf("thickness");
         p_enabled = (bool)in.readi("enabled");
