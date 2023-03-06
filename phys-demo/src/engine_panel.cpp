@@ -224,7 +224,10 @@ namespace phys_demo
         trail_manager &trails = demo_app::get().p_trails;
 
         ImGui::PushItemWidth(350);
+        ImGui::PushID(-1999);
         ImGui::Checkbox("Enabled", &trails.p_enabled);
+        ImGui::PopID();
+
         ImGui::SliderInt("Steps", (int *)&trails.p_steps, 50, 500);
         ImGui::SliderInt("Length", (int *)&trails.p_length, 1, 15);
         ImGui::SliderFloat("Line thickness", &trails.p_line_thickness, 1.f, 10.f, "%.1f");

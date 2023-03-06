@@ -48,6 +48,7 @@ namespace phys_demo
             const phys::entity2D_ptr &e = *slct.get().begin();
             ImGui::Text("Entity %zu", e.id());
             render_entity_data(*e);
+            return;
         }
 
         float avg_mass = 0.f, avg_charge = 0.f;
