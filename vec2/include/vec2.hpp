@@ -4,6 +4,7 @@
 #include <fstream>
 #include <SFML/System/Vector2.hpp>
 #include "saveable.hpp"
+#include "imgui.h"
 
 namespace alg
 {
@@ -42,6 +43,7 @@ namespace alg
         static vec2 triple_cross(const vec2 &v1, const vec2 &v2, const vec2 &v3);
 
         operator sf::Vector2f() const;
+        operator ImVec2() const;
     };
 
     vec2 operator+(const vec2 &v);

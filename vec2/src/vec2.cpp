@@ -57,6 +57,7 @@ namespace alg
     }
 
     vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
+    vec2::operator ImVec2() const { return ImVec2(x, y); }
 
     vec2 operator+(const vec2 &v) { return v; }
 

@@ -16,6 +16,7 @@ namespace phys_demo
         void render_shapes_list() const;
         void render_entity_inputs() const;
         void render_color_picker() const;
+        void render_canvas() const;
     };
 }
 

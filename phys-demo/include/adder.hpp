@@ -13,7 +13,8 @@ namespace phys_demo
         {
             BOX = 0,
             RECT = 1,
-            NGON = 2
+            NGON = 2,
+            CUSTOM = 3
         };
 
         struct add_template : private ini::saveable
@@ -42,6 +43,7 @@ namespace phys_demo
         void save_template();
         void load_template();
         void erase_template();
+        void update_template_vertices();
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -61,7 +63,7 @@ namespace phys_demo
         sf::ConvexShape m_preview;
 
         std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
-        void update_template();
+
         void setup_preview();
         void preview();
 

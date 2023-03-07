@@ -17,7 +17,7 @@ namespace phys_demo
     {
         m_start_pos = demo_app::get().world_mouse();
         m_adding = true;
-        update_template();
+        // update_template_vertices();
         setup_preview();
     }
 
@@ -78,6 +78,15 @@ namespace phys_demo
         out.write("r", (int)color.r);
         out.write("g", (int)color.g);
         out.write("b", (int)color.b);
+
+        const std::string section = "vertex";
+        std::size_t index = 0;
+        for (const alg::vec2 &v : entity_templ.vertices)
+        {
+            out.begin_section(section + std::to_string(index++));
+            v.write(out);
+            out.end_section();
+        }
     }
 
     void adder::add_template::read(ini::input &in)
@@ -93,6 +102,20 @@ namespace phys_demo
         radius = in.readf("radius");
         sides = in.readi("sides");
         color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+
+        std::size_t index = 0;
+        const std::string section = "vertex";
+        while (true)
+        {
+            in.begin_section(section + std::to_string(index++));
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            entity_templ.vertices.emplace_back().read(in);
+            in.end_section();
+        }
     }
 
     void adder::write(ini::output &out) const
@@ -151,7 +174,7 @@ namespace phys_demo
         return std::make_pair(pos, vel);
     }
 
-    void adder::update_template()
+    void adder::update_template_vertices()
     {
         auto &vertices = p_current_templ.entity_templ.vertices;
         switch (p_current_templ.shape)
@@ -164,6 +187,7 @@ namespace phys_demo
             break;
         case NGON:
             vertices = geo::polygon2D::ngon(p_current_templ.radius, p_current_templ.sides);
+            break;
         default:
             break;
         }
