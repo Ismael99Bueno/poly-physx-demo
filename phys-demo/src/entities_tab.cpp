@@ -29,6 +29,12 @@ namespace phys_demo
             papp.add_borders();
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("Add 4 static rectangle entities that will act as borders\nso no other entities go out of scene!");
+
+        if (papp.p_follower.empty())
+            return;
+        ImGui::SameLine();
+        if (ImGui::Button("Stop following"))
+            papp.p_follower.clear();
     }
 
     void entities_tab::render_selected_options() const
@@ -37,6 +43,7 @@ namespace phys_demo
         selector &slct = papp.p_selector;
         predictor &pred = papp.p_predictor;
         trail_manager &trails = papp.p_trails;
+        follower &flwr = papp.p_follower;
 
         if (slct.get().empty())
         {
@@ -52,19 +59,26 @@ namespace phys_demo
         }
 
         float avg_mass = 0.f, avg_charge = 0.f;
-        bool kynematic = true, predicting = true, has_trail = true;
+        bool kynematic = true, predicting = true,
+             has_trail = true, following = true;
+        alg::vec2 com;
 
         for (const auto &e : slct.get())
         {
             avg_mass += e->mass();
             avg_charge += e->charge();
             kynematic &= e->kynematic();
-            predicting &= papp.p_predictor.is_predicting(*e);
-            has_trail &= papp.p_trails.contains(*e);
+            com += e->pos() * e->mass();
+
+            predicting &= pred.is_predicting(*e);
+            has_trail &= trails.contains(*e);
+            following &= flwr.is_following(*e);
         }
+        com /= avg_mass;
         avg_mass /= slct.get().size();
         avg_charge /= slct.get().size();
 
+        ImGui::Text("Center of mass - x: %.2f, y: %.2f", com.x, com.y);
         if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, 1000.f, "%.1f"))
             for (auto &e : slct.get())
                 e->mass(avg_mass);
@@ -93,6 +107,16 @@ namespace phys_demo
                 else
                     trails.exclude(*e);
             }
+
+        if (ImGui::Checkbox("Follow", &following))
+            for (const auto &e : slct.get())
+            {
+                if (following)
+                    flwr.follow(e);
+                else
+                    flwr.unfollow(*e);
+            }
+
         if (ImGui::Button("Remove"))
             papp.remove_selected();
     }
@@ -212,6 +236,16 @@ namespace phys_demo
                 trails.include(papp.engine()[e.index()]);
             else
                 trails.exclude(e);
+        }
+
+        follower &flwr = papp.p_follower;
+        bool following = flwr.is_following(e);
+        if (ImGui::Checkbox("Follow", &following))
+        {
+            if (following)
+                flwr.follow(papp.engine()[e.index()]);
+            else
+                flwr.unfollow(e);
         }
     }
 }

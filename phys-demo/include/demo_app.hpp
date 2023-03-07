@@ -14,6 +14,7 @@
 #include "copy_paste.hpp"
 #include "predictor.hpp"
 #include "trail_manager.hpp"
+#include "follower.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -46,6 +47,7 @@ namespace phys_demo
         copy_paste p_copy_paste;
         predictor p_predictor;
         trail_manager p_trails;
+        follower p_follower;
 
         actions_panel p_actions_panel;
         engine_panel p_engine_panel;
@@ -80,7 +82,8 @@ namespace phys_demo
             {"perf_panel", &p_perf_panel},
             {"phys_panel", &p_phys_panel},
             {"predictor", &p_predictor},
-            {"trails", &p_trails}};
+            {"trails", &p_trails},
+            {"follower", &p_follower}};
 
         void draw_interaction_lines();
     };

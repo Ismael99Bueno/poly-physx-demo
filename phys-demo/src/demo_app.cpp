@@ -24,6 +24,7 @@ namespace phys_demo
         p_outline_manager.start();
         p_predictor.start();
         p_trails.start();
+        p_follower.start();
         save(DEFAULT_SAVE);
         if (!load(LAST_SAVE))
             add_borders();
@@ -116,6 +117,7 @@ namespace phys_demo
         p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.update();
         p_trails.update();
+        p_follower.update();
     }
 
     void demo_app::on_render()
