@@ -17,6 +17,7 @@ namespace phys_demo
             CUSTOM = 3
         };
 
+    private:
         struct add_template : private ini::saveable
         {
             std::string name;
@@ -30,6 +31,7 @@ namespace phys_demo
             void read(ini::input &in) override;
         };
 
+    public:
         adder() = default;
 
         void render();

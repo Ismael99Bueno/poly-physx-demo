@@ -18,6 +18,7 @@ namespace phys_demo
         void render_header_buttons() const;
         void render_selected_options() const;
         void render_full_list() const;
+        void render_groups() const;
 
         bool render_entity_node(phys::entity2D &e, std::int8_t sign = 1) const;
         void render_entity_data(phys::entity2D &e) const;

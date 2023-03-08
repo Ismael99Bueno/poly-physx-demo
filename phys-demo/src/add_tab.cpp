@@ -9,7 +9,6 @@ namespace phys_demo
 {
     void add_tab::render() const
     {
-
         ImGui::PushItemWidth(200);
         render_menu_bar();
         render_shape_list();
@@ -32,12 +31,10 @@ namespace phys_demo
                     addr.load_template();
                 if (ImGui::BeginMenu("Save as..."))
                 {
-                    static char buffer[24];
+                    static char buffer[24] = "\0";
                     if (ImGui::InputText("##", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
                     {
-                        for (char *c = buffer; *c != '\0'; c++)
-                            if (*c == ' ')
-                                *c = '-';
+                        SUBSTITUTE(buffer, ' ', '-')
                         addr.save_template(buffer);
                         buffer[0] = '\0';
                     }

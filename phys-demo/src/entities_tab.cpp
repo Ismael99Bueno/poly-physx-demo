@@ -10,8 +10,17 @@ namespace phys_demo
         const bool ent_expanded = ImGui::CollapsingHeader("Entities");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("A list of all current entities.");
+
         if (ent_expanded)
             render_full_list();
+
+        const bool groups_expanded = ImGui::CollapsingHeader("Groups");
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("WIP Groups description.");
+
+        if (groups_expanded)
+            render_groups();
+
         render_selected_options();
     }
 
@@ -117,6 +126,14 @@ namespace phys_demo
                     flwr.unfollow(*e);
             }
 
+        static char buffer[24] = "\0";
+        if (ImGui::InputText("Save group", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            SUBSTITUTE(buffer, ' ', '-')
+            papp.p_copy_paste.save_group(buffer);
+            buffer[0] = '\0';
+        }
+
         if (ImGui::Button("Remove"))
             papp.remove_selected();
     }
@@ -162,6 +179,16 @@ namespace phys_demo
             if (to_remove)
                 papp.engine().remove_entity(to_remove->index());
         }
+    }
+
+    void entities_tab::render_groups() const
+    {
+        copy_paste &cp = demo_app::get().p_copy_paste;
+        ImGui::Indent();
+        for (const auto &[name, group] : cp.groups())
+            if (ImGui::Selectable(name.c_str(), cp.current_group().name == name))
+                cp.load_group(name);
+        ImGui::Unindent();
     }
 
     bool entities_tab::render_entity_node(phys::entity2D &e, std::int8_t sign) const

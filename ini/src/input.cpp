@@ -8,7 +8,7 @@ namespace ini
         if (!m_stream.is_open())
             return;
         parse_ini();
-        DBG_LOG("Successfully loaded '%s' session, with %zu sections and %zu total keys.\n", filepath, m_parsed_sections.size(), m_kv_pairs.size())
+        DBG_LOG("Successfully parsed '%s' session, with %zu sections and %zu total keys.\n", filepath, m_parsed_sections.size(), m_kv_pairs.size())
     }
 
     input::~input() { close(); }
@@ -17,7 +17,7 @@ namespace ini
     {
         DBG_ASSERT(!m_current_section.empty(), "A section must be started before reading!\n")
         const std::string sec_key = build_key(key);
-        DBG_ASSERT(m_kv_pairs.find(sec_key) != m_kv_pairs.end(), "Key %s not found in m_current_section %s!\n", key.c_str(), m_current_section.c_str())
+        DBG_ASSERT(m_kv_pairs.find(sec_key) != m_kv_pairs.end(), "Key %s not found in section %s!\n", key.c_str(), m_current_section.c_str())
         return m_kv_pairs.at(sec_key);
     }
 

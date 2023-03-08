@@ -199,7 +199,8 @@ namespace phys_demo
             switch (event.key.code)
             {
             case sf::Keyboard::Backspace:
-                remove_selected();
+                if (!ImGui::GetIO().WantCaptureKeyboard)
+                    remove_selected();
                 break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();

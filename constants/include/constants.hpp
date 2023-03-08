@@ -16,4 +16,9 @@
 #define DEFAULT_SAVE "default.ini"
 #define LAST_SAVE "last.ini"
 
+#define SUBSTITUTE(buff, from, to)        \
+    for (char *c = buff; *c != '\0'; c++) \
+        if (*c == from)                   \
+            *c = to;
+
 #endif

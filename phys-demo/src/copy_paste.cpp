@@ -4,13 +4,6 @@
 
 namespace phys_demo
 {
-    copy_paste::copy_paste()
-    {
-        m_entities.reserve(100);
-        m_springs.reserve(50);
-        m_rbars.reserve(50);
-    }
-
     void copy_paste::render()
     {
         PERF_PRETTY_FUNCTION()
@@ -18,53 +11,193 @@ namespace phys_demo
             preview();
     }
 
+    void copy_paste::group::write(ini::output &out) const
+    {
+        out.write("name", name);
+        out.begin_section("ref_pos");
+        ref_pos.write(out);
+        out.end_section();
+
+        std::string section = "entity";
+        std::size_t index = 0;
+        for (const auto &[id, tmpl] : entities)
+        {
+            out.begin_section(section + std::to_string(index++));
+            out.write("key_id", id);
+            tmpl.write(out);
+            out.end_section();
+        }
+
+        section = "spring";
+        index = 0;
+        for (const spring_template &tmpl : springs)
+        {
+            out.begin_section(section + std::to_string(index++));
+            tmpl.write(out);
+            out.end_section();
+        }
+
+        section = "rbar";
+        index = 0;
+        for (const rigid_bar_template &tmpl : rbars)
+        {
+            out.begin_section(section + std::to_string(index++));
+            tmpl.write(out);
+            out.end_section();
+        }
+    }
+    void copy_paste::group::read(ini::input &in)
+    {
+        entities.clear();
+        springs.clear();
+        rbars.clear();
+
+        name = in.readstr("name");
+        in.begin_section("ref_pos");
+        ref_pos.read(in);
+        in.end_section();
+
+        std::string section = "entity";
+        std::size_t index = 0;
+        while (true)
+        {
+            in.begin_section(section + std::to_string(index++));
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            const std::size_t id = in.readi("key_id");
+            entities[id].read(in);
+            in.end_section();
+        }
+
+        section = "spring";
+        index = 0;
+        while (true)
+        {
+            in.begin_section(section + std::to_string(index++));
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            springs.emplace_back().read(in);
+            in.end_section();
+        }
+
+        section = "rbar";
+        index = 0;
+        while (true)
+        {
+            in.begin_section(section + std::to_string(index++));
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            rbars.emplace_back().read(in);
+            in.end_section();
+        }
+    }
+
+    void copy_paste::write(ini::output &out) const
+    {
+        const std::string section = "group";
+        std::size_t index = 0;
+        for (const auto &[name, group] : m_groups)
+        {
+            out.begin_section(section + std::to_string(index++));
+            group.write(out);
+            out.end_section();
+        }
+    }
+    void copy_paste::read(ini::input &in)
+    {
+        const std::string section = "group";
+        std::size_t index = 0;
+        while (true)
+        {
+            in.begin_section(section + std::to_string(index++));
+            if (!in.contains_section())
+            {
+                in.end_section();
+                break;
+            }
+            const std::string name = in.readstr("name");
+            if (m_groups.find(name) == m_groups.end()) // Groups persist over saves
+                m_groups[name].read(in);
+            in.end_section();
+        }
+    }
+
+    void copy_paste::save_group(const std::string &name)
+    {
+        m_groups[name] = group();
+        copy(m_groups[name]);
+        m_groups[name].name = name;
+    }
+    void copy_paste::load_group(const std::string &name)
+    {
+        DBG_ASSERT(m_groups.find(name) != m_groups.end(), "Group not found when loading %s!\n", name.c_str())
+        m_copy = m_groups.at(name);
+        m_has_copy = true;
+    }
+
     void copy_paste::copy()
     {
-        demo_app &papp = demo_app::get();
+        if (demo_app::get().p_selector.get().empty())
+            return;
 
         delete_copy();
-        m_ref_pos = alg::vec2();
-
+        copy(m_copy);
+        m_has_copy = true;
+    }
+    void copy_paste::copy(group &group)
+    {
+        demo_app &papp = demo_app::get();
         const selector &slct = papp.p_selector;
+        DBG_ASSERT(!slct.get().empty(), "Must have something selected to copy!\n")
+
+        group.ref_pos = alg::vec2();
+
         for (const auto &e : slct.get())
         {
-            m_entities[e.id()] = std::make_pair(entity_template::from_entity(*e), sf::ConvexShape());
-            m_ref_pos += e->pos();
+            group.entities[e.id()] = entity_template::from_entity(*e);
+            group.ref_pos += e->pos();
         }
-        m_ref_pos /= slct.get().size();
+        group.ref_pos /= slct.get().size();
         for (const phys::spring2D &sp : papp.engine().springs())
         {
-            const bool has_first = m_entities.find(sp.e1().id()) != m_entities.end(),
-                       has_second = m_entities.find(sp.e2().id()) != m_entities.end();
+            const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
+                       has_second = group.entities.find(sp.e2().id()) != group.entities.end();
             if (has_first && has_second)
-                m_springs.emplace_back(spring_template::from_spring(sp));
+                group.springs.emplace_back(spring_template::from_spring(sp));
         }
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
             const phys::rigid_bar2D &rb = dynamic_cast<const phys::rigid_bar2D &>(*ctr);
-            const bool has_first = m_entities.find(rb.e1().id()) != m_entities.end(),
-                       has_second = m_entities.find(rb.e2().id()) != m_entities.end();
+            const bool has_first = group.entities.find(rb.e1().id()) != group.entities.end(),
+                       has_second = group.entities.find(rb.e2().id()) != group.entities.end();
             if (has_first && has_second)
-                m_rbars.emplace_back(rigid_bar_template::from_bar(rb));
+                group.rbars.emplace_back(rigid_bar_template::from_bar(rb));
         }
-        m_has_copy = true;
     }
 
     void copy_paste::paste()
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_ref_pos;
+        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<std::size_t, phys::entity2D_ptr> added_entities;
-        for (const auto &[id, pair] : m_entities)
+        for (const auto &[id, tmpl] : m_copy.entities)
         {
-            const entity_template &tmpl = pair.first;
             const geo::polygon2D poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
                                                           alg::vec2(), 0.f, 0.f, tmpl.mass,
                                                           tmpl.charge, poly.vertices(), tmpl.kynematic);
         }
-        for (spring_template &spt : m_springs)
+        for (spring_template &spt : m_copy.springs)
         {
             const phys::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                      &e2 = added_entities.at(spt.id2);
@@ -73,7 +206,7 @@ namespace phys_demo
                                                      : phys::spring2D(e1, e2, spt.joint1, spt.joint2, spt.length);
             papp.engine().add_spring(sp);
         }
-        for (rigid_bar_template &rbt : m_rbars)
+        for (rigid_bar_template &rbt : m_copy.rbars)
         {
             const phys::entity2D_ptr &e1 = added_entities[rbt.id1],
                                      &e2 = added_entities[rbt.id2];
@@ -88,22 +221,23 @@ namespace phys_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_ref_pos;
-        for (auto &[id, pair] : m_entities)
+        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
+        for (auto &[id, tmpl] : m_copy.entities)
         {
-            auto &[tmpl, shape] = pair;
             geo::polygon2D poly(tmpl.vertices);
             poly.pos(poly.centroid() + offset);
 
             sf::Color col = papp.entity_color();
             col.a = 120;
+
+            sf::ConvexShape shape;
             papp.draw_entity(poly.vertices(), shape, col);
         }
 
-        for (const spring_template &spt : m_springs)
+        for (const spring_template &spt : m_copy.springs)
         {
-            const entity_template &e1 = m_entities.at(spt.id1).first,
-                                  &e2 = m_entities.at(spt.id2).first;
+            const entity_template &e1 = m_copy.entities.at(spt.id1),
+                                  &e2 = m_copy.entities.at(spt.id2);
 
             sf::Color col = papp.springs_color();
             col.a = 120;
@@ -112,10 +246,10 @@ namespace phys_demo
                              (e2.pos + spt.joint2 + offset) * WORLD_TO_PIXEL,
                              col);
         }
-        for (const rigid_bar_template &rbt : m_rbars)
+        for (const rigid_bar_template &rbt : m_copy.rbars)
         {
-            const entity_template &e1 = m_entities.at(rbt.id1).first,
-                                  &e2 = m_entities.at(rbt.id2).first;
+            const entity_template &e1 = m_copy.entities.at(rbt.id1),
+                                  &e2 = m_copy.entities.at(rbt.id2);
 
             sf::Color col = papp.rigid_bars_color();
             col.a = 120;
@@ -127,9 +261,10 @@ namespace phys_demo
 
     void copy_paste::delete_copy()
     {
-        m_entities.clear();
-        m_springs.clear();
-        m_rbars.clear();
+        m_copy = group();
         m_has_copy = false;
     }
+
+    const std::map<std::string, copy_paste::group> &copy_paste::groups() const { return m_groups; }
+    const copy_paste::group &copy_paste::current_group() const { return m_copy; }
 }

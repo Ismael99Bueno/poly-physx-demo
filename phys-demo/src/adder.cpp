@@ -66,9 +66,6 @@ namespace phys_demo
     void adder::add_template::write(ini::output &out) const
     {
         out.write("name", name);
-        out.write("mass", entity_templ.mass);
-        out.write("charge", entity_templ.charge);
-        out.write("kynematic", entity_templ.kynematic);
         out.write("shape", shape);
         out.write("size", size);
         out.write("width", width);
@@ -78,23 +75,14 @@ namespace phys_demo
         out.write("r", (int)color.r);
         out.write("g", (int)color.g);
         out.write("b", (int)color.b);
-
-        const std::string section = "vertex";
-        std::size_t index = 0;
-        for (const alg::vec2 &v : entity_templ.vertices)
-        {
-            out.begin_section(section + std::to_string(index++));
-            v.write(out);
-            out.end_section();
-        }
+        out.begin_section("entity_template");
+        entity_templ.write(out);
+        out.end_section();
     }
 
     void adder::add_template::read(ini::input &in)
     {
         name = in.readstr("name");
-        entity_templ.mass = in.readf("mass");
-        entity_templ.charge = in.readf("charge");
-        entity_templ.kynematic = (bool)in.readi("kynematic");
         shape = (shape_type)in.readi("shape");
         size = in.readf("size");
         width = in.readf("width");
@@ -102,20 +90,9 @@ namespace phys_demo
         radius = in.readf("radius");
         sides = in.readi("sides");
         color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
-
-        std::size_t index = 0;
-        const std::string section = "vertex";
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            entity_templ.vertices.emplace_back().read(in);
-            in.end_section();
-        }
+        in.begin_section("entity_template");
+        entity_templ.read(in);
+        in.end_section();
     }
 
     void adder::write(ini::output &out) const
@@ -129,7 +106,6 @@ namespace phys_demo
         for (const auto &[name, templ] : m_templates)
         {
             out.begin_section(section + std::to_string(index++));
-            out.write("name", name);
             templ.write(out);
             out.end_section();
         }
@@ -145,8 +121,7 @@ namespace phys_demo
         const std::string section = "template";
         while (true)
         {
-            const std::string full_section = section + std::to_string(index++);
-            in.begin_section(full_section);
+            in.begin_section(section + std::to_string(index++));
             if (!in.contains_section())
             {
                 in.end_section();

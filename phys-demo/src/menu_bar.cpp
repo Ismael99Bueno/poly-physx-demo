@@ -79,14 +79,11 @@ namespace phys_demo
     {
         if (ImGui::BeginMenu("Save as..."))
         {
-            static char buffer[24];
+            static char buffer[24] = "\0";
             ImGui::PushItemWidth(400);
             if (ImGui::InputText("Save file", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                for (char *c = buffer; *c != '\0'; c++)
-                    if (*c == ' ')
-                        *c = '-';
-
+                SUBSTITUTE(buffer, ' ', '-')
                 const std::string savefile(buffer);
                 demo_app &app = demo_app::get();
                 app.session(savefile + ".ini");
