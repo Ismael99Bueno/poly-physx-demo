@@ -12,7 +12,7 @@ namespace phys_demo
 
         ImGui::PushItemWidth(200);
         render_menu_bar();
-        render_shapes_list();
+        render_shape_list();
         render_entity_inputs();
         ImGui::Spacing();
         render_color_picker();
@@ -63,7 +63,7 @@ namespace phys_demo
         }
     }
 
-    void add_tab::render_shapes_list() const
+    void add_tab::render_shape_list() const
     {
         demo_app &papp = demo_app::get();
         adder &addr = papp.p_adder;
@@ -162,32 +162,28 @@ namespace phys_demo
 
     void add_tab::render_canvas() const
     {
-        static ImVec2 scrolling(0.f, 0.f);
+        static alg::vec2 scrolling;
         demo_app &papp = demo_app::get();
+
         std::vector<alg::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
         geo::polygon2D poly(vertices);
+
         const bool is_convex = poly.is_convex();
         if (!is_convex)
         {
-            ImGui::SameLine(ImGui::GetWindowWidth() - 575);
+            ImGui::SameLine(ImGui::GetWindowWidth() - 575.f);
             ImGui::Text("The polygon is not convex!");
             ImGui::SameLine();
             ImGui::HelpMarker("WIP Why does this matter");
         }
 
-        // Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
-        const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(); // ImDrawList API uses screen coordinates!
-        ImVec2 canvas_sz = ImGui::GetContentRegionAvail();    // Resize canvas to what's available
-        if (canvas_sz.x < 50.f)
-            canvas_sz.x = 50.f;
-        if (canvas_sz.y < 50.f)
-            canvas_sz.y = 50.f;
+        const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(),
+                     canvas_sz = ImGui::GetContentRegionAvail(),
+                     canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 
         const alg::vec2 canvas_hdim = alg::vec2(canvas_sz.x, canvas_sz.y) * 0.5f;
-        const ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 
         // Draw border and background color
-        ImGuiIO &io = ImGui::GetIO();
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
         draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
         draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
@@ -197,6 +193,7 @@ namespace phys_demo
         const bool is_hovered = ImGui::IsItemHovered();
 
         const float scale_factor = 3.f;
+        ImGuiIO &io = ImGui::GetIO();
         const alg::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
             pixel_mouse = (alg::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
             world_mouse = pixel_mouse * PIXEL_TO_WORLD;
@@ -229,7 +226,6 @@ namespace phys_demo
         if (valid_to_add && ImGui::IsMouseDown(ImGuiMouseButton_Left))
             vertices[to_edit] = world_mouse;
 
-        // Draw grid + all lines in the canvas
         draw_list->PushClipRect(canvas_p0, canvas_p1, true);
         const float grid_step = 64.f;
         for (float x = fmodf(scrolling.x, grid_step); x < canvas_sz.x; x += grid_step)

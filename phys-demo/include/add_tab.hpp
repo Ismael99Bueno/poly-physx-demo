@@ -13,7 +13,7 @@ namespace phys_demo
 
     private:
         void render_menu_bar() const;
-        void render_shapes_list() const;
+        void render_shape_list() const;
         void render_entity_inputs() const;
         void render_color_picker() const;
         void render_canvas() const;
