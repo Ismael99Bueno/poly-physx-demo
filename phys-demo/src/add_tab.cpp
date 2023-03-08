@@ -164,6 +164,16 @@ namespace phys_demo
     {
         static ImVec2 scrolling(0.f, 0.f);
         demo_app &papp = demo_app::get();
+        std::vector<alg::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
+        geo::polygon2D poly(vertices);
+        const bool is_convex = poly.is_convex();
+        if (!is_convex)
+        {
+            ImGui::SameLine(ImGui::GetWindowWidth() - 575);
+            ImGui::Text("The polygon is not convex!");
+            ImGui::SameLine();
+            ImGui::HelpMarker("WIP Why does this matter");
+        }
 
         // Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
         const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(); // ImDrawList API uses screen coordinates!
@@ -186,13 +196,10 @@ namespace phys_demo
         ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft);
         const bool is_hovered = ImGui::IsItemHovered();
 
-        const float scale_factor = 4.f;
+        const float scale_factor = 3.f;
         const alg::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
             pixel_mouse = (alg::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
             world_mouse = pixel_mouse * PIXEL_TO_WORLD;
-
-        std::vector<alg::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
-        geo::polygon2D poly(vertices);
 
         const alg::vec2 towards_poly = poly.towards_closest_edge_from(world_mouse);
         const float max_dist = 5.f;
@@ -231,8 +238,8 @@ namespace phys_demo
             draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 
         const sf::Color &entity_col = papp.entity_color();
-        const auto col = poly.is_convex() ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
-                                          : IM_COL32(255, 0, 0, 255);
+        const auto col = is_convex ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
+                                   : IM_COL32(255, 0, 0, 255);
 
         ImVec2 points[poly.size()];
         for (std::size_t i = 0; i < poly.size(); i++)
@@ -243,13 +250,13 @@ namespace phys_demo
             points[i] = p1;
         }
 
-        if (poly.is_convex())
+        if (is_convex)
             draw_list->AddConvexPolyFilled(points, poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
             const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
                                                    : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
-            draw_list->AddCircleFilled(center, 15.f, IM_COL32(207, 185, 151, 180));
+            draw_list->AddCircleFilled(center, 12.f, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
     }
