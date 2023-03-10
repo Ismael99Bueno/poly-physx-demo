@@ -11,12 +11,14 @@ namespace phys_demo
 {
     void engine_panel::write(ini::output &out) const
     {
+        out.write("enabled", p_enabled);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
     }
 
     void engine_panel::read(ini::input &in)
     {
+        p_enabled = (bool)in.readi("enabled");
         m_method = (integ_method)in.readi("method");
         m_visualize_qt = (bool)in.readi("visualize_qt");
     }

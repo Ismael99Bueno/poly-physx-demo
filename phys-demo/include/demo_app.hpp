@@ -79,6 +79,7 @@ namespace phys_demo
             {"selector", &p_selector},
             {"attacher", &p_attacher},
             {"copy_paste", &p_copy_paste},
+            {"actions_panel", &p_actions_panel},
             {"engine_panel", &p_engine_panel},
             {"perf_panel", &p_perf_panel},
             {"phys_panel", &p_phys_panel},

@@ -41,20 +41,19 @@ namespace phys_demo
     void adder::save_template(const std::string &name)
     {
         p_current_templ.name = name;
-        m_templates[name] = p_current_templ;
-        m_templates[name].color = demo_app::get().entity_color();
+        save_template();
     }
     void adder::load_template(const std::string &name)
     {
-        p_current_templ = m_templates[name];
+        p_current_templ = m_templates.at(name);
         demo_app::get().entity_color(p_current_templ.color);
     }
     void adder::erase_template(const std::string &name) { m_templates.erase(name); }
 
     void adder::save_template()
     {
+        p_current_templ.color = demo_app::get().entity_color();
         m_templates[p_current_templ.name] = p_current_templ;
-        m_templates[p_current_templ.name].color = demo_app::get().entity_color();
     }
     void adder::load_template() { load_template(p_current_templ.name); }
     void adder::erase_template()
@@ -132,6 +131,7 @@ namespace phys_demo
                 m_templates[name].read(in);
             in.end_section();
         }
+        demo_app::get().entity_color(p_current_templ.color);
     }
 
     const std::map<std::string, adder::add_template> &adder::templates() const

@@ -15,6 +15,7 @@ namespace phys_demo
 
     void phys_panel::write(ini::output &out) const
     {
+        out.write("enabled", p_enabled);
         for (const auto &[section, saveable] : m_saveables)
         {
             out.begin_section(section);
@@ -24,6 +25,7 @@ namespace phys_demo
     }
     void phys_panel::read(ini::input &in)
     {
+        p_enabled = (bool)in.readi("enabled");
         for (const auto &[section, saveable] : m_saveables)
         {
             in.begin_section(section);
@@ -43,7 +45,7 @@ namespace phys_demo
         eng.add_interaction(m_exponential);
 
         m_attractive->p_exp = 1;
-        m_attractive->p_mag = 20.f;
+        m_attractive->p_mag = -20.f;
 
         const auto auto_include = [this](phys::entity2D_ptr e)
         {

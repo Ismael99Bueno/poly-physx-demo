@@ -2,6 +2,7 @@
 #define ADDER_HPP
 
 #include "templates.hpp"
+#include "constants.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace phys_demo
@@ -25,7 +26,7 @@ namespace phys_demo
             shape_type shape = BOX;
             float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
             std::uint32_t sides = 3;
-            sf::Color color;
+            sf::Color color = DEFAULT_ENTITY_COLOR;
 
             void write(ini::output &out) const override;
             void read(ini::input &in) override;

@@ -38,11 +38,6 @@ namespace phys_demo
         out.write("session", m_session);
         out.write("has_session", m_has_session);
 
-        out.write("actions_enabled", p_actions_panel.p_enabled);
-        out.write("engine_enabled", p_engine_panel.p_enabled);
-        out.write("phys_enabled", p_phys_panel.p_enabled);
-        out.write("perf_enabled", p_perf_panel.p_enabled);
-
         for (const auto &[section, saveable] : m_saveables)
         {
             out.begin_section(section);
@@ -55,11 +50,6 @@ namespace phys_demo
         app::read(in);
         m_session = in.readstr("session");
         m_has_session = (bool)in.readi("has_session");
-
-        p_actions_panel.p_enabled = (bool)in.readi("actions_enabled");
-        p_engine_panel.p_enabled = (bool)in.readi("engine_enabled");
-        p_phys_panel.p_enabled = (bool)in.readi("phys_enabled");
-        p_perf_panel.p_enabled = (bool)in.readi("perf_enabled");
 
         for (const auto &[section, saveable] : m_saveables)
         {
@@ -196,11 +186,12 @@ namespace phys_demo
             break;
         }
         case sf::Event::KeyPressed:
+            if (ImGui::GetIO().WantCaptureKeyboard)
+                break;
             switch (event.key.code)
             {
             case sf::Keyboard::Backspace:
-                if (!ImGui::GetIO().WantCaptureKeyboard)
-                    remove_selected();
+                remove_selected();
                 break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();

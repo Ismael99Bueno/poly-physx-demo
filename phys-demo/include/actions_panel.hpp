@@ -9,7 +9,7 @@
 
 namespace phys_demo
 {
-    class actions_panel : public phys::layer
+    class actions_panel : public phys::layer, public ini::saveable
     {
     public:
         enum actions
@@ -24,6 +24,8 @@ namespace phys_demo
         actions action() const;
 
         bool p_enabled = true;
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
 
     private:
         void on_render() override;

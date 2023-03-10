@@ -9,12 +9,14 @@ namespace phys_demo
 {
     void perf_panel::write(ini::output &out) const
     {
+        out.write("enabled", p_enabled);
         out.write("time_unit", m_unit);
         out.write("framerate", m_fps);
     }
 
     void perf_panel::read(ini::input &in)
     {
+        p_enabled = (bool)in.readi("enabled");
         m_unit = (time_unit)in.readi("time_unit");
         m_fps = in.readi("framerate");
     }

@@ -15,6 +15,8 @@
 #define SAVES_DIR "saves/"
 #define DEFAULT_SAVE "default.ini"
 #define LAST_SAVE "last.ini"
+#define DEFAULT_ENTITY_COLOR sf::Color(123, 143, 161)
+#define DEFAULT_ATTACH_COLOR sf::Color(207, 185, 151)
 
 #define SUBSTITUTE(buff, from, to)        \
     for (char *c = buff; *c != '\0'; c++) \

@@ -81,7 +81,7 @@ namespace phys_demo
         {
             static char buffer[24] = "\0";
             ImGui::PushItemWidth(400);
-            if (ImGui::InputText("Save file", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue))
+            if (ImGui::InputText("Save file", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
             {
                 SUBSTITUTE(buffer, ' ', '-')
                 const std::string savefile(buffer);
