@@ -42,12 +42,18 @@ namespace phys_demo
                 }
                 if (ImGui::BeginMenu("Load as..."))
                 {
-                    std::string selected;
+                    std::string selected, to_remove;
                     for (const auto &[name, templ] : addr.templates())
                     {
+                        if (ImGui::Button("X"))
+                            to_remove = name;
+                        ImGui::SameLine();
                         if (ImGui::MenuItem(name.c_str()))
                             selected = name;
                     }
+                    if (!to_remove.empty())
+                        addr.erase_template(to_remove);
+
                     if (!selected.empty())
                         addr.load_template(selected);
                     ImGui::EndMenu();

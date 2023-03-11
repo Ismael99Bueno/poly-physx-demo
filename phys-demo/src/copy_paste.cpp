@@ -143,6 +143,7 @@ namespace phys_demo
         m_copy = m_groups.at(name);
         m_has_copy = true;
     }
+    void copy_paste::erase_group(const std::string &name) { m_groups.erase(name); }
 
     void copy_paste::copy()
     {

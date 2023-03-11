@@ -20,6 +20,7 @@ namespace phys_demo
 
         void save_group(const std::string &name);
         void load_group(const std::string &name);
+        void erase_group(const std::string &name);
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

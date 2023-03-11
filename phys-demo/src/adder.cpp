@@ -48,7 +48,12 @@ namespace phys_demo
         p_current_templ = m_templates.at(name);
         demo_app::get().entity_color(p_current_templ.color);
     }
-    void adder::erase_template(const std::string &name) { m_templates.erase(name); }
+    void adder::erase_template(const std::string &name)
+    {
+        if (p_current_templ.name == name)
+            p_current_templ.name.clear();
+        m_templates.erase(name);
+    }
 
     void adder::save_template()
     {
@@ -56,11 +61,7 @@ namespace phys_demo
         m_templates[p_current_templ.name] = p_current_templ;
     }
     void adder::load_template() { load_template(p_current_templ.name); }
-    void adder::erase_template()
-    {
-        erase_template(p_current_templ.name);
-        p_current_templ.name.clear();
-    }
+    void adder::erase_template() { erase_template(p_current_templ.name); }
 
     void adder::add_template::write(ini::output &out) const
     {

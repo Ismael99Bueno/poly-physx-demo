@@ -36,7 +36,6 @@ namespace phys_demo
     {
         app::write(out);
         out.write("session", m_session);
-        out.write("has_session", m_has_session);
 
         for (const auto &[section, saveable] : m_saveables)
         {
@@ -49,7 +48,6 @@ namespace phys_demo
     {
         app::read(in);
         m_session = in.readstr("session");
-        m_has_session = (bool)in.readi("has_session");
 
         for (const auto &[section, saveable] : m_saveables)
         {
@@ -57,6 +55,14 @@ namespace phys_demo
             saveable->read(in);
             in.end_section();
         }
+    }
+
+    bool demo_app::validate_session()
+    {
+        const bool exists = std::filesystem::exists(SAVES_DIR + m_session);
+        if (!exists)
+            m_session.clear();
+        return exists;
     }
 
     void demo_app::save(const std::string &filename) const
@@ -86,17 +92,18 @@ namespace phys_demo
         read(in);
         in.end_section();
         in.close();
+        validate_session(); // This may be redundant
         return true;
     }
 
     void demo_app::save() const
     {
-        DBG_ASSERT(m_has_session, "No current session active. Must specify a specific session name to save.\n")
+        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to save.\n")
         save(m_session);
     }
     bool demo_app::load()
     {
-        DBG_ASSERT(m_has_session, "No current session active. Must specify a specific session name to load.\n")
+        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to load.\n")
         return load(m_session);
     }
 
@@ -273,10 +280,6 @@ namespace phys_demo
     }
 
     const std::string &demo_app::session() const { return m_session; }
-    void demo_app::session(const std::string &session)
-    {
-        m_session = session;
-        m_has_session = true;
-    }
-    bool demo_app::has_session() const { return m_has_session; }
+    void demo_app::session(const std::string &session) { m_session = session; }
+    bool demo_app::has_session() const { return !m_session.empty(); }
 }

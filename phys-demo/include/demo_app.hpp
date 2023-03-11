@@ -32,6 +32,8 @@ namespace phys_demo
         void save() const;
         bool load();
 
+        bool validate_session();
+
         void add_borders();
         void remove_selected();
 
@@ -70,7 +72,6 @@ namespace phys_demo
         void read(ini::input &in) override;
 
         std::string m_session;
-        bool m_has_session = false;
         sf::Clock m_clock;
 
         const std::unordered_map<const char *, ini::saveable *> m_saveables = {

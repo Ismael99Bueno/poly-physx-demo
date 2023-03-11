@@ -184,10 +184,18 @@ namespace phys_demo
     void entities_tab::render_groups() const
     {
         copy_paste &cp = demo_app::get().p_copy_paste;
+        std::string to_remove;
+
         ImGui::Indent();
         for (const auto &[name, group] : cp.groups())
+        {
+            if (ImGui::Button("X"))
+                to_remove = name;
+            ImGui::SameLine();
             if (ImGui::Selectable(name.c_str(), cp.current_group().name == name))
                 cp.load_group(name);
+        }
+        cp.erase_group(to_remove);
         ImGui::Unindent();
     }
 

@@ -57,14 +57,26 @@ namespace phys_demo
     std::optional<std::string> menu_bar::chosen_savefile() const
     {
         std::optional<std::string> res = std::nullopt;
+        std::string to_delete;
+
         for (const auto &entry : std::filesystem::directory_iterator(SAVES_DIR))
         {
             const std::string path = entry.path().string(),
                               filename = path.substr(path.find("/") + 1, path.size() - 1);
-            if (filename == DEFAULT_SAVE)
+            if (filename == DEFAULT_SAVE || filename == LAST_SAVE)
                 continue;
+
+            if (ImGui::Button("X"))
+                to_delete = path;
+
+            ImGui::SameLine();
             if (ImGui::MenuItem(filename.c_str()))
                 res = filename;
+        }
+        if (!to_delete.empty())
+        {
+            std::filesystem::remove(to_delete);
+            demo_app::get().validate_session();
         }
         return res;
     }
