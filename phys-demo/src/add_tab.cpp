@@ -140,7 +140,7 @@ namespace phys_demo
             break;
         }
 
-        ImGui::Checkbox("Kynematic", &addr.p_current_templ.entity_templ.kynematic);
+        ImGui::Checkbox("Kinematic", &addr.p_current_templ.entity_templ.kinematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
 

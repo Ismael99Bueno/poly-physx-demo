@@ -196,7 +196,7 @@ namespace phys_demo
             const geo::polygon2D poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
                                                           alg::vec2(), 0.f, 0.f, tmpl.mass,
-                                                          tmpl.charge, poly.vertices(), tmpl.kynematic);
+                                                          tmpl.charge, poly.vertices(), tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {

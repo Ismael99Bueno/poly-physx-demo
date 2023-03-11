@@ -17,7 +17,7 @@ namespace phys_demo
         out.write("angvel", angvel);
         out.write("mass", mass);
         out.write("charge", charge);
-        out.write("kynematic", kynematic);
+        out.write("kinematic", kinematic);
 
         const std::string section = "vertex";
         std::size_t index = 0;
@@ -42,7 +42,7 @@ namespace phys_demo
         angvel = in.readf("angvel");
         mass = in.readf("mass");
         charge = in.readf("charge");
-        kynematic = (bool)in.readi("kynematic");
+        kinematic = (bool)in.readi("kinematic");
 
         vertices.clear();
         std::size_t index = 0;
@@ -72,7 +72,7 @@ namespace phys_demo
         tmpl.mass = e.mass();
         tmpl.charge = e.charge();
         tmpl.vertices = e.shape().vertices();
-        tmpl.kynematic = e.kynematic();
+        tmpl.kinematic = e.kinematic();
         return tmpl;
     }
 

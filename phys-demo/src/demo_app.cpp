@@ -272,10 +272,10 @@ namespace phys_demo
         e3->shape(geo::polygon2D::rect(2.f * w, thck));
         e4->shape(geo::polygon2D::rect(2.f * w, thck));
 
-        e1->kynematic(false);
-        e2->kynematic(false);
-        e3->kynematic(false);
-        e4->kynematic(false);
+        e1->kinematic(false);
+        e2->kinematic(false);
+        e3->kinematic(false);
+        e4->kinematic(false);
         entity_color(prev_color);
     }
 

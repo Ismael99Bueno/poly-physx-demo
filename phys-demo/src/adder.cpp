@@ -31,9 +31,9 @@ namespace phys_demo
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kynematic ? vel : alg::vec2(),
+        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : alg::vec2(),
                                                            std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                           entity_templ.charge, entity_templ.vertices, entity_templ.kynematic);
+                                                           entity_templ.charge, entity_templ.vertices, entity_templ.kinematic);
         m_adding = !definitive;
         return e;
     }

@@ -68,7 +68,7 @@ namespace phys_demo
         }
 
         float avg_mass = 0.f, avg_charge = 0.f;
-        bool kynematic = true, predicting = true,
+        bool kinematic = true, predicting = true,
              has_trail = true, following = true;
         alg::vec2 com;
 
@@ -76,7 +76,7 @@ namespace phys_demo
         {
             avg_mass += e->mass();
             avg_charge += e->charge();
-            kynematic &= e->kynematic();
+            kinematic &= e->kinematic();
             com += e->pos() * e->mass();
 
             predicting &= pred.is_predicting(*e);
@@ -95,9 +95,9 @@ namespace phys_demo
             for (auto &e : slct.get())
                 e->charge(avg_charge);
 
-        if (ImGui::Checkbox("Kynematic", &kynematic))
+        if (ImGui::Checkbox("Kinematic", &kinematic))
             for (auto &e : slct.get())
-                e->kynematic(kynematic);
+                e->kinematic(kinematic);
 
         if (ImGui::Checkbox("Predict path", &predicting))
             for (const auto &e : slct.get())
@@ -247,9 +247,9 @@ namespace phys_demo
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());
 
-        bool kynematic = e.kynematic();
-        if (ImGui::Checkbox("Kynematic", &kynematic))
-            e.kynematic(kynematic);
+        bool kinematic = e.kinematic();
+        if (ImGui::Checkbox("Kinematic", &kinematic))
+            e.kinematic(kinematic);
 
         demo_app &papp = demo_app::get();
         predictor &pred = papp.p_predictor;
