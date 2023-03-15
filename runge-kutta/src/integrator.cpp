@@ -127,4 +127,7 @@ namespace rk
     void integrator::tolerance(const float val) { m_tolerance = val; }
     void integrator::min_dt(const float val) { m_min_dt = val; }
     void integrator::max_dt(const float val) { m_max_dt = val; }
+
+    bool integrator::reversed() const { return m_reversed; }
+    void integrator::reversed(bool reversed) { m_reversed = reversed; }
 }

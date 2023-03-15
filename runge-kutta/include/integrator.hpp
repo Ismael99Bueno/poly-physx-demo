@@ -32,18 +32,19 @@ namespace rk
             PERF_SCOPE("-Physics-")
             DBG_ASSERT(!dt_off_bounds(dt), "Timestep is not between established limits. Change the timestep or adjust the limits to include the vars value - vars: %f, min: %f, max: %f\n", dt, m_min_dt, m_max_dt)
             m_valid = true;
+            const float sdt = m_reversed ? -dt : dt;
 
             std::vector<float> &vars = m_state.m_vars;
-            update_kvec(t, dt, vars, params, ode);
+            update_kvec(t, sdt, vars, params, ode);
             if (m_tableau.embedded())
             {
-                const std::vector<float> aux_state = generate_solution(dt, vars, m_tableau.coefs2());
-                vars = generate_solution(dt, vars, m_tableau.coefs1());
+                const std::vector<float> aux_state = generate_solution(sdt, vars, m_tableau.coefs2());
+                vars = generate_solution(sdt, vars, m_tableau.coefs1());
                 m_error = embedded_error(vars, aux_state);
             }
             else
-                vars = generate_solution(dt, vars, m_tableau.coefs());
-            t += dt;
+                vars = generate_solution(sdt, vars, m_tableau.coefs());
+            t += sdt;
             DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
@@ -65,15 +66,16 @@ namespace rk
                 dt = std::clamp(dt * timestep_factor(), m_min_dt, m_max_dt);
             for (;;)
             {
+                const float sdt = m_reversed ? -dt : dt;
                 std::vector<float> &vars = m_state.m_vars;
                 std::vector<float> sol1 = vars;
-                update_kvec(t, dt, vars, params, ode);
+                update_kvec(t, sdt, vars, params, ode);
 
-                const std::vector<float> sol2 = generate_solution(dt, vars, m_tableau.coefs());
+                const std::vector<float> sol2 = generate_solution(sdt, vars, m_tableau.coefs());
                 for (std::uint8_t i = 0; i < reiterations; i++)
                 {
-                    update_kvec(t, dt / reiterations, sol1, params, ode);
-                    sol1 = generate_solution(dt / reiterations, sol1, m_tableau.coefs());
+                    update_kvec(t, sdt / reiterations, sol1, params, ode);
+                    sol1 = generate_solution(sdt / reiterations, sol1, m_tableau.coefs());
                 }
                 m_error = reiterative_error(sol1, sol2);
 
@@ -88,7 +90,7 @@ namespace rk
                 dt *= timestep_factor();
             }
             m_error = std::max(m_error, m_tolerance / TOL_PART);
-            t += dt;
+            t += m_reversed ? -dt : dt;
             DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
@@ -108,10 +110,11 @@ namespace rk
                 dt = std::clamp(dt * timestep_factor(), m_min_dt, m_max_dt);
             for (;;)
             {
+                const float sdt = m_reversed ? -dt : dt;
                 std::vector<float> &vars = m_state.m_vars;
-                update_kvec(t, dt, vars, params, ode);
-                const std::vector<float> sol2 = generate_solution(dt, vars, m_tableau.coefs2());
-                const std::vector<float> sol1 = generate_solution(dt, vars, m_tableau.coefs1());
+                update_kvec(t, sdt, vars, params, ode);
+                const std::vector<float> sol2 = generate_solution(sdt, vars, m_tableau.coefs2());
+                const std::vector<float> sol1 = generate_solution(sdt, vars, m_tableau.coefs1());
                 m_error = embedded_error(sol1, sol2);
 
                 const bool too_small = dt_too_small(dt);
@@ -125,7 +128,7 @@ namespace rk
                 dt *= timestep_factor();
             }
             m_error = std::max(m_error, m_tolerance / TOL_PART);
-            t += dt;
+            t += m_reversed ? -dt : dt;
             DBG_LOG_IF(!m_valid, "NaN encountered when computing runge-kutta solution.\n")
             return m_valid;
         }
@@ -148,11 +151,14 @@ namespace rk
         void min_dt(float val);
         void max_dt(float val);
 
+        bool reversed() const;
+        void reversed(bool reversed);
+
     private:
         butcher_tableau m_tableau;
         rk::state m_state;
         float m_tolerance, m_min_dt, m_max_dt, m_error;
-        bool m_valid;
+        bool m_valid, m_reversed = false;
 
         std::vector<float> generate_solution(float dt,
                                              const std::vector<float> &vars,

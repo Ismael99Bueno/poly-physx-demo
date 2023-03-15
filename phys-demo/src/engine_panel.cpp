@@ -51,6 +51,11 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
 
         ImGui::Text("Simulation time: %.2f", papp.engine().elapsed());
+        ImGui::SameLine();
+        bool reversed = papp.engine().integrator().reversed();
+        if (ImGui::Checkbox("Reverse", &reversed))
+            papp.engine().integrator().reversed(reversed);
+
         const rk::integrator integ = papp.engine().integrator();
         bool paused = papp.paused();
         if (ImGui::Checkbox("Pause", &paused))
