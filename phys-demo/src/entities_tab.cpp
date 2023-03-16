@@ -127,7 +127,7 @@ namespace phys_demo
             }
 
         static char buffer[24] = "\0";
-        if (ImGui::InputText("Save group", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
+        if (ImGui::InputTextWithHint("Save group", "Group name", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
         {
             SUBSTITUTE(buffer, ' ', '-')
             papp.p_copy_paste.save_group(buffer);

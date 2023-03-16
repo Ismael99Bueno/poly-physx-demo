@@ -32,7 +32,7 @@ namespace phys_demo
                 if (ImGui::BeginMenu("Save as..."))
                 {
                     static char buffer[24] = "\0";
-                    if (ImGui::InputText("##", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
+                    if (ImGui::InputTextWithHint("##", "Entity name", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
                     {
                         SUBSTITUTE(buffer, ' ', '-')
                         addr.save_template(buffer);
