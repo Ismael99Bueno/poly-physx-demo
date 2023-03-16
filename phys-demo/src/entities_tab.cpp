@@ -246,6 +246,7 @@ namespace phys_demo
             e.charge(charge);
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());
+        ImGui::Text("Kinetic energy - %f", e.kinetic_energy());
 
         bool kinematic = e.kinematic();
         if (ImGui::Checkbox("Kinematic", &kinematic))

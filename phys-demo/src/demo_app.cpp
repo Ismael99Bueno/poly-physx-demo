@@ -227,7 +227,7 @@ namespace phys_demo
         const phys::const_entity2D_ptr e1 = eng[world_mouse()];
         if (e1)
             for (const auto &inter : eng.interactions())
-                if (inter->contains(e1))
+                if (inter->contains(*e1))
                     for (const auto &e2 : inter->entities())
                         if (e1 != e2)
                         {

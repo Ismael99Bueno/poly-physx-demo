@@ -169,7 +169,7 @@ namespace phys_demo
             for (std::size_t i = 0; i < papp.engine().size(); i++)
             {
                 const phys::const_entity2D_ptr e = papp.engine()[i];
-                if (!set.contains(e))
+                if (!set.contains(*e))
                     set.include(e);
             }
         ImGui::SameLine();
@@ -179,12 +179,12 @@ namespace phys_demo
         const selector &slct = papp.p_selector;
         if (ImGui::Button("Add selected"))
             for (const auto &e : slct.get())
-                if (!set.contains(e))
+                if (!set.contains(*e))
                     set.include(e);
         ImGui::SameLine();
         if (ImGui::Button("Remove selected"))
             for (const auto &e : slct.get())
-                set.exclude(e);
+                set.exclude(*e);
     }
 
     bool phys_panel::tree_node_hovering_outline(const char *name, const phys::entity2D_set &set)
