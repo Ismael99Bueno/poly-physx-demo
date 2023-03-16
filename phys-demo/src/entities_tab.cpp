@@ -88,10 +88,10 @@ namespace phys_demo
         avg_charge /= slct.get().size();
 
         ImGui::Text("Center of mass - x: %.2f, y: %.2f", com.x, com.y);
-        if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, 1000.f, "%.1f"))
+        if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, FLT_MAX, "%.1f"))
             for (auto &e : slct.get())
                 e->mass(avg_mass);
-        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, 1000.f, "%.1f"))
+        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, FLT_MAX, "%.1f"))
             for (auto &e : slct.get())
                 e->charge(avg_charge);
 
@@ -240,9 +240,9 @@ namespace phys_demo
             e.dispatch();
         }
         ImGui::Text("Torque - %f", e.torque());
-        if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, 100.f))
+        if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, FLT_MAX))
             e.mass(mass);
-        if (ImGui::DragFloat("Charge", &charge, 0.2f, 1.f, 100.f))
+        if (ImGui::DragFloat("Charge", &charge, 0.2f, 1.f, FLT_MAX))
             e.charge(charge);
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());

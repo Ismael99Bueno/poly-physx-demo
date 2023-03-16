@@ -111,27 +111,27 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         adder &addr = papp.p_adder;
 
-        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, 1000.f, "%.1f");
+        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
-        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, 1000.f, "%.1f");
+        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (addr.p_current_templ.shape)
         {
         case adder::BOX:
-            ImGui::DragFloat("Size", &addr.p_current_templ.size, 0.2f, 1.f, 100.f, "%.1f");
+            ImGui::DragFloat("Size", &addr.p_current_templ.size, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::RECT:
-            ImGui::DragFloat("Width", &addr.p_current_templ.width, 0.2f, 1.f, 100.f, "%.1f");
+            ImGui::DragFloat("Width", &addr.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
             // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             //     ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
-            ImGui::DragFloat("Height", &addr.p_current_templ.height, 0.2f, 1.f, 100.f, "%.1f");
+            ImGui::DragFloat("Height", &addr.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::NGON:
             ImGui::SliderInt("Sides", (int *)&addr.p_current_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &addr.p_current_templ.radius, 0.2f, 1.f, 100.f, "%.1f");
+            ImGui::DragFloat("Radius", &addr.p_current_templ.radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CUSTOM:
             render_canvas();
