@@ -3,6 +3,7 @@
 
 #include "spring2D.hpp"
 #include "rigid_bar2D.hpp"
+#include "constants.hpp"
 #include <vector>
 
 namespace phys_demo
@@ -12,7 +13,7 @@ namespace phys_demo
         alg::vec2 pos, vel;
         std::size_t index = 0, id = 0;
         float angpos = 0.f, angvel = 0.f, mass = 1.f, charge = 1.f;
-        std::vector<alg::vec2> vertices;
+        std::vector<alg::vec2> vertices = geo::polygon2D::box(DEFAULT_SIZE);
         bool kinematic = true;
 
         void write(ini::output &out) const override;

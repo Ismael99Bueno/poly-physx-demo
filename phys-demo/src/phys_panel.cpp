@@ -1,6 +1,7 @@
 #include "phys_panel.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
+#include "implot.h"
 #include "constants.hpp"
 #include "demo_app.hpp"
 
@@ -71,94 +72,171 @@ namespace phys_demo
             return;
 
         if (ImGui::Begin("Physics", &p_enabled))
-            render_forces_and_inters();
+        {
+            if (ImGui::CollapsingHeader("Energy"))
+                render_energy();
+            if (ImGui::CollapsingHeader("Forces & Interactions"))
+                render_forces_and_inters();
+        }
         ImGui::End();
+    }
+
+    void phys_panel::render_energy() const
+    {
+        // render_energy_values();
+        render_energy_plot();
+    }
+
+    void phys_panel::render_energy_values() const
+    {
+        const demo_app &papp = demo_app::get();
+        ImGui::Text("Energy: %.1f", papp.engine().energy());
+        ImGui::Text("Kinetic energy: %.1f", papp.engine().kinetic_energy());
+        ImGui::Text("Potential energy: %.1f", papp.engine().potential_energy());
+    }
+
+    void phys_panel::render_energy_plot() const
+    {
+        const demo_app &papp = demo_app::get();
+        const float energy = papp.engine().energy(),
+                    kinetic = papp.engine().kinetic_energy(),
+                    potential = papp.engine().potential_energy();
+
+        const std::size_t buffer_size = 3000;
+        const float broad = 4.f;
+        static float minval = std::min({energy, kinetic, potential}),
+                     maxval = std::max({energy, kinetic, potential});
+
+        const float current_min = std::min({0.f, energy, kinetic, potential}),
+                    current_max = std::max({energy, kinetic, potential});
+
+        if (maxval < current_max * 1.1f)
+            maxval = current_max * 1.1f;
+        if (minval > current_min * 0.9f)
+            minval = current_min * 0.9f;
+
+        const float t = papp.engine().elapsed();
+        static std::size_t offset = 0;
+
+        struct arr2
+        {
+            arr2(const float x, const float y) : x(x), y(y) {}
+            float x, y;
+        };
+
+        static std::vector<arr2> kc, pot, total;
+        if (kc.size() < buffer_size)
+        {
+            kc.emplace_back(t, kinetic);
+            pot.emplace_back(t, potential);
+            total.emplace_back(t, energy);
+        }
+        else
+        {
+            kc[offset] = {t, kinetic};
+            pot[offset] = {t, potential};
+            total[offset] = {t, energy};
+            offset = (offset + 1) % buffer_size;
+        }
+
+        if (ImPlot::BeginPlot("##Energy", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
+        {
+            ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
+            ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_Y1, minval, maxval, ImGuiCond_Always);
+            ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::EndPlot();
+        }
+        maxval *= 0.9999f;
+        minval *= 1.0001f;
     }
 
     void phys_panel::render_forces_and_inters()
     {
-        if (ImGui::CollapsingHeader("Forces & Interactions"))
+
+        demo_app &papp = demo_app::get();
+
+        ImGui::PushItemWidth(200);
+        if (tree_node_hovering_outline("Gravity", *m_gravity))
         {
-            demo_app &papp = demo_app::get();
+            ImGui::Text("Entities: %zu/%zu", m_gravity->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_gravity->p_auto_include);
 
-            ImGui::PushItemWidth(200);
-            if (tree_node_hovering_outline("Gravity", *m_gravity))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_gravity->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_gravity->p_auto_include);
-
-                render_add_remove_buttons(*m_gravity);
-                ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
-                ImGui::TreePop();
-            }
-
-            if (tree_node_hovering_outline("Drag", *m_drag))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_drag->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_drag->p_auto_include);
-
-                render_add_remove_buttons(*m_drag);
-                ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
-                ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
-
-                ImGui::TreePop();
-            }
-
-            if (tree_node_hovering_outline("Gravitational", *m_gravitational))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_gravitational->p_auto_include);
-
-                render_add_remove_buttons(*m_gravitational);
-                ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
-
-                ImGui::TreePop();
-            }
-
-            if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_repulsive->p_auto_include);
-
-                render_add_remove_buttons(*m_repulsive);
-                ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
-
-                ImGui::Text("1/r^%u", m_repulsive->p_exp);
-                ImGui::SameLine();
-                ImGui::DragInt("Exponent", (int *)&m_repulsive->p_exp, 0.2f, 1, 15);
-
-                ImGui::TreePop();
-            }
-
-            if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_attractive->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_attractive->p_auto_include);
-
-                render_add_remove_buttons(*m_attractive);
-                ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
-
-                ImGui::Text("1/r^%u", m_attractive->p_exp);
-                ImGui::SameLine();
-                ImGui::DragInt("Exponent", (int *)&m_attractive->p_exp, 0.2f, 1, 15);
-
-                ImGui::TreePop();
-            }
-
-            if (tree_node_hovering_outline("Exponential", *m_exponential))
-            {
-                ImGui::Text("Entities: %zu/%zu", m_exponential->size(), papp.engine().size());
-                ImGui::Checkbox("Add automatically", &m_exponential->p_auto_include);
-
-                render_add_remove_buttons(*m_exponential);
-                ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, 0.f, 600.f, "%.1f");
-                ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.2f, -15.f, 15.f);
-
-                ImGui::TreePop();
-            }
-
-            ImGui::PopItemWidth();
+            render_add_remove_buttons(*m_gravity);
+            ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
+            ImGui::TreePop();
         }
+
+        if (tree_node_hovering_outline("Drag", *m_drag))
+        {
+            ImGui::Text("Entities: %zu/%zu", m_drag->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_drag->p_auto_include);
+
+            render_add_remove_buttons(*m_drag);
+            ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
+            ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
+
+            ImGui::TreePop();
+        }
+
+        if (tree_node_hovering_outline("Gravitational", *m_gravitational))
+        {
+            ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_gravitational->p_auto_include);
+
+            render_add_remove_buttons(*m_gravitational);
+            ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
+
+            ImGui::TreePop();
+        }
+
+        if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
+        {
+            ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_repulsive->p_auto_include);
+
+            render_add_remove_buttons(*m_repulsive);
+            ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
+
+            ImGui::Text("1/r^%u", m_repulsive->p_exp);
+            ImGui::SameLine();
+            ImGui::DragInt("Exponent", (int *)&m_repulsive->p_exp, 0.2f, 1, 15);
+
+            ImGui::TreePop();
+        }
+
+        if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
+        {
+            ImGui::Text("Entities: %zu/%zu", m_attractive->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_attractive->p_auto_include);
+
+            render_add_remove_buttons(*m_attractive);
+            ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
+
+            ImGui::Text("1/r^%u", m_attractive->p_exp);
+            ImGui::SameLine();
+            ImGui::DragInt("Exponent", (int *)&m_attractive->p_exp, 0.2f, 1, 15);
+
+            ImGui::TreePop();
+        }
+
+        if (tree_node_hovering_outline("Exponential", *m_exponential))
+        {
+            ImGui::Text("Entities: %zu/%zu", m_exponential->size(), papp.engine().size());
+            ImGui::Checkbox("Add automatically", &m_exponential->p_auto_include);
+
+            render_add_remove_buttons(*m_exponential);
+            ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, 0.f, 600.f, "%.1f");
+            ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.2f, -15.f, 15.f);
+
+            ImGui::TreePop();
+        }
+
+        ImGui::PopItemWidth();
     }
 
     void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const

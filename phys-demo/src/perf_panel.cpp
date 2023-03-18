@@ -80,16 +80,14 @@ namespace phys_demo
         if (!show_plot)
             return;
 
-        static std::size_t buffer_size = 3000;
-        const float broad = 4.f;
+        const std::size_t buffer_size = 3000;
+        const float broad = 4.f, last_total = last_physics + last_drawing;
 
-        static float t = 0.f, pmax = last_physics, dmax = last_drawing;
+        static float t = 0.f, maxval = last_total;
         static std::size_t offset = 0;
 
-        if (pmax < last_physics)
-            pmax = last_physics;
-        if (dmax < last_drawing)
-            dmax = last_drawing;
+        if (maxval < last_total * 1.1f)
+            maxval = last_total * 1.1f;
 
         struct arr2
         {
@@ -105,14 +103,14 @@ namespace phys_demo
         {
             phys.emplace_back(t, last_physics);
             draw.emplace_back(t, last_drawing);
-            total.emplace_back(t, last_physics + last_drawing);
+            total.emplace_back(t, last_total);
             offset = 0;
         }
         else
         {
             phys[offset] = {t, last_physics};
             draw[offset] = {t, last_drawing};
-            total[offset] = {t, last_physics + last_drawing};
+            total[offset] = {t, last_total};
             offset = (offset + 1) % buffer_size;
         }
 
@@ -120,7 +118,7 @@ namespace phys_demo
         {
             ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
-            ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, pmax + dmax, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, maxval, ImGuiCond_Always);
             ImPlot::PlotLine("Physics", &phys.data()->x, &phys.data()->y, phys.size(), 0, offset, 2 * sizeof(float));
             ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
             ImPlot::PlotLine("Drawing", &draw.data()->x, &draw.data()->y, draw.size(), 0, offset, 2 * sizeof(float));
@@ -128,9 +126,8 @@ namespace phys_demo
             ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
-        t += last_physics + last_drawing;
-        pmax *= 0.9999f;
-        dmax *= 0.9999f;
+        t += last_total;
+        maxval *= 0.9999f;
     }
 
 #ifdef PERF

@@ -11,6 +11,7 @@ namespace phys_demo
     public:
         using phys::force2D::force2D;
         std::pair<alg::vec2, float> force(const phys::entity2D &e) const override;
+        float potential_energy(const phys::entity2D &e) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

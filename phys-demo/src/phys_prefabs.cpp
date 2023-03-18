@@ -30,6 +30,8 @@ namespace phys_demo
         return std::make_pair(alg::vec2(0.f, e.mass() * p_mag), 0.f);
     }
 
+    float gravity::potential_energy(const phys::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
+
     void gravity::write(ini::output &out) const
     {
         out.write("mag", p_mag);

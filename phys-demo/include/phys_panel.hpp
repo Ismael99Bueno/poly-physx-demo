@@ -37,6 +37,9 @@ namespace phys_demo
                 {"gravitational", m_gravitational},
                 {"exponential", m_exponential}};
 
+        void render_energy() const;
+        void render_energy_values() const;
+        void render_energy_plot() const;
         void render_forces_and_inters();
         void render_add_remove_buttons(phys::entity2D_set &set) const;
         bool tree_node_hovering_outline(const char *name, const phys::entity2D_set &set);

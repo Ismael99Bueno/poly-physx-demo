@@ -24,7 +24,7 @@ namespace phys_demo
             std::string name;
             entity_template entity_templ;
             shape_type shape = BOX;
-            float size = 5.f, width = 5.f, height = 5.f, radius = 0.6f * 5.f;
+            float size = DEFAULT_SIZE, width = DEFAULT_SIZE, height = DEFAULT_SIZE, radius = 0.6f * DEFAULT_SIZE;
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
 
