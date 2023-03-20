@@ -20,7 +20,6 @@ namespace phys_demo
         void read(ini::input &in) override;
 
         static entity_template from_entity(const phys::entity2D &e);
-        phys::entity2D as_entity();
     };
 
     struct spring_template : ini::saveable
