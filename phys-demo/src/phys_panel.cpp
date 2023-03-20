@@ -198,48 +198,39 @@ namespace phys_demo
 
     void phys_panel::render_forces_and_inters()
     {
-        demo_app &papp = demo_app::get();
-
         ImGui::PushItemWidth(200);
+
+        render_enabled_checkbox(*m_gravity, &m_gravity->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Gravity", *m_gravity)) // TODO: Auto include button same line as treenode
         {
-            ImGui::Text("Entities: %zu/%zu", m_gravity->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_gravity->p_auto_include);
-
-            render_add_remove_buttons(*m_gravity);
             ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
             ImGui::TreePop();
         }
 
+        render_enabled_checkbox(*m_drag, &m_drag->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Drag", *m_drag))
         {
-            ImGui::Text("Entities: %zu/%zu", m_drag->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_drag->p_auto_include);
-
-            render_add_remove_buttons(*m_drag);
             ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
             ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
 
             ImGui::TreePop();
         }
 
+        render_enabled_checkbox(*m_gravitational, &m_gravitational->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Gravitational", *m_gravitational))
         {
-            ImGui::Text("Entities: %zu/%zu", m_gravitational->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_gravitational->p_auto_include);
-
-            render_add_remove_buttons(*m_gravitational);
             ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
             render_potential_plot(m_plots[0].data);
             ImGui::TreePop();
         }
 
+        render_enabled_checkbox(*m_repulsive, &m_repulsive->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
         {
-            ImGui::Text("Entities: %zu/%zu", m_repulsive->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_repulsive->p_auto_include);
-
-            render_add_remove_buttons(*m_repulsive);
             ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
 
             ImGui::Text("1/r^%u", m_repulsive->p_exp);
@@ -249,12 +240,10 @@ namespace phys_demo
             ImGui::TreePop();
         }
 
+        render_enabled_checkbox(*m_attractive, &m_attractive->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
         {
-            ImGui::Text("Entities: %zu/%zu", m_attractive->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_attractive->p_auto_include);
-
-            render_add_remove_buttons(*m_attractive);
             ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
 
             ImGui::Text("1/r^%u", m_attractive->p_exp);
@@ -264,12 +253,10 @@ namespace phys_demo
             ImGui::TreePop();
         }
 
+        render_enabled_checkbox(*m_exponential, &m_exponential->p_auto_include);
+        ImGui::SameLine();
         if (tree_node_hovering_outline("Exponential", *m_exponential))
         {
-            ImGui::Text("Entities: %zu/%zu", m_exponential->size(), papp.engine().size());
-            ImGui::Checkbox("Add automatically", &m_exponential->p_auto_include);
-
-            render_add_remove_buttons(*m_exponential);
             ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, 0.f, 600.f, "%.1f");
             ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.2f, -15.f, 15.f);
             render_potential_plot(m_plots[3].data);
@@ -279,30 +266,20 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void phys_panel::render_add_remove_buttons(phys::entity2D_set &set) const
+    void phys_panel::render_enabled_checkbox(phys::entity2D_set &set, bool *enabled) const
     {
         demo_app &papp = demo_app::get();
 
-        if (ImGui::Button("Add all"))
-            for (std::size_t i = 0; i < papp.engine().size(); i++)
-            {
-                const phys::const_entity2D_ptr e = papp.engine()[i];
-                if (!set.contains(*e))
-                    set.include(e);
-            }
-        ImGui::SameLine();
-        if (ImGui::Button("Remove all"))
-            set.clear();
-
-        const selector &slct = papp.p_selector;
-        if (ImGui::Button("Add selected"))
-            for (const auto &e : slct.get())
-                if (!set.contains(*e))
-                    set.include(e);
-        ImGui::SameLine();
-        if (ImGui::Button("Remove selected"))
-            for (const auto &e : slct.get())
-                set.exclude(*e);
+        ImGui::PushID(enabled);
+        if (ImGui::Checkbox("##Enabled", enabled))
+        {
+            if (*enabled)
+                for (std::size_t i = 0; i < papp.engine().size(); i++)
+                    set.include(papp.engine()[i]);
+            else
+                set.clear();
+        }
+        ImGui::PopID();
     }
 
     void phys_panel::update_combined_potential()

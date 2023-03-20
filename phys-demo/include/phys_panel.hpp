@@ -67,7 +67,7 @@ namespace phys_demo
         void render_energy_plot() const;
         void render_potential_plot(const std::array<arr2, PLOT_POINTS> &data);
         void render_forces_and_inters();
-        void render_add_remove_buttons(phys::entity2D_set &set) const;
+        void render_enabled_checkbox(phys::entity2D_set &set, bool *enabled) const;
 
         void update_combined_potential();
         bool tree_node_hovering_outline(const char *name, const phys::entity2D_set &set);
