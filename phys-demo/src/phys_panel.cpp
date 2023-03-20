@@ -123,7 +123,7 @@ namespace phys_demo
 
         const std::size_t buffer_size = 3000;
         const float broad = 4.f;
-        static float minval = std::min({energy, kinetic, potential}),
+        static float minval = std::min({0.f, energy, kinetic, potential}),
                      maxval = std::max({energy, kinetic, potential});
 
         const float current_min = std::min({0.f, energy, kinetic, potential}),
@@ -154,7 +154,7 @@ namespace phys_demo
 
         if (ImPlot::BeginPlot("##Energy", ImVec2(-1, PLOT_HEIGHT), ImPlotFlags_NoMouseText))
         {
-            ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
+            ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, minval, maxval, ImGuiCond_Always);
             ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0, offset, 2 * sizeof(float));
@@ -170,8 +170,8 @@ namespace phys_demo
             ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
-        maxval *= 0.9999f;
-        minval *= 1.0001f;
+        maxval *= 0.999f;
+        minval *= 0.999f;
     }
 
     void phys_panel::compare_and_update_xlimits(const alg::vec2 &xlim)
@@ -190,13 +190,13 @@ namespace phys_demo
         // TODO: Coger xmin y xmax con getplotlimits()
         if (ImPlot::BeginPlot("Potential", ImVec2(-1, PLOT_HEIGHT), ImPlotFlags_NoMouseText))
         {
-            ImPlot::SetupAxes("Distance", "Potential");
+            ImPlot::SetupAxes("Distance", nullptr, 0, ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxesLimits(m_xlim.x, m_xlim.y, m_ylim.x, m_ylim.y);
-            ImPlot::PlotLine("Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0, 0, 2 * sizeof(float));
+            ImPlot::PlotLine("##Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0, 0, 2 * sizeof(float));
             const auto dims = ImPlot::GetPlotLimits();
             compare_and_update_xlimits({(float)dims.Min().x, (float)dims.Max().x});
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
-            ImPlot::PlotShaded("Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0., 0, 0, 2 * sizeof(float));
+            ImPlot::PlotShaded("##Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0., 0, 0, 2 * sizeof(float));
             ImPlot::PopStyleVar();
             ImPlot::EndPlot();
         }

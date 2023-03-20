@@ -45,7 +45,7 @@ namespace phys_demo
             float x, y;
         };
 
-        alg::vec2 m_xlim = {0.f, 20.f}, m_ylim = {-100.f, 400.f};
+        alg::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
         std::array<arr2, PLOT_POINTS> m_potential_data;
 
         void render_energy() const;

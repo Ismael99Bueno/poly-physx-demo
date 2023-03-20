@@ -203,8 +203,10 @@ namespace phys_demo
             const phys::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                      &e2 = added_entities.at(spt.id2);
 
-            const phys::spring2D sp = !spt.has_joints ? phys::spring2D(e1, e2, spt.length)
-                                                      : phys::spring2D(e1, e2, spt.joint1, spt.joint2, spt.length);
+            phys::spring2D sp = !spt.has_joints ? phys::spring2D(e1, e2, spt.length)
+                                                : phys::spring2D(e1, e2, spt.joint1, spt.joint2, spt.length);
+            sp.stiffness(spt.stiffness);
+            sp.dampening(spt.dampening);
             papp.engine().add_spring(sp);
         }
         for (rigid_bar_template &rbt : m_copy.rbars)
@@ -212,8 +214,10 @@ namespace phys_demo
             const phys::entity2D_ptr &e1 = added_entities[rbt.id1],
                                      &e2 = added_entities[rbt.id2];
 
-            const phys::rigid_bar2D rb = !rbt.has_joints ? phys::rigid_bar2D(e1, e2, rbt.length)
-                                                         : phys::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.length);
+            phys::rigid_bar2D rb = !rbt.has_joints ? phys::rigid_bar2D(e1, e2, rbt.length)
+                                                   : phys::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.length);
+            rb.stiffness(rbt.stiffness);
+            rb.dampening(rbt.dampening);
             papp.engine().compeller().add_constraint(std::make_shared<phys::rigid_bar2D>(rb));
         }
     }
