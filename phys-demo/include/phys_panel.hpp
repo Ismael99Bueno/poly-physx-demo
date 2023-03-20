@@ -45,32 +45,18 @@ namespace phys_demo
             float x, y;
         };
 
-        float m_xmin = 0.f, m_xmax = 20.f;
-        std::array<arr2, PLOT_POINTS> m_combined_data;
-
-        struct potential_plot
-        {
-            potential_plot(const std::shared_ptr<const phys::interaction2D> &inter) : interaction(inter) {}
-            void refresh_data(float xmin, float xmax);
-
-            std::shared_ptr<const phys::interaction2D> interaction;
-            std::array<arr2, PLOT_POINTS> data;
-        };
-
-        std::array<potential_plot, 4> m_plots = {potential_plot(m_repulsive),
-                                                 potential_plot(m_attractive),
-                                                 potential_plot(m_gravitational),
-                                                 potential_plot(m_exponential)};
+        alg::vec2 m_xlim = {0.f, 20.f}, m_ylim = {-100.f, 400.f};
+        std::array<arr2, PLOT_POINTS> m_potential_data;
 
         void render_energy() const;
         void render_energy_values() const;
         void render_energy_plot() const;
-        void render_potential_plot(const std::array<arr2, PLOT_POINTS> &data);
+        void render_potential_plot();
         void render_forces_and_inters();
-        void render_enabled_checkbox(phys::entity2D_set &set, bool *enabled) const;
+        void render_enabled_checkbox(phys::entity2D_set &set, bool *enabled);
 
-        void update_combined_potential();
-        bool tree_node_hovering_outline(const char *name, const phys::entity2D_set &set);
+        void update_potential_data();
+        void compare_and_update_xlimits(const alg::vec2 &xlim);
     };
 }
 

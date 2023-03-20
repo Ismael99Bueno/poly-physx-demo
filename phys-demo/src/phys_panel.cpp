@@ -17,6 +17,12 @@ namespace phys_demo
     void phys_panel::write(ini::output &out) const
     {
         out.write("enabled", p_enabled);
+        out.begin_section("xlim");
+        m_xlim.write(out);
+        out.end_section();
+        out.begin_section("ylim");
+        m_ylim.write(out);
+        out.end_section();
         for (const auto &[section, saveable] : m_saveables)
         {
             out.begin_section(section);
@@ -27,12 +33,21 @@ namespace phys_demo
     void phys_panel::read(ini::input &in)
     {
         p_enabled = (bool)in.readi("enabled");
+
+        in.begin_section("xlim");
+        m_xlim.read(in);
+        in.end_section();
+        in.begin_section("ylim");
+        m_ylim.read(in);
+        in.end_section();
+
         for (const auto &[section, saveable] : m_saveables)
         {
             in.begin_section(section);
             saveable->read(in);
             in.end_section();
         }
+        update_potential_data();
     }
 
     void phys_panel::on_attach(phys::app *papp)
@@ -47,10 +62,7 @@ namespace phys_demo
 
         m_attractive->p_exp = 1;
         m_attractive->p_mag = -20.f;
-
-        for (auto &plot : m_plots)
-            plot.refresh_data(m_xmin, m_xmax);
-        update_combined_potential();
+        update_potential_data();
 
         const auto auto_include = [this](phys::entity2D_ptr e)
         {
@@ -81,23 +93,11 @@ namespace phys_demo
                 render_energy();
             if (ImGui::CollapsingHeader("Forces & Interactions"))
             {
-                render_potential_plot(m_combined_data);
                 render_forces_and_inters();
+                render_potential_plot();
             }
         }
         ImGui::End();
-    }
-
-    void phys_panel::potential_plot::refresh_data(const float xmin, const float xmax)
-    {
-        const float dx = (xmax - xmin) / (PLOT_POINTS - 1);
-        const alg::vec2 refpos = alg::vec2::right;
-        const phys::entity2D to_add = demo_app::get().p_adder.p_current_templ.entity_templ.as_entity();
-        const float refval = interaction->potential(to_add, refpos);
-
-        std::size_t index = 0;
-        for (float x = xmin; x <= xmax; x += dx)
-            data[index++] = {x, interaction->potential(to_add, {x, 0.f}) - refval};
     }
 
     void phys_panel::render_energy() const
@@ -137,12 +137,6 @@ namespace phys_demo
         const float t = papp.engine().elapsed();
         static std::size_t offset = 0;
 
-        struct arr2
-        {
-            arr2(const float x, const float y) : x(x), y(y) {}
-            float x, y;
-        };
-
         static std::vector<arr2> kc, pot, total;
         if (kc.size() < buffer_size)
         {
@@ -158,15 +152,21 @@ namespace phys_demo
             offset = (offset + 1) % buffer_size;
         }
 
-        if (ImPlot::BeginPlot("##Energy", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
+        if (ImPlot::BeginPlot("##Energy", ImVec2(-1, PLOT_HEIGHT), ImPlotFlags_NoMouseText))
         {
             ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, minval, maxval, ImGuiCond_Always);
             ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0, offset, 2 * sizeof(float));
-            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
+            ImPlot::PlotShaded("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PopStyleVar();
+            // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
             ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0, offset, 2 * sizeof(float));
-            ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
+            ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
+            ImPlot::PlotShaded("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PopStyleVar();
+            // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
             ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
@@ -174,25 +174,31 @@ namespace phys_demo
         minval *= 1.0001f;
     }
 
-    void phys_panel::render_potential_plot(const std::array<arr2, PLOT_POINTS> &data)
+    void phys_panel::compare_and_update_xlimits(const alg::vec2 &xlim)
+    {
+        const float tol = 0.1f;
+        if (m_xlim.sq_dist(xlim) > tol)
+        {
+            m_xlim = xlim;
+            update_potential_data();
+        }
+    }
+
+    void phys_panel::render_potential_plot()
     {
         // TODO: Eliminar xmin y xmax, usar herramientas de implot
         // TODO: Coger xmin y xmax con getplotlimits()
-        if (ImPlot::BeginPlot("Potential", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
+        if (ImPlot::BeginPlot("Potential", ImVec2(-1, PLOT_HEIGHT), ImPlotFlags_NoMouseText))
         {
             ImPlot::SetupAxes("Distance", "Potential");
-            ImPlot::SetupAxisLimits(ImAxis_X1, m_xmin, m_xmax, ImGuiCond_Always);
-            ImPlot::PlotLine("Potential", &data.data()->x, &data.data()->y, PLOT_POINTS, 0, 0, 2 * sizeof(float));
+            ImPlot::SetupAxesLimits(m_xlim.x, m_xlim.y, m_ylim.x, m_ylim.y);
+            ImPlot::PlotLine("Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0, 0, 2 * sizeof(float));
+            const auto dims = ImPlot::GetPlotLimits();
+            compare_and_update_xlimits({(float)dims.Min().x, (float)dims.Max().x});
+            ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
+            ImPlot::PlotShaded("Potential", &m_potential_data.data()->x, &m_potential_data.data()->y, PLOT_POINTS, 0., 0, 0, 2 * sizeof(float));
+            ImPlot::PopStyleVar();
             ImPlot::EndPlot();
-        }
-        bool has_to_update = false;
-        has_to_update |= ImGui::SliderFloat("x-min", &m_xmin, 0.f, m_xmax * 0.9f, "%.1f");
-        has_to_update |= ImGui::SliderFloat("x-max", &m_xmax, m_xmin + 0.1f, 50.f, "%.1f");
-        if (has_to_update)
-        {
-            for (auto &plot : m_plots)
-                plot.refresh_data(m_xmin, m_xmax);
-            update_combined_potential();
         }
     }
 
@@ -200,73 +206,72 @@ namespace phys_demo
     {
         ImGui::PushItemWidth(200);
 
+        bool has_to_update = false;
         render_enabled_checkbox(*m_gravity, &m_gravity->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Gravity", *m_gravity)) // TODO: Auto include button same line as treenode
+        if (ImGui::TreeNode("Gravity"))
         {
-            ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
+            has_to_update |= ImGui::DragFloat("Magnitude", &m_gravity->p_mag, 0.6f, -600.f, 600.f, "%.1f");
             ImGui::TreePop();
         }
 
         render_enabled_checkbox(*m_drag, &m_drag->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Drag", *m_drag))
+        if (ImGui::TreeNode("Drag"))
         {
-            ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
-            ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
+            has_to_update |= ImGui::DragFloat("Linear magnitude", &m_drag->p_lin_mag, 0.2f, 0.f, 20.f);
+            has_to_update |= ImGui::DragFloat("Angular magnitude", &m_drag->p_ang_mag, 0.2f, 0.f, 20.f);
 
             ImGui::TreePop();
         }
 
         render_enabled_checkbox(*m_gravitational, &m_gravitational->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Gravitational", *m_gravitational))
+        if (ImGui::TreeNode("Gravitational"))
         {
-            ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
-            render_potential_plot(m_plots[0].data);
+            has_to_update |= ImGui::DragFloat("Magnitude", &m_gravitational->p_mag, 0.6f, 0.f, 600.f, "%.1f");
             ImGui::TreePop();
         }
 
         render_enabled_checkbox(*m_repulsive, &m_repulsive->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Electrical (repulsive)", *m_repulsive))
+        if (ImGui::TreeNode("Electrical (repulsive)"))
         {
-            ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
+            has_to_update |= ImGui::DragFloat("Magnitude", &m_repulsive->p_mag, 0.6f, 0.f, 600.f, "%.1f");
 
             ImGui::Text("1/r^%u", m_repulsive->p_exp);
             ImGui::SameLine();
-            ImGui::DragInt("Exponent", (int *)&m_repulsive->p_exp, 0.2f, 1, 15);
-            render_potential_plot(m_plots[1].data);
+            has_to_update |= ImGui::DragInt("Exponent", (int *)&m_repulsive->p_exp, 0.2f, 1, 15);
             ImGui::TreePop();
         }
 
         render_enabled_checkbox(*m_attractive, &m_attractive->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Electrical (attractive)", *m_attractive))
+        if (ImGui::TreeNode("Electrical (attractive)"))
         {
-            ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
+            has_to_update |= ImGui::DragFloat("Magnitude", &m_attractive->p_mag, 0.6f, -600.f, 0.f, "%.1f");
 
             ImGui::Text("1/r^%u", m_attractive->p_exp);
             ImGui::SameLine();
-            ImGui::DragInt("Exponent", (int *)&m_attractive->p_exp, 0.2f, 1, 15);
-            render_potential_plot(m_plots[2].data);
+            has_to_update |= ImGui::DragInt("Exponent", (int *)&m_attractive->p_exp, 0.2f, 1, 15);
             ImGui::TreePop();
         }
 
         render_enabled_checkbox(*m_exponential, &m_exponential->p_auto_include);
         ImGui::SameLine();
-        if (tree_node_hovering_outline("Exponential", *m_exponential))
+        if (ImGui::TreeNode("Exponential"))
         {
-            ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, 0.f, 600.f, "%.1f");
-            ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.2f, -15.f, 15.f);
-            render_potential_plot(m_plots[3].data);
+            has_to_update |= ImGui::DragFloat("Magnitude", &m_exponential->p_mag, 0.6f, -600.f, 600.f, "%.1f");
+            has_to_update |= ImGui::DragFloat("Exponent", &m_exponential->p_exp, 0.02f, -3.f, 3.f);
             ImGui::TreePop();
         }
 
         ImGui::PopItemWidth();
+        if (has_to_update)
+            update_potential_data();
     }
 
-    void phys_panel::render_enabled_checkbox(phys::entity2D_set &set, bool *enabled) const
+    void phys_panel::render_enabled_checkbox(phys::entity2D_set &set, bool *enabled)
     {
         demo_app &papp = demo_app::get();
 
@@ -278,33 +283,30 @@ namespace phys_demo
                     set.include(papp.engine()[i]);
             else
                 set.clear();
+            update_potential_data();
         }
         ImGui::PopID();
     }
 
-    void phys_panel::update_combined_potential()
+    void phys_panel::update_potential_data()
     {
+        const std::array<std::shared_ptr<const phys::interaction2D>, 4> inters = {m_gravitational,
+                                                                                  m_repulsive,
+                                                                                  m_attractive,
+                                                                                  m_exponential};
+        const float dx = (m_xlim.y - m_xlim.x) / (PLOT_POINTS - 1.f);
         for (std::size_t i = 0; i < PLOT_POINTS; i++)
-        {
-            m_combined_data[i].x = m_plots[0].data[i].x;
-            m_combined_data[i].y = 0.f;
-            if (m_gravitational->p_auto_include)
-                m_combined_data[i].y += m_plots[0].data[i].y;
-            if (m_repulsive->p_auto_include)
-                m_combined_data[i].y += m_plots[1].data[i].y;
-            if (m_attractive->p_auto_include)
-                m_combined_data[i].y += m_plots[2].data[i].y;
-            if (m_exponential->p_auto_include)
-                m_combined_data[i].y += m_plots[3].data[i].y;
-        }
-    }
+            m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
 
-    bool phys_panel::tree_node_hovering_outline(const char *name, const phys::entity2D_set &set)
-    {
-        const bool expanded = ImGui::TreeNode(name);
-        if (expanded || ImGui::IsItemHovered())
-            for (const auto &e : set.entities())
-                demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Blue, 2);
-        return expanded;
+        const alg::vec2 refpos = alg::vec2::right;
+        const phys::entity2D unit;
+
+        for (const auto &inter : inters)
+        {
+            const float refval = inter->potential(unit, refpos);
+            if (inter->size() > 0)
+                for (std::size_t i = 0; i < PLOT_POINTS; i++)
+                    m_potential_data[i].y += inter->potential(unit, {m_potential_data[i].x, 0.f}) - refval;
+        }
     }
 }

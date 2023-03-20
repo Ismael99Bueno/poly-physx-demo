@@ -144,7 +144,7 @@ namespace phys_demo
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());
-        return cte * std::expf(p_exp * dist) / p_exp;
+        return -cte * std::expf(p_exp * dist) / p_exp;
     }
 
     void exponential::write(ini::output &out) const
