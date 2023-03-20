@@ -38,6 +38,7 @@ namespace phys_demo
     public:
         using phys::interaction2D::interaction2D;
         std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -51,6 +52,7 @@ namespace phys_demo
     public:
         using phys::interaction2D::interaction2D;
         std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -65,6 +67,7 @@ namespace phys_demo
     public:
         using phys::interaction2D::interaction2D;
         std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

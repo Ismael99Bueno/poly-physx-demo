@@ -42,6 +42,8 @@ namespace alg
 
         static vec2 triple_cross(const vec2 &v1, const vec2 &v2, const vec2 &v3);
 
+        const static vec2 zero, one, unit, left, right, down, up;
+
         operator sf::Vector2f() const;
         operator ImVec2() const;
     };

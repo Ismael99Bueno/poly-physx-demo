@@ -8,17 +8,16 @@
 
 namespace phys_demo
 {
-    demo_app::demo_app() : app()
+    demo_app::demo_app() : app() {}
+
+    void demo_app::on_start()
     {
         push_layer(&p_phys_panel);
         push_layer(&p_perf_panel);
         push_layer(&p_engine_panel);
         push_layer(&p_actions_panel);
         push_layer(&p_menu_bar);
-    }
 
-    void demo_app::on_start()
-    {
         p_grabber.start();
         p_selector.start();
         p_outline_manager.start();
@@ -151,7 +150,7 @@ namespace phys_demo
         switch (event.type)
         {
         case sf::Event::MouseButtonPressed:
-            p_copy_paste.delete_copy();
+            p_copy_paste.delete_copy(); // TODO: Que se quite con clic derecho
             switch (p_actions_panel.action())
             {
             case actions_panel::ADD:
@@ -203,7 +202,7 @@ namespace phys_demo
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;
-            case sf::Keyboard::V:
+            case sf::Keyboard::V: // TODO: Que para añadir sea clic izq
                 p_copy_paste.paste();
             default:
                 break;
@@ -242,7 +241,7 @@ namespace phys_demo
                         }
     }
 
-    void demo_app::remove_selected()
+    void demo_app::remove_selected() // TODO: Que remove selected se llame solo con backspace una vez se cancele tb con clic der
     {
         const auto selected = p_selector.get();
         for (phys::const_entity2D_ptr e : selected)

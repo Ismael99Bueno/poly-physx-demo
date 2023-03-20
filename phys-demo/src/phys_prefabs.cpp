@@ -72,6 +72,13 @@ namespace phys_demo
         return std::make_pair(force, 0.f);
     }
 
+    float gravitational::potential_energy_pair(const phys::entity2D &e1,
+                                               const phys::entity2D &e2) const
+    {
+        const float cte = -p_mag * e1.mass() * e2.mass();
+        return cte / e1.pos().dist(e2.pos());
+    }
+
     void gravitational::write(ini::output &out) const
     {
         out.write("mag", p_mag);
@@ -92,7 +99,22 @@ namespace phys_demo
         float den = dist;
         for (std::uint32_t i = 0; i < p_exp; i++)
             den *= dist;
-        return std::make_pair(cte * (e1.pos() - e2.pos()).normalized() / den, 0.f);
+        return std::make_pair(cte * (e1.pos() - e2.pos()) / den, 0.f);
+    }
+
+    float electrical::potential_energy_pair(const phys::entity2D &e1,
+                                            const phys::entity2D &e2) const
+    {
+        const float cte = p_mag * e1.charge() * e2.charge(),
+                    dist = e1.pos().dist(e2.pos());
+        if (p_exp > 1)
+        {
+            float den = dist;
+            for (std::uint32_t i = 2; i < p_exp; i++)
+                den *= dist;
+            return cte / den;
+        }
+        return -cte * std::logf(dist);
     }
 
     void electrical::write(ini::output &out) const
@@ -115,6 +137,14 @@ namespace phys_demo
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());
         return std::make_pair(cte * (e1.pos() - e2.pos()).normalized() * std::expf(p_exp * dist), 0.f);
+    }
+
+    float exponential::potential_energy_pair(const phys::entity2D &e1,
+                                             const phys::entity2D &e2) const
+    {
+        const float cte = p_mag * e1.charge() * e2.charge(),
+                    dist = e1.pos().dist(e2.pos());
+        return cte * std::expf(p_exp * dist) / p_exp;
     }
 
     void exponential::write(ini::output &out) const

@@ -45,7 +45,7 @@ namespace phys_demo
         if (!e1)
             return;
         m_e1 = e1;
-        m_joint1 = snap_e1_to_center ? alg::vec2() : (mpos - e1->pos());
+        m_joint1 = snap_e1_to_center ? alg::vec2::zero : (mpos - e1->pos());
         if (!snap_e1_to_center)
             m_last_angle = e1->angpos();
         m_snap_e1_to_center = snap_e1_to_center;
@@ -59,7 +59,7 @@ namespace phys_demo
         const auto e2 = papp.engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
-        const alg::vec2 joint2 = snap_e2_to_center ? alg::vec2() : (mpos - e2->pos());
+        const alg::vec2 joint2 = snap_e2_to_center ? alg::vec2::zero : (mpos - e2->pos());
 
         const bool no_joints = m_snap_e1_to_center && snap_e2_to_center;
         switch (p_attach)

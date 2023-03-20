@@ -160,7 +160,7 @@ namespace phys_demo
         const selector &slct = papp.p_selector;
         DBG_ASSERT(!slct.get().empty(), "Must have something selected to copy!\n")
 
-        group.ref_pos = alg::vec2();
+        group.ref_pos = alg::vec2::zero;
 
         for (const auto &e : slct.get())
         {
@@ -195,7 +195,7 @@ namespace phys_demo
         {
             const geo::polygon2D poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
-                                                          alg::vec2(), 0.f, 0.f, tmpl.mass,
+                                                          alg::vec2::zero, 0.f, 0.f, tmpl.mass,
                                                           tmpl.charge, poly.vertices(), tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)

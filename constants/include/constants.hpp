@@ -9,7 +9,7 @@
 #define FONT_SIZE_PIXELS 40.f
 #define DEFAULT_SIZE 5.f
 #define NO_FPS_LIMIT 0
-#define DEFAULT_FPS NO_FPS_LIMIT
+#define DEFAULT_FPS 120.f
 #define MIN_FPS 30
 #define MAX_FPS 240
 #define PERF_SESSION_NAME "runtime"

@@ -55,6 +55,13 @@ namespace alg
         const float cross = v1.cross(v2);
         return vec2(-v3.y * cross, v3.x * cross);
     }
+    const vec2 vec2::zero = {0.f, 0.f};
+    const vec2 vec2::one = {1.f, 1.f};
+    const vec2 vec2::unit = one.normalized();
+    const vec2 vec2::left = {-1.f, 0.f};
+    const vec2 vec2::right = {1.f, 0.f};
+    const vec2 vec2::down = {0.f, -1.f};
+    const vec2 vec2::up = {0.f, 1.f};
 
     vec2::operator sf::Vector2f() const { return sf::Vector2f(x, y); }
     vec2::operator ImVec2() const { return ImVec2(x, y); }

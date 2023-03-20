@@ -75,6 +75,10 @@ namespace phys_demo
         tmpl.kinematic = e.kinematic();
         return tmpl;
     }
+    phys::entity2D entity_template::as_entity()
+    {
+        return phys::entity2D(pos, vel, angpos, angvel, mass, charge, vertices, kinematic);
+    }
 
     void spring_template::write(ini::output &out) const
     {

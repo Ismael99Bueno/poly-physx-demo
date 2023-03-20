@@ -22,7 +22,7 @@ namespace phys_demo
     void menu_bar::render_file_menu() const
     {
         demo_app &app = demo_app::get();
-        if (ImGui::BeginMenu("File"))
+        if (ImGui::BeginMenu("File")) // TODO: Menu de examples
         {
             if (ImGui::MenuItem("New"))
             {
