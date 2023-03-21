@@ -4,24 +4,11 @@
 int main()
 {
     phys::app papp;
-    // phys::entity2D_ptr e1 = papp.engine().add_entity({0.f, 10.f}),
-    //                    e2 = papp.engine().add_entity({10.34f, 0.f});
-    // papp.engine().add_entity({}, {0.f, 4.f});
-    // e2->mass(10.3f);
-    // e2->dispatch();
 
-    // phys::spring2D sp(e1, e2);
-    // papp.engine().add_spring(sp);
-
-    // ini::output out("test.ini");
-    // out.begin_section("engine");
-    // papp.engine().write(out);
-    // out.end_section();
-
-    ini::input in("test.ini");
-    in.begin_section("engine");
-    papp.engine().read(in);
-    in.end_section();
-
+    const phys::entity2D_ptr e1 = papp.engine().add_entity(),
+                             e2 = papp.engine().add_entity({40.f, 0.f}, {-1.01f, 0.1f});
+    e1->shape(geo::polygon2D::box(5.f));
+    e2->shape(geo::polygon2D::box(5.f));
+    papp.engine().add_spring(e1, e2, {1.f, 1.f}, {0.5f, 0.f});
     papp.run();
 }
