@@ -304,7 +304,7 @@ namespace phys_demo
         for (const auto &inter : inters)
         {
             const float refval = inter->potential(unit, refpos);
-            if (inter->size() > 0)
+            if (inter->size() > 0) // TODO: Create enableables to solve this crap
                 for (std::size_t i = 0; i < PLOT_POINTS; i++)
                     m_potential_data[i].y += inter->potential(unit, {m_potential_data[i].x, 0.f}) - refval;
         }

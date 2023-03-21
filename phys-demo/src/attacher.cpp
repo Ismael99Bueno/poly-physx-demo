@@ -66,20 +66,16 @@ namespace phys_demo
         {
         case SPRING:
         {
-            phys::spring2D sp = no_joints ? phys::spring2D(m_e1, e2, p_sp_length)
-                                          : phys::spring2D(m_e1, e2, m_joint1, joint2, p_sp_length);
-            sp.stiffness(p_sp_stiffness);
-            sp.dampening(p_sp_dampening);
-            papp.engine().add_spring(sp);
+            if (no_joints)
+                papp.engine().add_spring(m_e1, e2, p_sp_stiffness, p_sp_dampening, p_sp_length);
+            else
+                papp.engine().add_spring(m_e1, e2, m_joint1, joint2, p_sp_stiffness, p_sp_dampening, p_sp_length);
             break;
         }
         case RIGID_BAR:
         {
-            const float dist = (m_e1->pos() + m_joint1).dist(e2->pos() + joint2);
-            const std::shared_ptr<phys::rigid_bar2D> rb = no_joints ? std::make_shared<phys::rigid_bar2D>(m_e1, e2, dist)
-                                                                    : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, dist);
-            rb->stiffness(p_rb_stiffness);
-            rb->dampening(p_rb_dampening);
+            const std::shared_ptr<phys::rigid_bar2D> rb = no_joints ? std::make_shared<phys::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening)
+                                                                    : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
             papp.engine().compeller().add_constraint(rb);
             break;
         }

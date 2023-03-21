@@ -203,21 +203,19 @@ namespace phys_demo
             const phys::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                      &e2 = added_entities.at(spt.id2);
 
-            phys::spring2D sp = !spt.has_joints ? phys::spring2D(e1, e2, spt.length)
-                                                : phys::spring2D(e1, e2, spt.joint1, spt.joint2, spt.length);
-            sp.stiffness(spt.stiffness);
-            sp.dampening(spt.dampening);
-            papp.engine().add_spring(sp);
+            if (spt.has_joints)
+                papp.engine().add_spring(e1, e2, spt.joint1, spt.joint2, spt.stiffness, spt.dampening, spt.length);
+            else
+                papp.engine().add_spring(e1, e2, spt.stiffness, spt.dampening, spt.length);
         }
         for (rigid_bar_template &rbt : m_copy.rbars)
         {
             const phys::entity2D_ptr &e1 = added_entities[rbt.id1],
                                      &e2 = added_entities[rbt.id2];
 
-            phys::rigid_bar2D rb = !rbt.has_joints ? phys::rigid_bar2D(e1, e2, rbt.length)
-                                                   : phys::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.length);
-            rb.stiffness(rbt.stiffness);
-            rb.dampening(rbt.dampening);
+            phys::rigid_bar2D rb = !rbt.has_joints ? phys::rigid_bar2D(e1, e2, rbt.stiffness, rbt.dampening)
+                                                   : phys::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
+            rb.length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
             papp.engine().compeller().add_constraint(std::make_shared<phys::rigid_bar2D>(rb));
         }
     }
