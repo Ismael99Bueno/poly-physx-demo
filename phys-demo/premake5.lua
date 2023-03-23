@@ -14,37 +14,19 @@ project "phys-demo"
    links {"vec2", "profiling", "ini", "runge-kutta", "geometry", "engine", "imgui", "imgui-SFML", "implot", "phys-app", "sfml-primitives", "omp", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
-      defines { "DEBUG" }
-      runtime "Debug"
-      symbols "On"
       removefiles "src/test.cpp"
 
    filter "configurations:release"
-      defines { "NDEBUG" }
-      runtime "Release"
-      optimize "On"
       removefiles "src/test.cpp"
 
    filter "configurations:test"
-      defines { "DEBUG" }
-      runtime "Debug"
-      symbols "On"
       removefiles "src/main.cpp"
 
    filter "configurations:debug-profile"
-      defines { "DEBUG", "PERF" }
-      runtime "Debug"
-      symbols "On"
       removefiles "src/test.cpp"
 
    filter "configurations:release-profile"
-      defines { "NDEBUG", "PERF" }
-      runtime "Release"
-      optimize "On"
       removefiles "src/test.cpp"
 
    filter "configurations:test-profile"
-      defines { "DEBUG", "PERF" }
-      runtime "Debug"
-      symbols "On"
       removefiles "src/main.cpp"

@@ -7,6 +7,36 @@ workspace "physics-engine-2D"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
 
+filter "configurations:debug"
+      defines { "DEBUG" }
+      runtime "Debug"
+      symbols "On"
+
+   filter "configurations:release"
+      defines { "NDEBUG" }
+      runtime "Release"
+      optimize "On"
+
+   filter "configurations:test"
+      defines { "DEBUG" }
+      runtime "Debug"
+      symbols "On"
+
+   filter "configurations:debug-profile"
+      defines { "DEBUG", "PERF" }
+      runtime "Debug"
+      symbols "On"
+
+   filter "configurations:release-profile"
+      defines { "NDEBUG", "PERF" }
+      runtime "Release"
+      optimize "On"
+
+   filter "configurations:test-profile"
+      defines { "DEBUG", "PERF" }
+      runtime "Debug"
+      symbols "On"
+
 include "vec2"
 include "runge-kutta"
 include "geometry"
