@@ -4,3 +4,6 @@
 [submodule "imgui-sfml"]
 	path = imgui-sfml
 	url = https://github.com/Ismael99Bueno/imgui-sfml.git
+[submodule "implot"]
+	path = implot
+	url = https://github.com/Ismael99Bueno/implot.git
