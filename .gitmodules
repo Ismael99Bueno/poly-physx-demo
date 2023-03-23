@@ -7,3 +7,6 @@
 [submodule "implot"]
 	path = implot
 	url = https://github.com/Ismael99Bueno/implot.git
+[submodule "SFML"]
+	path = SFML
+	url = https://github.com/Ismael99Bueno/SFML.git
