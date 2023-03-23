@@ -9,9 +9,9 @@ project "phys-demo"
    objdir("../build/" .. outputdir .. "/%{prj.name}")
 
    files {"src/**.cpp", "include/**.hpp"}
-   includedirs {"../**/include", "/opt/homebrew/Cellar/sfml/2.5.1_2/include"}
-   libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/libomp/15.0.6/lib"}
-   links {"vec2", "profiling", "ini", "runge-kutta", "geometry", "engine", "imgui", "imgui-SFML", "implot", "phys-app", "sfml-primitives", "omp", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+   includedirs "../**/include"
+   --libdirs {"/opt/homebrew/Cellar/sfml/2.5.1_2/lib", "/opt/homebrew/Cellar/libomp/15.0.6/lib"}
+   links {"SFML", "vec2", "profiling", "ini", "runge-kutta", "geometry", "engine", "imgui", "imgui-SFML", "implot", "phys-app", "sfml-primitives"}--, "omp", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
       removefiles "src/test.cpp"
