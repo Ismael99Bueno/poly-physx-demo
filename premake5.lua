@@ -5,6 +5,7 @@ workspace "physics-engine-2D"
     buildoptions "-Wall"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+defines "HAS_IMPLOT"
 
 include "vec2"
 include "runge-kutta"
