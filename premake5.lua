@@ -37,7 +37,6 @@ filter "configurations:debug"
       runtime "Debug"
       symbols "On"
 
-include "SFML"
 include "vec2"
 include "runge-kutta"
 include "geometry"
