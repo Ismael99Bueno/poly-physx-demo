@@ -19,3 +19,6 @@
 [submodule "ini-parser"]
 	path = ini-parser
 	url = https://github.com/Ismael99Bueno/ini-parser.git
+[submodule "debug-tools"]
+	path = debug-tools
+	url = https://github.com/Ismael99Bueno/debug-tools.git
