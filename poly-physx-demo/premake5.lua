@@ -11,7 +11,7 @@ project "poly-physx-demo"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs "../**/include"
    libdirs "../SFML/build-sfml/lib"--, "/opt/homebrew/Cellar/libomp/15.0.6/lib"}
-   links {"vec2", "profiling", "ini", "runge-kutta", "geometry", "engine", "imgui", "imgui-SFML", "implot", "phys-app", "sfml-primitives", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+   links {"vec-2D", "profiling", "ini", "runge-kutta", "geometry", "engine", "imgui", "imgui-SFML", "implot", "phys-app", "sfml-primitives", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
 
    filter "configurations:debug"
       removefiles "src/test.cpp"
