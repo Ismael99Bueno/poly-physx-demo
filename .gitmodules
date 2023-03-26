@@ -13,3 +13,6 @@
 [submodule "vec-2D"]
 	path = vec-2D
 	url = https://github.com/Ismael99Bueno/vec-2D.git
+[submodule "shapes-2D"]
+	path = shapes-2D
+	url = https://github.com/Ismael99Bueno/shapes-2D.git

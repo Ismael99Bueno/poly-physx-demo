@@ -40,7 +40,7 @@ filter "configurations:debug"
 
 include "vec-2D"
 include "runge-kutta"
-include "geometry"
+include "shapes-2D"
 include "ini"
 include "profiling"
 include "engine"
