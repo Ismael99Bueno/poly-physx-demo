@@ -38,7 +38,7 @@ filter "configurations:debug"
       runtime "Debug"
       symbols "On"
 
-include "vec2"
+include "vec-2D"
 include "runge-kutta"
 include "geometry"
 include "ini"
