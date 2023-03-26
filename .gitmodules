@@ -34,3 +34,6 @@
 [submodule "vector-view"]
 	path = vector-view
 	url = https://github.com/Ismael99Bueno/vector-view.git
+[submodule "poly-physx"]
+	path = poly-physx
+	url = https://github.com/Ismael99Bueno/poly-physx.git
