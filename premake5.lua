@@ -49,7 +49,7 @@ include "imgui-sfml"
 include "implot"
 include "phys-app"
 include "sfml-primitives"
-include "phys-demo"
+include "poly-physx-demo"
 
 newaction {
     trigger = "clean",

@@ -1,4 +1,4 @@
-project "phys-demo"
+project "poly-physx-demo"
    kind "ConsoleApp"
 
    language "C++"
