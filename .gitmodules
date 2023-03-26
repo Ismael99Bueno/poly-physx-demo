@@ -31,3 +31,6 @@
 [submodule "sfml-primitives"]
 	path = sfml-primitives
 	url = https://github.com/Ismael99Bueno/sfml-primitives.git
+[submodule "vector-view"]
+	path = vector-view
+	url = https://github.com/Ismael99Bueno/vector-view.git
