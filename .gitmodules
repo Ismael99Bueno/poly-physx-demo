@@ -28,3 +28,6 @@
 [submodule "rk-integrator"]
 	path = rk-integrator
 	url = https://github.com/Ismael99Bueno/rk-integrator.git
+[submodule "sfml-primitives"]
+	path = sfml-primitives
+	url = https://github.com/Ismael99Bueno/sfml-primitives.git
