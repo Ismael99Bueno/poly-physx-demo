@@ -25,3 +25,6 @@
 [submodule "profile-tools"]
 	path = profile-tools
 	url = https://github.com/Ismael99Bueno/profile-tools.git
+[submodule "rk-integrator"]
+	path = rk-integrator
+	url = https://github.com/Ismael99Bueno/rk-integrator.git

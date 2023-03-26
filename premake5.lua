@@ -39,7 +39,7 @@ filter "configurations:debug"
       symbols "On"
 
 include "vec-2D"
-include "runge-kutta"
+include "rk-integrator"
 include "shapes-2D"
 include "ini-parser"
 include "profile-tools"
