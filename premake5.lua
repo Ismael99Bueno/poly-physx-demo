@@ -47,7 +47,7 @@ include "poly-physx"
 include "imgui"
 include "imgui-sfml"
 include "implot"
-include "phys-app"
+include "poly-physx-app"
 include "sfml-primitives"
 include "poly-physx-demo"
 
