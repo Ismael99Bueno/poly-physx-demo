@@ -1,12 +1,26 @@
+# Binary files
 **/bin
+
+# Build folders
 **/build
+
+# Makefiles
 **/Makefile
+
+# MacOS artifacts
 .DS_Store
-.vscode
-profile-results/
+
+# VS-VSCode config
+.vscode/
 .vs/
-*.ini
+
+# Project files
 *.xcworkspace/
 **.xcodeproj
+
+# .ini files
+*.ini
+
+profile-results/
 fonts/
 saves/
