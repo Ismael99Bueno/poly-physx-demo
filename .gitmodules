@@ -1,14 +1,14 @@
 [submodule "imgui"]
-	path = imgui
+	path = vendor/imgui
 	url = https://github.com/Ismael99Bueno/imgui.git
 [submodule "imgui-sfml"]
-	path = imgui-sfml
+	path = vendor/imgui-sfml
 	url = https://github.com/Ismael99Bueno/imgui-sfml.git
 [submodule "implot"]
-	path = implot
+	path = vendor/implot
 	url = https://github.com/Ismael99Bueno/implot.git
 [submodule "SFML"]
-	path = SFML
+	path = vendor/SFML
 	url = https://github.com/Ismael99Bueno/SFML.git
 [submodule "vec-2D"]
 	path = vec-2D
