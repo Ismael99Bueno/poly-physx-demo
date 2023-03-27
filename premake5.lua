@@ -3,7 +3,7 @@ workspace "physics-engine-2D"
     configurations {"debug", "release", "test", "debug-profile", "release-profile", "test-profile"}
     startproject "app"
     buildoptions "-Wall"
-    linkoptions "-Wl,-rpath,./SFML/build-sfml/lib"
+    linkoptions "-Wl,-rpath,./vendor/SFML/build-sfml/lib"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
