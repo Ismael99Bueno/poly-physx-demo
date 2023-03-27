@@ -266,10 +266,10 @@ namespace phys_demo
                                  e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
                                  e4 = eng.add_entity({0.f, h + 0.5f * thck});
 
-        e1->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
-        e2->shape(geo::polygon2D::rect(thck, 2.f * (h + thck)));
-        e3->shape(geo::polygon2D::rect(2.f * w, thck));
-        e4->shape(geo::polygon2D::rect(2.f * w, thck));
+        e1->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
+        e2->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
+        e3->shape(geo::polygon::rect(2.f * w, thck));
+        e4->shape(geo::polygon::rect(2.f * w, thck));
 
         e1->kinematic(false);
         e2->kinematic(false);

@@ -169,7 +169,7 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
 
         std::vector<alg::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
-        geo::polygon2D poly(vertices);
+        geo::polygon poly(vertices);
 
         const bool is_convex = poly.is_convex();
         if (!is_convex)

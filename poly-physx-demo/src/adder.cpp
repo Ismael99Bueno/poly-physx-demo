@@ -156,13 +156,13 @@ namespace phys_demo
         switch (p_current_templ.shape)
         {
         case BOX:
-            vertices = geo::polygon2D::box(p_current_templ.size);
+            vertices = geo::polygon::box(p_current_templ.size);
             break;
         case RECT:
-            vertices = geo::polygon2D::rect(p_current_templ.width, p_current_templ.height);
+            vertices = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
             break;
         case NGON:
-            vertices = geo::polygon2D::ngon(p_current_templ.radius, p_current_templ.sides);
+            vertices = geo::polygon::ngon(p_current_templ.radius, p_current_templ.sides);
             break;
         default:
             break;
@@ -194,7 +194,7 @@ namespace phys_demo
     void adder::draw_preview()
     {
         const auto [pos, vel] = pos_vel_upon_addition();
-        geo::polygon2D poly(pos, p_current_templ.entity_templ.vertices);
+        geo::polygon poly(pos, p_current_templ.entity_templ.vertices);
         poly.rotation(std::atan2f(vel.y, vel.x));
 
         for (std::size_t i = 0; i < poly.size(); i++)

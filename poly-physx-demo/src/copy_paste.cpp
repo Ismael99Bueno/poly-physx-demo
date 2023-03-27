@@ -193,7 +193,7 @@ namespace phys_demo
         std::unordered_map<std::size_t, phys::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
-            const geo::polygon2D poly(tmpl.vertices);
+            const geo::polygon poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
                                                           alg::vec2::zero, 0.f, 0.f, tmpl.mass,
                                                           tmpl.charge, poly.vertices(), tmpl.kinematic);
@@ -227,7 +227,7 @@ namespace phys_demo
         const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         for (auto &[id, tmpl] : m_copy.entities)
         {
-            geo::polygon2D poly(tmpl.vertices);
+            geo::polygon poly(tmpl.vertices);
             poly.pos(poly.centroid() + offset);
 
             sf::Color col = papp.entity_color();
