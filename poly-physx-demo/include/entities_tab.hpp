@@ -5,7 +5,7 @@
 #include "selector.hpp"
 #include "outline_manager.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     class entities_tab
     {
@@ -20,8 +20,8 @@ namespace phys_demo
         void render_full_list() const;
         void render_groups() const;
 
-        bool render_entity_node(phys::entity2D &e, std::int8_t sign = 1) const;
-        void render_entity_data(phys::entity2D &e) const;
+        bool render_entity_node(ppx::entity2D &e, std::int8_t sign = 1) const;
+        void render_entity_data(ppx::entity2D &e) const;
     };
 }
 

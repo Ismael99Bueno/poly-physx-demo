@@ -4,7 +4,7 @@
 #include "engine2D.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class grabber : public ini::saveable
     {
@@ -26,7 +26,7 @@ namespace phys_demo
         sf::Color p_color = sf::Color(250, 214, 165);
 
     private:
-        phys::entity2D_ptr m_grabbed;
+        ppx::entity2D_ptr m_grabbed;
         alg::vec2 m_joint;
         float m_angle;
 

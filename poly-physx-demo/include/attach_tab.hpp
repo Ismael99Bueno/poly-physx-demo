@@ -4,7 +4,7 @@
 #include "attacher.hpp"
 #include "outline_manager.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     class attach_tab
     {

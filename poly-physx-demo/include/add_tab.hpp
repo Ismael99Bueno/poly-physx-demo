@@ -3,7 +3,7 @@
 
 #include "templates.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     class add_tab
     {

@@ -3,7 +3,7 @@
 
 #include "grabber.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     class grab_tab
     {

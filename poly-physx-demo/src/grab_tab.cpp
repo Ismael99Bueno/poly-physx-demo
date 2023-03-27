@@ -3,7 +3,7 @@
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void grab_tab::render() const
     {

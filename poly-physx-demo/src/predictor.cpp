@@ -2,11 +2,11 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void predictor::start()
     {
-        const auto on_addition = [this](phys::entity2D_ptr e)
+        const auto on_addition = [this](ppx::entity2D_ptr e)
         {
             if (p_enabled && p_auto_predict)
                 predict(e);
@@ -33,7 +33,7 @@ namespace phys_demo
 
         PERF_PRETTY_FUNCTION()
         demo_app &papp = demo_app::get();
-        phys::engine2D &eng = papp.engine();
+        ppx::engine2D &eng = papp.engine();
         for (auto &[e, path] : m_paths)
         {
             path.clear();
@@ -70,12 +70,12 @@ namespace phys_demo
             demo_app::get().window().draw(path);
     }
 
-    void predictor::predict(const phys::const_entity2D_ptr &e)
+    void predictor::predict(const ppx::const_entity2D_ptr &e)
     {
         if (!is_predicting(*e))
             m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
     }
-    void predictor::stop_predicting(const phys::entity2D &e)
+    void predictor::stop_predicting(const ppx::entity2D &e)
     {
         for (auto it = m_paths.begin(); it != m_paths.end(); ++it)
             if (*(it->first) == e)
@@ -85,11 +85,11 @@ namespace phys_demo
             }
     }
 
-    void predictor::predict_and_render(const phys::entity2D &e)
+    void predictor::predict_and_render(const ppx::entity2D &e)
     {
         PERF_FUNCTION()
         demo_app &papp = demo_app::get();
-        phys::engine2D &eng = papp.engine();
+        ppx::engine2D &eng = papp.engine();
         prm::thick_line_strip path(papp.shapes()[e.index()].getFillColor(), p_line_thickness);
         path.append(e.pos() * WORLD_TO_PIXEL);
 
@@ -110,7 +110,7 @@ namespace phys_demo
         eng.revert();
     }
 
-    bool predictor::is_predicting(const phys::entity2D &e) const
+    bool predictor::is_predicting(const ppx::entity2D &e) const
     {
         for (const auto &[entt, path] : m_paths)
             if (e == *entt)
@@ -146,7 +146,7 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const phys::entity2D_ptr e = papp.engine()[i];
+            const ppx::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 predict(e);
         }

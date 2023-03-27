@@ -4,7 +4,7 @@
 #include "thick_line_strip.hpp"
 #include "entity2D_ptr.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     class trail_manager : public ini::saveable
     {
@@ -15,9 +15,9 @@ namespace phys_demo
         void update();
         void render() const;
 
-        void include(const phys::const_entity2D_ptr &e);
-        void exclude(const phys::entity2D &e);
-        bool contains(const phys::entity2D &e) const;
+        void include(const ppx::const_entity2D_ptr &e);
+        void exclude(const ppx::entity2D &e);
+        bool contains(const ppx::entity2D &e) const;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -27,7 +27,7 @@ namespace phys_demo
         bool p_enabled = true, p_auto_include = true;
 
     private:
-        std::vector<std::pair<phys::const_entity2D_ptr, prm::thick_line_strip>> m_trails;
+        std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_trails;
     };
 }
 

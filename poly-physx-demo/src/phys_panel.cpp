@@ -5,7 +5,7 @@
 #include "constants.hpp"
 #include "demo_app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     phys_panel::phys_panel() : m_gravity(std::make_shared<gravity>()),
                                m_drag(std::make_shared<drag>()),
@@ -50,9 +50,9 @@ namespace phys_demo
         update_potential_data();
     }
 
-    void phys_panel::on_attach(phys::app *papp)
+    void phys_panel::on_attach(ppx::app *papp)
     {
-        phys::engine2D &eng = papp->engine();
+        ppx::engine2D &eng = papp->engine();
         eng.add_force(m_gravity);
         eng.add_force(m_drag);
         eng.add_interaction(m_gravitational);
@@ -64,7 +64,7 @@ namespace phys_demo
         m_attractive->p_mag = -20.f;
         update_potential_data();
 
-        const auto auto_include = [this](phys::entity2D_ptr e)
+        const auto auto_include = [this](ppx::entity2D_ptr e)
         {
             if (m_gravity->p_auto_include)
                 m_gravity->include(e);
@@ -271,7 +271,7 @@ namespace phys_demo
             update_potential_data();
     }
 
-    void phys_panel::render_enabled_checkbox(phys::entity2D_set &set, bool *enabled)
+    void phys_panel::render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled)
     {
         demo_app &papp = demo_app::get();
 
@@ -290,7 +290,7 @@ namespace phys_demo
 
     void phys_panel::update_potential_data()
     {
-        const std::array<std::shared_ptr<const phys::interaction2D>, 4> inters = {m_gravitational,
+        const std::array<std::shared_ptr<const ppx::interaction2D>, 4> inters = {m_gravitational,
                                                                                   m_repulsive,
                                                                                   m_attractive,
                                                                                   m_exponential};
@@ -299,7 +299,7 @@ namespace phys_demo
             m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
 
         const alg::vec2 refpos = alg::vec2::right;
-        const phys::entity2D unit;
+        const ppx::entity2D unit;
 
         for (const auto &inter : inters)
         {

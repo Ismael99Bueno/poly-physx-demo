@@ -4,7 +4,7 @@
 #include "engine2D.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class outline_manager
     {

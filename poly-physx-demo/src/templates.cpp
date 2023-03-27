@@ -1,7 +1,7 @@
 #include "templates.hpp"
 #include "constants.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void entity_template::write(ini::output &out) const
     {
@@ -60,7 +60,7 @@ namespace phys_demo
         }
     }
 
-    entity_template entity_template::from_entity(const phys::entity2D &e)
+    entity_template entity_template::from_entity(const ppx::entity2D &e)
     {
         entity_template tmpl;
         tmpl.pos = e.pos();
@@ -107,7 +107,7 @@ namespace phys_demo
         has_joints = (bool)in.readi("has_joints");
     }
 
-    spring_template spring_template::from_spring(const phys::spring2D &sp)
+    spring_template spring_template::from_spring(const ppx::spring2D &sp)
     {
         spring_template tmpl;
         tmpl.stiffness = sp.stiffness();
@@ -152,7 +152,7 @@ namespace phys_demo
         has_joints = (bool)in.readi("has_joints");
     }
 
-    rigid_bar_template rigid_bar_template::from_bar(const phys::rigid_bar2D &rb)
+    rigid_bar_template rigid_bar_template::from_bar(const ppx::rigid_bar2D &rb)
     {
         rigid_bar_template tmpl;
         tmpl.stiffness = rb.stiffness();

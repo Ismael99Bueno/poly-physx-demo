@@ -5,7 +5,7 @@
 #include "constants.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class adder : public ini::saveable
     {
@@ -38,7 +38,7 @@ namespace phys_demo
         void render();
         void setup();
         void cancel();
-        phys::entity2D_ptr add(bool definitive = true);
+        ppx::entity2D_ptr add(bool definitive = true);
 
         void save_template(const std::string &name);
         void load_template(const std::string &name);

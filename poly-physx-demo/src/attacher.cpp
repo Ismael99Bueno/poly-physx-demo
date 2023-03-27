@@ -5,7 +5,7 @@
 #include "constants.hpp"
 #include <algorithm>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void attacher::update(const bool snap_e2_to_center)
     {
@@ -74,8 +74,8 @@ namespace phys_demo
         }
         case RIGID_BAR:
         {
-            const std::shared_ptr<phys::rigid_bar2D> rb = no_joints ? std::make_shared<phys::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening)
-                                                                    : std::make_shared<phys::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
+            const std::shared_ptr<ppx::rigid_bar2D> rb = no_joints ? std::make_shared<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening)
+                                                                    : std::make_shared<ppx::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
             papp.engine().compeller().add_constraint(rb);
             break;
         }

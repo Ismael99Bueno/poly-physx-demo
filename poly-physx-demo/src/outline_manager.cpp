@@ -4,7 +4,7 @@
 #include "demo_app.hpp"
 #include <cmath>
 
-namespace phys_demo
+namespace ppx_demo
 {
     outline_manager::outline_manager(const std::size_t allocations)
     {
@@ -14,7 +14,7 @@ namespace phys_demo
     void outline_manager::start()
     {
 
-        const auto on_addition = [this](phys::entity2D_ptr e)
+        const auto on_addition = [this](ppx::entity2D_ptr e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
         const auto on_removal = [this](const std::size_t index)

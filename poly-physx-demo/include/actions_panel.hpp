@@ -7,9 +7,9 @@
 #include "add_tab.hpp"
 #include "app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class actions_panel : public phys::layer, public ini::saveable
+    class actions_panel : public ppx::layer, public ini::saveable
     {
     public:
         enum actions

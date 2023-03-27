@@ -5,7 +5,7 @@
 #include "rigid_bar2D.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class attacher : public ini::saveable
     {
@@ -40,7 +40,7 @@ namespace phys_demo
         attach_type p_attach = SPRING;
 
     private:
-        phys::entity2D_ptr m_e1;
+        ppx::entity2D_ptr m_e1;
         alg::vec2 m_joint1;
 
         float m_last_angle;

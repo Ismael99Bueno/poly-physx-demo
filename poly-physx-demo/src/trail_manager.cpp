@@ -2,11 +2,11 @@
 #include "thick_line.hpp"
 #include "demo_app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void trail_manager::start()
     {
-        const auto on_addition = [this](phys::entity2D_ptr e)
+        const auto on_addition = [this](ppx::entity2D_ptr e)
         {
             if (p_enabled && p_auto_include)
                 include(e);
@@ -66,12 +66,12 @@ namespace phys_demo
             }
     }
 
-    void trail_manager::include(const phys::const_entity2D_ptr &e)
+    void trail_manager::include(const ppx::const_entity2D_ptr &e)
     {
         if (!contains(*e))
             m_trails.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
     }
-    void trail_manager::exclude(const phys::entity2D &e)
+    void trail_manager::exclude(const ppx::entity2D &e)
     {
         for (auto it = m_trails.begin(); it != m_trails.end(); ++it)
             if (*(it->first) == e)
@@ -80,7 +80,7 @@ namespace phys_demo
                 break;
             }
     }
-    bool trail_manager::contains(const phys::entity2D &e) const
+    bool trail_manager::contains(const ppx::entity2D &e) const
     {
         for (const auto &[entt, path] : m_trails)
             if (e == *entt)
@@ -113,7 +113,7 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const phys::entity2D_ptr e = papp.engine()[i];
+            const ppx::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 include(e);
         }

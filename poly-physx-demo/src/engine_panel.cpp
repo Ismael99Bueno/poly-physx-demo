@@ -7,7 +7,7 @@
 #include "demo_app.hpp"
 #include <cmath>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void engine_panel::write(ini::output &out) const
     {
@@ -159,7 +159,7 @@ namespace phys_demo
     void engine_panel::render_collision_params() const
     {
         ImGui::PushItemWidth(250);
-        phys::collider2D &collider = demo_app::get().engine().collider();
+        ppx::collider2D &collider = demo_app::get().engine().collider();
         bool enabled = collider.enabled();
         if (ImGui::Checkbox("Enable", &enabled))
             collider.enabled(enabled);
@@ -175,14 +175,14 @@ namespace phys_demo
     void engine_panel::render_coldet_list()
     {
         ImGui::PushItemWidth(300);
-        phys::collider2D &collider = demo_app::get().engine().collider();
+        ppx::collider2D &collider = demo_app::get().engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         int coldet = collider.coldet();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
-            collider.coldet((phys::collider2D::coldet_method)coldet);
+            collider.coldet((ppx::collider2D::coldet_method)coldet);
 
-        if (collider.coldet() == phys::collider2D::coldet_method::QUAD_TREE)
+        if (collider.coldet() == ppx::collider2D::coldet_method::QUAD_TREE)
             render_quad_tree_params();
         else
             m_visualize_qt = false;
@@ -191,7 +191,7 @@ namespace phys_demo
 
     void engine_panel::render_quad_tree_params()
     {
-        phys::collider2D &collider = demo_app::get().engine().collider();
+        ppx::collider2D &collider = demo_app::get().engine().collider();
         static int max_entities = collider.quad_tree().max_entities(),
                    period = collider.quad_tree_build_period();
 
@@ -242,7 +242,7 @@ namespace phys_demo
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::draw_quad_tree(const phys::quad_tree2D &qt)
+    void engine_panel::draw_quad_tree(const ppx::quad_tree2D &qt)
     {
         if (qt.partitioned())
             for (const auto &child : qt.children())

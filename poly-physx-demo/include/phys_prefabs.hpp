@@ -4,14 +4,14 @@
 #include "force2D.hpp"
 #include "interaction2D.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class gravity : public phys::force2D, public ini::saveable
+    class gravity : public ppx::force2D, public ini::saveable
     {
     public:
-        using phys::force2D::force2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e) const override;
-        float potential_energy(const phys::entity2D &e) const override;
+        using ppx::force2D::force2D;
+        std::pair<alg::vec2, float> force(const ppx::entity2D &e) const override;
+        float potential_energy(const ppx::entity2D &e) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -20,11 +20,11 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class drag : public phys::force2D, public ini::saveable
+    class drag : public ppx::force2D, public ini::saveable
     {
     public:
-        using phys::force2D::force2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e) const override;
+        using ppx::force2D::force2D;
+        std::pair<alg::vec2, float> force(const ppx::entity2D &e) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -33,12 +33,12 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class gravitational : public phys::interaction2D, public ini::saveable
+    class gravitational : public ppx::interaction2D, public ini::saveable
     {
     public:
-        using phys::interaction2D::interaction2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
-        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        using ppx::interaction2D::interaction2D;
+        std::pair<alg::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -47,12 +47,12 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class electrical : public phys::interaction2D, public ini::saveable
+    class electrical : public ppx::interaction2D, public ini::saveable
     {
     public:
-        using phys::interaction2D::interaction2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
-        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        using ppx::interaction2D::interaction2D;
+        std::pair<alg::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -62,12 +62,12 @@ namespace phys_demo
         bool p_auto_include = false;
     };
 
-    class exponential : public phys::interaction2D, public ini::saveable
+    class exponential : public ppx::interaction2D, public ini::saveable
     {
     public:
-        using phys::interaction2D::interaction2D;
-        std::pair<alg::vec2, float> force(const phys::entity2D &e1, const phys::entity2D &e2) const override;
-        float potential_energy_pair(const phys::entity2D &e1, const phys::entity2D &e2) const override;
+        using ppx::interaction2D::interaction2D;
+        std::pair<alg::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

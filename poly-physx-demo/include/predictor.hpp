@@ -5,7 +5,7 @@
 #include "entity2D_ptr.hpp"
 #include <utility>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class predictor : public ini::saveable
     {
@@ -16,11 +16,11 @@ namespace phys_demo
         void update();
         void render() const;
 
-        void predict(const phys::const_entity2D_ptr &e);
-        void stop_predicting(const phys::entity2D &e);
+        void predict(const ppx::const_entity2D_ptr &e);
+        void stop_predicting(const ppx::entity2D &e);
 
-        void predict_and_render(const phys::entity2D &e);
-        bool is_predicting(const phys::entity2D &e) const;
+        void predict_and_render(const ppx::entity2D &e);
+        bool is_predicting(const ppx::entity2D &e) const;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -31,7 +31,7 @@ namespace phys_demo
         bool p_with_collisions = false, p_enabled = true, p_auto_predict = false;
 
     private:
-        std::vector<std::pair<phys::const_entity2D_ptr, prm::thick_line_strip>> m_paths;
+        std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_paths;
     };
 }
 

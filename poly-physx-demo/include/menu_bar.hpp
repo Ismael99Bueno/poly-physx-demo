@@ -4,9 +4,9 @@
 #include "layer.hpp"
 #include <optional>
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class menu_bar : public phys::layer
+    class menu_bar : public ppx::layer
     {
     public:
         menu_bar() = default;

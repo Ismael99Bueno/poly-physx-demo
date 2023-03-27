@@ -4,9 +4,9 @@
 #include "quad_tree2D.hpp"
 #include "layer.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class engine_panel : public phys::layer, public ini::saveable
+    class engine_panel : public ppx::layer, public ini::saveable
     {
     public:
         void write(ini::output &out) const override;
@@ -44,7 +44,7 @@ namespace phys_demo
         void render_path_prediction_settings() const;
         void render_trail_settings() const;
 
-        void draw_quad_tree(const phys::quad_tree2D &qt);
+        void draw_quad_tree(const ppx::quad_tree2D &qt);
     };
 }
 

@@ -4,7 +4,7 @@
 #include "flat_line.hpp"
 #include "flat_line_strip.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void adder::render()
     {
@@ -23,7 +23,7 @@ namespace phys_demo
 
     void adder::cancel() { m_adding = false; }
 
-    phys::entity2D_ptr adder::add(const bool definitive)
+    ppx::entity2D_ptr adder::add(const bool definitive)
     {
         if (!m_adding)
             return nullptr;

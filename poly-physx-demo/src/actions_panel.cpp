@@ -4,7 +4,7 @@
 #include "constants.hpp"
 #include "demo_app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     actions_panel::actions_panel() {}
 

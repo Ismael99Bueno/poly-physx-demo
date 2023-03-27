@@ -7,9 +7,9 @@
 #include "constants.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class perf_panel : public phys::layer, public ini::saveable
+    class perf_panel : public ppx::layer, public ini::saveable
     {
     public:
         enum time_unit

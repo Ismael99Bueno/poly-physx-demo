@@ -3,15 +3,15 @@
 #include <limits>
 #include <cmath>
 
-namespace phys_demo
+namespace ppx_demo
 {
-    static void write_set(const phys::entity2D_set &set, ini::output &out)
+    static void write_set(const ppx::entity2D_set &set, ini::output &out)
     {
         const std::string key = "entity";
-        for (const phys::const_entity2D_ptr &e : set.entities())
+        for (const ppx::const_entity2D_ptr &e : set.entities())
             out.write(key + std::to_string(e.index()), e.index());
     }
-    static void read_set(phys::entity2D_set &set, ini::input &in)
+    static void read_set(ppx::entity2D_set &set, ini::input &in)
     {
         set.clear();
         const std::string key = "entity";
@@ -19,18 +19,18 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const phys::const_entity2D_ptr e = papp.engine()[i];
+            const ppx::const_entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 set.include(e);
         }
     }
 
-    std::pair<alg::vec2, float> gravity::force(const phys::entity2D &e) const
+    std::pair<alg::vec2, float> gravity::force(const ppx::entity2D &e) const
     {
         return std::make_pair(alg::vec2(0.f, e.mass() * p_mag), 0.f);
     }
 
-    float gravity::potential_energy(const phys::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
+    float gravity::potential_energy(const ppx::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
 
     void gravity::write(ini::output &out) const
     {
@@ -45,7 +45,7 @@ namespace phys_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> drag::force(const phys::entity2D &e) const
+    std::pair<alg::vec2, float> drag::force(const ppx::entity2D &e) const
     {
         return std::make_pair(-p_lin_mag * e.vel(), -p_ang_mag * e.angvel());
     }
@@ -65,15 +65,15 @@ namespace phys_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> gravitational::force(const phys::entity2D &e1, const phys::entity2D &e2) const
+    std::pair<alg::vec2, float> gravitational::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.mass() * e2.mass();
         const alg::vec2 force = cte * (e2.pos() - e1.pos()).normalized() / e1.pos().sq_dist(e2.pos());
         return std::make_pair(force, 0.f);
     }
 
-    float gravitational::potential_energy_pair(const phys::entity2D &e1,
-                                               const phys::entity2D &e2) const
+    float gravitational::potential_energy_pair(const ppx::entity2D &e1,
+                                               const ppx::entity2D &e2) const
     {
         const float cte = -p_mag * e1.mass() * e2.mass();
         return cte / e1.pos().dist(e2.pos());
@@ -92,7 +92,7 @@ namespace phys_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> electrical::force(const phys::entity2D &e1, const phys::entity2D &e2) const
+    std::pair<alg::vec2, float> electrical::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());
@@ -102,8 +102,8 @@ namespace phys_demo
         return std::make_pair(cte * (e1.pos() - e2.pos()) / den, 0.f);
     }
 
-    float electrical::potential_energy_pair(const phys::entity2D &e1,
-                                            const phys::entity2D &e2) const
+    float electrical::potential_energy_pair(const ppx::entity2D &e1,
+                                            const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());
@@ -132,15 +132,15 @@ namespace phys_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> exponential::force(const phys::entity2D &e1, const phys::entity2D &e2) const
+    std::pair<alg::vec2, float> exponential::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());
         return std::make_pair(cte * (e1.pos() - e2.pos()).normalized() * std::expf(p_exp * dist), 0.f);
     }
 
-    float exponential::potential_energy_pair(const phys::entity2D &e1,
-                                             const phys::entity2D &e2) const
+    float exponential::potential_energy_pair(const ppx::entity2D &e1,
+                                             const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = e1.pos().dist(e2.pos());

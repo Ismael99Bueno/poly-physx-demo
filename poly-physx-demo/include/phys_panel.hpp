@@ -8,9 +8,9 @@
 
 #define PLOT_POINTS 500
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class phys_panel : public phys::layer, public ini::saveable
+    class phys_panel : public ppx::layer, public ini::saveable
     {
     public:
         phys_panel();
@@ -21,7 +21,7 @@ namespace phys_demo
         bool p_enabled = true;
 
     private:
-        void on_attach(phys::app *papp) override;
+        void on_attach(ppx::app *papp) override;
         void on_render() override;
 
         std::shared_ptr<gravity> m_gravity;
@@ -53,7 +53,7 @@ namespace phys_demo
         void render_energy_plot() const;
         void render_potential_plot();
         void render_forces_and_inters();
-        void render_enabled_checkbox(phys::entity2D_set &set, bool *enabled);
+        void render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled);
 
         void update_potential_data();
         void compare_and_update_xlimits(const alg::vec2 &xlim);

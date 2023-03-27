@@ -5,7 +5,7 @@
 #include "constants.hpp"
 #include <filesystem>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void menu_bar::on_render()
     {

@@ -3,7 +3,7 @@
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void attach_tab::render() const
     {
@@ -80,7 +80,7 @@ namespace phys_demo
         if (ImGui::CollapsingHeader("Springs"))
             for (std::size_t i = 0; i < spring_count; i++)
             {
-                phys::spring2D &sp = springs[i];
+                ppx::spring2D &sp = springs[i];
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {
@@ -118,12 +118,12 @@ namespace phys_demo
         auto &ctrs = papp.engine().compeller().constraints();
         outline_manager &outlmng = papp.p_outline_manager;
 
-        std::shared_ptr<phys::constraint_interface2D> to_remove = nullptr;
+        std::shared_ptr<ppx::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)
             {
-                auto &rb = static_cast<phys::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
+                auto &rb = static_cast<ppx::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
                 const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i);
                 if (expanded || ImGui::IsItemHovered())
                 {

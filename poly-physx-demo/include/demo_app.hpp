@@ -18,9 +18,9 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-namespace phys_demo
+namespace ppx_demo
 {
-    class demo_app : public phys::app
+    class demo_app : public ppx::app
     {
     public:
         demo_app(const demo_app &papp) = delete;
@@ -64,7 +64,7 @@ namespace phys_demo
         void on_update() override;
         void on_late_update() override;
         void on_render() override;
-        void on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape) override;
+        void on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
         void on_end() override;
 

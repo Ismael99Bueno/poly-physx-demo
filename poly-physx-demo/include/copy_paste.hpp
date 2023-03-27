@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class copy_paste : public ini::saveable
     {

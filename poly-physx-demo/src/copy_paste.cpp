@@ -2,7 +2,7 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void copy_paste::render()
     {
@@ -168,7 +168,7 @@ namespace phys_demo
             group.ref_pos += e->pos();
         }
         group.ref_pos /= slct.get().size();
-        for (const phys::spring2D &sp : papp.engine().springs())
+        for (const ppx::spring2D &sp : papp.engine().springs())
         {
             const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
                        has_second = group.entities.find(sp.e2().id()) != group.entities.end();
@@ -177,7 +177,7 @@ namespace phys_demo
         }
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
-            const phys::rigid_bar2D &rb = dynamic_cast<const phys::rigid_bar2D &>(*ctr);
+            const ppx::rigid_bar2D &rb = dynamic_cast<const ppx::rigid_bar2D &>(*ctr);
             const bool has_first = group.entities.find(rb.e1().id()) != group.entities.end(),
                        has_second = group.entities.find(rb.e2().id()) != group.entities.end();
             if (has_first && has_second)
@@ -190,7 +190,7 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
 
         const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
-        std::unordered_map<std::size_t, phys::entity2D_ptr> added_entities;
+        std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
             const geo::polygon poly(tmpl.vertices);
@@ -200,7 +200,7 @@ namespace phys_demo
         }
         for (spring_template &spt : m_copy.springs)
         {
-            const phys::entity2D_ptr &e1 = added_entities.at(spt.id1),
+            const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                      &e2 = added_entities.at(spt.id2);
 
             if (spt.has_joints)
@@ -210,13 +210,13 @@ namespace phys_demo
         }
         for (rigid_bar_template &rbt : m_copy.rbars)
         {
-            const phys::entity2D_ptr &e1 = added_entities[rbt.id1],
+            const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
                                      &e2 = added_entities[rbt.id2];
 
-            phys::rigid_bar2D rb = !rbt.has_joints ? phys::rigid_bar2D(e1, e2, rbt.stiffness, rbt.dampening)
-                                                   : phys::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
+            ppx::rigid_bar2D rb = !rbt.has_joints ? ppx::rigid_bar2D(e1, e2, rbt.stiffness, rbt.dampening)
+                                                   : ppx::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
             rb.length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
-            papp.engine().compeller().add_constraint(std::make_shared<phys::rigid_bar2D>(rb));
+            papp.engine().compeller().add_constraint(std::make_shared<ppx::rigid_bar2D>(rb));
         }
     }
 

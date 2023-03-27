@@ -5,7 +5,7 @@
 #include "demo_app.hpp"
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void add_tab::render() const
     {

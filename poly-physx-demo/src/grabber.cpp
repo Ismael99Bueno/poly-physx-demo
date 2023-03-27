@@ -4,7 +4,7 @@
 #include "spring_line.hpp"
 #include <limits>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void grabber::start()
     {

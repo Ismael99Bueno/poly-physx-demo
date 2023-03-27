@@ -2,7 +2,7 @@
 #include "demo_app.hpp"
 #include "constants.hpp"
 
-namespace phys_demo
+namespace ppx_demo
 {
     void entities_tab::render() const
     {
@@ -61,7 +61,7 @@ namespace phys_demo
         }
         if (slct.get().size() == 1)
         {
-            const phys::entity2D_ptr &e = *slct.get().begin();
+            const ppx::entity2D_ptr &e = *slct.get().begin();
             ImGui::Text("Entity %zu", e.id());
             render_entity_data(*e);
             return;
@@ -143,16 +143,16 @@ namespace phys_demo
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
 
-        phys::entity2D_ptr to_deselect = nullptr, to_select = nullptr;
-        const phys::entity2D *to_remove = nullptr;
+        ppx::entity2D_ptr to_deselect = nullptr, to_select = nullptr;
+        const ppx::entity2D *to_remove = nullptr;
 
         if (papp.engine().entities().unwrap().empty())
             ImGui::Text("Spawn entities by clicking with your mouse while on the 'Add' tab!");
         else
         {
-            for (phys::entity2D &e : papp.engine().entities())
+            for (ppx::entity2D &e : papp.engine().entities())
             {
-                const phys::entity2D_ptr e_ptr = papp.engine()[e.index()];
+                const ppx::entity2D_ptr e_ptr = papp.engine()[e.index()];
 
                 if (!render_entity_node(e, -1))
                     ImGui::SameLine();
@@ -199,7 +199,7 @@ namespace phys_demo
         ImGui::Unindent();
     }
 
-    bool entities_tab::render_entity_node(phys::entity2D &e, std::int8_t sign) const
+    bool entities_tab::render_entity_node(ppx::entity2D &e, std::int8_t sign) const
     {
         const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %zu", e.id());
         if (expanded || ImGui::IsItemHovered())
@@ -212,7 +212,7 @@ namespace phys_demo
         return expanded;
     }
 
-    void entities_tab::render_entity_data(phys::entity2D &e) const
+    void entities_tab::render_entity_data(ppx::entity2D &e) const
     {
         float pos[2] = {e.pos().x, e.pos().y},
               vel[2] = {e.vel().x, e.vel().y},

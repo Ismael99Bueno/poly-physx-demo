@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <SFML/Graphics.hpp>
 
-namespace phys_demo
+namespace ppx_demo
 {
     class selector : public ini::saveable
     {
@@ -18,19 +18,19 @@ namespace phys_demo
         void begin_select(bool clear_previous = true);
         void end_select();
 
-        bool is_selecting(const phys::entity2D_ptr &e) const;
-        bool is_selected(const phys::entity2D_ptr &e) const;
+        bool is_selecting(const ppx::entity2D_ptr &e) const;
+        bool is_selected(const ppx::entity2D_ptr &e) const;
 
-        void select(const phys::entity2D_ptr &e);
-        void deselect(const phys::entity2D_ptr &e);
+        void select(const ppx::entity2D_ptr &e);
+        void deselect(const ppx::entity2D_ptr &e);
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        const std::unordered_set<phys::entity2D_ptr> &get() const;
+        const std::unordered_set<ppx::entity2D_ptr> &get() const;
 
     private:
-        std::unordered_set<phys::entity2D_ptr> m_selected;
+        std::unordered_set<ppx::entity2D_ptr> m_selected;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 

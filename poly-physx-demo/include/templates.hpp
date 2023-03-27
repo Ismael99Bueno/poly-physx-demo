@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include <vector>
 
-namespace phys_demo
+namespace ppx_demo
 {
     struct entity_template : ini::saveable
     {
@@ -19,7 +19,7 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        static entity_template from_entity(const phys::entity2D &e);
+        static entity_template from_entity(const ppx::entity2D &e);
     };
 
     struct spring_template : ini::saveable
@@ -32,7 +32,7 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        static spring_template from_spring(const phys::spring2D &sp);
+        static spring_template from_spring(const ppx::spring2D &sp);
     };
 
     struct rigid_bar_template : ini::saveable
@@ -45,7 +45,7 @@ namespace phys_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        static rigid_bar_template from_bar(const phys::rigid_bar2D &rb);
+        static rigid_bar_template from_bar(const ppx::rigid_bar2D &rb);
     };
 }
 

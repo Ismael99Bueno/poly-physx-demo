@@ -5,7 +5,7 @@
 #include "demo_app.hpp"
 #include <cmath>
 
-namespace phys_demo
+namespace ppx_demo
 {
     void perf_panel::write(ini::output &out) const
     {

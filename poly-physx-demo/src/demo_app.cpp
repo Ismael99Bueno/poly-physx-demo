@@ -6,7 +6,7 @@
 #include "constants.hpp"
 #include <filesystem>
 
-namespace phys_demo
+namespace ppx_demo
 {
     demo_app::demo_app() : app() {}
 
@@ -139,7 +139,7 @@ namespace phys_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(const phys::entity2D_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color::Red, 3);
@@ -222,8 +222,8 @@ namespace phys_demo
     void demo_app::draw_interaction_lines()
     {
         PERF_FUNCTION()
-        const phys::engine2D &eng = engine();
-        const phys::const_entity2D_ptr e1 = eng[world_mouse()];
+        const ppx::engine2D &eng = engine();
+        const ppx::const_entity2D_ptr e1 = eng[world_mouse()];
         if (e1)
             for (const auto &inter : eng.interactions())
                 if (inter->contains(*e1))
@@ -244,7 +244,7 @@ namespace phys_demo
     void demo_app::remove_selected() // TODO: Que remove selected se llame solo con backspace una vez se cancele tb con clic der
     {
         const auto selected = p_selector.get();
-        for (phys::const_entity2D_ptr e : selected)
+        for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
 
@@ -260,8 +260,8 @@ namespace phys_demo
         const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
         const float thck = 20.f;
 
-        phys::engine2D &eng = engine();
-        const phys::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
+        ppx::engine2D &eng = engine();
+        const ppx::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
                                  e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
                                  e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
                                  e4 = eng.add_entity({0.f, h + 0.5f * thck});
