@@ -18,6 +18,8 @@
 *.xcworkspace/
 **.xcodeproj
 
+*temp*
+
 # .ini files
 *.ini
 
