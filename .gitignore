@@ -14,15 +14,20 @@
 .vscode/
 .vs/
 
+# Python environments
+*env/
+
 # Project files
 *.xcworkspace/
 **.xcodeproj
 
+#ImGui artifacts
+imgui.ini
+
 *temp*
 
-# .ini files
-*.ini
 
+# Results folders
 profile-results/
 fonts/
 saves/
