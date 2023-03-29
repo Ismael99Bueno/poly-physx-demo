@@ -9,7 +9,7 @@ namespace ppx_demo
 {
     void add_tab::render() const
     {
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         render_menu_bar();
         render_shape_list();
         render_entity_inputs();
@@ -82,14 +82,14 @@ namespace ppx_demo
         case adder::BOX:
         {
             const alg::vec2 size = alg::vec2(addr.p_current_templ.size, addr.p_current_templ.size) * WORLD_TO_PIXEL,
-                            pos = alg::vec2(550.f, -30.f) - 0.5f * size;
+                            pos = alg::vec2(350.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
         case adder::RECT:
         {
             const alg::vec2 size = alg::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
-                            pos = alg::vec2(550.f, -30.f) - 0.5f * size;
+                            pos = alg::vec2(350.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
             break;
         }
@@ -98,7 +98,7 @@ namespace ppx_demo
             const float radius = addr.p_current_templ.radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 550.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), addr.p_current_templ.sides);
+            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), addr.p_current_templ.sides);
             break;
         }
         default:

@@ -86,7 +86,7 @@ namespace ppx_demo
         if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
             papp.aligned_timestep(align_dt);
 
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         if (!align_dt)
         {
             const rk::integrator &integ = papp.engine().integrator();
@@ -103,7 +103,7 @@ namespace ppx_demo
 
     void engine_panel::render_methods_list()
     {
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         static const char *methods[] = {"RK1",
                                         "RK2",
                                         "RK4",

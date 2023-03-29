@@ -11,7 +11,7 @@ namespace ppx_demo
 
         attacher &attch = demo_app::get().p_attacher;
 
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         ImGui::ListBox("Attach type", (int *)&attch.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
 
         switch (attch.p_attach)

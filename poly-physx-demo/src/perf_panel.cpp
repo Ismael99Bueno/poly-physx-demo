@@ -48,7 +48,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         float smoothness = papp.time_measure_smoothness();
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         if (ImGui::SliderFloat("Smoothness", &smoothness, 0.f, 0.99f, "%.2f"))
         {
             papp.time_measure_smoothness(smoothness);
@@ -64,7 +64,7 @@ namespace ppx_demo
         ImGui::Text("FPS: %d", (int)std::round(1.f / frame_time));
         bool limited = papp.framerate() != NO_FPS_LIMIT;
 
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         if (ImGui::Checkbox("Limit FPS", &limited))
             papp.framerate(limited ? m_fps : 0);
 

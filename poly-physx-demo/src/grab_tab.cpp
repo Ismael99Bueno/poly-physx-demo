@@ -12,7 +12,7 @@ namespace ppx_demo
         sf::Color &color = grb.p_color;
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
         ImGui::DragFloat("Stiffness", &grb.p_stiffness, 0.2f, 0.f, 500.f, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("How stiff the grab spring will be.");

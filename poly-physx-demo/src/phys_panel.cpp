@@ -204,7 +204,7 @@ namespace ppx_demo
 
     void phys_panel::render_forces_and_inters()
     {
-        ImGui::PushItemWidth(200);
+        ImGui::PushItemWidth(150);
 
         bool has_to_update = false;
         render_enabled_checkbox(*m_gravity, &m_gravity->p_auto_include);
@@ -291,9 +291,9 @@ namespace ppx_demo
     void phys_panel::update_potential_data()
     {
         const std::array<std::shared_ptr<const ppx::interaction2D>, 4> inters = {m_gravitational,
-                                                                                  m_repulsive,
-                                                                                  m_attractive,
-                                                                                  m_exponential};
+                                                                                 m_repulsive,
+                                                                                 m_attractive,
+                                                                                 m_exponential};
         const float dx = (m_xlim.y - m_xlim.x) / (PLOT_POINTS - 1.f);
         for (std::size_t i = 0; i < PLOT_POINTS; i++)
             m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
