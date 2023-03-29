@@ -27,10 +27,16 @@ namespace ppx_demo
 
         static demo_app &get();
 
-        void save(const std::string &filename) const;
-        bool load(const std::string &filename);
-        void save() const;
-        bool load();
+        void write(const std::string &filepath) const;
+        bool read(const std::string &filepath);
+
+        void write_save(const std::string &filename) const;
+        bool read_save(const std::string &filename);
+
+        void write_save() const;
+        bool read_save();
+
+        bool read_example(const std::string &filename);
 
         bool validate_session();
 

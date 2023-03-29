@@ -15,6 +15,7 @@
 #define MAX_FPS 240
 #define PERF_SESSION_NAME "runtime"
 #define SAVES_DIR "saves/"
+#define EXAMPLES_DIR "examples/"
 #define DEFAULT_SAVE "default.ini"
 #define LAST_SAVE "last.ini"
 #define DEFAULT_ENTITY_COLOR sf::Color(123, 143, 161)

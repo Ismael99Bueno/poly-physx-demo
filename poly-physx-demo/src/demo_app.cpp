@@ -24,12 +24,12 @@ namespace ppx_demo
         p_predictor.start();
         p_trails.start();
         p_follower.start();
-        save(DEFAULT_SAVE);
-        if (!load(LAST_SAVE))
+        write_save(DEFAULT_SAVE);
+        if (!read_save(LAST_SAVE))
             add_borders();
     }
 
-    void demo_app::on_end() { save(LAST_SAVE); }
+    void demo_app::on_end() { write_save(LAST_SAVE); }
 
     void demo_app::write(ini::output &out) const
     {
@@ -64,25 +64,17 @@ namespace ppx_demo
         return exists;
     }
 
-    void demo_app::save(const std::string &filename) const
+    void demo_app::write(const std::string &filepath) const
     {
-        if (!std::filesystem::exists(SAVES_DIR))
-            std::filesystem::create_directory(SAVES_DIR);
-
-        const std::string filepath = SAVES_DIR + filename;
         ini::output out(filepath.c_str());
+
         out.begin_section("demo_app");
         write(out);
         out.end_section();
         out.close();
     }
-
-    bool demo_app::load(const std::string &filename)
+    bool demo_app::read(const std::string &filepath)
     {
-        if (!std::filesystem::exists(SAVES_DIR))
-            std::filesystem::create_directory(SAVES_DIR);
-
-        const std::string filepath = SAVES_DIR + filename;
         ini::input in(filepath.c_str());
 
         if (!in.is_open())
@@ -95,16 +87,26 @@ namespace ppx_demo
         return true;
     }
 
-    void demo_app::save() const
+    void demo_app::write_save(const std::string &filename) const
+    {
+        if (!std::filesystem::exists(SAVES_DIR))
+            std::filesystem::create_directory(SAVES_DIR);
+        write(SAVES_DIR + filename);
+    }
+    bool demo_app::read_save(const std::string &filename) { return read(SAVES_DIR + filename); }
+
+    void demo_app::write_save() const
     {
         DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to save.\n")
-        save(m_session);
+        write_save(m_session);
     }
-    bool demo_app::load()
+    bool demo_app::read_save()
     {
         DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to load.\n")
-        return load(m_session);
+        return read_save(m_session);
     }
+
+    bool demo_app::read_example(const std::string &filepath) { return read(EXAMPLES_DIR + filepath); }
 
     void demo_app::on_update()
     {
@@ -262,9 +264,9 @@ namespace ppx_demo
 
         ppx::engine2D &eng = engine();
         const ppx::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
-                                 e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
-                                 e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
-                                 e4 = eng.add_entity({0.f, h + 0.5f * thck});
+                                e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
+                                e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
+                                e4 = eng.add_entity({0.f, h + 0.5f * thck});
 
         e1->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
         e2->shape(geo::polygon::rect(thck, 2.f * (h + thck)));

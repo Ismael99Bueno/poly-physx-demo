@@ -24,7 +24,7 @@ namespace ppx_demo
 
         std::size_t p_steps = 150, p_length = 5;
         float p_line_thickness = 6.f;
-        bool p_enabled = true, p_auto_include = true;
+        bool p_enabled = false, p_auto_include = true;
 
     private:
         std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_trails;

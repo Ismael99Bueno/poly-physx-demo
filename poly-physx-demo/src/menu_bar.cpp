@@ -26,7 +26,7 @@ namespace ppx_demo
         {
             if (ImGui::MenuItem("New"))
             {
-                app.load(DEFAULT_SAVE);
+                app.read_save(DEFAULT_SAVE);
                 app.add_borders();
             }
 
@@ -84,7 +84,7 @@ namespace ppx_demo
     void menu_bar::save_item() const
     {
         if (ImGui::MenuItem("Save", nullptr, nullptr, demo_app::get().has_session()))
-            demo_app::get().save();
+            demo_app::get().write_save();
     }
 
     void menu_bar::save_as_item() const
@@ -99,7 +99,7 @@ namespace ppx_demo
                 const std::string savefile(buffer);
                 demo_app &app = demo_app::get();
                 app.session(savefile + ".ini");
-                app.save(savefile + ".ini");
+                app.write_save(savefile + ".ini");
                 buffer[0] = '\0';
             }
             ImGui::PopItemWidth();
@@ -112,7 +112,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         if (ImGui::MenuItem("Load", nullptr, nullptr, papp.has_session()))
-            papp.load();
+            papp.read_save();
     }
 
     void menu_bar::load_as_item() const
@@ -121,7 +121,7 @@ namespace ppx_demo
         {
             std::optional<std::string> filename = chosen_savefile();
             if (filename)
-                demo_app::get().load(filename.value());
+                demo_app::get().read_save(filename.value());
             ImGui::EndMenu();
         }
     }
