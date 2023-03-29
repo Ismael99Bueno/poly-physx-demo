@@ -25,6 +25,7 @@
 imgui.ini
 
 *temp*
+**/__pycache__
 
 
 # Results folders
