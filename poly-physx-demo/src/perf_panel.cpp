@@ -34,7 +34,7 @@ namespace ppx_demo
     {
         static const char *const units[4] = {"Seconds", "Milliseconds", "Microseconds", "Nanoseconds"};
         const char *unit_name = units[m_unit];
-        ImGui::PushItemWidth(400);
+        ImGui::PushItemWidth(150);
 #ifdef PERF
         ImGui::SliderInt("Time unit", (int *)&m_unit, 0, 3, unit_name);
 #else
