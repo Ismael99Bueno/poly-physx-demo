@@ -23,8 +23,6 @@ namespace ppx_demo
     class demo_app : public ppx::app
     {
     public:
-        demo_app(const demo_app &papp) = delete;
-
         static demo_app &get();
 
         void write(const std::string &filepath) const;
@@ -95,6 +93,7 @@ namespace ppx_demo
             {"follower", &p_follower}};
 
         void draw_interaction_lines();
+        demo_app(const demo_app &papp) = delete;
     };
 }
 
