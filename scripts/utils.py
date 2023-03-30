@@ -54,7 +54,15 @@ def build_sfml(root_path: str, /) -> None:
     build_sfml_path = f"{root_path}/vendor/SFML/build-sfml"
     os.mkdir(build_sfml_path)
     subprocess.run(
-        ["cmake", "-S", sfml_path, "-B", build_sfml_path, "-DCMAKE_BUILD_TYPE=Release"]
+        [
+            "cmake",
+            "-S",
+            sfml_path,
+            "-B",
+            build_sfml_path,
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_OSX_ARCHITECTURES=arm64",
+        ]
     )
     subprocess.run(["cmake", "--build", build_sfml_path])
     print("Done.\n")
