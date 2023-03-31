@@ -30,7 +30,7 @@ namespace ppx_demo
         const std::unordered_set<ppx::entity2D_ptr> &get() const;
 
     private:
-        std::unordered_set<ppx::entity2D_ptr> m_selected;
+        std::unordered_set<ppx::entity2D_ptr> m_entities;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 

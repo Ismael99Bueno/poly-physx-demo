@@ -8,17 +8,17 @@ namespace ppx_demo
 {
     selector::selector(std::size_t allocations)
     {
-        m_selected.reserve(allocations);
+        m_entities.reserve(allocations);
     }
 
     void selector::start()
     {
         const auto validate = [this](ppx::entity2D &e)
         {
-            for (auto it = m_selected.begin(); it != m_selected.end(); ++it)
+            for (auto it = m_entities.begin(); it != m_entities.end(); ++it)
                 if (**it == e)
                 {
-                    m_selected.erase(it);
+                    m_entities.erase(it);
                     break;
                 }
         };
@@ -41,10 +41,10 @@ namespace ppx_demo
     void selector::end_select(const bool clear_previous)
     {
         if (clear_previous)
-            m_selected.clear();
+            m_entities.clear();
         const geo::aabb2D aabb = select_box();
         const auto in_area = demo_app::get().engine()[aabb];
-        m_selected.insert(in_area.begin(), in_area.end());
+        m_entities.insert(in_area.begin(), in_area.end());
         m_selecting = false;
     }
 
@@ -52,14 +52,14 @@ namespace ppx_demo
     {
         const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
-               m_selected.find(e) != m_selected.end();
+               m_entities.find(e) != m_entities.end();
     }
 
-    bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_selected.find(e) != m_selected.end(); }
+    bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
 
-    void selector::select(const ppx::entity2D_ptr &e) { m_selected.insert(e); }
+    void selector::select(const ppx::entity2D_ptr &e) { m_entities.insert(e); }
 
-    void selector::deselect(const ppx::entity2D_ptr &e) { m_selected.erase(e); }
+    void selector::deselect(const ppx::entity2D_ptr &e) { m_entities.erase(e); }
     void selector::draw_select_box() const
     {
         const geo::aabb2D aabb = select_box();
@@ -77,13 +77,13 @@ namespace ppx_demo
     void selector::write(ini::output &out) const
     {
         const std::string key = "selected";
-        for (const auto &e : m_selected)
+        for (const auto &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
 
     void selector::read(ini::input &in)
     {
-        m_selected.clear();
+        m_entities.clear();
         const std::string key = "selected";
 
         demo_app &papp = demo_app::get();
@@ -91,11 +91,11 @@ namespace ppx_demo
         {
             const ppx::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
-                m_selected.insert(e);
+                m_entities.insert(e);
         }
     }
 
-    const std::unordered_set<ppx::entity2D_ptr> &selector::get() const { return m_selected; }
+    const std::unordered_set<ppx::entity2D_ptr> &selector::get() const { return m_entities; }
 
     geo::aabb2D selector::select_box() const
     {
