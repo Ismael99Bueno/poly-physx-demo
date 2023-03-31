@@ -152,7 +152,7 @@ namespace ppx_demo
                 ImGui::PopID();
             }
         if (to_remove)
-            papp.engine().compeller().remove_constraint(to_remove);
+            papp.engine().remove_constraint(to_remove);
     }
 
     void attach_tab::render_spring_color_pickers() const

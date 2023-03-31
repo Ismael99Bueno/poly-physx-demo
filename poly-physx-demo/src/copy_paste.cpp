@@ -201,7 +201,7 @@ namespace ppx_demo
         for (spring_template &spt : m_copy.springs)
         {
             const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
-                                     &e2 = added_entities.at(spt.id2);
+                                    &e2 = added_entities.at(spt.id2);
 
             if (spt.has_joints)
                 papp.engine().add_spring(e1, e2, spt.joint1, spt.joint2, spt.stiffness, spt.dampening, spt.length);
@@ -211,12 +211,12 @@ namespace ppx_demo
         for (rigid_bar_template &rbt : m_copy.rbars)
         {
             const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
-                                     &e2 = added_entities[rbt.id2];
+                                    &e2 = added_entities[rbt.id2];
 
-            ppx::rigid_bar2D rb = !rbt.has_joints ? ppx::rigid_bar2D(e1, e2, rbt.stiffness, rbt.dampening)
-                                                   : ppx::rigid_bar2D(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
-            rb.length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
-            papp.engine().compeller().add_constraint(std::make_shared<ppx::rigid_bar2D>(rb));
+            const auto rb = !rbt.has_joints ? std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening)
+                                            : std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
+            rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
+            papp.engine().add_constraint(rb);
         }
     }
 
