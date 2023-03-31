@@ -74,7 +74,7 @@ namespace ppx_demo
             if (m_exponential->p_auto_include)
                 m_exponential->include(e);
         };
-        eng.on_entity_addition(auto_include);
+        eng.callbacks().on_entity_addition(auto_include);
     }
 
     void phys_panel::on_render()

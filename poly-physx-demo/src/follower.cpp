@@ -5,17 +5,18 @@ namespace ppx_demo
 {
     void follower::start()
     {
-        const auto on_removal = [this](const std::size_t index)
+        const auto on_removal = [this](ppx::entity2D_ptr e)
         {
-            for (auto it = m_entities.begin(); it != m_entities.end();)
-                if (!it->try_validate())
-                    it = m_entities.erase(it);
-                else
-                    ++it;
+            for (std::size_t i = 0; i < m_entities.size(); i++)
+                if (m_entities[i] == e)
+                {
+                    m_entities.erase(m_entities.begin() + i);
+                    break;
+                }
         };
         demo_app &papp = demo_app::get();
         m_prev_com = papp.window().getView().getCenter() * PIXEL_TO_WORLD;
-        papp.engine().on_entity_removal(on_removal);
+        papp.engine().callbacks().on_early_entity_removal(on_removal);
     }
 
     void follower::update()

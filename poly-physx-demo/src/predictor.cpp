@@ -11,18 +11,19 @@ namespace ppx_demo
             if (p_enabled && p_auto_predict)
                 predict(e);
         };
-        const auto on_removal = [this](const std::size_t index)
+        const auto on_removal = [this](ppx::entity2D_ptr e)
         {
-            for (auto it = m_paths.begin(); it != m_paths.end();)
-                if (!it->first.try_validate())
-                    it = m_paths.erase(it);
-                else
-                    ++it;
+            for (std::size_t i = 0; i < m_paths.size(); i++)
+                if (m_paths[i].first == e)
+                {
+                    m_paths.erase(m_paths.begin() + i);
+                    break;
+                }
         };
 
         demo_app &papp = demo_app::get();
-        papp.engine().on_entity_addition(on_addition);
-        papp.engine().on_entity_removal(on_removal);
+        papp.engine().callbacks().on_entity_addition(on_addition);
+        papp.engine().callbacks().on_early_entity_removal(on_removal);
         m_paths.reserve(p_steps);
     }
 

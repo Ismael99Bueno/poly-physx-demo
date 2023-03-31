@@ -13,26 +13,16 @@ namespace ppx_demo
 
     void selector::start()
     {
-        const auto validate = [this](const std::size_t index)
+        const auto validate = [this](ppx::entity2D_ptr e)
         {
-            std::vector<ppx::entity2D_ptr> invalids;
-            invalids.reserve(m_selected.size());
-            for (auto it = m_selected.begin(); it != m_selected.end();)
-                if (!it->is_valid())
+            for (auto it = m_selected.begin(); it != m_selected.end(); ++it)
+                if (*it == e)
                 {
-                    invalids.emplace_back(*it);
-                    it = m_selected.erase(it);
+                    m_selected.erase(it);
+                    break;
                 }
-                else
-                    ++it;
-            for (ppx::entity2D_ptr &e : invalids)
-                if (e.try_validate())
-                    m_selected.insert(e);
-            DBG_LOG_IF(invalids.empty() && !m_selected.empty(), "Validate method did not find any invalid entity pointers.\n")
-            DBG_LOG_IF(!invalids.empty() && !m_selected.empty(), "Validate method found %zu invalid entity pointers.\n", invalids.size())
-            return !invalids.empty();
         };
-        demo_app::get().engine().on_entity_removal(validate);
+        demo_app::get().engine().callbacks().on_early_entity_removal(validate);
     }
 
     void selector::render() const

@@ -8,12 +8,12 @@ namespace ppx_demo
 {
     void grabber::start()
     {
-        const auto validate = [this](const std::size_t index)
+        const auto validate = [this](ppx::entity2D_ptr e)
         {
-            if (m_grabbed && !m_grabbed.try_validate())
+            if (m_grabbed == e)
                 m_grabbed = nullptr;
         };
-        demo_app::get().engine().on_entity_removal(validate);
+        demo_app::get().engine().callbacks().on_early_entity_removal(validate);
     }
 
     void grabber::update() const
