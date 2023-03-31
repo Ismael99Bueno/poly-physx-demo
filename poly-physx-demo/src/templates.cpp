@@ -5,12 +5,10 @@ namespace ppx_demo
 {
     void entity_template::write(ini::output &out) const
     {
-        out.begin_section("pos");
-        pos.write(out);
-        out.end_section();
-        out.begin_section("vel");
-        vel.write(out);
-        out.end_section();
+        out.write("px", pos.x);
+        out.write("py", pos.y);
+        out.write("vx", vel.x);
+        out.write("vy", vel.y);
         out.write("index", index);
         out.write("id", id);
         out.write("angpos", angpos);
@@ -19,23 +17,18 @@ namespace ppx_demo
         out.write("charge", charge);
         out.write("kinematic", kinematic);
 
-        const std::string section = "vertex";
+        const std::string key = "vertex";
         std::size_t index = 0;
         for (const alg::vec2 &v : vertices)
         {
-            out.begin_section(section + std::to_string(index++));
-            v.write(out);
-            out.end_section();
+            out.write(key + std::to_string(index) + "x", v.x);
+            out.write(key + std::to_string(index++) + "y", v.y);
         }
     }
     void entity_template::read(ini::input &in)
     {
-        in.begin_section("pos");
-        pos.read(in);
-        in.end_section();
-        in.begin_section("vel");
-        vel.read(in);
-        in.end_section();
+        pos = {in.readf("px"), in.readf("py")};
+        vel = {in.readf("vx"), in.readf("vy")};
         index = in.readi("index");
         id = in.readi("id");
         angpos = in.readf("angpos");
@@ -46,17 +39,17 @@ namespace ppx_demo
 
         vertices.clear();
         std::size_t index = 0;
-        const std::string section = "vertex";
+        const std::string key = "vertex";
         while (true)
         {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
+            const std::string kx = key + std::to_string(index) + "x",
+                              ky = key + std::to_string(index++) + "y";
+            DBG_ASSERT((in.contains_key(kx) && in.contains_key(ky)) ||
+                           (!in.contains_key(kx) && !in.contains_key(ky)),
+                       "Vector key only contains a component of the vector! Weird.\n")
+            if (!in.contains_key(kx) || !in.contains_key(ky)) // Just for ick reasons
                 break;
-            }
-            vertices.emplace_back().read(in);
-            in.end_section();
+            vertices.emplace_back(in.readf(kx), in.readf(ky));
         }
     }
 
@@ -83,12 +76,10 @@ namespace ppx_demo
         out.write("length", length);
         out.write("id1", id1);
         out.write("id2", id2);
-        out.begin_section("joint1");
-        joint1.write(out);
-        out.end_section();
-        out.begin_section("joint2");
-        joint2.write(out);
-        out.end_section();
+        out.write("joint1x", joint1.x);
+        out.write("joint1y", joint1.y);
+        out.write("joint2x", joint2.x);
+        out.write("joint2y", joint2.y);
         out.write("has_joints", has_joints);
     }
     void spring_template::read(ini::input &in)
@@ -98,12 +89,8 @@ namespace ppx_demo
         length = in.readf("length");
         id1 = in.readi("id1");
         id2 = in.readi("id2");
-        in.begin_section("joint1");
-        joint1.read(in);
-        in.end_section();
-        in.begin_section("joint2");
-        joint2.read(in);
-        in.end_section();
+        joint1 = {in.readf("joint1x"), in.readf("joint1y")};
+        joint2 = {in.readf("joint2x"), in.readf("joint2y")};
         has_joints = (bool)in.readi("has_joints");
     }
 
@@ -128,12 +115,10 @@ namespace ppx_demo
         out.write("length", length);
         out.write("id1", id1);
         out.write("id2", id2);
-        out.begin_section("joint1");
-        joint1.write(out);
-        out.end_section();
-        out.begin_section("joint2");
-        joint2.write(out);
-        out.end_section();
+        out.write("joint1x", joint1.x);
+        out.write("joint1y", joint1.y);
+        out.write("joint2x", joint2.x);
+        out.write("joint2y", joint2.y);
         out.write("has_joints", has_joints);
     }
     void rigid_bar_template::read(ini::input &in)
@@ -143,12 +128,8 @@ namespace ppx_demo
         length = in.readf("length");
         id1 = in.readi("id1");
         id2 = in.readi("id2");
-        in.begin_section("joint1");
-        joint1.read(in);
-        in.end_section();
-        in.begin_section("joint2");
-        joint2.read(in);
-        in.end_section();
+        joint1 = {in.readf("joint1x"), in.readf("joint1y")};
+        joint2 = {in.readf("joint2x"), in.readf("joint2y")};
         has_joints = (bool)in.readi("has_joints");
     }
 

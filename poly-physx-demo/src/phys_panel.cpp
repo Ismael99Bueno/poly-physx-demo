@@ -17,12 +17,11 @@ namespace ppx_demo
     void phys_panel::write(ini::output &out) const
     {
         out.write("enabled", p_enabled);
-        out.begin_section("xlim");
-        m_xlim.write(out);
-        out.end_section();
-        out.begin_section("ylim");
-        m_ylim.write(out);
-        out.end_section();
+        out.write("xlimx", m_xlim.x);
+        out.write("xlimy", m_xlim.y);
+        out.write("ylimx", m_ylim.x);
+        out.write("ylimy", m_ylim.y);
+
         for (const auto &[section, saveable] : m_saveables)
         {
             out.begin_section(section);
@@ -34,12 +33,8 @@ namespace ppx_demo
     {
         p_enabled = (bool)in.readi("enabled");
 
-        in.begin_section("xlim");
-        m_xlim.read(in);
-        in.end_section();
-        in.begin_section("ylim");
-        m_ylim.read(in);
-        in.end_section();
+        m_xlim = {in.readf("xlimx"), in.readf("xlimy")};
+        m_ylim = {in.readf("ylimx"), in.readf("ylimy")};
 
         for (const auto &[section, saveable] : m_saveables)
         {

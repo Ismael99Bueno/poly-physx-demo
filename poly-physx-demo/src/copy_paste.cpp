@@ -14,9 +14,8 @@ namespace ppx_demo
     void copy_paste::group::write(ini::output &out) const
     {
         out.write("name", name);
-        out.begin_section("ref_pos");
-        ref_pos.write(out);
-        out.end_section();
+        out.write("refposx", ref_pos.x);
+        out.write("refposy", ref_pos.y);
 
         std::string section = "entity";
         std::size_t index = 0;
@@ -53,9 +52,7 @@ namespace ppx_demo
         rbars.clear();
 
         name = in.readstr("name");
-        in.begin_section("ref_pos");
-        ref_pos.read(in);
-        in.end_section();
+        ref_pos = {in.readf("refposx"), in.readf("refposy")};
 
         std::string section = "entity";
         std::size_t index = 0;

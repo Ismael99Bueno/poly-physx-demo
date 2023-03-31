@@ -55,14 +55,15 @@ namespace ppx_demo
 
     void follower::write(ini::output &out) const
     {
-        m_prev_com.write(out);
+        out.write("prevcomx", m_prev_com.x);
+        out.write("prevcomy", m_prev_com.y);
         const std::string key = "entity";
         for (const ppx::const_entity2D_ptr &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
     void follower::read(ini::input &in)
     {
-        m_prev_com.read(in);
+        m_prev_com = {in.readf("prevcomx"), in.readf("prevcomy")};
         const std::string key = "entity";
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
