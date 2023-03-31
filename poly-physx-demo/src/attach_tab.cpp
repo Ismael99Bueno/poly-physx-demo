@@ -26,12 +26,11 @@ namespace ppx_demo
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
-            ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
-
             if (!attch.p_auto_length)
                 ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, 100.f);
             else
                 ImGui::Text("Length: %f", attch.p_sp_length);
+            ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
 
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
@@ -52,6 +51,7 @@ namespace ppx_demo
         }
         render_springs_list();
         render_rigid_bars_list();
+        render_selected();
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
@@ -153,6 +153,12 @@ namespace ppx_demo
             }
         if (to_remove)
             papp.engine().remove_constraint(to_remove);
+    }
+
+    void attach_tab::render_selected() const
+    {
+        // ImGui::Text("%zu springs selected", 0);
+        // ImGui::Text("%zu rigid bars selected", 0);
     }
 
     void attach_tab::render_spring_color_pickers() const

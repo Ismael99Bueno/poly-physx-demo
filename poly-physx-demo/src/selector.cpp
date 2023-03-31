@@ -32,16 +32,16 @@ namespace ppx_demo
             draw_select_box();
     }
 
-    void selector::begin_select(const bool clear_previous)
+    void selector::begin_select()
     {
-        if (clear_previous)
-            m_selected.clear();
         m_mpos_start = demo_app::get().world_mouse();
         m_selecting = true;
     }
 
-    void selector::end_select()
+    void selector::end_select(const bool clear_previous)
     {
+        if (clear_previous)
+            m_selected.clear();
         const geo::aabb2D aabb = select_box();
         const auto in_area = demo_app::get().engine()[aabb];
         m_selected.insert(in_area.begin(), in_area.end());

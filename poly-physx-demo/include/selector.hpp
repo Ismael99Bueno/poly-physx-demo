@@ -15,8 +15,8 @@ namespace ppx_demo
         void start();
         void render() const;
 
-        void begin_select(bool clear_previous = true);
-        void end_select();
+        void begin_select();
+        void end_select(bool clear_previous);
 
         bool is_selecting(const ppx::entity2D_ptr &e) const;
         bool is_selected(const ppx::entity2D_ptr &e) const;

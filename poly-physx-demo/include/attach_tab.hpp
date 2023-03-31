@@ -15,6 +15,7 @@ namespace ppx_demo
     private:
         void render_springs_list() const;
         void render_rigid_bars_list() const;
+        void render_selected() const;
         void render_spring_color_pickers() const;
         void render_rb_color_pickers() const;
     };
