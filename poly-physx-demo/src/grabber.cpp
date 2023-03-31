@@ -8,9 +8,9 @@ namespace ppx_demo
 {
     void grabber::start()
     {
-        const auto validate = [this](ppx::entity2D_ptr e)
+        const auto validate = [this](ppx::entity2D &e)
         {
-            if (m_grabbed == e)
+            if (m_grabbed && *m_grabbed == e)
                 m_grabbed = nullptr;
         };
         demo_app::get().engine().callbacks().on_early_entity_removal(validate);

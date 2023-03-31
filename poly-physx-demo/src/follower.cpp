@@ -5,10 +5,10 @@ namespace ppx_demo
 {
     void follower::start()
     {
-        const auto on_removal = [this](ppx::entity2D_ptr e)
+        const auto on_removal = [this](ppx::entity2D &e)
         {
             for (std::size_t i = 0; i < m_entities.size(); i++)
-                if (m_entities[i] == e)
+                if (*m_entities[i] == e)
                 {
                     m_entities.erase(m_entities.begin() + i);
                     break;

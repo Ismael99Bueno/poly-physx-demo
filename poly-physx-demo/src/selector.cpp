@@ -13,10 +13,10 @@ namespace ppx_demo
 
     void selector::start()
     {
-        const auto validate = [this](ppx::entity2D_ptr e)
+        const auto validate = [this](ppx::entity2D &e)
         {
             for (auto it = m_selected.begin(); it != m_selected.end(); ++it)
-                if (*it == e)
+                if (**it == e)
                 {
                     m_selected.erase(it);
                     break;

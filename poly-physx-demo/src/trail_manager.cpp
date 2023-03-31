@@ -11,10 +11,10 @@ namespace ppx_demo
             if (p_enabled && p_auto_include)
                 include(e);
         };
-        const auto on_removal = [this](ppx::entity2D_ptr e)
+        const auto on_removal = [this](ppx::entity2D &e)
         {
             for (std::size_t i = 0; i < m_trails.size(); i++)
-                if (m_trails[i].first == e)
+                if (*m_trails[i].first == e)
                 {
                     m_trails.erase(m_trails.begin() + i);
                     break;
