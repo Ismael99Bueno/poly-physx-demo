@@ -195,7 +195,7 @@ namespace ppx_demo
         ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft);
         const bool is_hovered = ImGui::IsItemHovered();
 
-        const float scale_factor = 3.f;
+        const float scale_factor = 1.5f;
         ImGuiIO &io = ImGui::GetIO();
         const alg::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
             pixel_mouse = (alg::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
@@ -245,7 +245,8 @@ namespace ppx_demo
         {
             const alg::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
                             p2 = origin + poly[i + 1] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
-            draw_list->AddLine(p1, p2, col, 4.f);
+            const float thickness = 3.f;
+            draw_list->AddLine(p1, p2, col, thickness);
             points[i] = p1;
         }
 
@@ -255,7 +256,8 @@ namespace ppx_demo
         {
             const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
                                                    : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
-            draw_list->AddCircleFilled(center, 12.f, IM_COL32(207, 185, 151, 180));
+            const float radius = 8.f;
+            draw_list->AddCircleFilled(center, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
     }
