@@ -157,10 +157,16 @@ namespace ppx_demo
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip))
+        {
             papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
+            papp.p_adder.p_current_templ.color = color;
+        }
         ImGui::SameLine();
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
+        {
             papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
+            papp.p_adder.p_current_templ.color = color;
+        }
     }
 
     void add_tab::render_canvas() const
