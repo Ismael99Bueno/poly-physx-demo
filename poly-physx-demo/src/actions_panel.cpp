@@ -18,12 +18,21 @@ namespace ppx_demo
         if (ImGui::Begin("Actions", &p_enabled, ImGuiWindowFlags_MenuBar))
         {
             ImGui::HelpMarker("The Actions panel allows you to make high level changes to the simulation, such as adding, removing and grabbing entities, modify their properties or attach springs and rigid bars to them.");
+            render_actions();
             render_tabs();
         }
         ImGui::End();
     }
 
-    void actions_panel::render_tabs()
+    void actions_panel::render_actions()
+    {
+        ImGui::PushItemWidth(150);
+        static const char *actions[4] = {"Add", "Grab", "Attach", "Select"};
+        ImGui::ListBox("Action", (int *)&m_action, actions, IM_ARRAYSIZE(actions));
+        ImGui::PopItemWidth();
+    }
+
+    void actions_panel::render_tabs() const
     {
         ImGui::BeginTabBar("Actions tab bar");
 
@@ -32,25 +41,21 @@ namespace ppx_demo
             ImGui::SetTooltip("Add entities");
         if (expanded)
         {
-            m_action = ADD;
             m_add_tab.render();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Grab"))
         {
-            m_action = GRAB;
             m_grab_tab.render();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Attach"))
         {
-            m_action = ATTACH;
             m_attach_tab.render();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Entities"))
         {
-            m_action = ENTITIES;
             m_entities_tab.render();
             ImGui::EndTabItem();
         }

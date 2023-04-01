@@ -198,9 +198,6 @@ namespace ppx_demo
                 break;
             switch (event.key.code)
             {
-            case sf::Keyboard::Backspace:
-                remove_selected();
-                break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;

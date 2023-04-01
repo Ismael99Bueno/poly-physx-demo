@@ -14,11 +14,11 @@ namespace ppx_demo
     public:
         enum actions
         {
-            ADD,
-            GRAB,
-            ATTACH,
-            ENTITIES,
-            NONE
+            ADD = 0,
+            GRAB = 1,
+            ATTACH = 2,
+            ENTITIES = 3,
+            NONE = 4
         };
         actions_panel();
         actions action() const;
@@ -36,7 +36,8 @@ namespace ppx_demo
         entities_tab m_entities_tab;
         actions m_action = ADD;
 
-        void render_tabs();
+        void render_actions();
+        void render_tabs() const;
     };
 }
 
