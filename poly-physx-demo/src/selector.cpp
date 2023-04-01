@@ -97,7 +97,7 @@ namespace ppx_demo
                 for (ppx::entity2D_ptr e1 : m_entities)
                     for (ppx::entity2D_ptr e2 : m_entities)
                         if (rb->e1() == e1 && rb->e2() == e2)
-                            m_springs.emplace_back(e1, e2);
+                            m_rbars.emplace_back(e1, e2);
         }
     }
 

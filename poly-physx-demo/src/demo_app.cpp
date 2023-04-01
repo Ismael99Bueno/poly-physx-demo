@@ -198,6 +198,9 @@ namespace ppx_demo
                 break;
             switch (event.key.code)
             {
+            case sf::Keyboard::BackSpace:
+                cancel_grab_attach();
+                break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;
@@ -246,7 +249,11 @@ namespace ppx_demo
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
+        cancel_grab_attach();
+    }
 
+    void demo_app::cancel_grab_attach()
+    {
         p_attacher.cancel();
         p_adder.cancel();
     }
