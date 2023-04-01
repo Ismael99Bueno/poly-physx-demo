@@ -64,9 +64,6 @@ namespace ppx_demo
             ppx::entity2D_ptr e = *slct.entities().begin();
             ImGui::Text("Entity %zu", e.id());
             render_entity_data(*e);
-            if (ImGui::Button("Deselect##Single"))
-                slct.deselect(e);
-            ImGui::SameLine();
             if (ImGui::Button("Remove##Single"))
                 papp.remove_selected();
             return;
