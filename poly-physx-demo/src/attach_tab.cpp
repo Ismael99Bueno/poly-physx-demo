@@ -193,6 +193,9 @@ namespace ppx_demo
         if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
             for (ppx::spring2D *sp : springs)
                 sp->length(avg_length);
+        if (ImGui::Button("Auto adjust length##Selected"))
+            for (ppx::spring2D *sp : springs)
+                sp->length(sp->e1()->pos().dist(sp->e2()->pos()));
         if (ImGui::Button("Transform to rigid bars"))
         {
             for (ppx::spring2D *sp : springs)
