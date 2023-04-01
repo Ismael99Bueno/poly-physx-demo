@@ -217,10 +217,8 @@ namespace ppx_demo
         ImGui::SliderInt("Integration steps", (int *)&pred.p_steps, 50, 500);
         ImGui::SliderFloat("Line thickness", &pred.p_line_thickness, 1.f, 10.f, "%.1f");
 
-        ImGui::PushID(1999);
-        if (ImGui::Checkbox("Collisions", &pred.p_with_collisions) && pred.p_with_collisions)
+        if (ImGui::Checkbox("Collisions##Toggle", &pred.p_with_collisions) && pred.p_with_collisions)
             pred.p_dt = std::min(pred.p_dt, 2e-2f);
-        ImGui::PopID();
         ImGui::Checkbox("Predict by default", &pred.p_auto_predict);
 
         ImGui::PopItemWidth();
@@ -231,9 +229,7 @@ namespace ppx_demo
         trail_manager &trails = demo_app::get().p_trails;
 
         ImGui::PushItemWidth(350);
-        ImGui::PushID(-1999);
-        ImGui::Checkbox("Enabled", &trails.p_enabled);
-        ImGui::PopID();
+        ImGui::Checkbox("Enabled##Trail", &trails.p_enabled);
 
         ImGui::SliderInt("Steps", (int *)&trails.p_steps, 50, 500);
         ImGui::SliderInt("Length", (int *)&trails.p_length, 1, 15);

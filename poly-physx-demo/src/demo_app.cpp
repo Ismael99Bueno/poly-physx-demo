@@ -245,7 +245,7 @@ namespace ppx_demo
 
     void demo_app::remove_selected() // TODO: Que remove selected se llame solo con backspace una vez se cancele tb con clic der
     {
-        const auto selected = p_selector.get();
+        const auto selected = p_selector.entities();
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);

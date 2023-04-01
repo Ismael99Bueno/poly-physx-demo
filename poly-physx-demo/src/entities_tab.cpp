@@ -54,26 +54,26 @@ namespace ppx_demo
         trail_manager &trails = papp.p_trails;
         follower &flwr = papp.p_follower;
 
-        if (slct.get().empty())
+        if (slct.entities().empty())
         {
             ImGui::Text("Select entities by dragging a box with your cursor!");
             return;
         }
-        if (slct.get().size() == 1)
+        if (slct.entities().size() == 1)
         {
-            ppx::entity2D_ptr e = *slct.get().begin();
+            ppx::entity2D_ptr e = *slct.entities().begin();
             ImGui::Text("Entity %zu", e.id());
             render_entity_data(*e);
             return;
         }
 
-        ImGui::Text("Selected entities: %zu", slct.get().size());
+        ImGui::Text("Selected entities: %zu", slct.entities().size());
         float avg_mass = 0.f, avg_charge = 0.f;
         bool kinematic = true, predicting = true,
              has_trail = true, following = true;
         alg::vec2 com;
 
-        for (const auto &e : slct.get())
+        for (const auto &e : slct.entities())
         {
             avg_mass += e->mass();
             avg_charge += e->charge();
@@ -85,23 +85,24 @@ namespace ppx_demo
             following &= flwr.is_following(*e);
         }
         com /= avg_mass;
-        avg_mass /= slct.get().size();
-        avg_charge /= slct.get().size();
+        avg_mass /= slct.entities().size();
+        avg_charge /= slct.entities().size();
 
+        ImGui::PushItemWidth(150);
         ImGui::Text("Center of mass - x: %.2f, y: %.2f", com.x, com.y);
         if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, FLT_MAX, "%.1f"))
-            for (auto &e : slct.get())
+            for (auto &e : slct.entities())
                 e->mass(avg_mass);
         if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, FLT_MAX, "%.1f"))
-            for (auto &e : slct.get())
+            for (auto &e : slct.entities())
                 e->charge(avg_charge);
 
         if (ImGui::Checkbox("Kinematic", &kinematic))
-            for (auto &e : slct.get())
+            for (auto &e : slct.entities())
                 e->kinematic(kinematic);
 
         if (ImGui::Checkbox("Predict path", &predicting))
-            for (const auto &e : slct.get())
+            for (const auto &e : slct.entities())
             {
                 if (predicting)
                     pred.predict(e);
@@ -110,7 +111,7 @@ namespace ppx_demo
             }
 
         if (ImGui::Checkbox("Trail", &has_trail))
-            for (const auto &e : slct.get())
+            for (const auto &e : slct.entities())
             {
                 if (has_trail)
                     trails.include(e);
@@ -119,7 +120,7 @@ namespace ppx_demo
             }
 
         if (ImGui::Checkbox("Follow", &following))
-            for (const auto &e : slct.get())
+            for (const auto &e : slct.entities())
             {
                 if (following)
                     flwr.follow(e);
@@ -137,6 +138,7 @@ namespace ppx_demo
 
         if (ImGui::Button("Remove"))
             papp.remove_selected();
+        ImGui::PopItemWidth();
     }
 
     void entities_tab::render_full_list() const

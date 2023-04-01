@@ -144,7 +144,7 @@ namespace ppx_demo
 
     void copy_paste::copy()
     {
-        if (demo_app::get().p_selector.get().empty())
+        if (demo_app::get().p_selector.entities().empty())
             return;
 
         delete_copy();
@@ -155,16 +155,16 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
         const selector &slct = papp.p_selector;
-        DBG_ASSERT(!slct.get().empty(), "Must have something selected to copy!\n")
+        DBG_ASSERT(!slct.entities().empty(), "Must have something selected to copy!\n")
 
         group.ref_pos = alg::vec2::zero;
 
-        for (const auto &e : slct.get())
+        for (const auto &e : slct.entities())
         {
             group.entities[e.id()] = entity_template::from_entity(*e);
             group.ref_pos += e->pos();
         }
-        group.ref_pos /= slct.get().size();
+        group.ref_pos /= slct.entities().size();
         for (const ppx::spring2D &sp : papp.engine().springs())
         {
             const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
@@ -174,11 +174,13 @@ namespace ppx_demo
         }
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
-            const ppx::rigid_bar2D &rb = dynamic_cast<const ppx::rigid_bar2D &>(*ctr);
-            const bool has_first = group.entities.find(rb.e1().id()) != group.entities.end(),
-                       has_second = group.entities.find(rb.e2().id()) != group.entities.end();
+            const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+            if (!rb)
+                continue;
+            const bool has_first = group.entities.find(rb->e1().id()) != group.entities.end(),
+                       has_second = group.entities.find(rb->e2().id()) != group.entities.end();
             if (has_first && has_second)
-                group.rbars.emplace_back(rigid_bar_template::from_bar(rb));
+                group.rbars.emplace_back(rigid_bar_template::from_bar(*rb));
         }
     }
 
