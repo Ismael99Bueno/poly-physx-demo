@@ -9,7 +9,8 @@ namespace ppx_demo
     {
         const char *attach_types[2] = {"Spring", "Rigid bar"};
 
-        attacher &attch = demo_app::get().p_attacher;
+        demo_app &papp = demo_app::get();
+        attacher &attch = papp.p_attacher;
 
         ImGui::PushItemWidth(150);
         ImGui::ListBox("Attach type", (int *)&attch.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
@@ -51,7 +52,10 @@ namespace ppx_demo
         }
         render_springs_list();
         render_rigid_bars_list();
-        render_selected();
+        if (!papp.p_selector.springs().empty())
+            render_selected_springs();
+        if (!papp.p_selector.rbars().empty())
+            render_selected_rbars();
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
@@ -155,10 +159,70 @@ namespace ppx_demo
             papp.engine().remove_constraint(to_remove);
     }
 
-    void attach_tab::render_selected() const
+    void attach_tab::render_selected_springs() const
     {
-        // ImGui::Text("%zu springs selected", 0);
-        // ImGui::Text("%zu rigid bars selected", 0);
+        demo_app &papp = demo_app::get();
+        selector &slct = papp.p_selector;
+        ImGui::Text("Selected springs: %zu", slct.springs().size());
+
+        ppx::spring2D *springs[slct.springs().size()];
+        float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
+
+        std::size_t index = 0;
+        for (const auto &[e1, e2] : slct.springs())
+        {
+            ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
+            avg_stiffness += sp->stiffness();
+            avg_dampening += sp->dampening();
+            avg_length += sp->length();
+            springs[index++] = sp;
+        }
+        avg_stiffness /= slct.springs().size();
+        avg_dampening /= slct.springs().size();
+        avg_length /= slct.springs().size();
+
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 50.f))
+            for (ppx::spring2D *sp : springs)
+                sp->stiffness(avg_stiffness);
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 10.f))
+            for (ppx::spring2D *sp : springs)
+                sp->dampening(avg_dampening);
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+            for (ppx::spring2D *sp : springs)
+                sp->length(avg_length);
+    }
+
+    void attach_tab::render_selected_rbars() const
+    {
+        demo_app &papp = demo_app::get();
+        selector &slct = papp.p_selector;
+        ImGui::Text("Selected rigid bars: %zu", slct.rbars().size());
+
+        ppx::rigid_bar2D *rbars[slct.rbars().size()];
+        float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
+
+        std::size_t index = 0;
+        for (const auto &[e1, e2] : slct.rbars())
+        {
+            const auto rb = papp.engine().rbar_from_entities(*e1, *e2);
+            avg_stiffness += rb->stiffness();
+            avg_dampening += rb->dampening();
+            avg_length += rb->length();
+            rbars[index++] = rb.get();
+        }
+        avg_stiffness /= slct.rbars().size();
+        avg_dampening /= slct.rbars().size();
+        avg_length /= slct.rbars().size();
+
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 2000.f))
+            for (ppx::rigid_bar2D *rb : rbars)
+                rb->stiffness(avg_stiffness);
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 100.f))
+            for (ppx::rigid_bar2D *rb : rbars)
+                rb->dampening(avg_dampening);
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+            for (ppx::rigid_bar2D *rb : rbars)
+                rb->length(avg_length);
     }
 
     void attach_tab::render_spring_color_pickers() const
