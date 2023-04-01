@@ -9,11 +9,13 @@ namespace ppx_demo
     selector::selector(std::size_t allocations)
     {
         m_entities.reserve(allocations);
+        m_springs.reserve(allocations);
+        m_rbars.reserve(allocations);
     }
 
     void selector::start()
     {
-        const auto validate = [this](ppx::entity2D &e)
+        const auto validate_entity = [this](ppx::entity2D &e)
         {
             for (auto it = m_entities.begin(); it != m_entities.end(); ++it)
                 if (**it == e)
@@ -22,7 +24,35 @@ namespace ppx_demo
                     break;
                 }
         };
-        demo_app::get().engine().callbacks().on_early_entity_removal(validate);
+        const auto validate_spring = [this](ppx::spring2D &sp)
+        {
+            for (auto it = m_springs.begin(); it != m_springs.end(); ++it)
+            {
+                if (it->first == sp.e1() && it->second == sp.e2())
+                {
+                    m_springs.erase(it);
+                    break;
+                }
+            }
+        };
+        const auto validate_rb = [this](const std::shared_ptr<ppx::constraint_interface2D> &ctr)
+        {
+            const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+            if (!rb)
+                return;
+            for (auto it = m_rbars.begin(); it != m_rbars.end(); ++it)
+            {
+                if (it->first == rb->e1() && it->second == rb->e2())
+                {
+                    m_rbars.erase(it);
+                    break;
+                }
+            }
+        };
+        demo_app &papp = demo_app::get();
+        papp.engine().callbacks().on_early_entity_removal(validate_entity);
+        papp.engine().callbacks().on_spring_removal(validate_spring);
+        papp.engine().callbacks().on_constraint_removal(validate_rb);
     }
 
     void selector::render() const
@@ -45,7 +75,30 @@ namespace ppx_demo
         const geo::aabb2D aabb = select_box();
         const auto in_area = demo_app::get().engine()[aabb];
         m_entities.insert(in_area.begin(), in_area.end());
+        update_selected_springs_rbars();
         m_selecting = false;
+    }
+
+    void selector::update_selected_springs_rbars()
+    {
+        demo_app &papp = demo_app::get();
+
+        m_springs.clear();
+        for (const ppx::spring2D &sp : papp.engine().springs())
+            for (ppx::entity2D_ptr e1 : m_entities)
+                for (ppx::entity2D_ptr e2 : m_entities)
+                    if (sp.e1() == e1 && sp.e2() == e2)
+                        m_springs.emplace_back(e1, e2);
+        m_rbars.clear();
+        for (const auto &ctr : papp.engine().compeller().constraints())
+        {
+            const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+            if (rb)
+                for (ppx::entity2D_ptr e1 : m_entities)
+                    for (ppx::entity2D_ptr e2 : m_entities)
+                        if (rb->e1() == e1 && rb->e2() == e2)
+                            m_springs.emplace_back(e1, e2);
+        }
     }
 
     bool selector::is_selecting(ppx::entity2D_ptr e) const
@@ -93,9 +146,12 @@ namespace ppx_demo
             if (in.contains_key(key + std::to_string(e.index())))
                 m_entities.insert(e);
         }
+        update_selected_springs_rbars();
     }
 
-    const std::unordered_set<ppx::entity2D_ptr> &selector::get() const { return m_entities; }
+    const std::unordered_set<ppx::entity2D_ptr> &selector::entities() const { return m_entities; }
+    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::springs() const { return m_springs; }
+    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::rbars() const { return m_rbars; }
 
     geo::aabb2D selector::select_box() const
     {

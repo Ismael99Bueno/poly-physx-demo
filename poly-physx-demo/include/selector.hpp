@@ -27,10 +27,15 @@ namespace ppx_demo
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
-        const std::unordered_set<ppx::entity2D_ptr> &get() const;
+        void update_selected_springs_rbars();
+
+        const std::unordered_set<ppx::entity2D_ptr> &entities() const;
+        const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &springs() const;
+        const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &rbars() const;
 
     private:
         std::unordered_set<ppx::entity2D_ptr> m_entities;
+        std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> m_springs, m_rbars;
         alg::vec2 m_mpos_start;
         bool m_selecting = false;
 
