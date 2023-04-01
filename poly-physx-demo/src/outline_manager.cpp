@@ -41,7 +41,7 @@ namespace ppx_demo
             shapes[i].setOutlineColor(color);
             if (priority)
             {
-                const float ampl = 1.5f, freq = 2.5f;
+                const float ampl = 3.f, freq = 3.5f;
                 shapes[i].setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
             else

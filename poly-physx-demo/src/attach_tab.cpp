@@ -206,11 +206,17 @@ namespace ppx_demo
                                                  : std::make_shared<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
                                                                                       atch.p_rb_stiffness, atch.p_rb_dampening);
                 papp.engine().add_constraint(rb);
+            }
+            const auto selected_springs = slct.springs(); // To not modify container mid iteration
+            for (const auto &[e1, e2] : selected_springs)
+            {
+                // This is necessary bc remove_spring invalidates stack array pointers
+                const ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
                 papp.engine().remove_spring(*sp);
             }
             slct.update_selected_springs_rbars();
         }
-        if (ImGui::Button("Remove##Selected"))
+        else if (ImGui::Button("Remove##Selected"))
             for (ppx::spring2D *sp : springs)
                 papp.engine().remove_spring(*sp);
     }
