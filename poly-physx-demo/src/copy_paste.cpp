@@ -197,8 +197,8 @@ namespace ppx_demo
         }
         for (spring_template &spt : m_copy.springs)
         {
-            const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
-                                    &e2 = added_entities.at(spt.id2);
+            ppx::entity2D_ptr e1 = added_entities.at(spt.id1),
+                              &e2 = added_entities.at(spt.id2);
 
             if (spt.has_joints)
                 papp.engine().add_spring(e1, e2, spt.joint1, spt.joint2, spt.stiffness, spt.dampening, spt.length);
@@ -207,8 +207,8 @@ namespace ppx_demo
         }
         for (rigid_bar_template &rbt : m_copy.rbars)
         {
-            const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
-                                    &e2 = added_entities[rbt.id2];
+            ppx::entity2D_ptr e1 = added_entities[rbt.id1],
+                              &e2 = added_entities[rbt.id2];
 
             const auto rb = !rbt.has_joints ? std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening)
                                             : std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);

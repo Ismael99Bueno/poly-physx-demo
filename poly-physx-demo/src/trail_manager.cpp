@@ -67,7 +67,7 @@ namespace ppx_demo
             }
     }
 
-    void trail_manager::include(const ppx::const_entity2D_ptr &e)
+    void trail_manager::include(ppx::const_entity2D_ptr e)
     {
         if (!contains(*e))
             m_trails.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());

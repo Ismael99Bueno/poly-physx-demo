@@ -61,7 +61,7 @@ namespace ppx_demo
         }
         if (slct.get().size() == 1)
         {
-            const ppx::entity2D_ptr &e = *slct.get().begin();
+            ppx::entity2D_ptr e = *slct.get().begin();
             ImGui::Text("Entity %zu", e.id());
             render_entity_data(*e);
             return;

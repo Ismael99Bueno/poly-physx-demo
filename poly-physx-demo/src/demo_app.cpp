@@ -141,7 +141,7 @@ namespace ppx_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(ppx::entity2D_ptr e, sf::ConvexShape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color(150, 90, 70), 3);

@@ -71,7 +71,7 @@ namespace ppx_demo
             demo_app::get().window().draw(path);
     }
 
-    void predictor::predict(const ppx::const_entity2D_ptr &e)
+    void predictor::predict(ppx::const_entity2D_ptr e)
     {
         if (!is_predicting(*e))
             m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());

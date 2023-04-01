@@ -15,7 +15,7 @@ namespace ppx_demo
         void update();
         void render() const;
 
-        void include(const ppx::const_entity2D_ptr &e);
+        void include(ppx::const_entity2D_ptr e);
         void exclude(const ppx::entity2D &e);
         bool contains(const ppx::entity2D &e) const;
 

@@ -48,18 +48,18 @@ namespace ppx_demo
         m_selecting = false;
     }
 
-    bool selector::is_selecting(const ppx::entity2D_ptr &e) const
+    bool selector::is_selecting(ppx::entity2D_ptr e) const
     {
         const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_entities.find(e) != m_entities.end();
     }
 
-    bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
+    bool selector::is_selected(ppx::entity2D_ptr e) const { return m_entities.find(e) != m_entities.end(); }
 
-    void selector::select(const ppx::entity2D_ptr &e) { m_entities.insert(e); }
+    void selector::select(ppx::entity2D_ptr e) { m_entities.insert(e); }
 
-    void selector::deselect(const ppx::entity2D_ptr &e) { m_entities.erase(e); }
+    void selector::deselect(ppx::entity2D_ptr e) { m_entities.erase(e); }
     void selector::draw_select_box() const
     {
         const geo::aabb2D aabb = select_box();
