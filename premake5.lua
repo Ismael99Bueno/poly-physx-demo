@@ -6,7 +6,6 @@ workspace "poly-physx-demo"
     linkoptions "-Wl,-rpath,./vendor/SFML/build-sfml/lib"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-defines "HAS_IMPLOT"
 
 filter "configurations:debug"
       defines { "DEBUG" }

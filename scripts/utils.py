@@ -37,7 +37,7 @@ def clean_all(root_path: str, /) -> None:
 
 
 def build_ppx(root_path: str, /) -> None:
-    clean_ppx(root_path)
+    # clean_ppx(root_path)
     print("Generating build files for poly-physx...")
     subprocess.run(["premake5", f"--file={root_path}/premake5.lua", "gmake"])
 
