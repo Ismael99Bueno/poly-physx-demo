@@ -23,9 +23,6 @@ namespace ppx_demo
 
         if (ImGui::ColorPicker3("Spring color", imcolor, ImGuiColorEditFlags_NoTooltip))
             color = {(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)};
-        ImGui::SameLine();
-        if (ImGui::ColorPicker3("Spring color", imcolor, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            color = {(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)};
         ImGui::PopItemWidth();
     }
 }

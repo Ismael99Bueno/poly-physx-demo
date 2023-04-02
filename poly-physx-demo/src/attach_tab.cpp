@@ -280,9 +280,6 @@ namespace ppx_demo
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
             papp.springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
-        ImGui::SameLine();
-        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
-            papp.springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
     void attach_tab::render_rb_color_pickers() const
@@ -292,9 +289,6 @@ namespace ppx_demo
         const sf::Color &color = papp.rigid_bars_color();
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp.rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
-        ImGui::SameLine();
-        if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_PickerHueWheel))
             papp.rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
     }
 
