@@ -15,7 +15,7 @@ namespace ppx_demo
                 }
         };
         demo_app &papp = demo_app::get();
-        m_prev_com = papp.window().getView().getCenter() * PIXEL_TO_WORLD;
+        m_prev_com = AS_VEC2(papp.window().getView().getCenter() * PIXEL_TO_WORLD);
         papp.engine().callbacks().on_early_entity_removal(on_removal);
     }
 

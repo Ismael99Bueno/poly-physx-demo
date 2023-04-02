@@ -83,14 +83,14 @@ namespace ppx_demo
         {
             const alg::vec2 size = alg::vec2(addr.p_current_templ.size, addr.p_current_templ.size) * WORLD_TO_PIXEL,
                             pos = alg::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
+            ImGui::DrawRectFilled(sf::FloatRect(VEC2_AS(pos), VEC2_AS(size)), color);
             break;
         }
         case adder::RECT:
         {
             const alg::vec2 size = alg::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
                             pos = alg::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(pos, size), color);
+            ImGui::DrawRectFilled(sf::FloatRect(VEC2_AS(pos), VEC2_AS(size)), color);
             break;
         }
         case adder::NGON:
@@ -245,8 +245,8 @@ namespace ppx_demo
             const alg::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
                             p2 = origin + poly[i + 1] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
             const float thickness = 3.f;
-            draw_list->AddLine(p1, p2, col, thickness);
-            points[i] = p1;
+            draw_list->AddLine(VEC2_AS(p1), VEC2_AS(p2), col, thickness);
+            points[i] = VEC2_AS(p1);
         }
 
         if (is_convex)
@@ -256,7 +256,7 @@ namespace ppx_demo
             const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
                                                    : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
             const float radius = 8.f;
-            draw_list->AddCircleFilled(center, radius, IM_COL32(207, 185, 151, 180));
+            draw_list->AddCircleFilled(VEC2_AS(center), radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
     }

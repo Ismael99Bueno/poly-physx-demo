@@ -198,7 +198,10 @@ namespace ppx_demo
         poly.rotation(std::atan2f(vel.y, vel.x));
 
         for (std::size_t i = 0; i < poly.size(); i++)
-            m_preview.setPoint(i, poly[i] * WORLD_TO_PIXEL);
+        {
+            const alg::vec2 point = poly[i] * WORLD_TO_PIXEL;
+            m_preview.setPoint(i, VEC2_AS(point));
+        }
 
         demo_app::get().window().draw(m_preview);
     }

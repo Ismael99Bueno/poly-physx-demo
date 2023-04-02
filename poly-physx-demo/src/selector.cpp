@@ -119,10 +119,12 @@ namespace ppx_demo
         const alg::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         sf::Vertex vertices[5];
-        vertices[0].position = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL;
-        vertices[1].position = mx * WORLD_TO_PIXEL;
-        vertices[2].position = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL;
-        vertices[3].position = mm * WORLD_TO_PIXEL;
+        const alg::vec2 p1 = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
+                        p3 = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
+        vertices[0].position = VEC2_AS(p1);
+        vertices[1].position = VEC2_AS(p2);
+        vertices[2].position = VEC2_AS(p3);
+        vertices[3].position = VEC2_AS(p4);
         vertices[4].position = vertices[0].position;
         demo_app::get().window().draw(vertices, 5, sf::LineStrip);
     }
