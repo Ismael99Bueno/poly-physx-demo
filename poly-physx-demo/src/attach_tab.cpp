@@ -7,7 +7,7 @@ namespace ppx_demo
 {
     void attach_tab::render() const
     {
-        const char *attach_types[2] = {"Spring", "Rigid bar"};
+        static const char *attach_types[2] = {"Spring", "Rigid bar"};
 
         demo_app &papp = demo_app::get();
         attacher &attch = papp.p_attacher;

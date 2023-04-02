@@ -194,8 +194,10 @@ namespace ppx_demo
         ImGui::Indent();
         for (const auto &[name, group] : cp.groups())
         {
+            ImGui::PushID(&name);
             if (ImGui::Button("X"))
                 to_remove = name;
+            ImGui::PopID();
             ImGui::SameLine();
             if (ImGui::Selectable(name.c_str(), cp.current_group().name == name))
                 cp.load_group(name);
