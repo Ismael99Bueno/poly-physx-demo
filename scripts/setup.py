@@ -4,7 +4,7 @@ from utils import build_all, build_ppx, build_sfml, clean_all, clean_ppx, clean_
 
 
 def main() -> None:
-    parser = ArgumentParser(description="Generate the build files of the project.")
+    parser = ArgumentParser(description="Generate the build files for the project.")
     parser.add_argument(
         "src",
         metavar="root-relpath",
