@@ -5,10 +5,26 @@ from utils import build_all, build_ppx, build_sfml, clean_all, clean_ppx, clean_
 
 def main() -> None:
     parser = ArgumentParser(description="Generate the build files of the project.")
-    parser.add_argument("src", metavar="root-relpath", type=str)
-    parser.add_argument("--which", dest="which", default="all")
     parser.add_argument(
-        "--clean", dest="clean", action="store_const", const=True, default=False
+        "src",
+        metavar="root-relpath",
+        type=str,
+        help="the relative path to the project root",
+    )
+    parser.add_argument(
+        "--which",
+        dest="which",
+        default="all",
+        type=str,
+        help="can be one of the following: 'sfml' - builds SFML as a shared library using CMake, 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first or 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
+    )
+    parser.add_argument(
+        "--clean",
+        dest="clean",
+        action="store_const",
+        const=True,
+        default=False,
+        help="clears all build files for the selected project component",
     )
 
     args = parser.parse_args()
