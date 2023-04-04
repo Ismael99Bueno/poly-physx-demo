@@ -27,6 +27,8 @@ All dependencies for poly-physx-demo are included as git submodules in the repos
 - [vector-view](https://github.com/Ismael99Bueno/vector-view): A header only library for modifying the contents of a std::vector without letting the user to modify its size.
 - [sfml-primitives](https://github.com/Ismael99Bueno/sfml-primitives): A C++ library providing line primitive implementations
 
+If the repository was cloned non-recursively previously, use `git submodule update --init` to clone the necessary submodules.
+
 ## Building and Usage
 
 1. Clone the repository recursively to download all submodules.
