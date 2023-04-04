@@ -3,7 +3,6 @@
 #include "flat_line_strip.hpp"
 #include "flat_line.hpp"
 #include "implot.h"
-#include "constants.hpp"
 #include <filesystem>
 
 namespace ppx_demo

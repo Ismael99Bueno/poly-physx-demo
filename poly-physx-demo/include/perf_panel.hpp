@@ -4,7 +4,7 @@
 #include "perf.hpp"
 #include "layer.hpp"
 #include "saveable.hpp"
-#include "constants.hpp"
+#include "app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
