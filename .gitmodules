@@ -40,3 +40,6 @@
 [submodule "poly-physx-app"]
 	path = poly-physx-app
 	url = https://github.com/Ismael99Bueno/poly-physx-app.git
+[submodule "ables"]
+	path = ables
+	url = https://github.com/Ismael99Bueno/ables.git
