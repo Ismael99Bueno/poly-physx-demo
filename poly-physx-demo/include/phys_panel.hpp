@@ -39,14 +39,8 @@ namespace ppx_demo
                 {"gravitational", m_gravitational},
                 {"exponential", m_exponential}};
 
-        struct arr2
-        {
-            arr2(const float x = 0.f, const float y = 0.f) : x(x), y(y) {}
-            float x, y;
-        };
-
         alg::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
-        std::array<arr2, PLOT_POINTS> m_potential_data;
+        std::array<alg::vec2, PLOT_POINTS> m_potential_data;
 
         void render_energy() const;
         void render_energy_values() const;

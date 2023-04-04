@@ -132,7 +132,7 @@ namespace ppx_demo
         const float t = papp.engine().elapsed();
         static std::size_t offset = 0;
 
-        static std::vector<arr2> kc, pot, total;
+        static std::vector<alg::vec2> kc, pot, total;
         if (kc.size() < buffer_size)
         {
             kc.emplace_back(t, kinetic);

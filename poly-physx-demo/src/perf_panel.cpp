@@ -89,13 +89,7 @@ namespace ppx_demo
         if (maxval < last_total * 1.1f)
             maxval = last_total * 1.1f;
 
-        struct arr2
-        {
-            arr2(const float x, const float y) : x(x), y(y) {}
-            float x, y;
-        };
-
-        static std::vector<arr2> phys, draw, total;
+        static std::vector<alg::vec2> phys, draw, total;
         // phys.reserve(buffer_size);
         // draw.reserve(buffer_size);
         // total.reserve(buffer_size);
