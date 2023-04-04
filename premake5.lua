@@ -1,6 +1,6 @@
 workspace "poly-physx-demo"
     architecture "arm64"
-    configurations {"debug", "release", "test", "debug-profile", "release-profile", "test-profile"}
+    configurations {"release", "debug", "test", "release-profile", "debug-profile", "test-profile"}
     buildoptions "-Wall"
     linkoptions "-Wl,-rpath,./vendor/SFML/build-sfml/lib"
 

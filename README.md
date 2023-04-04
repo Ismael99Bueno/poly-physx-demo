@@ -1,11 +1,11 @@
 # poly-physx-demo
 
-poly-physx-demo is a full demo application that showcases the capabilities of the poly-physx engine, utilizing the visualization features of poly-physx-app as its base. The demo allows users to add entities, springs, rigid bars, forces, interactions, and more through an in-app UI. This is a complete application, not a library.
+poly-physx-demo is a full demo application that showcases the capabilities of the [poly-physx](https://github.com/Ismael99Bueno/poly-physx) engine, utilizing the visualization features of [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app) as its base. The demo allows users to add entities, springs, rigid bars, forces, interactions, and more through an in-app UI. This is a complete application, not a library.
 
 ## Features
 
-- Full demo application showcasing the poly-physx engine's capabilities
-- Uses poly-physx-app visualization features as a base
+- Full demo application showcasing the [poly-physx](https://github.com/Ismael99Bueno/poly-physx) engine's capabilities
+- Uses [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app) visualization features as a base
 - In-app UI for adding entities, springs, rigid bars, forces, interactions, and more
 - Pre-configured premake5 workspace
 
@@ -27,13 +27,11 @@ All dependencies for poly-physx-demo are included as git submodules in the repos
 - [vector-view](https://github.com/Ismael99Bueno/vector-view): A header only library for modifying the contents of a std::vector without letting the user to modify its size.
 - [sfml-primitives](https://github.com/Ismael99Bueno/sfml-primitives): A C++ library providing line primitive implementations
 
-The user still needs to build SFML from source, as required for [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app).
-
 ## Building and Usage
 
 1. Clone the repository recursively to download all submodules.
-2. Run the `setup.py` script located in the `scripts/` folder. This script will automatically build SFML and generate the build files for the rest of the project. Note that `setup.py` currently supports MacOS, with Windows support in progress.
-3. Compile the project using the `make` command.
+2. Run the `setup.py` script located in the `scripts` folder. This script will automatically build SFML and generate the build files for the rest of the project. Note that `setup.py` currently supports MacOS, with Windows support in progress.
+3. Compile the project using the `make` command and execute it. The distribution by default is release.
 
 For more information on how to use poly-physx-demo and explore its features, please refer to the documentation.
 
