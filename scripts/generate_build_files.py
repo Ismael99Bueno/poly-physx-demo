@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 import os
-from utils import build_all, build_ppx, build_sfml, clean_all, clean_ppx, clean_sfml
+from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
 
 
 def main() -> None:
@@ -34,13 +34,18 @@ def main() -> None:
         raise ValueError(f"Path {root_path} does not exist.")
 
     print(f"Setup wrt root: {root_path}\n")
-    options = (
-        {"all": clean_all, "ppx": clean_ppx, "sfml": clean_sfml}
-        if args.clean
-        else {"all": build_all, "ppx": build_ppx, "sfml": build_sfml}
-    )
+    options = {
+        "all": FullGenerator(root_path),
+        "ppx": PPXGenerator(root_path),
+        "sfml": SFMLGenerator(root_path),
+    }
+
     try:
-        options[args.which](root_path)
+        gen: Generator = options[args.which]
+        if args.clean:
+            gen.clean()
+        else:
+            gen.build()
     except KeyError:
         raise ValueError(
             f"Unrecognized --which argument '{args.which}'. Expected 'all', 'ppx' or 'sfml'."

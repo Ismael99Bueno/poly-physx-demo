@@ -32,7 +32,7 @@ If the repository was cloned non-recursively previously, use `git submodule upda
 ## Building and Usage
 
 1. Clone the repository recursively to download all submodules.
-2. Run the `setup.py` script located in the `scripts` folder. This script will automatically build SFML and generate the build files for the rest of the project. Note that `setup.py` currently supports MacOS, with Windows support in progress.
+2. Run the `generate_build_files.py` script located in the `scripts` folder. This script will automatically build SFML and generate the build files for the rest of the project. Note that `generate_build_files.py` currently supports MacOS, with Windows support in progress.
 3. Compile the project using the `make` command and execute it. The distribution by default is release.
 
 For more information on how to use poly-physx-demo and explore its features, please refer to the documentation.
