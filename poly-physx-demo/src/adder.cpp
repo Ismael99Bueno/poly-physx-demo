@@ -1,6 +1,6 @@
 #include "adder.hpp"
 #include "demo_app.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 #include "flat_line.hpp"
 #include "flat_line_strip.hpp"
 

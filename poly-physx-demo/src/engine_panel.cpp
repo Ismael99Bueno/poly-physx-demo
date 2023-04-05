@@ -2,7 +2,7 @@
 #include "tableaus.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
-#include "constants.hpp"
+#include "globals.hpp"
 #include "flat_line_strip.hpp"
 #include "demo_app.hpp"
 #include <cmath>

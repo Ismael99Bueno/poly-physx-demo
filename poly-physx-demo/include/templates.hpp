@@ -3,7 +3,7 @@
 
 #include "spring2D.hpp"
 #include "rigid_bar2D.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 #include <vector>
 
 namespace ppx_demo

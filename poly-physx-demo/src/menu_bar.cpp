@@ -2,7 +2,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 #include <filesystem>
 
 namespace ppx_demo

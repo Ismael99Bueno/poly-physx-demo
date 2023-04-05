@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
+#include "globals.hpp"
 
 namespace ppx_demo
 {
@@ -87,7 +88,7 @@ namespace ppx_demo
             for (std::size_t i = 0; i < spring_count; i++)
             {
                 ppx::spring2D &sp = springs[i];
-                const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring %zu", i);
+                const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring '%s' - '%s'", glob::generate_name(sp.e1().id()), glob::generate_name(sp.e2().id()));
                 if (expanded || ImGui::IsItemHovered())
                 {
                     outlmng.load_outline(sp.e1().index(), papp.springs_color(), 4);
@@ -129,24 +130,27 @@ namespace ppx_demo
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)
             {
-                auto &rb = static_cast<ppx::rigid_bar2D &>(*ctrs[i]); // ASSUMING DEMO APP ONLY CONTAINS RIGID BAR CONSTRAINTS. OTHER CONSTRAINTS MUST NOT BE USED
-                const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar %zu", i);
+                const auto rb = std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctrs[i]);
+                if (!rb)
+                    continue;
+
+                const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar '%s' - '%s'", glob::generate_name(rb->e1().id()), glob::generate_name(rb->e2().id()));
                 if (expanded || ImGui::IsItemHovered())
                 {
-                    outlmng.load_outline(rb.e1().index(), papp.rigid_bars_color(), 4);
-                    outlmng.load_outline(rb.e2().index(), papp.rigid_bars_color(), 4);
+                    outlmng.load_outline(rb->e1().index(), papp.rigid_bars_color(), 4);
+                    outlmng.load_outline(rb->e2().index(), papp.rigid_bars_color(), 4);
                 }
 
                 if (expanded)
                 {
-                    float stf = rb.stiffness(), dmp = rb.dampening(), len = rb.length();
-                    ImGui::Text("Stress - %f", rb.value());
+                    float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
+                    ImGui::Text("Stress - %f", rb->value());
                     if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 2000.f))
-                        rb.stiffness(stf);
+                        rb->stiffness(stf);
                     if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 100.f))
-                        rb.dampening(dmp);
+                        rb->dampening(dmp);
                     if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
-                        rb.length(len);
+                        rb->length(len);
                     ImGui::TreePop();
                 }
                 else

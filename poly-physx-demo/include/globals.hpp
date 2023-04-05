@@ -1,5 +1,5 @@
-#ifndef CONSTANTS_HPP
-#define CONSTANTS_HPP
+#ifndef GLOBALS_HPP
+#define GLOBALS_HPP
 
 // #define WINDOW_FONT_SCALE 1.f // REMOVE THIS Y VE A FILE MODIFICADAS UNA A UNA Y ESTANDARIZA LO DE LOS FONTS
 #define PLOT_HEIGHT 0
@@ -16,5 +16,12 @@
     for (char *c = buff; *c != '\0'; c++) \
         if (*c == from)                   \
             *c = to;
+
+#include <cstddef>
+
+namespace glob
+{
+    const char *generate_name(std::size_t id);
+}
 
 #endif

@@ -1,6 +1,6 @@
 #include "copy_paste.hpp"
 #include "demo_app.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 
 namespace ppx_demo
 {

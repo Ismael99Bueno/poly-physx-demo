@@ -2,7 +2,7 @@
 #include "demo_app.hpp"
 #include "spring_line.hpp"
 #include "thick_line.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 #include <algorithm>
 
 namespace ppx_demo

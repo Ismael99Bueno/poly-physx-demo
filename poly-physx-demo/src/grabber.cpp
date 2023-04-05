@@ -1,5 +1,5 @@
 #include "grabber.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
 #include "demo_app.hpp"
 #include "spring_line.hpp"
 #include <limits>

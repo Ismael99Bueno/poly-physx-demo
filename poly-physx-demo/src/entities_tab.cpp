@@ -1,6 +1,7 @@
 #include "entities_tab.hpp"
 #include "demo_app.hpp"
-#include "constants.hpp"
+#include "globals.hpp"
+#include <random>
 
 namespace ppx_demo
 {
@@ -62,7 +63,7 @@ namespace ppx_demo
         if (slct.entities().size() == 1)
         {
             ppx::entity2D_ptr e = *slct.entities().begin();
-            ImGui::Text("Entity %zu", e.id());
+            ImGui::Text("Entity '%s'", glob::generate_name(e.id()));
             render_entity_data(*e);
             if (ImGui::Button("Remove##Single"))
                 papp.remove_selected();
@@ -208,7 +209,7 @@ namespace ppx_demo
 
     bool entities_tab::render_entity_node(ppx::entity2D &e, std::int8_t sign) const
     {
-        const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity %zu", e.id());
+        const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity '%s'", glob::generate_name(e.id()));
         if (expanded || ImGui::IsItemHovered())
             demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
@@ -225,6 +226,7 @@ namespace ppx_demo
               vel[2] = {e.vel().x, e.vel().y},
               angpos = e.angpos(), angvel = e.angvel(),
               mass = e.mass(), charge = e.charge();
+        ImGui::Text("ID: %zu", e.id());
         if (ImGui::DragFloat2("Position", pos, 0.2f))
         {
             e.pos(alg::vec2(pos[0], pos[1]));

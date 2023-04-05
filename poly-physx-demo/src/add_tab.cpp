@@ -1,7 +1,7 @@
 #include "add_tab.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
-#include "constants.hpp"
+#include "globals.hpp"
 #include "demo_app.hpp"
 #include <SFML/Graphics.hpp>
 
