@@ -166,7 +166,7 @@ namespace ppx_demo
                 else
                     p_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
-            case actions_panel::ENTITIES:
+            case actions_panel::SELECT:
                 p_selector.begin_select();
                 break;
             default:
@@ -184,7 +184,7 @@ namespace ppx_demo
             case actions_panel::GRAB:
                 p_grabber.null();
                 break;
-            case actions_panel::ENTITIES:
+            case actions_panel::SELECT:
                 p_selector.end_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
                 break;
             default:

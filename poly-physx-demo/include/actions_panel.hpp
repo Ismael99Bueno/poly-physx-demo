@@ -17,7 +17,7 @@ namespace ppx_demo
             ADD = 0,
             GRAB = 1,
             ATTACH = 2,
-            ENTITIES = 3,
+            SELECT = 3,
             NONE = 4
         };
         actions_panel();

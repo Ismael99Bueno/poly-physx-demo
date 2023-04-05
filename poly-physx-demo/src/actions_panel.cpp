@@ -26,10 +26,32 @@ namespace ppx_demo
 
     void actions_panel::render_actions()
     {
-        ImGui::PushItemWidth(150);
-        static const char *actions[4] = {"Add", "Grab", "Attach", "Select"};
-        ImGui::ListBox("Action", (int *)&m_action, actions, IM_ARRAYSIZE(actions));
-        ImGui::PopItemWidth();
+        ImGui::Text("Actions (hold keys): LMB | F + LMB | E + LMB | LShift + LMB | LControl + LMB");
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F))
+        {
+            ImGui::Text("Current action - Grab");
+            m_action = GRAB;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+        {
+            ImGui::Text("Current action - Attach");
+            m_action = ATTACH;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+        {
+            ImGui::Text("Current action - Select (inclusive)");
+            m_action = SELECT;
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+        {
+            ImGui::Text("Current action - Select (exclusive)");
+            m_action = SELECT;
+        }
+        else
+        {
+            ImGui::Text("Current action - Add entity");
+            m_action = ADD;
+        }
     }
 
     void actions_panel::render_tabs() const

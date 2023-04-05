@@ -182,7 +182,7 @@ namespace ppx_demo
                 ImGui::Text("Calls (overall): %u", stats.total_calls());
 
                 ImGui::PushID(-call);
-                if (ImPlot::BeginPlot("##Pie", ImVec2(1500, 500), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
+                if (ImPlot::BeginPlot("##Pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
                 {
                     const std::size_t size = stats.children().size();
                     const char *labels[size + 1];
