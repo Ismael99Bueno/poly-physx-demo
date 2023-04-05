@@ -1,41 +1,44 @@
 workspace "poly-physx-demo"
-    architecture "arm64"
-    configurations {"release", "debug", "test", "release-profile", "debug-profile", "test-profile"}
+    --architecture "arm64"
+    configurations {"release", "debug", "release-profile", "debug-profile"}
     buildoptions "-Wall"
     linkoptions "-Wl,-rpath,./vendor/SFML/build-sfml/lib"
+
+    filter "system:macosx"
+      platforms {"arm64", "x86_64"}
+      
+      filter "platforms:arm64"
+         architecture "ARM64"
+      filter "platforms:x86_64"
+         architecture "x86_64"
+      filter {}
+
+   filter "system:windows"
+      platforms {"x86_64", "x86"}
+
+      filter "platforms:x86_64"
+         architecture "x86_64"
+      filter "platforms:x86"
+         architecture "x86"
+      filter {}
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
 
-filter "configurations:debug"
-      defines { "DEBUG" }
+filter {}
+
+   filter "configurations:debug*"
+      defines "DEBUG"
       runtime "Debug"
       symbols "On"
 
-   filter "configurations:release"
-      defines { "NDEBUG" }
+   filter "configurations:release*"
+      defines "NDEBUG"
       runtime "Release"
       optimize "On"
 
-   filter "configurations:test"
-      defines { "DEBUG" }
-      runtime "Debug"
-      symbols "On"
-
-   filter "configurations:debug-profile"
-      defines { "DEBUG", "PERF" }
-      runtime "Debug"
-      symbols "On"
-
-   filter "configurations:release-profile"
-      defines { "NDEBUG", "PERF" }
-      runtime "Release"
-      optimize "On"
-
-   filter "configurations:test-profile"
-      defines { "DEBUG", "PERF" }
-      runtime "Debug"
-      symbols "On"
+   filter "configurations:*profile"
+      defines "PERF"
 
 include "vec-2D"
 include "rk-integrator"
