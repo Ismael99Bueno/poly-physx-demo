@@ -12,7 +12,7 @@ namespace ppx_demo
                                m_repulsive(std::make_shared<electrical>()),
                                m_attractive(std::make_shared<electrical>()),
                                m_gravitational(std::make_shared<gravitational>()),
-                               m_exponential(std::make_shared<exponential>()) { m_gravity->p_auto_include = true; }
+                               m_exponential(std::make_shared<exponential>()) { m_gravity->p_enabled = true; }
 
     void phys_panel::write(ini::output &out) const
     {
@@ -61,18 +61,20 @@ namespace ppx_demo
 
         const auto auto_include = [this](ppx::entity2D_ptr e)
         {
-            if (m_gravity->p_auto_include)
-                m_gravity->include(e);
-            if (m_drag->p_auto_include)
-                m_drag->include(e);
-            if (m_gravitational->p_auto_include)
-                m_gravitational->include(e);
-            if (m_repulsive->p_auto_include)
-                m_repulsive->include(e);
-            if (m_attractive->p_auto_include)
-                m_attractive->include(e);
-            if (m_exponential->p_auto_include)
-                m_exponential->include(e);
+            for (auto &[name, saveable] : m_saveables) // I know this is horrible
+            {
+                const auto toggled = std::dynamic_pointer_cast<const toggleable>(saveable);
+
+                if (toggled && toggled->p_enabled)
+                {
+                    const auto force = std::dynamic_pointer_cast<ppx::force2D>(saveable);
+                    const auto inter = std::dynamic_pointer_cast<ppx::interaction2D>(saveable);
+                    if (force)
+                        force->include(e);
+                    else if (inter)
+                        inter->include(e);
+                }
+            }
         };
         eng.callbacks().on_entity_addition(auto_include);
     }
@@ -202,7 +204,7 @@ namespace ppx_demo
         ImGui::PushItemWidth(150);
 
         bool has_to_update = false;
-        render_enabled_checkbox(*m_gravity, &m_gravity->p_auto_include);
+        render_enabled_checkbox(*m_gravity, &m_gravity->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Gravity"))
         {
@@ -210,7 +212,7 @@ namespace ppx_demo
             ImGui::TreePop();
         }
 
-        render_enabled_checkbox(*m_drag, &m_drag->p_auto_include);
+        render_enabled_checkbox(*m_drag, &m_drag->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Drag"))
         {
@@ -220,7 +222,7 @@ namespace ppx_demo
             ImGui::TreePop();
         }
 
-        render_enabled_checkbox(*m_gravitational, &m_gravitational->p_auto_include);
+        render_enabled_checkbox(*m_gravitational, &m_gravitational->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Gravitational"))
         {
@@ -228,7 +230,7 @@ namespace ppx_demo
             ImGui::TreePop();
         }
 
-        render_enabled_checkbox(*m_repulsive, &m_repulsive->p_auto_include);
+        render_enabled_checkbox(*m_repulsive, &m_repulsive->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Electrical (repulsive)"))
         {
@@ -240,7 +242,7 @@ namespace ppx_demo
             ImGui::TreePop();
         }
 
-        render_enabled_checkbox(*m_attractive, &m_attractive->p_auto_include);
+        render_enabled_checkbox(*m_attractive, &m_attractive->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Electrical (attractive)"))
         {
@@ -252,7 +254,7 @@ namespace ppx_demo
             ImGui::TreePop();
         }
 
-        render_enabled_checkbox(*m_exponential, &m_exponential->p_auto_include);
+        render_enabled_checkbox(*m_exponential, &m_exponential->p_enabled);
         ImGui::SameLine();
         if (ImGui::TreeNode("Exponential"))
         {
@@ -299,7 +301,9 @@ namespace ppx_demo
         for (const auto &inter : inters)
         {
             const float refval = inter->potential(unit, refpos);
-            if (inter->size() > 0) // TODO: Create enableables to solve this crap
+            const auto toggled = std::dynamic_pointer_cast<const toggleable>(inter);
+
+            if (toggled && toggled->p_enabled)
                 for (std::size_t i = 0; i < PLOT_POINTS; i++)
                     m_potential_data[i].y += inter->potential(unit, {m_potential_data[i].x, 0.f}) - refval;
         }

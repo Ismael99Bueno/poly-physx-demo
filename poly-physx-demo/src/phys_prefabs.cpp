@@ -35,13 +35,13 @@ namespace ppx_demo
     void gravity::write(ini::output &out) const
     {
         out.write("mag", p_mag);
-        out.write("auto_include", p_auto_include);
+        out.write("enabled", p_enabled);
         write_set(*this, out);
     }
     void gravity::read(ini::input &in)
     {
         p_mag = in.readf("mag");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_enabled = (bool)in.readi("enabled");
         read_set(*this, in);
     }
 
@@ -54,14 +54,14 @@ namespace ppx_demo
     {
         out.write("lin_mag", p_lin_mag);
         out.write("ang_mag", p_ang_mag);
-        out.write("auto_include", p_auto_include);
+        out.write("enabled", p_enabled);
         write_set(*this, out);
     }
     void drag::read(ini::input &in)
     {
         p_lin_mag = in.readf("lin_mag");
         p_ang_mag = in.readf("ang_mag");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_enabled = (bool)in.readi("enabled");
         read_set(*this, in);
     }
 
@@ -82,13 +82,13 @@ namespace ppx_demo
     void gravitational::write(ini::output &out) const
     {
         out.write("mag", p_mag);
-        out.write("auto_include", p_auto_include);
+        out.write("enabled", p_enabled);
         write_set(*this, out);
     }
     void gravitational::read(ini::input &in)
     {
         p_mag = in.readf("mag");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_enabled = (bool)in.readi("enabled");
         read_set(*this, in);
     }
 
@@ -121,14 +121,14 @@ namespace ppx_demo
     {
         out.write("mag", p_mag);
         out.write("exp", p_exp);
-        out.write("auto_include", p_auto_include);
+        out.write("enabled", p_enabled);
         write_set(*this, out);
     }
     void electrical::read(ini::input &in)
     {
         p_mag = in.readf("mag");
         p_exp = in.readi("exp");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_enabled = (bool)in.readi("enabled");
         read_set(*this, in);
     }
 
@@ -151,14 +151,14 @@ namespace ppx_demo
     {
         out.write("mag", p_mag);
         out.write("exp", p_exp);
-        out.write("auto_include", p_auto_include);
+        out.write("enabled", p_enabled);
         write_set(*this, out);
     }
     void exponential::read(ini::input &in)
     {
         p_mag = in.readf("mag");
         p_exp = in.readf("exp");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_enabled = (bool)in.readi("enabled");
         read_set(*this, in);
     }
 }
