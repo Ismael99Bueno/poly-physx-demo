@@ -26,7 +26,7 @@ class PPXGenerator(Generator):
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
-        subprocess.run(["premake5", f"--file={self._root_path}/premake5.lua", "gmake"])
+        subprocess.run(["premake5", f"--file={self._root_path}/premake5.lua", "gmake2"])
 
     def clean(self) -> None:
         print("Removing build files for poly-physx...")
