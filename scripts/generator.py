@@ -4,6 +4,7 @@ import shutil
 import glob
 from typing import Callable
 from abc import ABC, abstractmethod
+import platform
 
 
 class Generator(ABC):
@@ -62,6 +63,8 @@ class SFMLGenerator(Generator):
             )
         build_sfml_path = f"{self._root_path}/vendor/SFML/build-sfml"
         os.mkdir(build_sfml_path)
+
+        mac_ver, _, arch = platform.mac_ver()
         subprocess.run(
             [
                 "cmake",
@@ -70,7 +73,8 @@ class SFMLGenerator(Generator):
                 "-B",
                 build_sfml_path,
                 "-DCMAKE_BUILD_TYPE=Release",
-                "-DCMAKE_OSX_ARCHITECTURES=arm64",
+                f"-DCMAKE_OSX_ARCHITECTURES={arch}",
+                f"-DCMAKE_OSX_DEPLOYMENT_TARGET={mac_ver.split('.')[0]}",
             ]
         )
         subprocess.run(["cmake", "--build", build_sfml_path])
