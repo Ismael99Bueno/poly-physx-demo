@@ -21,12 +21,15 @@ class Generator(ABC):
 
 
 class PPXGenerator(Generator):
-    def __init__(self, root_path: str) -> None:
+    def __init__(self, root_path: str, action: str) -> None:
         super().__init__(root_path)
+        self.__action = action
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
-        subprocess.run(["premake5", f"--file={self._root_path}/premake5.lua", "gmake2"])
+        subprocess.run(
+            ["premake5", f"--file={self._root_path}/premake5.lua", self.__action]
+        )
 
     def clean(self) -> None:
         print("Removing build files for poly-physx...")

@@ -29,6 +29,13 @@ def main() -> None:
         default=False,
         help="clears all build files for the selected project component",
     )
+    parser.add_argument(
+        "--premake-action",
+        dest="action",
+        default="gmake2",
+        type=str,
+        help="Can be one of the actions listed in 'premake5 --help' option. Defaults to 'gmake2'",
+    )
 
     args = parser.parse_args()
 
@@ -39,7 +46,7 @@ def main() -> None:
     print(f"Setup wrt root: {root_path}\n")
     options = {
         "all": FullGenerator(root_path),
-        "ppx": PPXGenerator(root_path),
+        "ppx": PPXGenerator(root_path, args.action),
         "sfml": SFMLGenerator(root_path),
     }
 
