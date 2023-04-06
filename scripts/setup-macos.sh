@@ -121,11 +121,11 @@ fi
 echo "make installed
 "
 
-echo "Do you want to go ahead and generate the project build files? [Y]/N"
+echo "Do you want to go ahead and generate all the project build files? Default premake action is gmake2 [Y]/N"
 read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
-        echo "Run generate_build_files.py to generate the project's build file. Use the -h flag to display the options available"
+        echo "Run generate_build_files.py to generate the project's build files. Use the -h flag to display the options available"
         exit
     fi
 

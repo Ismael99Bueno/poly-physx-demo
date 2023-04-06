@@ -4,7 +4,10 @@ from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
 
 
 def main() -> None:
-    parser = ArgumentParser(description="Generate the build files for the project.")
+    parser = ArgumentParser(
+        description="Generate the build files for the project.",
+        epilog="Once the build files have been generated, the project must be compiled according to the chosen premake5 action.",
+    )
     parser.add_argument(
         "src",
         metavar="root-relpath",
