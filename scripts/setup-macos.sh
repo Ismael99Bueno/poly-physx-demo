@@ -77,6 +77,28 @@ fi
 echo "CMake installed
 "
 
+echo "Checking premake installation..."
+
+if ! which -s premake5
+then
+    echo "premake installation not found. Do you wish to install?[Y]/N"
+    read -r ANSWER
+    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
+    then
+        echo "premake installation failed... Setup terminated"
+        exit
+    fi
+    if ! install_brew
+    then
+        echo "Homebrew installation failed... Setup terminated"
+        exit
+    fi
+
+    brew install premake
+fi
+echo "premake installed
+"
+
 echo "Do you want to go ahead and generate the project build files? [Y]/N"
 read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
