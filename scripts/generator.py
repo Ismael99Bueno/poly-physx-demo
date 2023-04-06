@@ -96,9 +96,9 @@ class SFMLGenerator(Generator):
 
 
 class FullGenerator(Generator):
-    def __init__(self, root_path: str) -> None:
+    def __init__(self, root_path: str, action: str) -> None:
         super().__init__(root_path)
-        self.__ppx_gen = PPXGenerator(root_path)
+        self.__ppx_gen = PPXGenerator(root_path, action)
         self.__sfml_gen = SFMLGenerator(root_path)
 
     def build(self) -> None:

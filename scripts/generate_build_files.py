@@ -45,7 +45,7 @@ def main() -> None:
 
     print(f"Setup wrt root: {root_path}\n")
     options = {
-        "all": FullGenerator(root_path),
+        "all": FullGenerator(root_path, args.action),
         "ppx": PPXGenerator(root_path, args.action),
         "sfml": SFMLGenerator(root_path),
     }
