@@ -200,6 +200,18 @@ namespace ppx_demo
         if (ImGui::Button("Auto adjust length##Selected"))
             for (ppx::spring2D *sp : springs)
                 sp->length(sp->e1()->pos().dist(sp->e2()->pos()));
+
+        const auto remove_springs = [&slct, &papp]()
+        {
+            const auto selected_springs = slct.springs(); // To not modify container mid iteration
+            for (const auto &[e1, e2] : selected_springs)
+            {
+                // This is necessary bc remove_spring invalidates stack array pointers
+                const ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
+                papp.engine().remove_spring(*sp);
+            }
+        };
+
         if (ImGui::Button("Transform to rigid bars"))
         {
             for (ppx::spring2D *sp : springs)
@@ -211,18 +223,11 @@ namespace ppx_demo
                                                                                       atch.p_rb_stiffness, atch.p_rb_dampening);
                 papp.engine().add_constraint(rb);
             }
-            const auto selected_springs = slct.springs(); // To not modify container mid iteration
-            for (const auto &[e1, e2] : selected_springs)
-            {
-                // This is necessary bc remove_spring invalidates stack array pointers
-                const ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
-                papp.engine().remove_spring(*sp);
-            }
+            remove_springs();
             slct.update_selected_springs_rbars();
         }
         else if (ImGui::Button("Remove##Selected"))
-            for (ppx::spring2D *sp : springs)
-                papp.engine().remove_spring(*sp);
+            remove_springs();
     }
 
     void attach_tab::render_selected_rbars() const
