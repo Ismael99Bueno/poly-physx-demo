@@ -1,12 +1,34 @@
+# Binary files
 **/bin
+
+# Build folders
 **/build
+
+# Makefiles
 **/Makefile
+
+# MacOS artifacts
 .DS_Store
-.vscode
-profile-results/
+
+# VS-VSCode config
+.vscode/
 .vs/
-*.ini
+
+# Python environments
+*env/
+
+# Project files
 *.xcworkspace/
 **.xcodeproj
+
+#ImGui artifacts
+imgui.ini
+
+*temp*
+**/__pycache__
+
+
+# Results folders
+profile-results/
 fonts/
 saves/
