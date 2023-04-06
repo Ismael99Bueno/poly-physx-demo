@@ -1,42 +1,42 @@
 [submodule "imgui"]
 	path = vendor/imgui
-	url = https://github.com/Ismael99Bueno/imgui.git
+	url = https://github.com/ismawno/imgui.git
 [submodule "imgui-sfml"]
 	path = vendor/imgui-sfml
-	url = https://github.com/Ismael99Bueno/imgui-sfml.git
+	url = https://github.com/ismawno/imgui-sfml.git
 [submodule "implot"]
 	path = vendor/implot
-	url = https://github.com/Ismael99Bueno/implot.git
+	url = https://github.com/ismawno/implot.git
 [submodule "SFML"]
 	path = vendor/SFML
-	url = https://github.com/Ismael99Bueno/SFML.git
+	url = https://github.com/ismawno/SFML.git
 [submodule "vec-2D"]
 	path = vec-2D
-	url = https://github.com/Ismael99Bueno/vec-2D.git
+	url = https://github.com/ismawno/vec-2D.git
 [submodule "shapes-2D"]
 	path = shapes-2D
-	url = https://github.com/Ismael99Bueno/shapes-2D.git
+	url = https://github.com/ismawno/shapes-2D.git
 [submodule "ini-parser"]
 	path = ini-parser
-	url = https://github.com/Ismael99Bueno/ini-parser.git
+	url = https://github.com/ismawno/ini-parser.git
 [submodule "debug-tools"]
 	path = debug-tools
-	url = https://github.com/Ismael99Bueno/debug-tools.git
+	url = https://github.com/ismawno/debug-tools.git
 [submodule "profile-tools"]
 	path = profile-tools
-	url = https://github.com/Ismael99Bueno/profile-tools.git
+	url = https://github.com/ismawno/profile-tools.git
 [submodule "rk-integrator"]
 	path = rk-integrator
-	url = https://github.com/Ismael99Bueno/rk-integrator.git
+	url = https://github.com/ismawno/rk-integrator.git
 [submodule "sfml-primitives"]
 	path = sfml-primitives
-	url = https://github.com/Ismael99Bueno/sfml-primitives.git
+	url = https://github.com/ismawno/sfml-primitives.git
 [submodule "vector-view"]
 	path = vector-view
-	url = https://github.com/Ismael99Bueno/vector-view.git
+	url = https://github.com/ismawno/vector-view.git
 [submodule "poly-physx"]
 	path = poly-physx
-	url = https://github.com/Ismael99Bueno/poly-physx.git
+	url = https://github.com/ismawno/poly-physx.git
 [submodule "poly-physx-app"]
 	path = poly-physx-app
-	url = https://github.com/Ismael99Bueno/poly-physx-app.git
+	url = https://github.com/ismawno/poly-physx-app.git
