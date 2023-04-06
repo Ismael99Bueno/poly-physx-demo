@@ -57,7 +57,7 @@ def main() -> None:
         else:
             gen.build()
             print(
-                "\nUse 'make' to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries."
+                "\nCompile the project according to the selected premake action.\n If you have selected gmake2 (default), use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries.\nThe program should be executed from the source path for the executable to be able to locate the SFML shared libs."
             )
     except KeyError:
         raise ValueError(
