@@ -24,7 +24,7 @@ function install_brew
         return 0
     fi
 
-    echo "Homebrew is required for the previous installation. Do you whish to install?[Y]/N"
+    echo "Homebrew is required for the previous installation. Do you whish to install? [Y]/N"
     read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
@@ -38,7 +38,7 @@ function install_brew
 echo "Checking python intallation..."
 if ! which -s python3
 then
-    echo "Python 3 installation not found. Do you wish to install?[Y]/N"
+    echo "Python 3 installation not found. Do you wish to install? [Y]/N"
     read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
@@ -59,7 +59,7 @@ echo "Python3 installed
 echo "Checking CMake intallation..."
 if ! which -s cmake
 then
-    echo "CMake installation not found. Do you wish to install?[Y]/N"
+    echo "CMake installation not found. Do you wish to install? [Y]/N"
     read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
@@ -81,7 +81,7 @@ echo "Checking premake installation..."
 
 if ! which -s premake5
 then
-    echo "premake installation not found. Do you wish to install?[Y]/N"
+    echo "premake installation not found. Do you wish to install? [Y]/N"
     read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
@@ -97,6 +97,28 @@ then
     brew install premake
 fi
 echo "premake installed
+"
+
+echo "Checking make installation..."
+
+if ! which -s make
+then
+    echo "make installation not found. Do you wish to install? [Y]/N"
+    read -r ANSWER
+    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
+    then
+        echo "make installation failed... Setup terminated"
+        exit
+    fi
+    if ! install_brew
+    then
+        echo "Homebrew installation failed... Setup terminated"
+        exit
+    fi
+
+    brew install make
+fi
+echo "make installed
 "
 
 echo "Do you want to go ahead and generate the project build files? [Y]/N"

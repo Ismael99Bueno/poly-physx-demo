@@ -46,6 +46,9 @@ def main() -> None:
             gen.clean()
         else:
             gen.build()
+            print(
+                "Use 'make' to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries."
+            )
     except KeyError:
         raise ValueError(
             f"Unrecognized --which argument '{args.which}'. Expected 'all', 'ppx' or 'sfml'."
