@@ -15,12 +15,13 @@ namespace ppx_demo
     {
         if (!p_enabled)
             return;
-        if (ImGui::Begin("Actions", &p_enabled, ImGuiWindowFlags_MenuBar))
-        {
+        const bool enabled = ImGui::Begin("Actions", &p_enabled, ImGuiWindowFlags_MenuBar);
+        if (enabled)
             ImGui::HelpMarker("The Actions panel allows you to make high level changes to the simulation, such as adding, removing and grabbing entities, modify their properties or attach springs and rigid bars to them.");
-            render_actions();
+        render_actions();
+        if (enabled)
             render_tabs();
-        }
+
         ImGui::End();
     }
 
