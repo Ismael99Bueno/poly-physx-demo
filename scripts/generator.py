@@ -5,6 +5,7 @@ import glob
 from typing import Callable
 from abc import ABC, abstractmethod
 import platform
+from exceptions import SFMLPathNotFoundError
 
 
 class Generator(ABC):
@@ -61,7 +62,7 @@ class SFMLGenerator(Generator):
 
         sfml_path = f"{self._root_path}/vendor/SFML"
         if not os.path.exists(sfml_path):
-            raise FileNotFoundError(
+            raise SFMLPathNotFoundError(
                 f"{sfml_path} not found. Did you pass the source path correctly?"
             )
         build_sfml_path = f"{self._root_path}/vendor/SFML/build-sfml"
