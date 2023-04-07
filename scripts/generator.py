@@ -6,12 +6,10 @@ from typing import Callable
 from abc import ABC, abstractmethod
 import platform
 from exceptions import SFMLPathNotFoundError
+from utils import ROOT_PATH
 
 
 class Generator(ABC):
-    def __init__(self, root_path: str) -> None:
-        self._root_path = root_path
-
     @abstractmethod
     def build(self) -> None:
         ...
@@ -22,26 +20,23 @@ class Generator(ABC):
 
 
 class PPXGenerator(Generator):
-    def __init__(self, root_path: str, action: str) -> None:
-        super().__init__(root_path)
+    def __init__(self, action: str) -> None:
         self.__action = action
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
-        subprocess.run(
-            ["premake5", f"--file={self._root_path}/premake5.lua", self.__action]
-        )
+        subprocess.run(["premake5", f"--file={ROOT_PATH}/premake5.lua", self.__action])
 
     def clean(self) -> None:
         print("Removing build files for poly-physx...")
-        PPXGenerator.__remove(f"{self._root_path}/*/bin")
-        PPXGenerator.__remove(f"{self._root_path}/vendor/*/bin")
-        PPXGenerator.__remove(f"{self._root_path}/*/build")
-        PPXGenerator.__remove(f"{self._root_path}/vendor/*/build")
-        PPXGenerator.__remove(f"{self._root_path}/*/Makefile", os.remove)
-        PPXGenerator.__remove(f"{self._root_path}/vendor/*/Makefile", os.remove)
-        if os.path.exists(f"{self._root_path}/Makefile"):
-            os.remove(f"{self._root_path}/Makefile")
+        PPXGenerator.__remove(f"{ROOT_PATH}/*/bin")
+        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/bin")
+        PPXGenerator.__remove(f"{ROOT_PATH}/*/build")
+        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/build")
+        PPXGenerator.__remove(f"{ROOT_PATH}/*/Makefile", os.remove)
+        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/Makefile", os.remove)
+        if os.path.exists(f"{ROOT_PATH}/Makefile"):
+            os.remove(f"{ROOT_PATH}/Makefile")
 
         print("Done.\n")
 
@@ -53,19 +48,16 @@ class PPXGenerator(Generator):
 
 
 class SFMLGenerator(Generator):
-    def __init__(self, root_path: str) -> None:
-        super().__init__(root_path)
-
     def build(self) -> None:
         self.clean()
         print("Generating build files for SFML...")
 
-        sfml_path = f"{self._root_path}/vendor/SFML"
+        sfml_path = f"{ROOT_PATH}/vendor/SFML"
         if not os.path.exists(sfml_path):
             raise SFMLPathNotFoundError(
                 f"{sfml_path} not found. Did you pass the source path correctly?"
             )
-        build_sfml_path = f"{self._root_path}/vendor/SFML/build-sfml"
+        build_sfml_path = f"{ROOT_PATH}/vendor/SFML/build-sfml"
         os.mkdir(build_sfml_path)
 
         mac_ver, _, arch = platform.mac_ver()
@@ -86,7 +78,7 @@ class SFMLGenerator(Generator):
 
     def clean(self) -> None:
         print("Removing build files for SFML...")
-        build_sfml_path = f"{self._root_path}/vendor/SFML/build-sfml"
+        build_sfml_path = f"{ROOT_PATH}/vendor/SFML/build-sfml"
         try:
             shutil.rmtree(build_sfml_path)
         except FileNotFoundError:
@@ -97,10 +89,9 @@ class SFMLGenerator(Generator):
 
 
 class FullGenerator(Generator):
-    def __init__(self, root_path: str, action: str) -> None:
-        super().__init__(root_path)
-        self.__ppx_gen = PPXGenerator(root_path, action)
-        self.__sfml_gen = SFMLGenerator(root_path)
+    def __init__(self, action: str) -> None:
+        self.__ppx_gen = PPXGenerator(action)
+        self.__sfml_gen = SFMLGenerator()
 
     def build(self) -> None:
         self.__sfml_gen.build()

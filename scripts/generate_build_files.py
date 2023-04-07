@@ -2,18 +2,13 @@ from argparse import ArgumentParser
 import os
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
 from exceptions import RootPathNotFoundError, UnrecognizedWhichArgumentError
+from utils import ROOT_PATH
 
 
 def main() -> None:
     parser = ArgumentParser(
         description="Generate the build files for the project.",
         epilog="Once the build files have been generated, the project must be compiled according to the chosen premake5 action.",
-    )
-    parser.add_argument(
-        "src",
-        metavar="root-relpath",
-        type=str,
-        help="the relative path to the project root",
     )
     parser.add_argument(
         "--which",
@@ -39,16 +34,14 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    if not os.path.exists(ROOT_PATH):
+        raise RootPathNotFoundError(f"Root path {ROOT_PATH} does not exist.")
 
-    root_path = os.path.abspath(args.src)
-    if not os.path.exists(root_path):
-        raise RootPathNotFoundError(f"Root path {root_path} does not exist.")
-
-    print(f"Setup wrt root: {root_path}\n")
+    print(f"Setup wrt root: {ROOT_PATH}\n")
     options = {
-        "all": FullGenerator(root_path, args.action),
-        "ppx": PPXGenerator(root_path, args.action),
-        "sfml": SFMLGenerator(root_path),
+        "all": FullGenerator(args.action),
+        "ppx": PPXGenerator(args.action),
+        "sfml": SFMLGenerator(),
     }
 
     try:
