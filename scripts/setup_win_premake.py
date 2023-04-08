@@ -10,6 +10,7 @@ def validate_premake() -> None:
     dir = f"{ROOT_PATH}/vendor/premake/bin"
     if not __is_premake_installed(dir) and not __install_premake(dir):
         raise DependencyNotFoundError("Premake")
+    print("Premake installed")
 
 
 def __is_premake_installed(dir: str) -> bool:
