@@ -42,3 +42,13 @@ class PythonVersionError(Exception):
 
     def __repr__(self) -> str:
         return f"Minimum python version required is {self.__required}, but {self.__current} found. Consider upgrading to {self.__required}"
+
+
+class BadOS(Exception):
+    def __init__(self, bad: str, good: str) -> None:
+        self.__bad = bad
+        self.__good = good
+        super().__init__(self.__repr__())
+
+    def __repr__(self) -> str:
+        return f"Cannot run setup because your machine does not have the required OS! Required: {self.__good}, current: {self.__bad}"

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ "$OSTYPE" != "darwin"* ]]
+then
+    echo "Cannot run setup because your machine does not have the required OS! Required: MacOS, current: $OSTYPE"
+    exit
+fi
+
 echo "Checking XCode CLT intallation..."
 if ! xcode-select -p &> /dev/null
 then
