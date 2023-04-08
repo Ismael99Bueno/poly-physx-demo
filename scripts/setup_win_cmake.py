@@ -6,8 +6,11 @@ from exceptions import DependencyNotFoundError
 
 
 def validate_cmake() -> None:
+    print("====CMAKE VALIDATION====")
+
     if not __is_cmake_installed() and not __install_cmake():
         raise DependencyNotFoundError("CMake")
+    print("CMake installed")
 
 
 def __is_cmake_installed() -> bool:
@@ -39,6 +42,6 @@ def __install_cmake() -> bool:
     print(
         "CMake installer will now be executed. When prompted by the installation MAKE SURE TO ADD CMAKE TO PATH. Once the installation completes, RE-RUN the script"
     )
-    input("\nPress any key to continue...")
+    input("Press any key to execute installer...")
     os.startfile(installer_path)
     exit()
