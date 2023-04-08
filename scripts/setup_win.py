@@ -29,6 +29,7 @@ def main() -> None:
         elif answer == "y" or answer == "Y" or answer == "":
             subprocess.run(
                 [
+                    "python",
                     f"{ROOT_PATH}/scripts/generate_build_files.py",
                     "--premake-action",
                     "vs2022",
