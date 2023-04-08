@@ -44,4 +44,4 @@ def __install_python_package(package_name: str) -> bool:
 
     print(f"Installing {package_name} package...")
     subprocess.run(["python", "-m", "pip", "install", package_name])
-    return True
+    return validate_python_package()

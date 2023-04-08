@@ -15,9 +15,7 @@ def main() -> None:
     validate_premake()
     validate_cmake()
 
-    print(
-        "Setup completed successfully! Make sure to re-run the script in case it was necessary to run an external installer"
-    )
+    print("Setup completed successfully!")
 
 
 if __name__ == "__main__":

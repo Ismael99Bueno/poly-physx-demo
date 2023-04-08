@@ -36,4 +36,4 @@ def __install_cmake() -> bool:
     )
     input("\nPress any key to continue...")
     os.startfile(installer_path)
-    return True
+    exit()
