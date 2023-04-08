@@ -11,4 +11,6 @@ project "poly-physx-demo"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs "../**/include"
    libdirs "../vendor/SFML/build-sfml/lib"
-   links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+   links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives", "sfml-graphics", "sfml-window", "sfml-system"}
+   filter "system:macosx"
+      links "OpenGL.framework"
