@@ -25,6 +25,15 @@ class PackageNotFoundError(Exception):
         return f"Package {self.__package} not found"
 
 
+class DependencyNotFoundError(Exception):
+    def __init__(self, dependency: str) -> None:
+        self.__dependency = dependency
+        super().__init__(self.__repr__())
+
+    def __repr__(self) -> str:
+        return f"Dependency {self.__dependency} not found"
+
+
 class PythonVersionError(Exception):
     def __init__(self, required: str, current: str) -> None:
         self.__required = required

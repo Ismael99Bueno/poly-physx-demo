@@ -1,20 +1,20 @@
 from utils import ROOT_PATH
 import os
 from utils import download_file, unzip_file
+from exceptions import DependencyNotFoundError
 
 
 def validate_premake() -> None:
     dir = f"{ROOT_PATH}/vendor/premake/bin"
-    if __is_premake_installed(dir):
-        return
-    __install_premake(dir)
+    if not __is_premake_installed(dir) and not __install_premake(dir):
+        raise DependencyNotFoundError("Premake")
 
 
 def __is_premake_installed(dir: str) -> bool:
     return os.path.exists(f"{dir}/premake5.exe")
 
 
-def __install_premake(dir: str) -> None:
+def __install_premake(dir: str) -> bool:
     version = "5.0.0-beta2"
     zip_url = f"https://github.com/premake/premake-core/releases/download/v{version}/premake-{version}-windows.zip"
     license_url = (
@@ -38,4 +38,4 @@ def __install_premake(dir: str) -> None:
     download_file(license_url, f"{dir}/LICENSE.txt")
     print(f"Premake has been successfully downloaded")
 
-    return True
+    return __is_premake_installed(dir)
