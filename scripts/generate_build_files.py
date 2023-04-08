@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import os
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
-from exceptions import RootPathNotFoundError, UnrecognizedWhichArgumentError
+from exceptions import UnrecognizedWhichArgumentError
 from utils import ROOT_PATH
 
 
@@ -34,8 +34,6 @@ def main() -> None:
     )
 
     args = parser.parse_args()
-    if not os.path.exists(ROOT_PATH):
-        raise RootPathNotFoundError(f"Root path {ROOT_PATH} does not exist.")
 
     print(f"Setup wrt root: {ROOT_PATH}\n")
     options = {
@@ -54,9 +52,7 @@ def main() -> None:
                 "\nCompile the project according to the selected premake action.\nIf you have selected gmake2 (default), use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries.\nThe program should be executed from the source path for the executable to be able to locate the SFML shared libs."
             )
     except KeyError:
-        raise UnrecognizedWhichArgumentError(
-            f"Unrecognized --which argument '{args.which}'. Expected 'all', 'ppx' or 'sfml'."
-        )
+        raise UnrecognizedWhichArgumentError(args.which)
 
 
 if __name__ == "__main__":
