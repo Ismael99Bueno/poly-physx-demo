@@ -1,5 +1,8 @@
+from setup_py import validate_python_version
+
+validate_python_version()
+
 from argparse import ArgumentParser
-import os
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
 from exceptions import UnrecognizedWhichArgumentError
 from utils import ROOT_PATH
