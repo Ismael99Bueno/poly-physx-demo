@@ -13,7 +13,7 @@ def validate_python_version(
         sys.version_info.micro,
     )
     for required, current in zip(
-        [major, minor, micro], [req_major, req_minor, req_micro]
+        [req_major, req_minor, req_micro], [major, minor, micro]
     ):
         if current < required:
             raise PythonVersionError(
