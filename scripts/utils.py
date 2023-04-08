@@ -10,7 +10,7 @@ if not os.path.exists(ROOT_PATH):
 def download_file(url: str, path: str) -> None:
     import requests
 
-    os.makedirs(path, exist_ok=True)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
@@ -20,10 +20,10 @@ def download_file(url: str, path: str) -> None:
         f.write(response.content)
 
 
-def unzip_file(path: str) -> None:
+def unzip_file(zip_path: str, extract_path: str) -> None:
     from zipfile import ZipFile
 
-    with ZipFile(path, "r") as zip:
-        zip.extractall()
+    with ZipFile(zip_path, "r") as zip:
+        zip.extractall(extract_path)
 
-    os.remove(path)
+    os.remove(zip_path)
