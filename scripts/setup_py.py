@@ -25,8 +25,10 @@ def validate_python_version(
 
 
 def validate_python_package(package_name: str) -> None:
-    if importlib.util.find_spec(package_name) is None and not __install_python_package(
-        package_name
+    if (
+        package_name not in sys.modules
+        and importlib.util.find_spec(package_name) is None
+        and not __install_python_package(package_name)
     ):
         raise PackageNotFoundError(package_name)
     print(f"Package {package_name} installed")

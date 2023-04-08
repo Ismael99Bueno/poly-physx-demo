@@ -11,7 +11,12 @@ def validate_cmake() -> None:
 
 
 def __is_cmake_installed() -> bool:
-    return subprocess.run(["cmake", "--version"], capture_output=True).returncode == 0
+    return (
+        subprocess.run(
+            ["cmake", "--version"], shell=True, capture_output=True
+        ).returncode
+        == 0
+    )
 
 
 def __install_cmake() -> bool:
