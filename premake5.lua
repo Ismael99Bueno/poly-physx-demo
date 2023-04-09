@@ -22,6 +22,7 @@ workspace "poly-physx-demo"
 
    filter "system:windows"
       platforms {"x86_64", "x86"}
+      defines "SFML_STATIC"
 
       filter "platforms:x86_64"
          architecture "x86_64"
@@ -29,12 +30,10 @@ workspace "poly-physx-demo"
          architecture "x86"
       filter {}
    
-      
+   filter {}      
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
-
-filter {}
 
    filter "configurations:debug*"
       defines "DEBUG"
@@ -61,23 +60,3 @@ include "vendor/implot"
 include "poly-physx-app"
 include "sfml-primitives"
 include "poly-physx-demo"
-
-newaction {
-    trigger = "clean",
-    description = "Remove all object and binary files",
-    execute = function()
-        print("Removing binaries...")
-        os.rmdir("**/bin")
-        print("Removing objects...")
-        os.rmdir("**/build")
-        print("Removing Makefiles...")
-        os.remove("**/Makefile")
-        os.remove("Makefile")
-        print("Removing project files...")
-        os.rmdir(".vs/")
-        os.rmdir("**.xcworkspace/")
-        os.rmdir("**.xcodeproj/")
-        os.remove("**.xcodeproj")
-        print("Done")
-    end
-}
