@@ -4,7 +4,7 @@ validate_python_version()
 
 from argparse import ArgumentParser
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
-from exceptions import UnrecognizedWhichArgumentError
+from exceptions import UnrecognizedWhichArgumentError, GeneratorNotSupportedError
 from utils import ROOT_PATH
 import platform
 
@@ -38,12 +38,14 @@ def main() -> None:
     )
 
     args = parser.parse_args()
+    if not args.generator.startswith("vs") and not args.generator.startswith("gmake"):
+        raise GeneratorNotSupportedError(args.generator)
 
     print(f"Setup wrt root: {ROOT_PATH}\n")
     options = {
         "all": FullGenerator(args.generator),
         "ppx": PPXGenerator(args.generator),
-        "sfml": SFMLGenerator(),
+        "sfml": SFMLGenerator(args.generator),
     }
 
     try:
