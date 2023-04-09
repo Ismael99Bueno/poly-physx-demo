@@ -21,9 +21,9 @@ def __is_mingw_installed() -> bool:
 
 
 def __install_mingw() -> bool:
-    dir = f"{ROOT_PATH}/vendor/CMake/bin"
+    dir = f"{ROOT_PATH}/vendor/MinGW/bin"
     installer_url = (
-        "https://osdn.net/projects/mingw/downloads/68260/mingw-get-setup.exe"
+        "https://osdn.net/frs/redir.php?m=nchc&f=mingw%2F68260%2Fmingw-get-setup.exe"
     )
     installer_path = f"{dir}/mingw-get-setup.exe"
 
