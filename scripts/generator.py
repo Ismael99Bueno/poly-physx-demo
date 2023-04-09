@@ -73,7 +73,9 @@ class SFMLGenerator(Generator):
 
         mac_ver, _, arch = platform.mac_ver()
         if platform.system() == "Windows":
-            sys.path.append("C:\\MinGW\\bin")
+            os.environ["PATH"] += os.pathsep + os.pathsep.join(
+                ["C:\\MinGW\\bin"]
+            )  # PUT THIS ELSEWHERE
 
         subprocess.run(
             [

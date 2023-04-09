@@ -18,7 +18,9 @@ def __is_mingw_installed() -> bool:
     if not os.path.exists("C:\\MinGW\\bin"):
         return False
 
-    sys.path.append("C:\\MinGW\\bin")
+    # SET THE MINGW PATH TO UTILS
+    # SET ADD MINGW TO PATH TO UTILS
+    os.environ["PATH"] += os.pathsep + os.pathsep.join(["C:\\MinGW\\bin"])
     return (
         subprocess.run(["g++", "--version"], shell=True, capture_output=True).returncode
         == 0
@@ -27,9 +29,10 @@ def __is_mingw_installed() -> bool:
 
 def __install_mingw() -> bool:
     if os.path.exists("C:\\MinGW\\bin"):
-        sys.path.append("C:\\MinGW\\bin")
-        subprocess.run(["mingw-get", "install", "g++"], shell=True)
-        return True
+        subprocess.run(
+            ["mingw-get", "install", "g++"], shell=True
+        )  # Should already be in path
+        return True  # False or error if the returncode is not 0
 
     dir = f"{ROOT_PATH}/vendor/MinGW/bin"
     installer_url = (
