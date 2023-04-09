@@ -71,6 +71,9 @@ class SFMLGenerator(Generator):
         os.mkdir(build_sfml_path)
 
         mac_ver, _, arch = platform.mac_ver()
+        if platform.system() == "Windows":
+            subprocess.run(["set", "PATH=%PATH%;C:\\MinGW\\bin"])
+
         subprocess.run(
             [
                 "cmake",
