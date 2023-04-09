@@ -3,7 +3,7 @@ project "poly-physx-demo"
 
    language "C++"
    cppdialect "C++17"
-   staticruntime "on"
+   
 
    targetdir("bin/" .. outputdir)
    objdir("build/" .. outputdir)
@@ -11,10 +11,10 @@ project "poly-physx-demo"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs "../**/include"
 
-   links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app"}
+   links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
    filter "system:macosx"
       libdirs "../vendor/SFML/build-sfml/lib"
-      links {"sfml-primitives", "sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
+      links {"sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
    filter "system:windows"
       
       links {"opengl32", "freetype", "winmm", "gdi32"}
