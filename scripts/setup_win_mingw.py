@@ -25,6 +25,10 @@ def __is_mingw_installed() -> bool:
 
 
 def __install_mingw() -> bool:
+    if os.path.exists("C:\\MinGW\\bin"):
+        subprocess.run(["mingw-get", "g++"], shell=True)  # Should already be on path...
+        return
+
     dir = f"{ROOT_PATH}/vendor/MinGW/bin"
     installer_url = (
         "https://osdn.net/frs/redir.php?m=nchc&f=mingw%2F68260%2Fmingw-get-setup.exe"
@@ -42,7 +46,7 @@ def __install_mingw() -> bool:
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(
-        "MinGW installer will now be executed. Once the installation completes, RE-RUN the script"
+        "MinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup). Once the installation completes, RE-RUN the script"
     )
     input("Press any key to execute installer...")
     os.startfile(installer_path)
