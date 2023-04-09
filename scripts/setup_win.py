@@ -21,7 +21,7 @@ def main() -> None:
 
     while True:
         answer = input(
-            "Do you want to go ahead and generate all the project build files? Default premake action for Windows is vs2022 [Y]/N "
+            "Do you want to go ahead and generate all the project build files? Default generator for Windows is vs2022 [Y]/N "
         )
         if answer == "n" or answer == "N":
             print(

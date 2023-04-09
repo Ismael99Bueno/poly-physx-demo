@@ -127,7 +127,7 @@ fi
 echo "make installed
 "
 
-echo "Do you want to go ahead and generate all the project build files? Default premake action for MacOS is gmake2 [Y]/N"
+echo "Do you want to go ahead and generate all the project build files? Default generator for MacOS is gmake2 [Y]/N"
 read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then

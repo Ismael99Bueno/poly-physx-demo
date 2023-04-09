@@ -11,7 +11,7 @@ from utils import ROOT_PATH
 def main() -> None:
     parser = ArgumentParser(
         description="Generate the build files for the project.",
-        epilog="Once the build files have been generated, the project must be compiled according to the chosen premake5 action.",
+        epilog="Once the build files have been generated, the project must be compiled according to the chosen generator.",
     )
     parser.add_argument(
         "--which",
@@ -29,7 +29,7 @@ def main() -> None:
         help="clears all build files for the selected project component",
     )
     parser.add_argument(
-        "--premake-action",
+        "--generator",
         dest="action",
         default="gmake2",
         type=str,
@@ -52,7 +52,7 @@ def main() -> None:
         else:
             gen.build()
             print(
-                "\nCompile the project according to the selected premake action.\nIf you have selected gmake2 (default), use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries.\nThe program should be executed from the source path for the executable to be able to locate the SFML shared libs."
+                "\nCompile the project according to the selected generator.\nIf you have selected gmake2 (default), use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries.\nThe program should be executed from the source path for the executable to be able to locate the SFML shared libs."
             )
     except KeyError:
         raise UnrecognizedWhichArgumentError(args.which)
