@@ -26,8 +26,10 @@ def __is_mingw_installed() -> bool:
 
 def __install_mingw() -> bool:
     if os.path.exists("C:\\MinGW\\bin"):
-        subprocess.run(["mingw-get", "g++"], shell=True)  # Should already be on path...
-        return
+        subprocess.run(
+            ["mingw-get.exe", "install", "g++"], shell=True
+        )  # Should already be on path...
+        return True
 
     dir = f"{ROOT_PATH}/vendor/MinGW/bin"
     installer_url = (
