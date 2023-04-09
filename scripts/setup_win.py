@@ -2,7 +2,7 @@ from setup_py import validate_python_version, validate_python_package
 from setup_win_premake import validate_premake
 from setup_win_cmake import validate_cmake
 from setup_win_mingw import validate_mingw
-from exceptions import BadOS
+from exceptions import BadOSError
 import platform
 import subprocess
 from utils import ROOT_PATH
@@ -10,7 +10,7 @@ from utils import ROOT_PATH
 
 def main() -> None:
     if platform.system() != "Windows":
-        raise BadOS(platform.system(), "Windows")
+        raise BadOSError(platform.system(), "Windows")
 
     validate_python_version()
     validate_python_package("requests")
@@ -33,8 +33,6 @@ def main() -> None:
                 [
                     "python",
                     f"{ROOT_PATH}/scripts/generate_build_files.py",
-                    "--premake-action",
-                    "vs2022",
                 ]
             )
             break

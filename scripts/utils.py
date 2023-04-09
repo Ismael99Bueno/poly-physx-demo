@@ -6,6 +6,14 @@ ROOT_PATH = Path(os.path.dirname(os.path.realpath(__file__))).parent.absolute()
 if not os.path.exists(ROOT_PATH):
     raise PathNotFoundError(ROOT_PATH)
 
+PREMAKE_TO_CMAKE_GEN = {
+    f"vs20{year}": f"Visual Studio {version} 20{year}"
+    for year, version in zip(
+        ["08", "10", "12", "13", "15", "17", "19", "22"],
+        [9, 10, 11, 12, 14, 15, 16, 17],
+    )
+}
+
 
 def download_file(url: str, path: str) -> None:
     import requests

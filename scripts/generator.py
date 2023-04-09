@@ -6,11 +6,14 @@ from typing import Callable
 from abc import ABC, abstractmethod
 import platform
 from exceptions import PathNotFoundError
-from utils import ROOT_PATH
-import sys
+from utils import ROOT_PATH, PREMAKE_TO_CMAKE_GEN
 
 
 class Generator(ABC):
+    def __init__(self, generator: str) -> None:
+        super().__init__()
+        self._generator = generator
+
     @abstractmethod
     def build(self) -> None:
         ...
@@ -22,7 +25,7 @@ class Generator(ABC):
 
 class PPXGenerator(Generator):
     def __init__(self, generator: str) -> None:
-        self.__generator = generator
+        super().__init__(generator)
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
@@ -34,7 +37,7 @@ class PPXGenerator(Generator):
                     else f"{ROOT_PATH}/vendor/premake/bin/premake5.exe"
                 ),
                 f"--file={ROOT_PATH}/premake5.lua",
-                self.__generator,
+                self._generator,
             ],
             shell=platform.system() == "Windows",
         )
@@ -61,6 +64,9 @@ class PPXGenerator(Generator):
 
 
 class SFMLGenerator(Generator):
+    def __init__(self, generator: str) -> None:
+        super().__init__(generator)
+
     def build(self) -> None:
         self.clean()
         print("Generating build files for SFML...")
@@ -77,14 +83,18 @@ class SFMLGenerator(Generator):
                 ["C:\\MinGW\\bin"]
             )  # PUT THIS ELSEWHERE
 
+        is_macos = platform.system() == "Darwin"
+
+        is_visual_studio = not is_macos and self._generator.startswith("vs")
+        premake_to_cmake_vs = (
+            PREMAKE_TO_CMAKE_GEN[self._generator]
+            if is_visual_studio
+            else "MinGW Makefiles"
+        )
         subprocess.run(
             [
                 "cmake",
-                (
-                    "-GUnix Makefiles"
-                    if platform.system() == "Darwin"
-                    else "-GMinGW Makefiles"
-                ),
+                ("-GUnix Makefiles" if is_macos else f"-G{premake_to_cmake_vs}"),
                 "-S",
                 sfml_path,
                 "-B",
@@ -93,8 +103,7 @@ class SFMLGenerator(Generator):
                 f"-DCMAKE_OSX_ARCHITECTURES={arch}",
                 f"-DCMAKE_OSX_DEPLOYMENT_TARGET={mac_ver.split('.')[0]}",
                 "-DWARNINGS_AS_ERRORS=FALSE",
-                "-DBUILD_SHARED_LIBS=FALSE",
-                "-DSFML_USE_STATIC_STD_LIBS=TRUE",
+                f"-DBUILD_SHARED_LIBS={'TRUE' if is_macos else 'FALSE'}",
             ]
         )
         subprocess.run(["cmake", "--build", build_sfml_path])
@@ -114,8 +123,9 @@ class SFMLGenerator(Generator):
 
 class FullGenerator(Generator):
     def __init__(self, generator: str) -> None:
+        super().__init__(generator)
         self.__ppx_gen = PPXGenerator(generator)
-        self.__sfml_gen = SFMLGenerator()
+        self.__sfml_gen = SFMLGenerator(generator)
 
     def build(self) -> None:
         self.__sfml_gen.build()
