@@ -18,10 +18,10 @@ project "poly-physx-demo"
    filter "system:windows"
       
       links {"opengl32", "freetype", "winmm", "gdi32"}
-      filter "configurations:debug*"
+      filter {"system:windows", "configurations:debug*"}
          libdirs "../vendor/SFML/build-sfml/lib/Debug"
          links {"sfml-graphics-s-d", "sfml-window-s-d", "sfml-system-s-d"}
          
-      filter "configurations:release*"
+      filter {"system:windows", "configurations:release*"}
          libdirs "../vendor/SFML/build-sfml/lib/Release"
          links {"sfml-graphics-s", "sfml-window-s", "sfml-system-s"}
