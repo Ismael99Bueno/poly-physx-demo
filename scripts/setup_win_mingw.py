@@ -23,7 +23,7 @@ def __is_mingw_installed() -> bool:
     os.environ["PATH"] += os.pathsep + os.pathsep.join(["C:\\MinGW\\bin"])
     return (
         subprocess.run(["g++", "--version"], shell=True, capture_output=True).returncode
-        == 0
+        == 0  # ADD MAKE INSTALLATION mingw32-make
     )
 
 

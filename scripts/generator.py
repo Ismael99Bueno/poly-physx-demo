@@ -92,6 +92,7 @@ class SFMLGenerator(Generator):
                 "-DCMAKE_BUILD_TYPE=Release",
                 f"-DCMAKE_OSX_ARCHITECTURES={arch}",
                 f"-DCMAKE_OSX_DEPLOYMENT_TARGET={mac_ver.split('.')[0]}",
+                "-DWARNINGS_AS_ERRORS=FALSE",
             ]
         )
         subprocess.run(["cmake", "--build", build_sfml_path])
