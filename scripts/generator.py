@@ -34,7 +34,8 @@ class PPXGenerator(Generator):
                 ),
                 f"--file={ROOT_PATH}/premake5.lua",
                 self.__action,
-            ]
+            ],
+            shell=platform.system() == "Windows",
         )
 
     def clean(self) -> None:
