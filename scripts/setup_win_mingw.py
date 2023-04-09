@@ -29,7 +29,7 @@ def __install_mingw() -> bool:
     if os.path.exists("C:\\MinGW\\bin"):
         subprocess.run(["set", "PATH=%PATH%;C:\MinGW\bin"], shell=True)
         subprocess.run(
-            ["mingw-get.exe", "install", "g++"], shell=True
+            ["mingw-get", "install", "g++"], shell=True
         )  # Should already be on path...
         return True
 
