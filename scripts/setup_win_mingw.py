@@ -28,10 +28,13 @@ def __is_mingw_installed() -> bool:
 
 
 def __install_mingw() -> bool:
-    if os.path.exists("C:\\MinGW\\bin"):
+    if os.path.exists(
+        "C:\\MinGW\\bin"
+    ):  # THIS SHOULD ALSO BE EXECUTED AT THE END OF THE FUNCTION
         subprocess.run(
             ["mingw-get", "install", "g++"], shell=True
         )  # Should already be in path
+        subprocess.run(["mingw-get", "install", "make"], shell=True)
         return True  # False or error if the returncode is not 0
 
     dir = f"{ROOT_PATH}/vendor/MinGW/bin"
