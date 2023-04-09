@@ -3,7 +3,6 @@ import os
 from utils import download_file
 import subprocess
 from exceptions import DependencyNotFoundError
-import sys
 
 
 def validate_mingw() -> None:
