@@ -72,6 +72,11 @@ class SFMLGenerator(Generator):
         subprocess.run(
             [
                 "cmake",
+                (
+                    "-GUnix Makefiles"
+                    if platform.system() == "Darwin"
+                    else "-GMinGW Makefiles"
+                ),
                 "-S",
                 sfml_path,
                 "-B",
