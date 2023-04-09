@@ -39,13 +39,12 @@ class PPXGenerator(Generator):
         )
 
     def clean(self) -> None:
-        print("Removing build files for poly-physx...")
+        print("Removing build, binary and project files..")
         PPXGenerator.__remove(f"{ROOT_PATH}/*/bin")
         PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/bin")
-        PPXGenerator.__remove(f"{ROOT_PATH}/*/build")
-        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/build")
-        PPXGenerator.__remove(f"{ROOT_PATH}/*/Makefile", os.remove)
-        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/Makefile", os.remove)
+        PPXGenerator.__remove(f"{ROOT_PATH}/**/build")
+        PPXGenerator.__remove(f"{ROOT_PATH}/**/Makefile", os.remove)
+        PPXGenerator.__remove(f"{ROOT_PATH}/**/*.vcxproj*", os.remove)
         if os.path.exists(f"{ROOT_PATH}/Makefile"):
             os.remove(f"{ROOT_PATH}/Makefile")
 
