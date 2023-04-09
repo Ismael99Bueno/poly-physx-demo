@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
 from exceptions import UnrecognizedWhichArgumentError
 from utils import ROOT_PATH
+import platform
 
 
 def main() -> None:
@@ -30,18 +31,18 @@ def main() -> None:
     )
     parser.add_argument(
         "--generator",
-        dest="action",
-        default="gmake2",
+        dest="generator",
+        default="gmake2" if platform.system() == "Darwin" else "vs2022",
         type=str,
-        help="Can be one of the actions listed in 'premake5 --help' option. Defaults to 'gmake2'",
+        help="Can be one of the actions listed in 'premake5 --help' option. Defaults to 'gmake2' in MacOS and 'vs2022' in Windows",
     )
 
     args = parser.parse_args()
 
     print(f"Setup wrt root: {ROOT_PATH}\n")
     options = {
-        "all": FullGenerator(args.action),
-        "ppx": PPXGenerator(args.action),
+        "all": FullGenerator(args.generator),
+        "ppx": PPXGenerator(args.generator),
         "sfml": SFMLGenerator(),
     }
 

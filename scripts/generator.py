@@ -21,8 +21,8 @@ class Generator(ABC):
 
 
 class PPXGenerator(Generator):
-    def __init__(self, action: str) -> None:
-        self.__action = action
+    def __init__(self, generator: str) -> None:
+        self.__generator = generator
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
@@ -34,7 +34,7 @@ class PPXGenerator(Generator):
                     else f"{ROOT_PATH}/vendor/premake/bin/premake5.exe"
                 ),
                 f"--file={ROOT_PATH}/premake5.lua",
-                self.__action,
+                self.__generator,
             ],
             shell=platform.system() == "Windows",
         )
@@ -93,8 +93,8 @@ class SFMLGenerator(Generator):
                 f"-DCMAKE_OSX_ARCHITECTURES={arch}",
                 f"-DCMAKE_OSX_DEPLOYMENT_TARGET={mac_ver.split('.')[0]}",
                 "-DWARNINGS_AS_ERRORS=FALSE",
-		    "-DBUILD_SHARED_LIBS=FALSE",
-		    "-DSFML_USE_STATIC_STD_LIBS=TRUE",
+                "-DBUILD_SHARED_LIBS=FALSE",
+                "-DSFML_USE_STATIC_STD_LIBS=TRUE",
             ]
         )
         subprocess.run(["cmake", "--build", build_sfml_path])
@@ -113,8 +113,8 @@ class SFMLGenerator(Generator):
 
 
 class FullGenerator(Generator):
-    def __init__(self, action: str) -> None:
-        self.__ppx_gen = PPXGenerator(action)
+    def __init__(self, generator: str) -> None:
+        self.__ppx_gen = PPXGenerator(generator)
         self.__sfml_gen = SFMLGenerator()
 
     def build(self) -> None:
