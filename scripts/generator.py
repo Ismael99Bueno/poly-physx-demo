@@ -83,7 +83,7 @@ class SFMLGenerator(Generator):
                 (
                     "-GUnix Makefiles"
                     if platform.system() == "Darwin"
-                    else '-G"MinGW Makefiles"'
+                    else "-GMinGW Makefiles"
                 ),
                 "-S",
                 sfml_path,
