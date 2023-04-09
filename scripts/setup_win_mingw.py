@@ -3,6 +3,7 @@ import os
 from utils import download_file
 import subprocess
 from exceptions import DependencyNotFoundError
+import sys
 
 
 def validate_mingw() -> None:
@@ -17,7 +18,7 @@ def __is_mingw_installed() -> bool:
     if not os.path.exists("C:\\MinGW\\bin"):
         return False
 
-    subprocess.run(["set", "PATH=%PATH%;C:\MinGW\bin"], shell=True)
+    sys.path.append("C:\\MinGW\\bin")
     return (
         subprocess.run(["g++", "--version"], shell=True, capture_output=True).returncode
         == 0

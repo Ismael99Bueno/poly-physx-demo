@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 import platform
 from exceptions import PathNotFoundError
 from utils import ROOT_PATH
+import sys
 
 
 class Generator(ABC):
@@ -72,7 +73,7 @@ class SFMLGenerator(Generator):
 
         mac_ver, _, arch = platform.mac_ver()
         if platform.system() == "Windows":
-            subprocess.run(["set", "PATH=%PATH%;C:\\MinGW\\bin"], shell=True)
+            sys.path.append("C:\\MinGW\\bin")
 
         subprocess.run(
             [
