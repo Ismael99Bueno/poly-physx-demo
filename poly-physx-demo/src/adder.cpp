@@ -3,6 +3,8 @@
 #include "globals.hpp"
 #include "flat_line.hpp"
 #include "flat_line_strip.hpp"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 namespace ppx_demo
 {

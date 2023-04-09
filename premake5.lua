@@ -1,7 +1,7 @@
 workspace "poly-physx-demo"
    --architecture "arm64"
    configurations {"release", "debug", "release-profile", "debug-profile"}
-   buildoptions "-Wall"
+   --buildoptions "-Wall"
 
    function script_path()
    local str = debug.getinfo(2, "S").source:sub(2)

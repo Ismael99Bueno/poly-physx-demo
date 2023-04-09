@@ -61,7 +61,7 @@ namespace ppx_demo
 
         for (const auto &entry : std::filesystem::directory_iterator(SAVES_DIR))
         {
-            const std::string &path = entry.path(),
+            const std::string &path = entry.path().string(),
                               filename = path.substr(path.find("/") + 1, path.size() - 1);
             if (filename == DEFAULT_SAVE || filename == LAST_SAVE)
                 continue;

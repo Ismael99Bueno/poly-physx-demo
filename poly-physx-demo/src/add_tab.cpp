@@ -239,7 +239,7 @@ namespace ppx_demo
         const auto col = is_convex ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
                                    : IM_COL32(255, 0, 0, 255);
 
-        ImVec2 points[poly.size()];
+        std::vector<ImVec2> points(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
         {
             const alg::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
@@ -250,7 +250,7 @@ namespace ppx_demo
         }
 
         if (is_convex)
-            draw_list->AddConvexPolyFilled(points, poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
+            draw_list->AddConvexPolyFilled(points.data(), poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
             const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim

@@ -172,7 +172,7 @@ namespace ppx_demo
         attacher &atch = papp.p_attacher;
         ImGui::Text("Selected springs: %zu", slct.springs().size());
 
-        ppx::spring2D *springs[slct.springs().size()];
+        std::vector<ppx::spring2D*>springs(slct.springs().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
         std::size_t index = 0;
@@ -237,7 +237,7 @@ namespace ppx_demo
         attacher &atch = papp.p_attacher;
         ImGui::Text("Selected rigid bars: %zu", slct.rbars().size());
 
-        std::shared_ptr<ppx::rigid_bar2D> rbars[slct.rbars().size()];
+        std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars(slct.rbars().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
         std::size_t index = 0;
