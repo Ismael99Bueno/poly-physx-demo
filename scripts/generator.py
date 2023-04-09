@@ -30,7 +30,7 @@ class PPXGenerator(Generator):
                 (
                     "premake5"
                     if platform.system() == "Darwin"
-                    else f"{ROOT_PATH}/vendor/premake/bin/premake.exe"
+                    else f"{ROOT_PATH}/vendor/premake/bin/premake5.exe"
                 ),
                 f"--file={ROOT_PATH}/premake5.lua",
                 self.__action,
