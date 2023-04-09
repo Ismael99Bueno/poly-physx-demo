@@ -36,7 +36,7 @@ def __install_cmake() -> bool:
         elif answer == "y" or answer == "Y" or answer == "":
             break
 
-    print("Installing CMake...")
+    print("Starting CMake installation...")
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(

@@ -45,6 +45,8 @@ class PPXGenerator(Generator):
         PPXGenerator.__remove(f"{ROOT_PATH}/**/build")
         PPXGenerator.__remove(f"{ROOT_PATH}/**/Makefile", os.remove)
         PPXGenerator.__remove(f"{ROOT_PATH}/**/*.vcxproj*", os.remove)
+        PPXGenerator.__remove(f"{ROOT_PATH}/**/*.sln", os.remove)
+        PPXGenerator.__remove(f"{ROOT_PATH}/*.sln", os.remove)
         if os.path.exists(f"{ROOT_PATH}/Makefile"):
             os.remove(f"{ROOT_PATH}/Makefile")
 

@@ -32,7 +32,7 @@ def __install_premake(dir: str) -> bool:
         elif answer == "y" or answer == "Y" or answer == "":
             break
 
-    print(f"Installing premake...")
+    print(f"Starting premake installation...")
     print(f"Downloading {zip_url} to {premake_zip_path}...")
     download_file(zip_url, premake_zip_path)
     print(f"Extracting {premake_zip_path}...")

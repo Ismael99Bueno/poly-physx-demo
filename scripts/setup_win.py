@@ -1,6 +1,7 @@
 from setup_py import validate_python_version, validate_python_package
 from setup_win_premake import validate_premake
 from setup_win_cmake import validate_cmake
+from setup_win_mingw import validate_mingw
 from exceptions import BadOS
 import platform
 import subprocess
@@ -16,6 +17,7 @@ def main() -> None:
 
     validate_premake()
     validate_cmake()
+    validate_mingw()
 
     while True:
         answer = input(

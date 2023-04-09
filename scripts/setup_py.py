@@ -49,7 +49,7 @@ def __install_python_package(package_name: str) -> bool:
         elif answer == "y" or answer == "Y" or answer == "":
             break
 
-    print(f"Installing {package_name} package...")
+    print(f"Starting {package_name} package installation...")
     subprocess.run(["python", "-m", "pip", "install", package_name])
 
     print("Script will now execute again for the changes to take effect")
