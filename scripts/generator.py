@@ -25,7 +25,17 @@ class PPXGenerator(Generator):
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
-        subprocess.run(["premake5", f"--file={ROOT_PATH}/premake5.lua", self.__action])
+        subprocess.run(
+            [
+                (
+                    "premake5"
+                    if platform.system() == "Darwin"
+                    else f"{ROOT_PATH}/vendor/premake/bin/premake.exe"
+                ),
+                f"--file={ROOT_PATH}/premake5.lua",
+                self.__action,
+            ]
+        )
 
     def clean(self) -> None:
         print("Removing build files for poly-physx...")
