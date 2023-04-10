@@ -59,7 +59,9 @@ def __install_mingw() -> bool:
     )
     input("Press any key to begin installation...")
     os.startfile(installer_path)
-    input("Press any key once the installation has finished...")
+    input(
+        "Press any key once the installation has finished. If the same installation prompt for MinGW appears, cancel and re-run the script"
+    )
     os.startfile(f"{bud.root_path}/scripts/setup-win.bat")
     exit()
 
