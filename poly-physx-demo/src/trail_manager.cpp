@@ -16,7 +16,7 @@ namespace ppx_demo
             for (std::size_t i = 0; i < m_trails.size(); i++)
                 if (*m_trails[i].first == e)
                 {
-                    m_trails.erase(m_trails.begin() + i);
+                    m_trails.erase(m_trails.begin() + (long)i);
                     break;
                 }
         };
@@ -103,11 +103,11 @@ namespace ppx_demo
     }
     void trail_manager::read(ini::input &in)
     {
-        p_steps = in.readi("steps");
-        p_length = in.readi("length");
-        p_line_thickness = in.readf("thickness");
-        p_enabled = (bool)in.readi("enabled");
-        p_auto_include = (bool)in.readi("auto_include");
+        p_steps = in.readui32("steps");
+        p_length = in.readui32("length");
+        p_line_thickness = in.readf32("thickness");
+        p_enabled = (bool)in.readi16("enabled");
+        p_auto_include = (bool)in.readi16("auto_include");
         m_trails.clear();
 
         const std::string key = "entity";

@@ -85,13 +85,13 @@ namespace ppx_demo
     void adder::add_template::read(ini::input &in)
     {
         name = in.readstr("name");
-        shape = (shape_type)in.readi("shape");
-        size = in.readf("size");
-        width = in.readf("width");
-        height = in.readf("height");
-        radius = in.readf("radius");
-        sides = in.readi("sides");
-        color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+        shape = (shape_type)in.readi32("shape");
+        size = in.readf32("size");
+        width = in.readf32("width");
+        height = in.readf32("height");
+        radius = in.readf32("radius");
+        sides = in.readui32("sides");
+        color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
         in.begin_section("entity_template");
         entity_templ.read(in);
         in.end_section();
@@ -219,7 +219,7 @@ namespace ppx_demo
                         segment = start - end;
 
         const float antlers_length = 0.2f * segment.norm(),
-                    antlers_angle = 0.33f * M_PI / (1.f + 0.015f * segment.norm());
+                    antlers_angle = 0.33f * (float)M_PI / (1.f + 0.015f * segment.norm());
 
         const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
                         antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);

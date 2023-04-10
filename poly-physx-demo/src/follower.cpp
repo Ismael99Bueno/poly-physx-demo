@@ -10,7 +10,7 @@ namespace ppx_demo
             for (std::size_t i = 0; i < m_entities.size(); i++)
                 if (*m_entities[i] == e)
                 {
-                    m_entities.erase(m_entities.begin() + i);
+                    m_entities.erase(m_entities.begin() + (long)i);
                     break;
                 }
         };
@@ -64,7 +64,7 @@ namespace ppx_demo
     }
     void follower::read(ini::input &in)
     {
-        m_prev_com = {in.readf("prevcomx"), in.readf("prevcomy")};
+        m_prev_com = {in.readf32("prevcomx"), in.readf32("prevcomy")};
         const std::string key = "entity";
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)

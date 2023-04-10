@@ -110,7 +110,7 @@ namespace ppx_demo
                 else
                     ImGui::SameLine();
 
-                ImGui::PushID(i);
+                ImGui::PushID((int)i);
                 if (ImGui::Button("Remove"))
                     to_remove = i;
                 ImGui::PopID();
@@ -156,7 +156,7 @@ namespace ppx_demo
                 else
                     ImGui::SameLine();
 
-                ImGui::PushID(-i - 1);
+                ImGui::PushID(-(int)(i + 1));
                 if (ImGui::Button("Remove"))
                     to_remove = ctrs[i];
                 ImGui::PopID();
@@ -172,7 +172,7 @@ namespace ppx_demo
         attacher &atch = papp.p_attacher;
         ImGui::Text("Selected springs: %zu", slct.springs().size());
 
-        std::vector<ppx::spring2D*>springs(slct.springs().size());
+        std::vector<ppx::spring2D *> springs(slct.springs().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
         std::size_t index = 0;
@@ -288,7 +288,9 @@ namespace ppx_demo
         const sf::Color &color = papp.springs_color();
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp.springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp.springs_color(sf::Color((sf::Uint8)(att_color[0] * 255.f),
+                                         (sf::Uint8)(att_color[1] * 255.f),
+                                         (sf::Uint8)(att_color[2] * 255.f)));
     }
 
     void attach_tab::render_rb_color_pickers() const
@@ -296,9 +298,13 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const sf::Color &color = papp.rigid_bars_color();
-        float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        float att_color[3] = {(float)color.r / 255.f,
+                              (float)color.g / 255.f,
+                              (float)color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp.rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp.rigid_bars_color(sf::Color((sf::Uint8)(att_color[0] * 255.f),
+                                            (sf::Uint8)(att_color[1] * 255.f),
+                                            (sf::Uint8)(att_color[2] * 255.f)));
     }
 
 }

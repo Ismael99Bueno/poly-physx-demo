@@ -74,9 +74,9 @@ namespace ppx_demo
     }
     void grabber::read(ini::input &in)
     {
-        p_stiffness = in.readf("stiffness");
-        p_dampening = in.readf("dampening");
-        p_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+        p_stiffness = in.readf32("stiffness");
+        p_dampening = in.readf32("dampening");
+        p_color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
     }
 
     void grabber::null() { m_grabbed = nullptr; }

@@ -121,13 +121,13 @@ namespace ppx_demo
 
     void attacher::read(ini::input &in)
     {
-        p_sp_stiffness = in.readf("sp_stiffness");
-        p_sp_dampening = in.readf("sp_dampening");
-        p_sp_length = in.readf("sp_length");
-        p_rb_stiffness = in.readf("rb_stiffness");
-        p_rb_dampening = in.readf("rb_dampening");
-        p_auto_length = (bool)in.readi("auto_length");
-        p_attach = (attach_type)in.readi("attach");
+        p_sp_stiffness = in.readf32("sp_stiffness");
+        p_sp_dampening = in.readf32("sp_dampening");
+        p_sp_length = in.readf32("sp_length");
+        p_rb_stiffness = in.readf32("rb_stiffness");
+        p_rb_dampening = in.readf32("rb_dampening");
+        p_auto_length = (bool)in.readi16("auto_length");
+        p_attach = (attach_type)in.readi32("attach");
     }
 
     bool attacher::has_first() const { return (bool)m_e1; }

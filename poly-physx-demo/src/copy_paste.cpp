@@ -52,7 +52,7 @@ namespace ppx_demo
         rbars.clear();
 
         name = in.readstr("name");
-        ref_pos = {in.readf("refposx"), in.readf("refposy")};
+        ref_pos = {in.readf32("refposx"), in.readf32("refposy")};
 
         std::string section = "entity";
         std::size_t index = 0;
@@ -64,7 +64,7 @@ namespace ppx_demo
                 in.end_section();
                 break;
             }
-            const std::size_t id = in.readi("key_id");
+            const std::size_t id = in.readui64("key_id");
             entities[id].read(in);
             in.end_section();
         }

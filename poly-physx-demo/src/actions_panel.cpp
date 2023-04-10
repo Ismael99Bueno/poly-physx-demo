@@ -9,7 +9,7 @@ namespace ppx_demo
     actions_panel::actions_panel() {}
 
     void actions_panel::write(ini::output &out) const { out.write("enabled", p_enabled); }
-    void actions_panel::read(ini::input &in) { p_enabled = (bool)in.readi("enabled"); }
+    void actions_panel::read(ini::input &in) { p_enabled = (bool)in.readi16("enabled"); }
 
     void actions_panel::on_render()
     {

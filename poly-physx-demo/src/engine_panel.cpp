@@ -18,9 +18,9 @@ namespace ppx_demo
 
     void engine_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
-        m_method = (integ_method)in.readi("method");
-        m_visualize_qt = (bool)in.readi("visualize_qt");
+        p_enabled = (bool)in.readi16("enabled");
+        m_method = (integ_method)in.readi32("method");
+        m_visualize_qt = (bool)in.readi16("visualize_qt");
     }
 
     void engine_panel::on_render()
@@ -81,7 +81,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         float dt = papp.timestep();
-        int integ_per_frame = papp.integrations_per_frame();
+        int integ_per_frame = (int)papp.integrations_per_frame();
         bool align_dt = papp.aligned_timestep();
         if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
             papp.aligned_timestep(align_dt);
@@ -97,7 +97,7 @@ namespace ppx_demo
             ImGui::Text("Timestep: %f", dt);
 
         if (ImGui::SliderInt("Integrations per frame", &integ_per_frame, 1, 100))
-            papp.integrations_per_frame(integ_per_frame);
+            papp.integrations_per_frame((std::uint32_t)integ_per_frame);
         ImGui::PopItemWidth();
     }
 
@@ -192,17 +192,17 @@ namespace ppx_demo
     void engine_panel::render_quad_tree_params()
     {
         ppx::collider2D &collider = demo_app::get().engine().collider();
-        static int max_entities = collider.quad_tree().max_entities(),
-                   period = collider.quad_tree_build_period();
+        static int max_entities = (int)collider.quad_tree().max_entities(),
+                   period = (int)collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
         if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
         {
-            collider.quad_tree().max_entities(max_entities);
+            collider.quad_tree().max_entities((std::size_t)max_entities);
             collider.rebuild_quad_tree();
         }
         if (ImGui::SliderInt("Refresh period", &period, 1, 150))
-            collider.quad_tree_build_period(period);
+            collider.quad_tree_build_period((std::uint32_t)period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 

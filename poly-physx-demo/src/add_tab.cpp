@@ -98,7 +98,7 @@ namespace ppx_demo
             const float radius = addr.p_current_templ.radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), addr.p_current_templ.sides);
+            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)addr.p_current_templ.sides);
             break;
         }
         default:
@@ -250,7 +250,7 @@ namespace ppx_demo
         }
 
         if (is_convex)
-            draw_list->AddConvexPolyFilled(points.data(), poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
+            draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
             const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim

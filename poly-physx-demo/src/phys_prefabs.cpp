@@ -40,8 +40,8 @@ namespace ppx_demo
     }
     void gravity::read(ini::input &in)
     {
-        p_mag = in.readf("mag");
-        p_enabled = (bool)in.readi("enabled");
+        p_mag = in.readf32("mag");
+        p_enabled = (bool)in.readi16("enabled");
         read_set(*this, in);
     }
 
@@ -59,9 +59,9 @@ namespace ppx_demo
     }
     void drag::read(ini::input &in)
     {
-        p_lin_mag = in.readf("lin_mag");
-        p_ang_mag = in.readf("ang_mag");
-        p_enabled = (bool)in.readi("enabled");
+        p_lin_mag = in.readf32("lin_mag");
+        p_ang_mag = in.readf32("ang_mag");
+        p_enabled = (bool)in.readi16("enabled");
         read_set(*this, in);
     }
 
@@ -87,8 +87,8 @@ namespace ppx_demo
     }
     void gravitational::read(ini::input &in)
     {
-        p_mag = in.readf("mag");
-        p_enabled = (bool)in.readi("enabled");
+        p_mag = in.readf32("mag");
+        p_enabled = (bool)in.readi16("enabled");
         read_set(*this, in);
     }
 
@@ -126,9 +126,9 @@ namespace ppx_demo
     }
     void electrical::read(ini::input &in)
     {
-        p_mag = in.readf("mag");
-        p_exp = in.readi("exp");
-        p_enabled = (bool)in.readi("enabled");
+        p_mag = in.readf32("mag");
+        p_exp = in.readui32("exp");
+        p_enabled = (bool)in.readi16("enabled");
         read_set(*this, in);
     }
 
@@ -156,9 +156,9 @@ namespace ppx_demo
     }
     void exponential::read(ini::input &in)
     {
-        p_mag = in.readf("mag");
-        p_exp = in.readf("exp");
-        p_enabled = (bool)in.readi("enabled");
+        p_mag = in.readf32("mag");
+        p_exp = in.readf32("exp");
+        p_enabled = (bool)in.readi16("enabled");
         read_set(*this, in);
     }
 }

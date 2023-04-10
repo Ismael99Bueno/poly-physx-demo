@@ -31,10 +31,10 @@ namespace ppx_demo
     }
     void phys_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
+        p_enabled = (bool)in.readi16("enabled");
 
-        m_xlim = {in.readf("xlimx"), in.readf("xlimy")};
-        m_ylim = {in.readf("ylimx"), in.readf("ylimy")};
+        m_xlim = {in.readf32("xlimx"), in.readf32("xlimy")};
+        m_ylim = {in.readf32("ylimx"), in.readf32("ylimy")};
 
         for (const auto &[section, saveable] : m_saveables)
         {
@@ -154,17 +154,17 @@ namespace ppx_demo
             ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, minval, maxval, ImGuiCond_Always);
-            ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, (int)kc.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
-            ImPlot::PlotShaded("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PlotShaded("Kinetic", &kc.data()->x, &kc.data()->y, (int)kc.size(), 0., 0, (int)offset, 2 * sizeof(float));
             ImPlot::PopStyleVar();
             // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, (int)pot.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
-            ImPlot::PlotShaded("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PlotShaded("Potential", &pot.data()->x, &pot.data()->y, (int)pot.size(), 0., 0, (int)offset, 2 * sizeof(float));
             ImPlot::PopStyleVar();
             // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, (int)total.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
         maxval *= 0.999f;
