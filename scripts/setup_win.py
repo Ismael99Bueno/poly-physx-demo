@@ -17,7 +17,6 @@ def main() -> None:
 
     validate_premake()
     validate_cmake()
-    validate_mingw()
 
     while True:
         answer = input(

@@ -10,6 +10,7 @@ from exceptions import (
     BadOSError,
 )
 from utils import Buddy
+from setup_win_mingw import validate_mingw
 
 
 def main() -> None:
@@ -38,15 +39,23 @@ def main() -> None:
         dest="generator",
         default="gmake2" if bud.is_macos else "vs2022",
         type=str,
-        help="Can be one of the actions listed in 'premake5 --help' option. Defaults to 'gmake2' in MacOS and 'vs2022' in Windows",
+        help="Can be gmake or gmake2. If on windows, it can be any of the premake actions for Visual Studio.",
     )
 
     if bud.is_os_unsupported:
         raise BadOSError("MacOS or Windows", bud.current_os)
 
     args = parser.parse_args()
-    if not args.generator.startswith("vs") and not args.generator.startswith("gmake"):
+    if (
+        not args.generator.startswith("vs")
+        and not args.generator.startswith("gmake")
+        or args.generator.startswith("vs")
+        and bud.is_macos
+    ):
         raise GeneratorNotSupportedError(args.generator)
+
+    if args.generator.startswith("gmake") and bud.is_windows:
+        validate_mingw()
 
     print(f"Setup wrt root: {bud.root_path}\n")
     options = {

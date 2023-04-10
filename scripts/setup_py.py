@@ -40,14 +40,8 @@ def validate_python_package(package_name: str) -> None:
 
 
 def __install_python_package(package_name: str) -> bool:
-    while True:
-        answer = input(
-            f"Package {package_name} not found. Do you wish to install? [Y]/N "
-        )
-        if answer == "n" or answer == "N":
-            return False
-        elif answer == "y" or answer == "Y" or answer == "":
-            break
+    if not Buddy().prompt_to_install("requests package"):
+        return False
 
     print(f"Starting {package_name} package installation...")
     subprocess.run(["python", "-m", "pip", "install", package_name])

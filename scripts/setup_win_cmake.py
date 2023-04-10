@@ -23,25 +23,25 @@ def __is_cmake_installed() -> bool:
 
 
 def __install_cmake() -> bool:
-    dir = f"{Buddy().root_path}/vendor/CMake/bin"
+    bud = Buddy()
+
+    dir = f"{bud.root_path}/vendor/CMake/bin"
     version = "3.26.3"
     arch = "x86_64"  # platform.machine()
     installer_url = f"https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-{arch}.msi"
     installer_path = f"{dir}/cmake-{version}-windows-{arch}.msi"
 
-    while True:
-        answer = input("CMake installation not found. Do you wish to install? [Y]/N ")
-        if answer == "n" or answer == "N":
-            return False
-        elif answer == "y" or answer == "Y" or answer == "":
-            break
+    if not bud.prompt_to_install("CMake"):
+        return False
 
     print("Starting CMake installation...")
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(
-        "CMake installer will now be executed. When prompted by the installation MAKE SURE TO ADD CMAKE TO PATH. Once the installation completes, RE-RUN the script"
+        "CMake installer will now be executed. When prompted by the installation MAKE SURE TO ADD CMAKE TO PATH"
     )
-    input("Press any key to execute installer...")
+    input("Press any key to begin installation...")
     os.startfile(installer_path)
+    input("Press any key once the installation has finished...")
+    os.startfile(f"{bud.root_path}/scripts/setup-win.bat")
     exit()

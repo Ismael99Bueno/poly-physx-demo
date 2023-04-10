@@ -60,7 +60,7 @@ class GeneratorNotSupportedError(Exception):
         super().__init__(self.__repr__())
 
     def __repr__(self) -> str:
-        return f"Generator {self.__generator} is not supported"
+        return f"Generator {self.__generator} is not supported for the current operating system"
 
 
 class InstallationFailedError(Exception):

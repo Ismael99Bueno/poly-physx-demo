@@ -55,10 +55,11 @@ def __install_mingw() -> bool:
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(
-        "MinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup)."
+        "MinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup)"
     )
+    input("Press any key to begin installation...")
     os.startfile(installer_path)
-    input("Press any once the installation has finished...")
+    input("Press any key once the installation has finished...")
     os.startfile(f"{bud.root_path}/scripts/setup-win.bat")
     exit()
 
@@ -88,4 +89,4 @@ def __install_mingw_packages() -> bool:
         if result.returncode != 0:
             raise InstallationFailedError("make", result.stderr)
 
-    return True
+    return __is_mingw_installed()
