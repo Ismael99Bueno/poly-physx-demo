@@ -61,13 +61,3 @@ class GeneratorNotSupportedError(Exception):
 
     def __repr__(self) -> str:
         return f"Generator {self.__generator} is not supported for the current operating system"
-
-
-class InstallationFailedError(Exception):
-    def __init__(self, thing_installed: str, error: str) -> None:
-        self.__thing_installed = thing_installed
-        self.__error = error
-        super().__init__(self.__repr__())
-
-    def __repr__(self) -> str:
-        return f"Installation for {self.__thing_installed} failed with the following error: {self.__error}"

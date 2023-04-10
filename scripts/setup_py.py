@@ -44,7 +44,11 @@ def __install_python_package(package_name: str) -> bool:
         return False
 
     print(f"Starting {package_name} package installation...")
-    subprocess.run(["python", "-m", "pip", "install", package_name])
+    subprocess.run(
+        ["python", "-m", "pip", "install", package_name],
+        capture_output=True,
+        check=True,
+    )
 
     print("Script will now execute again for the changes to take effect")
     os.startfile(f"{Buddy().root_path}/scripts/setup-win.bat")

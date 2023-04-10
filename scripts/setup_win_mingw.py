@@ -1,7 +1,7 @@
 from utils import Buddy, download_file
 import os
 import subprocess
-from exceptions import DependencyNotFoundError, InstallationFailedError
+from exceptions import DependencyNotFoundError, SubprocessFailedError
 
 
 def validate_mingw() -> None:
@@ -72,21 +72,20 @@ def __install_mingw_packages() -> bool:
             return False
 
         print("Starting g++ installation...")
-        result = subprocess.run(
-            ["mingw-get", "install", "g++"], shell=True, capture_output=True
+        subprocess.run(
+            ["mingw-get", "install", "g++"], shell=True, capture_output=True, check=True
         )
-        if result.returncode != 0:
-            raise InstallationFailedError("g++", result.stderr)
 
     if not __is_make_installed():
         if not bud.prompt_to_install("make"):
             return False
 
         print("Starting make installation...")
-        result = subprocess.run(
-            ["mingw-get", "install", "mingw32-make"], shell=True, capture_output=True
+        subprocess.run(
+            ["mingw-get", "install", "mingw32-make"],
+            shell=True,
+            capture_output=True,
+            check=True,
         )
-        if result.returncode != 0:
-            raise InstallationFailedError("make", result.stderr)
 
     return __is_mingw_installed()
