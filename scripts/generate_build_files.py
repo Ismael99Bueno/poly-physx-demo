@@ -78,7 +78,7 @@ def main() -> None:
                 "If you have selected Visual Studio, open the solution and build it from there, choosing a configuration and architecture."
             )
             print(
-                "\nThe executable will be located in the poly-physx-demo subfolder's binaries."
+                "\nOnce built, the executable will be located in the poly-physx-demo subfolder's binaries."
             )
     except KeyError:
         raise UnrecognizedWhichArgumentError(args.which)
