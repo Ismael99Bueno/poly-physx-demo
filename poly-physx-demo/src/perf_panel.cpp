@@ -185,8 +185,8 @@ namespace ppx_demo
                 if (ImPlot::BeginPlot("##Pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
                 {
                     const std::size_t size = stats.children().size();
-                    const char *labels[size + 1];
-                    float percents[size + 1];
+                    std::vector<const char*>labels(size + 1);
+                    std::vector<float> percents(size + 1);
                     std::size_t index = 0;
                     float leftovers = 1.f;
                     for (const auto &[name, child] : stats.children())
@@ -200,7 +200,7 @@ namespace ppx_demo
 
                     ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
                     ImPlot::SetupLegend(ImPlotLocation_West, ImPlotLegendFlags_Outside);
-                    ImPlot::PlotPieChart(labels, percents, size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
+                    ImPlot::PlotPieChart(labels.data(), percents.data(), size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
                     ImPlot::EndPlot();
                 }
                 ImGui::PopID();
