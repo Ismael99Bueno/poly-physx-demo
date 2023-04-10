@@ -4,6 +4,7 @@ project "poly-physx-demo"
 
    language "C++"
    cppdialect "C++17"
+   buildoptions "-Wall"
    
 
    targetdir("bin/" .. outputdir)
