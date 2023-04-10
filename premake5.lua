@@ -1,6 +1,5 @@
 workspace "poly-physx-demo"
    configurations {"release", "debug", "release-profile", "debug-profile"}
-   staticruntime "off"
    
    filter "system:macosx"
 
