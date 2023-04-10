@@ -1,7 +1,6 @@
 from setup_py import validate_python_version, validate_python_package
 from setup_win_premake import validate_premake
 from setup_win_cmake import validate_cmake
-from setup_win_mingw import validate_mingw
 from exceptions import BadOSError
 import subprocess
 from utils import Buddy

@@ -1,7 +1,7 @@
 from utils import Buddy, download_file
 import os
 import subprocess
-from exceptions import DependencyNotFoundError, SubprocessFailedError
+from exceptions import DependencyNotFoundError
 
 
 def validate_mingw() -> None:
