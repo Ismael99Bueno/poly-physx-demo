@@ -58,6 +58,14 @@ class Buddy:
     def add_mingw_to_path(self) -> None:
         os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}"
 
+    def prompt_to_install(to_be_installed: str) -> bool:
+        while True:
+            answer = input("g++ installation not found. Do you wish to install? [Y]/N ")
+            if answer == "n" or answer == "N":
+                return False
+            elif answer == "y" or answer == "Y" or answer == "":
+                return True
+
     def __init(self) -> Buddy:
         self.__root_path = Path(
             os.path.dirname(os.path.realpath(__file__))
