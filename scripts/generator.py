@@ -106,7 +106,7 @@ class SFMLGenerator(Generator):
                 f"-DBUILD_SHARED_LIBS={'TRUE' if is_macos else 'FALSE'}",
             ]
         )
-        subprocess.run(["cmake", "--build", build_sfml_path])
+        subprocess.run(["cmake", "--build", build_sfml_path, "--config", "Release"])
         print("Done.\n")
 
     def clean(self) -> None:
