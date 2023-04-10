@@ -46,7 +46,6 @@ def __install_python_package(package_name: str) -> bool:
     print(f"Starting {package_name} package installation...")
     subprocess.run(
         ["python", "-m", "pip", "install", package_name],
-        capture_output=True,
         check=True,
     )
 

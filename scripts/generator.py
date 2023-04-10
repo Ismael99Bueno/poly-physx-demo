@@ -41,7 +41,6 @@ class PPXGenerator(Generator):
                 self._generator,
             ],
             shell=bud.is_windows,
-            capture_output=True,
             check=True,
         )
 
@@ -106,18 +105,15 @@ class SFMLGenerator(Generator):
                 "-DWARNINGS_AS_ERRORS=FALSE",
                 f"-DBUILD_SHARED_LIBS={'TRUE' if bud.is_macos else 'FALSE'}",
             ],
-            capture_output=True,
             check=True,
         )
         subprocess.run(
             ["cmake", "--build", build_sfml_path, "--config", "Release"],
-            capture_output=True,
             check=True,
         )
         if is_visual_studio:
             subprocess.run(
                 ["cmake", "--build", build_sfml_path, "--config", "Debug"],
-                capture_output=True,
                 check=True,
             )
         print("Done.\n")

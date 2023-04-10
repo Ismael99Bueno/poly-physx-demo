@@ -32,7 +32,6 @@ def main() -> None:
                     "python",
                     f"{bud.root_path}/scripts/generate_build_files.py",
                 ],
-                capture_output=True,
                 check=True,
             )
             break
