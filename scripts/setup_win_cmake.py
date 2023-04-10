@@ -1,4 +1,4 @@
-from utils import ROOT_PATH
+from utils import Buddy
 import os
 from utils import download_file
 import subprocess
@@ -23,7 +23,7 @@ def __is_cmake_installed() -> bool:
 
 
 def __install_cmake() -> bool:
-    dir = f"{ROOT_PATH}/vendor/CMake/bin"
+    dir = f"{Buddy().root_path}/vendor/CMake/bin"
     version = "3.26.3"
     arch = "x86_64"  # platform.machine()
     installer_url = f"https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-{arch}.msi"

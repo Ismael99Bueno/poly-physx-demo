@@ -3,7 +3,7 @@ from exceptions import PythonVersionError, PackageNotFoundError
 import importlib.util
 import subprocess
 import os
-from utils import ROOT_PATH
+from utils import Buddy
 
 
 def validate_python_version(
@@ -53,5 +53,5 @@ def __install_python_package(package_name: str) -> bool:
     subprocess.run(["python", "-m", "pip", "install", package_name])
 
     print("Script will now execute again for the changes to take effect")
-    os.startfile(f"{ROOT_PATH}/scripts/setup-win.bat")
+    os.startfile(f"{Buddy().root_path}/scripts/setup-win.bat")
     exit()

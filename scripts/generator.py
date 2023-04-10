@@ -4,9 +4,8 @@ import shutil
 import glob
 from typing import Callable
 from abc import ABC, abstractmethod
-import platform
 from exceptions import PathNotFoundError
-from utils import ROOT_PATH, PREMAKE_TO_CMAKE_GEN
+from utils import Buddy
 
 
 class Generator(ABC):
@@ -29,37 +28,41 @@ class PPXGenerator(Generator):
 
     def build(self) -> None:
         print("Generating build files for poly-physx...")
+
+        bud = Buddy()
         subprocess.run(
             [
                 (
                     "premake5"
-                    if platform.system() == "Darwin"
-                    else f"{ROOT_PATH}/vendor/premake/bin/premake5.exe"
+                    if bud.is_macos
+                    else f"{bud.root_path}/vendor/premake/bin/premake5.exe"
                 ),
-                f"--file={ROOT_PATH}/premake5.lua",
+                f"--file={bud.root_path}/premake5.lua",
                 self._generator,
             ],
-            shell=platform.system() == "Windows",
+            shell=bud.is_windows,
         )
 
     def clean(self) -> None:
         print("Removing build, binary and project files..")
-        PPXGenerator.__remove(f"{ROOT_PATH}/*/bin")
-        PPXGenerator.__remove(f"{ROOT_PATH}/vendor/*/bin")
-        PPXGenerator.__remove(f"{ROOT_PATH}/**/build")
-        PPXGenerator.__remove(f"{ROOT_PATH}/**/Makefile", os.remove)
-        PPXGenerator.__remove(f"{ROOT_PATH}/**/*.vcxproj*", os.remove)
-        PPXGenerator.__remove(f"{ROOT_PATH}/**/*.sln", os.remove)
-        PPXGenerator.__remove(f"{ROOT_PATH}/*.sln", os.remove)
-        if os.path.exists(f"{ROOT_PATH}/Makefile"):
-            os.remove(f"{ROOT_PATH}/Makefile")
+
+        bud = Buddy()
+        PPXGenerator.__remove(f"{bud.root_path}/*/bin")
+        PPXGenerator.__remove(f"{bud.root_path}/vendor/*/bin")
+        PPXGenerator.__remove(f"{bud.root_path}/**/build")
+        PPXGenerator.__remove(f"{bud.root_path}/**/Makefile", os.remove)
+        PPXGenerator.__remove(f"{bud.root_path}/**/*.vcxproj*", os.remove)
+        PPXGenerator.__remove(f"{bud.root_path}/**/*.sln", os.remove)
+        PPXGenerator.__remove(f"{bud.root_path}/*.sln", os.remove)
+        if os.path.exists(f"{bud.root_path}/Makefile"):
+            os.remove(f"{bud.root_path}/Makefile")
 
         print("Done.\n")
 
     @staticmethod
     def __remove(pattern: str, remfunc: Callable[[str], None] = shutil.rmtree) -> None:
         for file in glob.glob(pattern):
-            print(f"Removing {file}...")
+            print(f"Removed {file}")
             remfunc(file)
 
 
@@ -71,49 +74,50 @@ class SFMLGenerator(Generator):
         self.clean()
         print("Generating build files for SFML...")
 
-        sfml_path = f"{ROOT_PATH}/vendor/SFML"
+        bud = Buddy()
+        sfml_path = f"{bud.root_path}/vendor/SFML"
         if not os.path.exists(sfml_path):
             raise PathNotFoundError(sfml_path)
-        build_sfml_path = f"{ROOT_PATH}/vendor/SFML/build-sfml"
+        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-sfml"
         os.mkdir(build_sfml_path)
 
-        mac_ver, _, arch = platform.mac_ver()
-        if platform.system() == "Windows":
-            os.environ["PATH"] += os.pathsep + os.pathsep.join(
-                ["C:\\MinGW\\bin"]
-            )  # PUT THIS ELSEWHERE
+        if bud.is_windows and self._generator.startswith("gmake"):
+            bud.add_mingw_to_path()
 
-        is_macos = platform.system() == "Darwin"
-
-        is_visual_studio = not is_macos and self._generator.startswith("vs")
+        is_visual_studio = bud.is_windows and self._generator.startswith("vs")
         premake_to_cmake_vs = (
-            PREMAKE_TO_CMAKE_GEN[self._generator]
+            bud.premake_to_cmake_gen[self._generator]
             if is_visual_studio
             else "MinGW Makefiles"
         )
         subprocess.run(
             [
                 "cmake",
-                ("-GUnix Makefiles" if is_macos else f"-G{premake_to_cmake_vs}"),
+                ("-GUnix Makefiles" if bud.is_macos else f"-G{premake_to_cmake_vs}"),
                 "-S",
                 sfml_path,
                 "-B",
                 build_sfml_path,
                 "-DCMAKE_BUILD_TYPE=Release",
-                f"-DCMAKE_OSX_ARCHITECTURES={arch}",
-                f"-DCMAKE_OSX_DEPLOYMENT_TARGET={mac_ver.split('.')[0]}",
+                f"-DCMAKE_OSX_ARCHITECTURES={bud.os_architecture}",
+                f"-DCMAKE_OSX_DEPLOYMENT_TARGET={bud.os_version.split('.')[0]}",
                 "-DWARNINGS_AS_ERRORS=FALSE",
-                f"-DBUILD_SHARED_LIBS={'TRUE' if is_macos else 'FALSE'}",
+                f"-DBUILD_SHARED_LIBS={'TRUE' if bud.is_macos else 'FALSE'}",
             ]
         )
         subprocess.run(["cmake", "--build", build_sfml_path, "--config", "Release"])
+        if is_visual_studio:
+            subprocess.run(["cmake", "--build", build_sfml_path, "--config", "Debug"])
         print("Done.\n")
 
     def clean(self) -> None:
         print("Removing build files for SFML...")
-        build_sfml_path = f"{ROOT_PATH}/vendor/SFML/build-sfml"
+
+        bud = Buddy()
+        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-sfml"
         try:
             shutil.rmtree(build_sfml_path)
+            print(f"Removed {build_sfml_path}")
         except FileNotFoundError:
             print(
                 f"Attempted to remove {build_sfml_path} directory, but it does not exist. Skipping..."

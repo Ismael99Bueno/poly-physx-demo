@@ -1,4 +1,4 @@
-from utils import ROOT_PATH
+from utils import Buddy
 import os
 from utils import download_file
 import subprocess
@@ -36,7 +36,7 @@ def __install_mingw() -> bool:
         subprocess.run(["mingw-get", "install", "make"], shell=True)
         return True  # False or error if the returncode is not 0
 
-    dir = f"{ROOT_PATH}/vendor/MinGW/bin"
+    dir = f"{Buddy().root_path}/vendor/MinGW/bin"
     installer_url = (
         "https://osdn.net/frs/redir.php?m=nchc&f=mingw%2F68260%2Fmingw-get-setup.exe"
     )

@@ -1,4 +1,4 @@
-from utils import ROOT_PATH
+from utils import Buddy
 import os
 from utils import download_file, unzip_file
 from exceptions import DependencyNotFoundError
@@ -7,7 +7,7 @@ from exceptions import DependencyNotFoundError
 def validate_premake() -> None:
     print("\n====PREMAKE VALIDATION====")
 
-    dir = f"{ROOT_PATH}/vendor/premake/bin"
+    dir = f"{Buddy().root_path}/vendor/premake/bin"
     if not __is_premake_installed(dir) and not __install_premake(dir):
         raise DependencyNotFoundError("Premake")
     print("Premake installed")
