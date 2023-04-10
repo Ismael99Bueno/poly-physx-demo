@@ -1,5 +1,6 @@
 project "poly-physx-demo"
    kind "ConsoleApp"
+   staticruntime "off"
 
    language "C++"
    cppdialect "C++17"
