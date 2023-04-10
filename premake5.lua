@@ -31,8 +31,6 @@ workspace "poly-physx-demo"
          architecture "x86"
       filter {}
    
-   filter {}      
-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
 
