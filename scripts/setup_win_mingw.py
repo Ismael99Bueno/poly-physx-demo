@@ -5,7 +5,7 @@ from exceptions import DependencyNotFoundError
 
 
 def validate_mingw() -> None:
-    print("====MINGW VALIDATION====")
+    print("\n====MINGW VALIDATION====")
 
     if not __is_mingw_installed() and not __install_mingw():
         raise DependencyNotFoundError("MinGW")
