@@ -1,5 +1,6 @@
 workspace "poly-physx-demo"
    configurations {"release", "debug", "release-profile", "debug-profile"}
+   startproject "poly-physx-demo"
    
    filter "system:macosx"
 
