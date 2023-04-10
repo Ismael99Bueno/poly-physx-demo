@@ -32,8 +32,8 @@ project "poly-physx-demo"
       filter {"system:windows", "platforms:x86", "action:vs*"}
          libdirs "../vendor/SFML/extlibs/libs-msvc/x86"
 
-      filter {"system:windows", "platforms:x86_64"}
+      filter {"system:windows", "platforms:x86_64", "action:gmake*"}
          libdirs "../vendor/SFML/extlibs/libs-mingw/x64"
          
-      filter {"system:windows", "platforms:x86"}
+      filter {"system:windows", "platforms:x86", "action:gmake*"}
          libdirs "../vendor/SFML/extlibs/libs-mingw/x86"
