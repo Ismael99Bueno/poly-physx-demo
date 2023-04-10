@@ -55,14 +55,10 @@ def __install_mingw() -> bool:
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(
-        "\nMinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup)"
+        "\nMinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup). Once the installation finishes, re-run the script"
     )
     input("Press any key to begin installation...")
     os.startfile(installer_path)
-    input(
-        "Press any key once the installation has finished. If the same installation prompt for MinGW appears, cancel and re-run the script"
-    )
-    os.startfile(f"{bud.root_path}/scripts/setup-win.bat")
     exit()
 
 
