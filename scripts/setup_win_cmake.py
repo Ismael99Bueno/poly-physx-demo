@@ -38,7 +38,7 @@ def __install_cmake() -> bool:
     print(f"Downloading {installer_url} to {installer_path}...")
     download_file(installer_url, installer_path)
     print(
-        "CMake installer will now be executed. When prompted by the installation MAKE SURE TO ADD CMAKE TO PATH"
+        "\nCMake installer will now be executed. When prompted by the installation MAKE SURE TO ADD CMAKE TO PATH"
     )
     input("Press any key to begin installation...")
     os.startfile(installer_path)
