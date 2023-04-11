@@ -120,6 +120,15 @@ namespace ppx_demo
         p_predictor.update();
         p_trails.update();
         p_follower.update();
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+                read_save(DEFAULT_SAVE);
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && has_session())
+                write_save();
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && has_session())
+                read_save();
+        }
     }
 
     void demo_app::on_render()

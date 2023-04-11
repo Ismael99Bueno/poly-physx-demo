@@ -24,7 +24,7 @@ namespace ppx_demo
         demo_app &app = demo_app::get();
         if (ImGui::BeginMenu("File")) // TODO: Menu de examples
         {
-            if (ImGui::MenuItem("New"))
+            if (ImGui::MenuItem("New", "LCtrl + N"))
             {
                 app.read_save(DEFAULT_SAVE);
                 app.add_borders();
@@ -35,7 +35,7 @@ namespace ppx_demo
             save_as_item();
             load_as_item();
 
-            if (ImGui::MenuItem("Exit"))
+            if (ImGui::MenuItem("Exit", "ESC"))
                 app.window().close();
             ImGui::EndMenu();
         }
@@ -83,7 +83,7 @@ namespace ppx_demo
 
     void menu_bar::save_item() const
     {
-        if (ImGui::MenuItem("Save", nullptr, nullptr, demo_app::get().has_session()))
+        if (ImGui::MenuItem("Save", "LCtrl + S", nullptr, demo_app::get().has_session()))
             demo_app::get().write_save();
     }
 
@@ -111,7 +111,7 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        if (ImGui::MenuItem("Load", nullptr, nullptr, papp.has_session()))
+        if (ImGui::MenuItem("Load", "LCtrl + L", nullptr, papp.has_session()))
             papp.read_save();
     }
 
