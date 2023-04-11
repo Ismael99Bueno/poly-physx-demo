@@ -123,7 +123,10 @@ namespace ppx_demo
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
         {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+            {
                 read_save(DEFAULT_SAVE);
+                add_borders();
+            }
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && has_session())
                 write_save();
             else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && has_session())
