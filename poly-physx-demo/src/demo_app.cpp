@@ -7,7 +7,12 @@
 
 namespace ppx_demo
 {
-    demo_app::demo_app() : app() {}
+    demo_app::demo_app() : app()
+    {
+#ifdef ROOT_PATH
+        ImGui::GetIO().IniFilename = ROOT_PATH "imgui.ini";
+#endif
+    }
 
     void demo_app::on_start()
     {

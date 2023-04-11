@@ -1,16 +1,16 @@
 workspace "poly-physx-demo"
    configurations {"release", "debug", "release-profile", "debug-profile"}
    startproject "poly-physx-demo"
+
+   function script_path()
+      local str = debug.getinfo(2, "S").source:sub(2)
+      return str:match("(.*/)")
+   end
+
+   rootpath = script_path()
    
    filter "system:macosx"
-
-      function script_path()
-         local str = debug.getinfo(2, "S").source:sub(2)
-         return str:match("(.*/)")
-      end
-
-      scrpath = script_path()
-      rpath = "-Wl,-rpath," .. scrpath .. "vendor/SFML/build-sfml/lib"
+      rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-sfml/lib"
       linkoptions {rpath}
 
       platforms {"arm64", "x86_64"}
