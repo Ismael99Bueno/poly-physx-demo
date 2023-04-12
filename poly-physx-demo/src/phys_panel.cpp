@@ -59,7 +59,7 @@ namespace ppx_demo
         m_attractive->p_mag = -20.f;
         update_potential_data();
 
-        const auto auto_include = [this](ppx::entity2D_ptr e)
+        const auto auto_include = [this](const ppx::entity2D_ptr &e)
         {
             for (auto &[name, saveable] : m_saveables) // I know this is horrible
             {

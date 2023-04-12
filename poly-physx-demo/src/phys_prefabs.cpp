@@ -8,7 +8,7 @@ namespace ppx_demo
     static void write_set(const ppx::entity2D_set &set, ini::output &out)
     {
         const std::string key = "entity";
-        for (ppx::const_entity2D_ptr e : set.entities())
+        for (const ppx::const_entity2D_ptr &e : set.entities())
             out.write(key + std::to_string(e.index()), e.index());
     }
     static void read_set(ppx::entity2D_set &set, ini::input &in)

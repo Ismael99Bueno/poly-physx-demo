@@ -6,7 +6,7 @@ namespace ppx_demo
 {
     void trail_manager::start()
     {
-        const auto on_addition = [this](ppx::entity2D_ptr e)
+        const auto on_addition = [this](const ppx::entity2D_ptr &e)
         {
             if (p_enabled && p_auto_include)
                 include(e);
@@ -67,7 +67,7 @@ namespace ppx_demo
             }
     }
 
-    void trail_manager::include(ppx::const_entity2D_ptr e)
+    void trail_manager::include(const ppx::const_entity2D_ptr &e)
     {
         if (!contains(*e))
             m_trails.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());

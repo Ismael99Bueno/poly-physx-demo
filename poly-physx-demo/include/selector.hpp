@@ -18,11 +18,11 @@ namespace ppx_demo
         void begin_select();
         void end_select(bool clear_previous);
 
-        bool is_selecting(ppx::entity2D_ptr e) const;
-        bool is_selected(ppx::entity2D_ptr e) const;
+        bool is_selecting(const ppx::entity2D_ptr &e) const;
+        bool is_selected(const ppx::entity2D_ptr &e) const;
 
-        void select(ppx::entity2D_ptr e);
-        void deselect(ppx::entity2D_ptr e);
+        void select(const ppx::entity2D_ptr &e);
+        void deselect(const ppx::entity2D_ptr &e);
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

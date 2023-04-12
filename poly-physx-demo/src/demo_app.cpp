@@ -157,7 +157,7 @@ namespace ppx_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(ppx::entity2D_ptr e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color(150, 90, 70), 3);
@@ -241,7 +241,7 @@ namespace ppx_demo
     {
         PERF_FUNCTION()
         const ppx::engine2D &eng = engine();
-        const ppx::const_entity2D_ptr e1 = eng[world_mouse()];
+        const ppx::const_entity2D_ptr &e1 = eng[world_mouse()];
         if (e1)
             for (const auto &inter : eng.interactions())
                 if (inter->contains(*e1))
@@ -283,7 +283,7 @@ namespace ppx_demo
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();
-        const ppx::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
+        const ppx::entity2D_ptr &e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
                                 e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
                                 e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
                                 e4 = eng.add_entity({0.f, h + 0.5f * thck});

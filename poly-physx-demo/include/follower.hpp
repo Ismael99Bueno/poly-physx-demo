@@ -13,7 +13,7 @@ namespace ppx_demo
         void start();
         void update();
 
-        void follow(ppx::const_entity2D_ptr e);
+        void follow(const ppx::const_entity2D_ptr &e);
         void unfollow(const ppx::entity2D &e);
         bool is_following(const ppx::entity2D &e) const;
         bool empty() const;

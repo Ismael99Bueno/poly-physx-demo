@@ -14,7 +14,7 @@ namespace ppx_demo
     void outline_manager::start()
     {
 
-        const auto on_addition = [this](ppx::entity2D_ptr e)
+        const auto on_addition = [this](const ppx::entity2D_ptr &e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
         const auto on_removal = [this](const std::size_t index)

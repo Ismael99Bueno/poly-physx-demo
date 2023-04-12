@@ -16,7 +16,7 @@ namespace ppx_demo
         void update();
         void render() const;
 
-        void predict(ppx::const_entity2D_ptr e);
+        void predict(const ppx::const_entity2D_ptr &e);
         void stop_predicting(const ppx::entity2D &e);
 
         void predict_and_render(const ppx::entity2D &e);

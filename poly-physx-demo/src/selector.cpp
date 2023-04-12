@@ -85,8 +85,8 @@ namespace ppx_demo
 
         m_springs.clear();
         for (const ppx::spring2D &sp : papp.engine().springs())
-            for (ppx::entity2D_ptr e1 : m_entities)
-                for (ppx::entity2D_ptr e2 : m_entities)
+            for (const ppx::entity2D_ptr &e1 : m_entities)
+                for (const ppx::entity2D_ptr &e2 : m_entities)
                     if (sp.e1() == e1 && sp.e2() == e2)
                         m_springs.emplace_back(e1, e2);
         m_rbars.clear();
@@ -94,25 +94,25 @@ namespace ppx_demo
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (rb)
-                for (ppx::entity2D_ptr e1 : m_entities)
-                    for (ppx::entity2D_ptr e2 : m_entities)
+                for (const ppx::entity2D_ptr &e1 : m_entities)
+                    for (const ppx::entity2D_ptr &e2 : m_entities)
                         if (rb->e1() == e1 && rb->e2() == e2)
                             m_rbars.emplace_back(e1, e2);
         }
     }
 
-    bool selector::is_selecting(ppx::entity2D_ptr e) const
+    bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
         const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_entities.find(e) != m_entities.end();
     }
 
-    bool selector::is_selected(ppx::entity2D_ptr e) const { return m_entities.find(e) != m_entities.end(); }
+    bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
 
-    void selector::select(ppx::entity2D_ptr e) { m_entities.insert(e); }
+    void selector::select(const ppx::entity2D_ptr &e) { m_entities.insert(e); }
 
-    void selector::deselect(ppx::entity2D_ptr e) { m_entities.erase(e); }
+    void selector::deselect(const ppx::entity2D_ptr &e) { m_entities.erase(e); }
     void selector::draw_select_box() const
     {
         const geo::aabb2D aabb = select_box();

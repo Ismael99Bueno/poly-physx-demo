@@ -6,7 +6,7 @@ namespace ppx_demo
 {
     void predictor::start()
     {
-        const auto on_addition = [this](ppx::entity2D_ptr e)
+        const auto on_addition = [this](const ppx::entity2D_ptr &e)
         {
             if (p_enabled && p_auto_predict)
                 predict(e);
@@ -71,7 +71,7 @@ namespace ppx_demo
             demo_app::get().window().draw(path);
     }
 
-    void predictor::predict(ppx::const_entity2D_ptr e)
+    void predictor::predict(const ppx::const_entity2D_ptr &e)
     {
         if (!is_predicting(*e))
             m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());

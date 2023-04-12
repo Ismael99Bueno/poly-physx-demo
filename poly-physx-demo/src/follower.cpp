@@ -29,7 +29,7 @@ namespace ppx_demo
         m_prev_com = com;
     }
 
-    void follower::follow(ppx::const_entity2D_ptr e)
+    void follower::follow(const ppx::const_entity2D_ptr &e)
     {
         if (!is_following(*e))
             m_entities.emplace_back(e);
@@ -59,7 +59,7 @@ namespace ppx_demo
         out.write("prevcomx", m_prev_com.x);
         out.write("prevcomy", m_prev_com.y);
         const std::string key = "entity";
-        for (ppx::const_entity2D_ptr e : m_entities)
+        for (const ppx::const_entity2D_ptr &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
     void follower::read(ini::input &in)
@@ -69,7 +69,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const ppx::entity2D_ptr e = papp.engine()[i];
+            const ppx::entity2D_ptr &e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 follow(e);
         }

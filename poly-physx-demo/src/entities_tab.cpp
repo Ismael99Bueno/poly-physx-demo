@@ -62,7 +62,7 @@ namespace ppx_demo
         }
         if (slct.entities().size() == 1)
         {
-            ppx::entity2D_ptr e = *slct.entities().begin();
+            const ppx::entity2D_ptr &e = *slct.entities().begin();
             ImGui::Text("Entity '%s'", glob::generate_name(e.id()));
             render_entity_data(*e);
             if (ImGui::Button("Remove##Single"))
