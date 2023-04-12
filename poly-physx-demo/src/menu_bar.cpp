@@ -14,6 +14,7 @@ namespace ppx_demo
             demo_app &app = demo_app::get();
             render_file_menu();
             render_windows_menu();
+            render_settings_menu();
             ImGui::BeginMenu(app.has_session() ? ("Current session: " + app.session()).c_str() : "No current session. Select 'Save as...' to create one", false);
             ImGui::EndMainMenuBar();
         }
@@ -50,6 +51,18 @@ namespace ppx_demo
             ImGui::MenuItem("Engine", nullptr, &app.p_engine_panel.p_enabled);
             ImGui::MenuItem("Physics", nullptr, &app.p_phys_panel.p_enabled);
             ImGui::MenuItem("Performance", nullptr, &app.p_perf_panel.p_enabled);
+            ImGui::EndMenu();
+        }
+    }
+
+    void menu_bar::render_settings_menu() const
+    {
+        demo_app &papp = demo_app::get();
+        bool fullscreen = (bool)(papp.style() & sf::Style::Fullscreen);
+        if (ImGui::BeginMenu("Settings"))
+        {
+            if (ImGui::MenuItem("Fullscreen", "F10", &fullscreen))
+                papp.recreate_window(fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
             ImGui::EndMenu();
         }
     }

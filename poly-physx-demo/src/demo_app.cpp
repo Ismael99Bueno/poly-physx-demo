@@ -222,6 +222,9 @@ namespace ppx_demo
                 break;
             case sf::Keyboard::V: // TODO: Que para añadir sea clic izq
                 p_copy_paste.paste();
+                break;
+            case sf::Keyboard::F10:
+                recreate_window(style() == sf::Style::Fullscreen ? sf::Style::Default : sf::Style::Fullscreen);
             default:
                 break;
             }

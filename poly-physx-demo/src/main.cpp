@@ -5,6 +5,8 @@
 
 int main()
 {
+    // NOTES:
+    // Passing by ref alg::vec2 and entity pointers bc it seems tha (at least on my computer) the performance is better
     PERF_SET_PATH("profile-results/")
     PERF_BEGIN_SESSION(PERF_SESSION_NAME, perf::profiler::HIERARCHY | perf::profiler::FILE)
     ppx_demo::demo_app::get().run();
