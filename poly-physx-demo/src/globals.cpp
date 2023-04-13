@@ -19,7 +19,7 @@ namespace glob
         const std::uint8_t is_pair = (std::uint8_t)(rand() % 2);
         while (index < mx)
         {
-            const bool is_syllable = index % 2 == is_pair;
+            const bool is_syllable = index % 2 == is_pair && rand() % 12 < 11;
             const std::size_t idx = (std::size_t)(rand() % (is_syllable ? 5 : 21));
             if (index >= mm && (is_syllable ? (idx == 4) : (idx == 20)))
                 break;

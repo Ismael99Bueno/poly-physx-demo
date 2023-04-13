@@ -200,7 +200,7 @@ namespace ppx_demo
 
                     ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
                     ImPlot::SetupLegend(ImPlotLocation_West, ImPlotLegendFlags_Outside);
-                    ImPlot::PlotPieChart(labels.data(), percents.data(), size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
+                    ImPlot::PlotPieChart(labels.data(), percents.data(), (int)size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
                     ImPlot::EndPlot();
                 }
                 ImGui::PopID();
