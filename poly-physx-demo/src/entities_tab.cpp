@@ -256,6 +256,15 @@ namespace ppx_demo
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());
         ImGui::Text("Kinetic energy - %f", e.kinetic_energy());
+        if (ImGui::TreeNode("Vertices"))
+        {
+            for (std::size_t i = 0; i < e.shape().size(); i++)
+            {
+                const alg::vec2 v = e.shape().vertices()[i] - e.pos();
+                ImGui::Text("Vertex %zu - x: %f, y: %f", i, v.x, v.y);
+            }
+            ImGui::TreePop();
+        }
 
         bool kinematic = e.kinematic();
         if (ImGui::Checkbox("Kinematic", &kinematic))
