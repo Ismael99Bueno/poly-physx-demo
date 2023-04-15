@@ -90,7 +90,7 @@ namespace ppx_demo
         if (!align_dt)
         {
             const rk::integrator &integ = papp.engine().integrator();
-            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt() * 10.f, integ.max_dt() * 0.1f, "%.5f", ImGuiSliderFlags_Logarithmic))
+            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt(), integ.max_dt(), "%.5f", ImGuiSliderFlags_Logarithmic))
                 papp.timestep(dt);
         }
         else
