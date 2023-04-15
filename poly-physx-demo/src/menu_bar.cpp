@@ -15,6 +15,7 @@ namespace ppx_demo
             render_file_menu();
             render_windows_menu();
             render_settings_menu();
+
             ImGui::BeginMenu(app.has_session() ? ("Current session: " + app.session()).c_str() : "No current session. Select 'Save as...' to create one", false);
             ImGui::EndMainMenuBar();
         }
@@ -57,12 +58,34 @@ namespace ppx_demo
 
     void menu_bar::render_settings_menu() const
     {
-        demo_app &papp = demo_app::get();
-        bool fullscreen = (bool)(papp.style() & sf::Style::Fullscreen);
         if (ImGui::BeginMenu("Settings"))
         {
-            if (ImGui::MenuItem("Fullscreen", "F10", &fullscreen))
-                papp.recreate_window(fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
+            render_fullscreen_option();
+            render_fonts();
+            ImGui::EndMenu();
+        }
+    }
+
+    void menu_bar::render_fullscreen_option() const
+    {
+        demo_app &papp = demo_app::get();
+        bool fullscreen = (bool)(papp.style() & sf::Style::Fullscreen);
+        if (ImGui::MenuItem("Fullscreen", "F10", &fullscreen))
+            papp.recreate_window(fullscreen ? sf::Style::Fullscreen : sf::Style::Default);
+    }
+
+    void menu_bar::render_fonts() const
+    {
+        if (ImGui::BeginMenu("Fonts"))
+        {
+            ImGuiIO &io = ImGui::GetIO();
+            ImFont *current = ImGui::GetFont();
+            for (int i = 0; i < io.Fonts->Fonts.Size; i++)
+            {
+                ImFont *font = io.Fonts->Fonts[i];
+                if (ImGui::MenuItem(font->GetDebugName(), nullptr, font == current))
+                    io.FontDefault = font;
+            }
             ImGui::EndMenu();
         }
     }
