@@ -137,7 +137,7 @@ namespace ppx_demo
     void demo_app::on_render()
     {
         PERF_FUNCTION()
-        draw_interaction_lines();
+        // draw_interaction_lines();
         p_grabber.render();
         p_selector.render();
         p_adder.render();
@@ -189,6 +189,8 @@ namespace ppx_demo
             default:
                 break;
             }
+            if (event.mouseButton.button == sf::Mouse::Right)
+                cancel_add_attach();
             break;
 
         case sf::Event::MouseButtonReleased:
@@ -215,7 +217,7 @@ namespace ppx_demo
             switch (event.key.code)
             {
             case sf::Keyboard::BackSpace:
-                cancel_grab_attach();
+                cancel_add_attach();
                 break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
@@ -225,6 +227,10 @@ namespace ppx_demo
                 break;
             case sf::Keyboard::F10:
                 recreate_window(style() == sf::Style::Fullscreen ? sf::Style::Default : sf::Style::Fullscreen);
+                break;
+            case sf::Keyboard::R:
+                remove_selected();
+                break;
             default:
                 break;
             }
@@ -268,10 +274,10 @@ namespace ppx_demo
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
-        cancel_grab_attach();
+        cancel_add_attach();
     }
 
-    void demo_app::cancel_grab_attach()
+    void demo_app::cancel_add_attach()
     {
         p_attacher.cancel();
         p_adder.cancel();

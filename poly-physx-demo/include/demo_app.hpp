@@ -40,7 +40,7 @@ namespace ppx_demo
 
         void add_borders();
         void remove_selected();
-        void cancel_grab_attach();
+        void cancel_add_attach();
 
         const std::string &session() const;
         void session(const std::string &session);
