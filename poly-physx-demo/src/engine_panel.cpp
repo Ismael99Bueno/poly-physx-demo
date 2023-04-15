@@ -175,14 +175,19 @@ namespace ppx_demo
     void engine_panel::render_coldet_list()
     {
         ImGui::PushItemWidth(300);
-        ppx::collider2D &collider = demo_app::get().engine().collider();
+        demo_app &papp = demo_app::get();
+        ppx::collider2D &collider = papp.engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         int coldet = collider.coldet();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
+        {
             collider.coldet((ppx::collider2D::coldet_method)coldet);
+            if (coldet == ppx::collider2D::QUAD_TREE)
+                papp.resize_quad_tree_to_window();
+        }
 
-        if (collider.coldet() == ppx::collider2D::coldet_method::QUAD_TREE)
+        if (collider.coldet() == ppx::collider2D::QUAD_TREE)
             render_quad_tree_params();
         else
             m_visualize_qt = false;
