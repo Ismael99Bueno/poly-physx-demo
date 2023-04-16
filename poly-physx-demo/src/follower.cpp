@@ -1,6 +1,13 @@
 #include "follower.hpp"
 #include "demo_app.hpp"
 
+#define VEC2_AS(vec)     \
+    {                    \
+        (vec).x, (vec).y \
+    }
+
+#define AS_VEC2(vec) glm::vec2((vec).x, (vec).y)
+
 namespace ppx_demo
 {
     void follower::start()
@@ -24,7 +31,7 @@ namespace ppx_demo
         if (m_entities.empty())
             return;
 
-        const alg::vec2 com = center_of_mass();
+        const glm::vec2 com = center_of_mass();
         demo_app::get().transform_camera((com - m_prev_com) * WORLD_TO_PIXEL);
         m_prev_com = com;
     }
@@ -75,11 +82,11 @@ namespace ppx_demo
         }
     }
 
-    alg::vec2 follower::center_of_mass() const
+    glm::vec2 follower::center_of_mass() const
     {
         if (m_entities.size() == 1)
             return m_entities[0]->pos();
-        alg::vec2 com;
+        glm::vec2 com(0.f);
         float mass = 0.f;
 
         for (const auto &e : m_entities)

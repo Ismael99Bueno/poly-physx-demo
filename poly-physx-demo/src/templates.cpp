@@ -18,7 +18,7 @@ namespace ppx_demo
 
         const std::string key = "vertex";
         std::size_t index = 0;
-        for (const alg::vec2 &v : vertices)
+        for (const glm::vec2 &v : vertices)
         {
             out.write(key + std::to_string(index) + "x", v.x);
             out.write(key + std::to_string(index++) + "y", v.y);

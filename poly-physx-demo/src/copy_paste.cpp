@@ -157,7 +157,7 @@ namespace ppx_demo
         const selector &slct = papp.p_selector;
         DBG_ASSERT(!slct.entities().empty(), "Must have something selected to copy!\n")
 
-        group.ref_pos = alg::vec2::zero;
+        group.ref_pos = glm::vec2(0.f);
 
         for (const auto &e : slct.entities())
         {
@@ -188,13 +188,13 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
+        const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
             const geo::polygon poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
-                                                          alg::vec2::zero, 0.f, 0.f, tmpl.mass,
+                                                          glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
                                                           tmpl.charge, poly.vertices(), tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
@@ -223,7 +223,7 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
+        const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         for (auto &[id, tmpl] : m_copy.entities)
         {
             geo::polygon poly(tmpl.vertices);

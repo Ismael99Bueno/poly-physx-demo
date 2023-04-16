@@ -89,7 +89,7 @@ namespace ppx_demo
         if (maxval < last_total * 1.1f)
             maxval = last_total * 1.1f;
 
-        static std::vector<alg::vec2> phys, draw, total;
+        static std::vector<glm::vec2> phys, draw, total;
         // phys.reserve(buffer_size);
         // draw.reserve(buffer_size);
         // total.reserve(buffer_size);

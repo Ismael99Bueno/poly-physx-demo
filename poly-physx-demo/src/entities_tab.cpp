@@ -74,7 +74,7 @@ namespace ppx_demo
         float avg_mass = 0.f, avg_charge = 0.f;
         bool kinematic = true, predicting = true,
              has_trail = true, following = true;
-        alg::vec2 com;
+        glm::vec2 com;
 
         for (const auto &e : slct.entities())
         {
@@ -229,12 +229,12 @@ namespace ppx_demo
         ImGui::Text("ID: %zu", e.id());
         if (ImGui::DragFloat2("Position", pos, 0.2f))
         {
-            e.pos(alg::vec2(pos[0], pos[1]));
+            e.pos(glm::vec2(pos[0], pos[1]));
             e.dispatch();
         }
         if (ImGui::DragFloat2("Velocity", vel, 0.2f))
         {
-            e.vel(alg::vec2(vel[0], vel[1]));
+            e.vel(glm::vec2(vel[0], vel[1]));
             e.dispatch();
         }
         ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
@@ -260,7 +260,7 @@ namespace ppx_demo
         {
             for (std::size_t i = 0; i < e.shape().size(); i++)
             {
-                const alg::vec2 v = e.shape().vertices()[i] - e.pos();
+                const glm::vec2 v = e.shape().vertices()[i] - e.pos();
                 ImGui::Text("Vertex %zu - x: %f, y: %f", i, v.x, v.y);
             }
             ImGui::TreePop();

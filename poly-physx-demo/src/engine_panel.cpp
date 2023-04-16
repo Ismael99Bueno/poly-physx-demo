@@ -250,13 +250,13 @@ namespace ppx_demo
                 draw_quad_tree(*child);
         else
         {
-            const alg::vec2 &mm = qt.aabb().min(),
+            const glm::vec2 &mm = qt.aabb().min(),
                             &mx = qt.aabb().max();
-            prm::flat_line_strip fls({alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
                                       mx * WORLD_TO_PIXEL,
-                                      alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
                                       mm * WORLD_TO_PIXEL,
-                                      alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
             demo_app::get().window().draw(fls);
         }
     }

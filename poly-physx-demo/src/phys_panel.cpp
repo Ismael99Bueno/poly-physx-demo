@@ -4,6 +4,7 @@
 #include "implot.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
+#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {
@@ -134,7 +135,7 @@ namespace ppx_demo
         const float t = papp.engine().elapsed();
         static std::size_t offset = 0;
 
-        static std::vector<alg::vec2> kc, pot, total;
+        static std::vector<glm::vec2> kc, pot, total;
         if (kc.size() < buffer_size)
         {
             kc.emplace_back(t, kinetic);
@@ -171,10 +172,10 @@ namespace ppx_demo
         minval *= 0.999f;
     }
 
-    void phys_panel::compare_and_update_xlimits(const alg::vec2 &xlim)
+    void phys_panel::compare_and_update_xlimits(const glm::vec2 &xlim)
     {
         const float tol = 0.1f;
-        if (m_xlim.sq_dist(xlim) > tol)
+        if (glm::distance2(m_xlim, xlim) > tol)
         {
             m_xlim = xlim;
             update_potential_data();
@@ -295,7 +296,7 @@ namespace ppx_demo
         for (std::size_t i = 0; i < PLOT_POINTS; i++)
             m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
 
-        const alg::vec2 refpos = alg::vec2::right;
+        const glm::vec2 refpos = glm::vec2(1.f, 0.f);
         const ppx::entity2D unit;
 
         for (const auto &inter : inters)

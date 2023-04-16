@@ -2,6 +2,8 @@
 #include "demo_app.hpp"
 #include <limits>
 #include <cmath>
+#include <glm/geometric.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {
@@ -25,9 +27,9 @@ namespace ppx_demo
         }
     }
 
-    std::pair<alg::vec2, float> gravity::force(const ppx::entity2D &e) const
+    std::pair<glm::vec2, float> gravity::force(const ppx::entity2D &e) const
     {
-        return std::make_pair(alg::vec2(0.f, e.mass() * p_mag), 0.f);
+        return std::make_pair(glm::vec2(0.f, e.mass() * p_mag), 0.f);
     }
 
     float gravity::potential_energy(const ppx::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
@@ -45,7 +47,7 @@ namespace ppx_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> drag::force(const ppx::entity2D &e) const
+    std::pair<glm::vec2, float> drag::force(const ppx::entity2D &e) const
     {
         return std::make_pair(-p_lin_mag * e.vel(), -p_ang_mag * e.angvel());
     }
@@ -65,10 +67,10 @@ namespace ppx_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> gravitational::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
+    std::pair<glm::vec2, float> gravitational::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.mass() * e2.mass();
-        const alg::vec2 force = cte * (e2.pos() - e1.pos()).normalized() / e1.pos().sq_dist(e2.pos());
+        const glm::vec2 force = cte * glm::normalize(e2.pos() - e1.pos()) / glm::distance2(e1.pos(), e2.pos());
         return std::make_pair(force, 0.f);
     }
 
@@ -76,7 +78,7 @@ namespace ppx_demo
                                                const ppx::entity2D &e2) const
     {
         const float cte = -p_mag * e1.mass() * e2.mass();
-        return cte / e1.pos().dist(e2.pos());
+        return cte / glm::distance(e1.pos(), e2.pos());
     }
 
     void gravitational::write(ini::output &out) const
@@ -92,10 +94,10 @@ namespace ppx_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> electrical::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
+    std::pair<glm::vec2, float> electrical::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
-                    dist = e1.pos().dist(e2.pos());
+                    dist = glm::distance(e1.pos(), e2.pos());
         float den = dist;
         for (std::uint32_t i = 0; i < p_exp; i++)
             den *= dist;
@@ -106,7 +108,7 @@ namespace ppx_demo
                                             const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
-                    dist = e1.pos().dist(e2.pos());
+                    dist = glm::distance(e1.pos(), e2.pos());
         if (p_exp > 1)
         {
             float den = dist;
@@ -132,18 +134,18 @@ namespace ppx_demo
         read_set(*this, in);
     }
 
-    std::pair<alg::vec2, float> exponential::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
+    std::pair<glm::vec2, float> exponential::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
-                    dist = e1.pos().dist(e2.pos());
-        return std::make_pair(cte * (e1.pos() - e2.pos()).normalized() * std::expf(p_exp * dist), 0.f);
+                    dist = glm::distance(e1.pos(), e2.pos());
+        return std::make_pair(cte * glm::normalize(e1.pos() - e2.pos()) * std::expf(p_exp * dist), 0.f);
     }
 
     float exponential::potential_energy_pair(const ppx::entity2D &e1,
                                              const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
-                    dist = e1.pos().dist(e2.pos());
+                    dist = glm::distance(e1.pos(), e2.pos());
         return -cte * std::expf(p_exp * dist) / p_exp;
     }
 

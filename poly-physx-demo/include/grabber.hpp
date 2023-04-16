@@ -27,11 +27,11 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_grabbed;
-        alg::vec2 m_joint;
+        glm::vec2 m_joint;
         float m_angle;
 
         void move_grabbed_entity() const;
-        void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint) const;
+        void draw_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const;
     };
 }
 

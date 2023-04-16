@@ -5,6 +5,15 @@
 #include "flat_line_strip.hpp"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
+#define VEC2_AS(vec)     \
+    {                    \
+        (vec).x, (vec).y \
+    }
+
+#define AS_VEC2(vec) glm::vec2((vec).x, (vec).y)
 
 namespace ppx_demo
 {
@@ -33,7 +42,7 @@ namespace ppx_demo
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : alg::vec2::zero,
+        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                            std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                                            entity_templ.charge, entity_templ.vertices, entity_templ.kinematic);
         m_adding = !definitive;
@@ -144,10 +153,10 @@ namespace ppx_demo
 
     bool adder::has_saved_entity() const { return !p_current_templ.name.empty(); }
 
-    std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
+    std::pair<glm::vec2, glm::vec2> adder::pos_vel_upon_addition() const
     {
         const float speed_mult = 0.5f;
-        const alg::vec2 pos = m_start_pos,
+        const glm::vec2 pos = m_start_pos,
                         vel = speed_mult * (m_start_pos - demo_app::get().world_mouse());
         return std::make_pair(pos, vel);
     }
@@ -201,8 +210,8 @@ namespace ppx_demo
 
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const alg::vec2 point = poly[i] * WORLD_TO_PIXEL;
-            m_preview.setPoint(i, VEC2_AS(point));
+            const glm::vec2 point = poly[i] * WORLD_TO_PIXEL;
+            m_preview.setPoint(i, {point.x, point.y});
         }
 
         demo_app::get().window().draw(m_preview);
@@ -214,15 +223,15 @@ namespace ppx_demo
         const auto [pos, vel] = pos_vel_upon_addition();
 
         const float max_arrow_length = 200.f;
-        const alg::vec2 start = pos * WORLD_TO_PIXEL,
-                        end = (vel.norm() < max_arrow_length ? (pos + vel) : (pos + vel.normalized() * max_arrow_length)) * WORLD_TO_PIXEL,
+        const glm::vec2 start = pos * WORLD_TO_PIXEL,
+                        end = (glm::length(vel) < max_arrow_length ? (pos + vel) : (pos + glm::normalize(vel) * max_arrow_length)) * WORLD_TO_PIXEL,
                         segment = start - end;
 
-        const float antlers_length = 0.2f * segment.norm(),
-                    antlers_angle = 0.33f * (float)M_PI / (1.f + 0.015f * segment.norm());
+        const float antlers_length = 0.2f * glm::length(segment),
+                    antlers_angle = 0.33f * (float)M_PI / (1.f + 0.015f * glm::length(segment));
 
-        const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
-                        antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
+        const glm::vec2 antler1 = end + glm::rotate(glm::normalize(segment) * antlers_length, antlers_angle),
+                        antler2 = end + glm::rotate(glm::normalize(segment) * antlers_length, -antlers_angle);
 
         sf::Color color = papp.entity_color();
         color.a = 120;

@@ -41,7 +41,7 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_e1;
-        alg::vec2 m_joint1;
+        glm::vec2 m_joint1;
 
         float m_last_angle;
         bool m_snap_e1_to_center;

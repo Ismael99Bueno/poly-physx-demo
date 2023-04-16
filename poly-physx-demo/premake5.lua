@@ -14,7 +14,7 @@ project "poly-physx-demo"
    objdir("build/" .. outputdir)
 
    files {"src/**.cpp", "include/**.hpp"}
-   includedirs "../**/include"
+   includedirs {"../**/include", "../vendor/glm"}
 
    links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
    filter "system:macosx"

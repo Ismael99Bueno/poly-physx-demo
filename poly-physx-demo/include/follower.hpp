@@ -24,9 +24,9 @@ namespace ppx_demo
 
     private:
         std::vector<ppx::const_entity2D_ptr> m_entities;
-        alg::vec2 m_prev_com;
+        glm::vec2 m_prev_com;
 
-        alg::vec2 center_of_mass() const;
+        glm::vec2 center_of_mass() const;
     };
 }
 

@@ -3,6 +3,7 @@
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
 #include "globals.hpp"
+#include <glm/geometric.hpp>
 
 namespace ppx_demo
 {
@@ -98,7 +99,7 @@ namespace ppx_demo
                 if (expanded)
                 {
                     float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
-                    ImGui::Text("Stress - %f", std::get<alg::vec2>(sp.force()).norm());
+                    ImGui::Text("Stress - %f", glm::length(std::get<glm::vec2>(sp.force())));
                     if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 50.f))
                         sp.stiffness(stf);
                     if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 10.f))
@@ -199,7 +200,7 @@ namespace ppx_demo
                 sp->length(avg_length);
         if (ImGui::Button("Auto adjust length##Selected"))
             for (ppx::spring2D *sp : springs)
-                sp->length(sp->e1()->pos().dist(sp->e2()->pos()));
+                sp->length(glm::distance(sp->e1()->pos(), sp->e2()->pos()));
 
         const auto remove_springs = [&slct, &papp]()
         {

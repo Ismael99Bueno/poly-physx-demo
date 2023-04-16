@@ -60,12 +60,12 @@ namespace ppx_demo
     private:
         std::map<std::string, add_template> m_templates;
 
-        alg::vec2 m_start_pos;
+        glm::vec2 m_start_pos;
         bool m_adding = false;
 
         sf::ConvexShape m_preview;
 
-        std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
+        std::pair<glm::vec2, glm::vec2> pos_vel_upon_addition() const;
 
         void setup_preview();
         void preview();

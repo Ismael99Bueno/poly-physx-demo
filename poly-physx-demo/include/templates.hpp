@@ -10,10 +10,10 @@ namespace ppx_demo
 {
     struct entity_template : ini::saveable
     {
-        alg::vec2 pos, vel;
+        glm::vec2 pos, vel;
         std::size_t index = 0, id = 0;
         float angpos = 0.f, angvel = 0.f, mass = 1.f, charge = 1.f;
-        std::vector<alg::vec2> vertices = geo::polygon::box(DEFAULT_SIZE);
+        std::vector<glm::vec2> vertices = geo::polygon::box(DEFAULT_SIZE);
         bool kinematic = true;
 
         void write(ini::output &out) const override;
@@ -26,7 +26,7 @@ namespace ppx_demo
     {
         float stiffness = 1.f, dampening = 0.f, length;
         std::size_t id1, id2;
-        alg::vec2 joint1, joint2;
+        glm::vec2 joint1, joint2;
         bool has_joints;
 
         void write(ini::output &out) const override;
@@ -39,7 +39,7 @@ namespace ppx_demo
     {
         float stiffness = 500.f, dampening = 30.f, length;
         std::size_t id1, id2;
-        alg::vec2 joint1, joint2;
+        glm::vec2 joint1, joint2;
         bool has_joints;
 
         void write(ini::output &out) const override;

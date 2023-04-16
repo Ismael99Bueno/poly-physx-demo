@@ -4,6 +4,13 @@
 #include "demo_app.hpp"
 #include <cmath>
 
+#define VEC2_AS(vec)     \
+    {                    \
+        (vec).x, (vec).y \
+    }
+
+#define AS_VEC2(vec) glm::vec2((vec).x, (vec).y)
+
 namespace ppx_demo
 {
     selector::selector(std::size_t allocations)
@@ -116,11 +123,11 @@ namespace ppx_demo
     void selector::draw_select_box() const
     {
         const geo::aabb2D aabb = select_box();
-        const alg::vec2 &mm = aabb.min(),
+        const glm::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         sf::Vertex vertices[5];
-        const alg::vec2 p1 = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
-                        p3 = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
+        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
+                        p3 = glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
         vertices[0].position = VEC2_AS(p1);
         vertices[1].position = VEC2_AS(p2);
         vertices[2].position = VEC2_AS(p3);
@@ -157,10 +164,10 @@ namespace ppx_demo
 
     geo::aabb2D selector::select_box() const
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        return geo::aabb2D(alg::vec2(std::min(mpos.x, m_mpos_start.x),
+        const glm::vec2 mpos = demo_app::get().world_mouse();
+        return geo::aabb2D(glm::vec2(std::min(mpos.x, m_mpos_start.x),
                                      std::min(mpos.y, m_mpos_start.y)),
-                           alg::vec2(std::max(mpos.x, m_mpos_start.x),
+                           glm::vec2(std::max(mpos.x, m_mpos_start.x),
                                      std::max(mpos.y, m_mpos_start.y)));
     }
 }
