@@ -10,9 +10,6 @@
 [submodule "SFML"]
 	path = vendor/SFML
 	url = https://github.com/ismawno/SFML.git
-[submodule "vec-2D"]
-	path = vec-2D
-	url = https://github.com/ismawno/vec-2D.git
 [submodule "shapes-2D"]
 	path = shapes-2D
 	url = https://github.com/ismawno/shapes-2D.git
