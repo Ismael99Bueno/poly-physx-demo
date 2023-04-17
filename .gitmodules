@@ -37,3 +37,6 @@
 [submodule "poly-physx-app"]
 	path = poly-physx-app
 	url = https://github.com/ismawno/poly-physx-app.git
+[submodule "glm"]
+	path = glm
+	url = https://github.com/g-truc/glm.git
