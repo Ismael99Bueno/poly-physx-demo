@@ -60,7 +60,7 @@ namespace ppx_demo
     private:
         std::map<std::string, add_template> m_templates;
 
-        glm::vec2 m_start_pos;
+        glm::vec2 m_start_pos{0.f};
         bool m_adding = false;
 
         sf::ConvexShape m_preview;

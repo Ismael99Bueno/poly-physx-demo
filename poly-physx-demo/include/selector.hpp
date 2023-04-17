@@ -36,7 +36,7 @@ namespace ppx_demo
     private:
         std::unordered_set<ppx::entity2D_ptr> m_entities;
         std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> m_springs, m_rbars;
-        glm::vec2 m_mpos_start;
+        glm::vec2 m_mpos_start{0.f};
         bool m_selecting = false;
 
         void draw_select_box() const;

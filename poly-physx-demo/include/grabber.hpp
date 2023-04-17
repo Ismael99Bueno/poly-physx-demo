@@ -27,7 +27,7 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_grabbed;
-        glm::vec2 m_joint;
+        glm::vec2 m_joint{0.f};
         float m_angle;
 
         void move_grabbed_entity() const;

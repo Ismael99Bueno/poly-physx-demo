@@ -74,7 +74,7 @@ namespace ppx_demo
         float avg_mass = 0.f, avg_charge = 0.f;
         bool kinematic = true, predicting = true,
              has_trail = true, following = true;
-        glm::vec2 com;
+        glm::vec2 com(0.f);
 
         for (const auto &e : slct.entities())
         {
