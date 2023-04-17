@@ -47,7 +47,6 @@ defines "HAS_IMPLOT"
    filter "configurations:*profile"
       defines "PERF"
 
-include "vec-2D"
 include "rk-integrator"
 include "shapes-2D"
 include "ini-parser"

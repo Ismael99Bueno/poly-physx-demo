@@ -8,7 +8,6 @@ project "poly-physx-demo"
    filter "system:macosx"
       buildoptions {"-Wall", "-Wextra", "-Wpedantic", "-Wconversion", "-Wno-unused-parameter"}
    filter{}
-   
 
    targetdir("bin/" .. outputdir)
    objdir("build/" .. outputdir)
@@ -16,7 +15,7 @@ project "poly-physx-demo"
    files {"src/**.cpp", "include/**.hpp"}
    includedirs {"../**/include", "../vendor/glm"}
 
-   links {"vec-2D", "profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
+   links {"profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
    filter "system:macosx"
       libdirs "../vendor/SFML/build-sfml/lib"
       links {"sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
