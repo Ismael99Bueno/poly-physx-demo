@@ -13,30 +13,39 @@
 [submodule "shapes-2D"]
 	path = shapes-2D
 	url = https://github.com/ismawno/shapes-2D.git
+	branch = dev
 [submodule "ini-parser"]
 	path = ini-parser
 	url = https://github.com/ismawno/ini-parser.git
+	branch = dev
 [submodule "debug-tools"]
 	path = debug-tools
 	url = https://github.com/ismawno/debug-tools.git
+	branch = dev
 [submodule "profile-tools"]
 	path = profile-tools
 	url = https://github.com/ismawno/profile-tools.git
+	branch = dev
 [submodule "rk-integrator"]
 	path = rk-integrator
 	url = https://github.com/ismawno/rk-integrator.git
+	branch = dev
 [submodule "sfml-primitives"]
 	path = sfml-primitives
 	url = https://github.com/ismawno/sfml-primitives.git
+	branch = dev
 [submodule "vector-view"]
 	path = vector-view
 	url = https://github.com/ismawno/vector-view.git
+	branch = dev
 [submodule "poly-physx"]
 	path = poly-physx
 	url = https://github.com/ismawno/poly-physx.git
+	branch = dev
 [submodule "poly-physx-app"]
 	path = poly-physx-app
 	url = https://github.com/ismawno/poly-physx-app.git
+	branch = dev
 [submodule "glm"]
 	path = vendor/glm
 	url = https://github.com/g-truc/glm.git
