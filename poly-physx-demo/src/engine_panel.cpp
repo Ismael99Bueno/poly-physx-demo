@@ -187,9 +187,9 @@ namespace ppx_demo
             collider.enabled(enabled);
 
         float stiffness = collider.stiffness(), dampening = collider.dampening();
-        if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, 10000.f, "%.1f"))
+        if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, FLT_MAX, "%.1f"))
             collider.stiffness(stiffness);
-        if (ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, 50.f))
+        if (ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, FLT_MAX))
             collider.dampening(dampening);
         ImGui::PopItemWidth();
     }

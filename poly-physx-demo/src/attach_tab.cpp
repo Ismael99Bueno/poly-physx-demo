@@ -21,16 +21,16 @@ namespace ppx_demo
         {
         case attacher::SPRING:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, 150.f);
+            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the spring will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, 50.f);
+            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
             if (!attch.p_auto_length)
-                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, 100.f);
+                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, FLT_MAX);
             else
                 ImGui::Text("Length: %f", attch.p_sp_length);
             ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
@@ -45,11 +45,11 @@ namespace ppx_demo
         }
         case attacher::RIGID_BAR:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, 2000.f, "%.1f");
+            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, 500.f, "%.2f");
+            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
@@ -100,11 +100,11 @@ namespace ppx_demo
                 {
                     float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
                     ImGui::Text("Stress - %f", glm::length(std::get<glm::vec2>(sp.force())));
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 50.f))
+                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
                         sp.stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 10.f))
+                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
                         sp.dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
                         sp.length(len);
                     ImGui::TreePop();
                 }
@@ -146,11 +146,11 @@ namespace ppx_demo
                 {
                     float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
                     ImGui::Text("Stress - %f", rb->value());
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 2000.f))
+                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
                         rb->stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
                         rb->dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
                         rb->length(len);
                     ImGui::TreePop();
                 }
@@ -189,13 +189,13 @@ namespace ppx_demo
         avg_dampening /= slct.springs().size();
         avg_length /= slct.springs().size();
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 50.f))
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 10.f))
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->length(avg_length);
         if (ImGui::Button("Auto adjust length##Selected"))
@@ -254,13 +254,13 @@ namespace ppx_demo
         avg_dampening /= slct.rbars().size();
         avg_length /= slct.rbars().size();
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 2000.f))
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->length(avg_length);
         if (ImGui::Button("Transform to springs"))

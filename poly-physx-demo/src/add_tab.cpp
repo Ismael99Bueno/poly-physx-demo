@@ -112,11 +112,11 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         adder &addr = papp.p_adder;
 
-        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 0.1f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
-        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (addr.p_current_templ.shape)
@@ -143,7 +143,7 @@ namespace ppx_demo
 
         ImGui::Checkbox("Kinematic", &addr.p_current_templ.entity_templ.kinematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
+            ImGui::SetTooltip("If unchecked, the entity will not accelerate by any means.");
 
         if (papp.p_predictor.p_enabled)
             ImGui::Checkbox("Predict path", &addr.p_predict_path);

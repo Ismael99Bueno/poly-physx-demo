@@ -96,7 +96,7 @@ namespace ppx_demo
         if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, FLT_MAX, "%.1f"))
             for (auto &e : slct.entities())
                 e->mass(avg_mass);
-        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, FLT_MAX, "%.1f"))
+        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f"))
             for (auto &e : slct.entities())
                 e->charge(avg_charge);
 
@@ -251,7 +251,7 @@ namespace ppx_demo
         ImGui::Text("Torque - %f", e.torque());
         if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, FLT_MAX))
             e.mass(mass);
-        if (ImGui::DragFloat("Charge", &charge, 0.2f, 1.f, FLT_MAX))
+        if (ImGui::DragFloat("Charge", &charge, 0.2f, -FLT_MAX, FLT_MAX))
             e.charge(charge);
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());
