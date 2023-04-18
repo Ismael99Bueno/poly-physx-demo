@@ -13,6 +13,7 @@ workspace "poly-physx-demo"
       rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-sfml/lib"
       linkoptions {rpath}
 
+      defines "MACOS"
       platforms {"arm64", "x86_64"}
       
       filter "platforms:arm64"
@@ -23,7 +24,7 @@ workspace "poly-physx-demo"
 
    filter "system:windows"
       platforms {"x86_64", "x86"}
-      defines "SFML_STATIC"
+      defines {"SFML_STATIC", "WINDOWS"}
 
       filter "platforms:x86_64"
          architecture "x86_64"
