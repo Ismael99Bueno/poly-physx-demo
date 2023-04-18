@@ -1,3 +1,4 @@
 @echo off
 python setup_win.py
-PAUSE
+cd ..
+cmd /k
