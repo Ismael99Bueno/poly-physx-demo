@@ -36,9 +36,6 @@ namespace ppx_demo
             load_item();
             save_as_item();
             load_as_item();
-
-            if (ImGui::MenuItem("Exit", "ESC"))
-                app.window().close();
             ImGui::EndMenu();
         }
     }
@@ -60,7 +57,6 @@ namespace ppx_demo
     {
         if (ImGui::BeginMenu("Settings"))
         {
-            render_fullscreen_option();
             render_fonts();
             ImGui::EndMenu();
         }
