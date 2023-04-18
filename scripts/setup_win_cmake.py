@@ -6,7 +6,7 @@ from exceptions import DependencyNotFoundError
 
 
 def validate_cmake() -> None:
-    print("\n====CMAKE VALIDATION====")
+    print("\n==== CMAKE VALIDATION ====")
 
     if not __is_cmake_installed() and not __install_cmake():
         raise DependencyNotFoundError("CMake")

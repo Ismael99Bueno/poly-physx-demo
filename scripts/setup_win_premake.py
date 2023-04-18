@@ -5,7 +5,7 @@ from exceptions import DependencyNotFoundError
 
 
 def validate_premake() -> None:
-    print("\n====PREMAKE VALIDATION====")
+    print("\n==== PREMAKE VALIDATION ====")
 
     dir = f"{Buddy().root_path}/vendor/premake/bin"
     if not __is_premake_installed(dir) and not __install_premake(dir):
