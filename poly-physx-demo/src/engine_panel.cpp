@@ -21,6 +21,16 @@ namespace ppx_demo
         p_enabled = (bool)in.readi16("enabled");
         m_method = (integ_method)in.readi32("method");
         m_visualize_qt = (bool)in.readi16("visualize_qt");
+        update_method();
+    }
+
+    void engine_panel::on_start()
+    {
+        ppx::collider2D &collider = demo_app::get().engine().collider();
+        m_max_entities = collider.quad_tree().max_entities();
+        m_period = collider.quad_tree_build_period();
+        m_max_depth = ppx::quad_tree2D::max_depth();
+        update_method();
     }
 
     void engine_panel::on_render()
@@ -197,17 +207,20 @@ namespace ppx_demo
     void engine_panel::render_quad_tree_params()
     {
         ppx::collider2D &collider = demo_app::get().engine().collider();
-        static int max_entities = (int)collider.quad_tree().max_entities(),
-                   period = (int)collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
-        if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
+        if (ImGui::SliderInt("Maximum entities", (int *)&m_max_entities, 2, 20))
         {
-            collider.quad_tree().max_entities((std::size_t)max_entities);
+            collider.quad_tree().max_entities(m_max_entities);
             collider.rebuild_quad_tree();
         }
-        if (ImGui::SliderInt("Refresh period", &period, 1, 150))
-            collider.quad_tree_build_period((std::uint32_t)period);
+        if (ImGui::SliderInt("Maximum depth", (int *)&m_max_depth, 2, 10))
+        {
+            ppx::quad_tree2D::max_depth(m_max_depth);
+            // collider.rebuild_quad_tree();
+        }
+        if (ImGui::SliderInt("Refresh period", (int *)&m_period, 1, 150))
+            collider.quad_tree_build_period(m_period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 

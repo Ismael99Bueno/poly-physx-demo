@@ -27,10 +27,13 @@ namespace ppx_demo
             RKF78 = 7
         };
 
+        void on_start() override;
         void on_render() override;
 
         integ_method m_method = RK4;
         bool m_visualize_qt = false;
+        std::size_t m_max_entities;
+        std::uint32_t m_period, m_max_depth;
 
         void render_integration();
         void render_sliders();
