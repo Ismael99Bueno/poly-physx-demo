@@ -72,6 +72,7 @@ def __install_mingw_packages() -> bool:
         print("Starting g++ installation...")
         subprocess.run(["mingw-get", "install", "g++"], shell=True, check=True)
 
+    print("\n")
     if not __is_make_installed():
         if not bud.prompt_to_install("make"):
             return False
