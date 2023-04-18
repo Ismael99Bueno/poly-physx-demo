@@ -8,13 +8,6 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#define VEC2_AS(vec)     \
-    {                    \
-        (vec).x, (vec).y \
-    }
-
-#define AS_VEC2(vec) glm::vec2((vec).x, (vec).y)
-
 namespace ppx_demo
 {
     void adder::render()

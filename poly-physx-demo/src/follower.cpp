@@ -1,13 +1,6 @@
 #include "follower.hpp"
 #include "demo_app.hpp"
 
-#define VEC2_AS(vec)     \
-    {                    \
-        (vec).x, (vec).y \
-    }
-
-#define AS_VEC2(vec) glm::vec2((vec).x, (vec).y)
-
 namespace ppx_demo
 {
     void follower::start()
@@ -22,7 +15,8 @@ namespace ppx_demo
                 }
         };
         demo_app &papp = demo_app::get();
-        m_prev_com = AS_VEC2(papp.window().getView().getCenter() * PIXEL_TO_WORLD);
+        const auto &center = papp.window().getView().getCenter();
+        m_prev_com = glm::vec2(center.x, center.y);
         papp.engine().callbacks().on_early_entity_removal(on_removal);
     }
 
