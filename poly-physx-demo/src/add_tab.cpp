@@ -112,7 +112,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         adder &addr = papp.p_adder;
 
-        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 0.1f, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
