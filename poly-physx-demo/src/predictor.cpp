@@ -46,6 +46,7 @@ namespace ppx_demo
         eng.checkpoint();
         if (!p_with_collisions)
             eng.collider().enabled(false);
+        eng.integrator().limited_timestep(false);
 
         for (std::size_t i = 0; i < p_steps; i++)
         {
@@ -60,6 +61,7 @@ namespace ppx_demo
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();
+        eng.integrator().limited_timestep(true);
     }
 
     void predictor::render() const
@@ -98,6 +100,7 @@ namespace ppx_demo
         eng.checkpoint();
         if (!p_with_collisions)
             eng.collider().enabled(false);
+        eng.integrator().limited_timestep(false);
 
         for (std::size_t i = 0; i < p_steps; i++)
         {
@@ -109,6 +112,7 @@ namespace ppx_demo
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();
+        eng.integrator().limited_timestep(true);
     }
 
     bool predictor::is_predicting(const ppx::entity2D &e) const
