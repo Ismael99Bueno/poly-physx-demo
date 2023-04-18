@@ -87,7 +87,7 @@ namespace ppx_demo
 
     void attacher::rotate_joint()
     {
-        glm::rotate(m_joint1, m_e1->angpos() - m_last_angle);
+        m_joint1 = glm::rotate(m_joint1, m_e1->angpos() - m_last_angle);
         m_last_angle = m_e1->angpos();
     }
     void attacher::draw_unattached_joint(const bool snap_e2_to_center) const
