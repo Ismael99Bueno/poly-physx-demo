@@ -14,6 +14,9 @@ namespace ppx_demo
         out.write("enabled", p_enabled);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
+        out.write("period", m_period);
+        out.write("max_depth", m_max_depth);
+        out.write("max_entities", m_max_entities);
     }
 
     void engine_panel::read(ini::input &in)
@@ -21,6 +24,15 @@ namespace ppx_demo
         p_enabled = (bool)in.readi16("enabled");
         m_method = (integ_method)in.readi32("method");
         m_visualize_qt = (bool)in.readi16("visualize_qt");
+        m_period = in.readui32("period");
+        m_max_depth = in.readui32("max_depth");
+        m_max_entities = (std::size_t)in.readui64("max_entities");
+
+        ppx::collider2D &collider = demo_app::get().engine().collider();
+        collider.quad_tree().max_entities(m_max_entities);
+        ppx::quad_tree2D::max_depth(m_max_depth);
+        collider.quad_tree_build_period(m_period);
+        collider.rebuild_quad_tree();
         update_method();
     }
 
