@@ -5,6 +5,7 @@ import subprocess
 import os
 from utils import Buddy
 from typing import Union
+import time
 
 
 def validate_python_version(
@@ -33,19 +34,27 @@ def validate_python_version(
 def validate_python_packages(package_names: Union[str, list[str]]) -> None:
     if isinstance(package_names, str):
         package_names = [package_names]
+    needs_restart = False
     for package in package_names:
-        __validate_package(package)
-    __restart_to_apply_changes()
+        needs_restart = needs_restart and not __validate_package(package)
+
+    if needs_restart:
+        __restart_to_apply_changes()
 
 
-def __validate_package(package_name: str) -> None:
+def __validate_package(package_name: str) -> bool:
     if (
-        package_name not in sys.modules
-        and importlib.util.find_spec(package_name) is None
-        and not __install_python_package(package_name)
+        package_name in sys.modules
+        and importlib.util.find_spec(package_name) is not None
     ):
+        print(f"Package '{package_name}' installed\n")
+        return True
+
+    if not __install_python_package(package_name):
         raise PackageNotFoundError(package_name)
+
     print(f"Package '{package_name}' installed\n")
+    return False
 
 
 def __install_python_package(package_name: str) -> bool:
@@ -62,5 +71,6 @@ def __install_python_package(package_name: str) -> bool:
 
 def __restart_to_apply_changes() -> None:
     print("Script will now execute again for the changes to take effect")
+    time.sleep(2.0)
     os.startfile(f"{Buddy().root_path}/scripts/setup-win.bat")
     exit()
