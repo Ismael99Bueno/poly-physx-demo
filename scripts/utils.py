@@ -97,7 +97,7 @@ def download_file(url: str, path: str) -> None:
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
     }
-    response = requests.get(url, headers=headers, stream=True)
+    response = requests.get(url, headers=headers, stream=True, allow_redirects=True)
     with open(path, "wb") as f:
         f.write(response.content)
 
