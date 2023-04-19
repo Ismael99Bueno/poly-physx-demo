@@ -103,9 +103,25 @@ def download_file(url: str, path: str) -> None:
 
 
 def unzip_file(zip_path: str, extract_path: str) -> None:
+    if zip_path.rsplit(".")[-1] == "7z":
+        __unzip_7z(zip_path, extract_path)
+    else:
+        __unzip_builtin(zip_path, extract_path)
+
+
+def __unzip_builtin(zip_path: str, extract_path: str) -> None:
     from zipfile import ZipFile
 
     with ZipFile(zip_path, "r") as zip:
         zip.extractall(extract_path)
+
+    os.remove(zip_path)
+
+
+def __unzip_7z(zip_path: str, extract_path: str) -> None:
+    from py7zr import SevenZipFile
+
+    with SevenZipFile(zip_path, "r") as sz:
+        sz.extractall(extract_path)
 
     os.remove(zip_path)

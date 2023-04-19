@@ -1,4 +1,4 @@
-from setup_py import validate_python_version, validate_python_package
+from setup_py import validate_python_version, validate_python_packages
 from setup_win_premake import validate_premake
 from setup_win_cmake import validate_cmake
 from exceptions import BadOSError
@@ -12,7 +12,7 @@ def main() -> None:
         raise BadOSError("Windows", bud.current_os)
 
     validate_python_version()
-    validate_python_package("requests")
+    validate_python_packages(["requests", "py7zr"])
 
     validate_premake()
     validate_cmake()

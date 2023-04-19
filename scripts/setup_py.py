@@ -4,6 +4,7 @@ import importlib.util
 import subprocess
 import os
 from utils import Buddy
+from typing import Union
 
 
 def validate_python_version(
@@ -29,14 +30,22 @@ def validate_python_version(
     print(f"Valid python version detected: {major}.{minor}.{micro}")
 
 
-def validate_python_package(package_name: str) -> None:
+def validate_python_packages(package_names: Union[str, list[str]]) -> None:
+    if isinstance(package_names, str):
+        package_names = [package_names]
+    for package in package_names:
+        __validate_package(package)
+    __restart_to_apply_changes()
+
+
+def __validate_package(package_name: str) -> None:
     if (
         package_name not in sys.modules
         and importlib.util.find_spec(package_name) is None
         and not __install_python_package(package_name)
     ):
         raise PackageNotFoundError(package_name)
-    print(f"Package {package_name} installed")
+    print(f"Package {package_name} installed\n")
 
 
 def __install_python_package(package_name: str) -> bool:
@@ -49,6 +58,8 @@ def __install_python_package(package_name: str) -> bool:
         check=True,
     )
 
+
+def __restart_to_apply_changes() -> None:
     print("Script will now execute again for the changes to take effect")
     os.startfile(f"{Buddy().root_path}/scripts/setup-win.bat")
     exit()
