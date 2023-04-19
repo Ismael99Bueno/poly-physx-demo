@@ -43,10 +43,7 @@ def validate_python_packages(package_names: Union[str, list[str]]) -> None:
 
 
 def __validate_package(package_name: str) -> bool:
-    if (
-        package_name in sys.modules
-        and importlib.util.find_spec(package_name) is not None
-    ):
+    if importlib.util.find_spec(package_name) is not None:
         print(f"Package '{package_name}' installed\n")
         return True
 
