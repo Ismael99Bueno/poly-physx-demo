@@ -57,6 +57,7 @@ def __install_python_package(package_name: str) -> bool:
         ["python", "-m", "pip", "install", package_name],
         check=True,
     )
+    return True
 
 
 def __restart_to_apply_changes() -> None:
