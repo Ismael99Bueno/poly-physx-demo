@@ -1,4 +1,6 @@
 @echo off
 python setup_win.py
-cd ..
-cmd /k
+IF %ERRORLEVEL% EQ 0 (
+    cd ..
+    cmd /k
+)
