@@ -16,12 +16,13 @@ def __is_mingw_installed() -> bool:
     bud = Buddy()
     if not os.path.exists(bud.mingw_path):
         return False
+    bud.add_mingw_to_path()
+
     if not __is_gxx_installed() or not __is_make_installed():
         raise FileNotFoundError(
             f"It seems you have MinGW installed, but the g++ and/or make binaries where not found. Install them to proceed. To install them automatically by the script, you will have to remove your current mingw installation located at {bud.mingw_path}"
         )
 
-    bud.add_mingw_to_path()
     return True
 
 
