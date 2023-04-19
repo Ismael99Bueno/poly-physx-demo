@@ -1,6 +1,5 @@
 @echo off
-set ERRORLEVEL=
 python setup_win.py
-IF %ERRORLEVEL%==0 (
+IF %ERRORLEVEL% EQ 0 (
     cd ..
     cmd /k

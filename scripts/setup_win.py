@@ -35,7 +35,7 @@ def main() -> None:
                 check=True,
             )
             break
-    print("\nSetup completed successfully! (hopefully)")
+    print("Setup completed successfully! (hopefully)")
 
 
 if __name__ == "__main__":
