@@ -57,6 +57,7 @@ class Buddy:
 
     def add_mingw_to_path(self) -> None:
         os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}"
+        os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}\\bin"
 
     def prompt_to_install(self, to_be_installed: str) -> bool:
         while True:
@@ -83,7 +84,7 @@ class Buddy:
                 [9, 10, 11, 12, 14, 15, 16, 17],
             )
         }
-        self.__mingw_path = "C:\\MinGW\\bin"
+        self.__mingw_path = "C:\\MinGW"
 
         return self
 

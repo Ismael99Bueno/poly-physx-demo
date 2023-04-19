@@ -1,4 +1,4 @@
-from utils import Buddy, download_file
+from utils import Buddy, download_file, unzip_file
 import os
 import subprocess
 from exceptions import DependencyNotFoundError
@@ -16,9 +16,13 @@ def __is_mingw_installed() -> bool:
     bud = Buddy()
     if not os.path.exists(bud.mingw_path):
         return False
+    if not __is_gxx_installed() or not __is_make_installed():
+        raise FileNotFoundError(
+            f"It seems you have MinGW installed, but the g++ and/or make binaries where not found. Install them to proceed. To install them automatically by the script, you will have to remove your current mingw installation located at {bud.mingw_path}"
+        )
 
     bud.add_mingw_to_path()
-    return __is_gxx_installed() and __is_make_installed()
+    return True
 
 
 def __is_gxx_installed() -> bool:
@@ -43,23 +47,26 @@ def __install_mingw() -> bool:
         return __install_mingw_packages()
 
     dir = f"{Buddy().root_path}/vendor/MinGW/bin"
-    installer_url = (
-        "https://osdn.net/frs/redir.php?m=nchc&f=mingw%2F68260%2Fmingw-get-setup.exe"
-    )
-    installer_path = f"{dir}/mingw-get-setup.exe"
+    arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
+    thingy = "dwarf" if bud.os_architecture == "x86" else "sjlj"
+
+    zip_name = f"{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
+    zip_url = f"https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{zip_name}"
+
+    zip_path = f"{dir}/{zip_name}"
 
     if not bud.prompt_to_install("MinGW"):
         return False
 
     print("Starting MinGW installation...")
-    print(f"Downloading {installer_url} to {installer_path}...")
-    download_file(installer_url, installer_path)
-    print(
-        "\nMinGW installer will now be executed. DO NOT CHECK THE MINGW GUI OPTION INSTALLATION (it won't be necessary for this setup). Once the installation finishes, re-run the script"
-    )
-    input("Press any key to begin installation...")
-    os.startfile(installer_path)
-    exit()
+    print(f"Downloading {zip_url} to {zip_path}...")
+    download_file(zip_url, zip_path)
+    print(f"\nExtracting {zip_path}...")
+    os.makedirs(bud.mingw_path)
+    unzip_file(zip_path, bud.mingw_path)
+    print(f"\MinGW has been successfully downloaded")
+
+    return __is_mingw_installed()
 
 
 def __install_mingw_packages() -> bool:
