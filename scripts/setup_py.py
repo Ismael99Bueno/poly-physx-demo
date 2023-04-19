@@ -36,7 +36,7 @@ def validate_python_packages(package_names: Union[str, list[str]]) -> None:
         package_names = [package_names]
     needs_restart = False
     for package in package_names:
-        needs_restart = needs_restart and not __validate_package(package)
+        needs_restart = needs_restart or not __validate_package(package)
 
     if needs_restart:
         __restart_to_apply_changes()
