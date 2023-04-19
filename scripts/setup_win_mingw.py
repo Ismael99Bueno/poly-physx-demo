@@ -49,10 +49,10 @@ def __install_mingw() -> bool:
 
     dir = f"{Buddy().root_path}/vendor/MinGW/bin"
     arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
-    thingy = "dwarf" if bud.os_architecture == "x86" else "sjlj"
+    thingy = "dwarf" if bud.os_architecture == "x86" else "seh"
 
     zip_name = f"{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
-    zip_url = f"https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{zip_name}"
+    zip_url = f"https://sourceforge.net/projects/mingw-w64/files/Toolchainstargetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{zip_name}/download"
 
     zip_path = f"{dir}/{zip_name}"
 
