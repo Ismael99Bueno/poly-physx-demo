@@ -70,8 +70,8 @@ def __install_mingw() -> bool:
     arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
     thingy = "dwarf" if bud.os_architecture == "x86" else "seh"
 
-    zip_name = f"{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
-    zip_url = f"https://downloads.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
+    zip_name = f"{arch}-8.1.0-release-win32-{thingy}-rt_v6-rev0.7z"
+    zip_url = f"https://downloads.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-win32/{thingy}/{arch}-8.1.0-release-win32-{thingy}-rt_v6-rev0.7z"
 
     zip_path = f"{dir}/{zip_name}"
 
