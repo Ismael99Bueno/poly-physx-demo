@@ -52,12 +52,16 @@ class Buddy:
             return platform.machine().lower()
 
     @property
-    def mingw_path(self) -> str:
+    def default_mingw_path(self) -> str:
         return self.__mingw_path
 
-    def add_mingw_to_path(self) -> None:
-        os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}"
-        os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}\\bin"
+    @property
+    def default_cmake_path(self) -> str:
+        return self.__cmake_path
+
+    def add_to_path_with_binaries(self, path: str) -> None:
+        os.environ["PATH"] += f"{os.pathsep}{path}"
+        os.environ["PATH"] += f"{os.pathsep}{path}\\bin"
 
     def prompt(self, message: str) -> bool:
         while True:
@@ -87,6 +91,7 @@ class Buddy:
                 [9, 10, 11, 12, 14, 15, 16, 17],
             )
         }
+        self.__cmake_path = "C:\\Program Files\\CMake"
         self.__mingw_path = "C:\\MinGW"
 
         return self
