@@ -23,16 +23,16 @@ def __install_premake(dir: str) -> bool:
     license_url = (
         "https://raw.githubusercontent.com/premake/premake-core/master/LICENSE.txt"
     )
-    premake_zip_path = f"{dir}/premake-{version}-windows.zip"
+    zip_path = f"{dir}/premake-{version}-windows.zip"
 
     if not Buddy().prompt_to_install("Premake"):
         return False
 
     print(f"Starting premake installation...")
-    print(f"Downloading {zip_url} to {premake_zip_path}...")
-    download_file(zip_url, premake_zip_path)
-    print(f"\nExtracting {premake_zip_path} to {dir}...")
-    unzip_file(premake_zip_path, dir)
+    print(f"Downloading {zip_url} to {zip_path}...")
+    download_file(zip_url, zip_path)
+    print(f"\nExtracting {zip_path} to {dir}...")
+    unzip_file(zip_path, dir)
     print(f"\nDownloading premake license from {license_url}...")
     download_file(license_url, f"{dir}/LICENSE.txt")
     print(
