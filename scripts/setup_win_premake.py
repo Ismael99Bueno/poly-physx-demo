@@ -31,12 +31,12 @@ def __install_premake(dir: str) -> bool:
     print(f"Starting premake installation...")
     print(f"Downloading {zip_url} to {premake_zip_path}...")
     download_file(zip_url, premake_zip_path)
-    print(f"\nExtracting {premake_zip_path}...")
+    print(f"\nExtracting {premake_zip_path} to {dir}...")
     unzip_file(premake_zip_path, dir)
     print(f"\nDownloading premake license from {license_url}...")
     download_file(license_url, f"{dir}/LICENSE.txt")
     print(
-        f"\nPremake has been successfully installed. This installation is local. Removing the project or executing generate_build_files.py --clean will get rid of the installation."
+        f"\nPremake has been successfully installed at {dir}. This installation is local. Removing the project or executing generate_build_files.py --clean will get rid of the installation."
     )
 
     return __is_premake_installed(dir)
