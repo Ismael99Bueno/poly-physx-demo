@@ -70,4 +70,4 @@ def __restart_to_apply_changes() -> None:
     print("Script will now execute again for the changes to take effect")
     time.sleep(2.0)
     os.startfile(f"{Buddy().root_path}/scripts/setup-win.bat")
-    exit()
+    exit(3)
