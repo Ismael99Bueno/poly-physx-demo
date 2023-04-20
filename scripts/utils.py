@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from exceptions import PathNotFoundError
 import platform
+import subprocess
 
 
 class Buddy:
@@ -59,9 +60,13 @@ class Buddy:
     def default_cmake_path(self) -> str:
         return self.__cmake_path
 
+    @property
+    def default_7z_path(self) -> str:
+        return self.__7z_path
+
     def add_to_path_with_binaries(self, path: str) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
-        os.environ["PATH"] += f"{os.pathsep}{path}\\bin"
+        os.environ["PATH"] += f"{os.pathsep}{path}/bin"
 
     def prompt(self, message: str) -> bool:
         while True:
@@ -91,8 +96,9 @@ class Buddy:
                 [9, 10, 11, 12, 14, 15, 16, 17],
             )
         }
-        self.__cmake_path = "C:\\Program Files\\CMake"
-        self.__mingw_path = "C:\\MinGW"
+        self.__cmake_path = "C:/Program Files/CMake"
+        self.__mingw_path = "C:/MinGW"
+        self.__7z_path = "C:/Program Files/7-Zip"
 
         return self
 
@@ -115,6 +121,7 @@ def download_file(url: str, path: str, has_headers: bool = True) -> None:
 
 
 def unzip_file(zip_path: str, extract_path: str) -> None:
+    os.makedirs(os.path.dirname(extract_path), exist_ok=True)
     if zip_path.rsplit(".")[-1] == "7z":
         __unzip_7z(zip_path, extract_path)
     else:
@@ -131,10 +138,6 @@ def __unzip_builtin(zip_path: str, extract_path: str) -> None:
 
 
 def __unzip_7z(zip_path: str, extract_path: str) -> None:
-    pass
-    # from py7zr import SevenZipFile
-
-    # with SevenZipFile(zip_path, "r") as sz:
-    #     sz.extractall(extract_path)
-
-    # os.remove(zip_path)
+    subprocess.run(
+        ["7z", "e", zip_path, f"-o{extract_path}", "-y"], shell=True, check=True
+    )
