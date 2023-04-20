@@ -28,7 +28,7 @@ def __resolve_cmake_installation() -> bool:
 
     print("CMake installation not found in path")
     bud = Buddy()
-    if os.path.exists(f"{bud.default_cmake_path}\\bin"):
+    if os.path.exists(bud.default_cmake_path):
         print(
             f"CMake installation found at {bud.default_cmake_path}. Adding to path..."
         )
@@ -54,7 +54,7 @@ def __install_cmake() -> bool:
 
     dir = f"{bud.root_path}/vendor/CMake/bin"
     version = "3.26.3"
-    arch = "x86_64"  # platform.machine()
+    arch = "i386" if bud.os_architecture == "x86" else bud.os_architecture
     installer_url = f"https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-{arch}.msi"
     installer_path = f"{dir}/cmake-{version}-windows-{arch}.msi"
 
