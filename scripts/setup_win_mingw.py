@@ -2,6 +2,7 @@ from utils import Buddy, download_file, unzip_file
 import os
 import subprocess
 from exceptions import DependencyNotFoundError
+from setup_win_7z import validate_7z
 
 
 def validate_mingw() -> None:
@@ -24,7 +25,7 @@ def __resolve_mingw_installation() -> bool:
         "A valid MinGW installation was not found in path (g++ and/or make are missing)"
     )
     bud = Buddy()
-    if os.path.exists(f"{bud.default_mingw_path}\\bin"):
+    if os.path.exists(bud.default_mingw_path):
         print(
             f"MinGW installation found at {bud.default_mingw_path}. Adding to path..."
         )
@@ -61,10 +62,11 @@ def __is_make_installed() -> bool:
     )
 
 
-def __install_mingw() -> bool:  # ADD VALIDATE 7ZIP CALL HERE
-    bud = Buddy()  # Añadir 7z path y add 7z to path
+def __install_mingw() -> bool:
+    validate_7z()
+    bud = Buddy()
 
-    dir = f"{Buddy().root_path}/vendor/MinGW/bin"
+    dir = f"{bud.root_path}/vendor/MinGW/bin"
     arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
     thingy = "dwarf" if bud.os_architecture == "x86" else "seh"
 
@@ -80,12 +82,9 @@ def __install_mingw() -> bool:  # ADD VALIDATE 7ZIP CALL HERE
     print(f"Downloading {zip_url} to {zip_path}...")
     download_file(zip_url, zip_path, has_headers=False)
     print(f"\nExtracting {zip_path}...")
-    os.makedirs(bud.mingw_path)
-    unzip_file(zip_path, bud.mingw_path)
-    print(f"\MinGW has been successfully downloaded")
+    unzip_file(zip_path, bud.default_mingw_path)
+
+    bud.add_to_path_with_binaries(bud.default_mingw_path)
+    print(f"\nMinGW has been successfully installed at {bud.default_mingw_path}.")
 
     return __is_mingw_installed()
-
-
-def __validate_7z() -> None:
-    pass

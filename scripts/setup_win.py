@@ -12,7 +12,7 @@ def main() -> None:
         raise BadOSError("Windows", bud.current_os)
 
     validate_python_version()
-    validate_python_packages(["requests", "py7zr"])
+    validate_python_packages("requests")
 
     validate_premake()
     validate_cmake()

@@ -60,3 +60,5 @@ def __install_7z() -> bool:
 
     bud.add_to_path_with_binaries(bud.default_7z_path)
     print(f"\n7z has been successfully installed at {bud.default_7z_path}.")
+
+    return __is_7z_installed()
