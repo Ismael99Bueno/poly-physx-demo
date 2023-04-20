@@ -8,16 +8,22 @@ from exceptions import DependencyNotFoundError
 def validate_cmake() -> None:
     print("\n==== CMAKE VALIDATION ====")
 
-    if not __is_cmake_installed() and not __install_cmake():
+    if not __resolve_cmake_installation() and not __install_cmake():
         raise DependencyNotFoundError("CMake")
     print("CMake installed")
 
 
 def __is_cmake_installed() -> bool:
-    rcode = subprocess.run(
-        ["cmake", "--version"], shell=True, capture_output=True
-    ).returncode
-    if rcode == 0:
+    return (
+        subprocess.run(
+            ["cmake", "--version"], shell=True, capture_output=True
+        ).returncode
+        == 0
+    )
+
+
+def __resolve_cmake_installation() -> bool:
+    if __is_cmake_installed():
         return True
 
     print("CMake installation not found in path")
@@ -27,7 +33,10 @@ def __is_cmake_installed() -> bool:
             f"CMake installation found at {bud.default_cmake_path}. Adding to path..."
         )
         bud.add_to_path_with_binaries(bud.default_cmake_path)
-        return True
+        if __is_cmake_installed():
+            return True
+        print("Failed. Still unable to find CMake executable in path.")
+
     if bud.prompt(
         f"CMake installation not found at {bud.default_cmake_path}. Is it located elsewhere?"
     ):
