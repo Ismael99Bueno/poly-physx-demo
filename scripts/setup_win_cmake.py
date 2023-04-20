@@ -14,12 +14,30 @@ def validate_cmake() -> None:
 
 
 def __is_cmake_installed() -> bool:
-    return (
-        subprocess.run(
-            ["cmake", "--version"], shell=True, capture_output=True
-        ).returncode
-        == 0
-    )
+    rcode = subprocess.run(
+        ["cmake", "--version"], shell=True, capture_output=True
+    ).returncode
+    if rcode == 0:
+        return True
+
+    print("CMake installation not found in path")
+    bud = Buddy()
+    if os.path.exists(f"{bud.default_cmake_path}\\bin"):
+        print(
+            f"CMake installation found at {bud.default_cmake_path}. Adding to path..."
+        )
+        bud.add_to_path_with_binaries(bud.default_cmake_path)
+        return True
+    if bud.prompt(
+        f"CMake installation not found at {bud.default_cmake_path}. Is it located elsewhere?"
+    ):
+        cmake_path = input(
+            "Enter CMake installation path (Use forward or double backward slashes): "
+        )
+        print(f"Adding {cmake_path} to path...")
+        bud.add_to_path_with_binaries(cmake_path)
+        return __is_cmake_installed()
+    return False
 
 
 def __install_cmake() -> bool:
