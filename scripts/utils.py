@@ -59,15 +59,18 @@ class Buddy:
         os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}"
         os.environ["PATH"] += f"{os.pathsep}{self.mingw_path}\\bin"
 
-    def prompt_to_install(self, to_be_installed: str) -> bool:
+    def prompt(self, message: str) -> bool:
         while True:
-            answer = input(
-                f"{to_be_installed} installation not found. Do you wish to install? [Y]/N "
-            )
+            answer = input(message)
             if answer == "n" or answer == "N":
                 return False
             elif answer == "y" or answer == "Y" or answer == "":
                 return True
+
+    def prompt_to_install(self, to_be_installed: str) -> bool:
+        return self.prompt(
+            f"{to_be_installed} installation not found. Do you wish to install? [Y]/N "
+        )
 
     def __init(self) -> Buddy:
         self.__root_path = Path(
@@ -89,15 +92,19 @@ class Buddy:
         return self
 
 
-def download_file(url: str, path: str) -> None:
+def download_file(url: str, path: str, has_headers: bool = True) -> None:
     import requests
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    #headers = {
-        #"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
-    #}
-    response = requests.get(url, stream=True, allow_redirects=True)
+    headers = (
+        {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
+        }
+        if has_headers
+        else None
+    )
+    response = requests.get(url, headers=headers, stream=True, allow_redirects=True)
     with open(path, "wb") as f:
         f.write(response.content)
 
@@ -119,9 +126,10 @@ def __unzip_builtin(zip_path: str, extract_path: str) -> None:
 
 
 def __unzip_7z(zip_path: str, extract_path: str) -> None:
-    from py7zr import SevenZipFile
+    pass
+    # from py7zr import SevenZipFile
 
-    with SevenZipFile(zip_path, "r") as sz:
-        sz.extractall(extract_path)
+    # with SevenZipFile(zip_path, "r") as sz:
+    #     sz.extractall(extract_path)
 
-    os.remove(zip_path)
+    # os.remove(zip_path)
