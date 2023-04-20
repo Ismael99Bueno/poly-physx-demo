@@ -65,7 +65,7 @@ class Buddy:
 
     def prompt(self, message: str) -> bool:
         while True:
-            answer = input(message)
+            answer = input(f"{message} [Y]/N ")
             if answer == "n" or answer == "N":
                 return False
             elif answer == "y" or answer == "Y" or answer == "":
@@ -73,7 +73,7 @@ class Buddy:
 
     def prompt_to_install(self, to_be_installed: str) -> bool:
         return self.prompt(
-            f"{to_be_installed} installation not found. Do you wish to install? [Y]/N "
+            f"{to_be_installed} installation not found. Do you wish to install?"
         )
 
     def __init(self) -> Buddy:
