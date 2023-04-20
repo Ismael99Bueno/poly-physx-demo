@@ -60,6 +60,10 @@ class Buddy:
     def default_cmake_path(self) -> str:
         return self.__cmake_path
 
+    @default_cmake_path.setter
+    def default_cmake_path(self, cmake_path: str) -> None:
+        self.__cmake_path = cmake_path
+
     @property
     def default_7z_path(self) -> str:
         return self.__7z_path

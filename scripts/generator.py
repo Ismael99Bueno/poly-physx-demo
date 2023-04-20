@@ -91,6 +91,8 @@ class SFMLGenerator(Generator):
             if is_visual_studio
             else "MinGW Makefiles"
         )
+
+        bud.add_to_path_with_binaries(bud.default_cmake_path)
         subprocess.run(
             [
                 "cmake",

@@ -45,6 +45,7 @@ def __resolve_cmake_installation() -> bool:
         )
         print(f"Adding {cmake_path} to path...")
         bud.add_to_path_with_binaries(cmake_path)
+        bud.default_cmake_path = cmake_path
         return __is_cmake_installed()
     return False
 
