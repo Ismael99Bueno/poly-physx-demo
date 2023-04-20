@@ -83,7 +83,7 @@ class SFMLGenerator(Generator):
         os.mkdir(build_sfml_path)
 
         if bud.is_windows and self._generator.startswith("gmake"):
-            bud.add_mingw_to_path()
+            bud.add_to_path_with_binaries(bud.default_mingw_path)
 
         is_visual_studio = bud.is_windows and self._generator.startswith("vs")
         premake_to_cmake_vs = (
