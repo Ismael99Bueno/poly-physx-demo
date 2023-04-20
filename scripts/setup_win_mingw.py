@@ -7,23 +7,42 @@ from exceptions import DependencyNotFoundError
 def validate_mingw() -> None:
     print("\n==== MINGW VALIDATION ====")
 
-    if not __is_mingw_installed() and not __install_mingw():
+    if not __resolve_mingw_installation() and not __install_mingw():
         raise DependencyNotFoundError("MinGW")
     print("MinGW installed")
 
 
 def __is_mingw_installed() -> bool:
+    return __is_gxx_installed() and __is_make_installed()
+
+
+def __resolve_mingw_installation() -> bool:
+    if __is_mingw_installed():
+        return True
+
+    print(
+        "A valid MinGW installation was not found in path (g++ and/or make are missing)"
+    )
     bud = Buddy()
-    if not os.path.exists(bud.mingw_path):
-        return False
-    bud.add_mingw_to_path()
-
-    if not __is_gxx_installed() or not __is_make_installed():
-        raise FileNotFoundError(
-            f"It seems you have MinGW installed, but the g++ and/or make binaries where not found. Install them to proceed. To install them automatically by the script, you will have to remove your current mingw installation located at {bud.mingw_path}"
+    if os.path.exists(f"{bud.default_mingw_path}\\bin"):
+        print(
+            f"MinGW installation found at {bud.default_mingw_path}. Adding to path..."
         )
+        bud.add_to_path_with_binaries(bud.default_mingw_path)
+        if __is_mingw_installed():
+            return True
+        print("Failed. Still unable to find g++ and make executables in path.")
 
-    return True
+    if bud.prompt(
+        f"MinGW installation not found at {bud.default_mingw_path}. Is it located elsewhere?"
+    ):
+        mingw_path = input(
+            "Enter MinGW installation path (Use forward or double backward slashes): "
+        )
+        print(f"Adding {mingw_path} to path...")
+        bud.add_to_path_with_binaries(mingw_path)
+        return __is_mingw_installed()
+    return False
 
 
 def __is_gxx_installed() -> bool:
@@ -42,17 +61,15 @@ def __is_make_installed() -> bool:
     )
 
 
-def __install_mingw() -> bool:
-    bud = Buddy()
-    if os.path.exists(bud.mingw_path):
-        return __install_mingw_packages()
+def __install_mingw() -> bool:  # ADD VALIDATE 7ZIP CALL HERE
+    bud = Buddy()  # Añadir 7z path y add 7z to path
 
     dir = f"{Buddy().root_path}/vendor/MinGW/bin"
     arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
     thingy = "dwarf" if bud.os_architecture == "x86" else "seh"
 
     zip_name = f"{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
-    zip_url = "https://downloads.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z"#f"https://downloads.sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{zip_name}"
+    zip_url = f"https://downloads.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-posix/{thingy}/{arch}-8.1.0-release-posix-{thingy}-rt_v6-rev0.7z"
 
     zip_path = f"{dir}/{zip_name}"
 
@@ -61,7 +78,7 @@ def __install_mingw() -> bool:
 
     print("Starting MinGW installation...")
     print(f"Downloading {zip_url} to {zip_path}...")
-    download_file(zip_url, zip_path)
+    download_file(zip_url, zip_path, has_headers=False)
     print(f"\nExtracting {zip_path}...")
     os.makedirs(bud.mingw_path)
     unzip_file(zip_path, bud.mingw_path)
@@ -70,26 +87,5 @@ def __install_mingw() -> bool:
     return __is_mingw_installed()
 
 
-def __install_mingw_packages() -> bool:
-    bud = Buddy()
-
-    if not __is_gxx_installed():
-        if not bud.prompt_to_install("g++"):
-            return False
-
-        print("Starting g++ installation...")
-        subprocess.run(["mingw-get", "install", "g++"], shell=True, check=True)
-
-    print("\n")
-    if not __is_make_installed():
-        if not bud.prompt_to_install("make"):
-            return False
-
-        print("Starting make installation...")
-        subprocess.run(
-            ["mingw-get", "install", "mingw32-make"],
-            shell=True,
-            check=True,
-        )
-
-    return __is_mingw_installed()
+def __validate_7z() -> None:
+    pass
