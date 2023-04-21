@@ -138,7 +138,7 @@ namespace ppx_demo
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = glm::distance(e1.pos(), e2.pos());
-        return std::make_pair(cte * glm::normalize(e1.pos() - e2.pos()) * std::expf(p_exp * dist), 0.f);
+        return std::make_pair(cte * glm::normalize(e1.pos() - e2.pos()) * expf(p_exp * dist), 0.f);
     }
 
     float exponential::potential_energy_pair(const ppx::entity2D &e1,
@@ -146,7 +146,7 @@ namespace ppx_demo
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
                     dist = glm::distance(e1.pos(), e2.pos());
-        return -cte * std::expf(p_exp * dist) / p_exp;
+        return -cte * expf(p_exp * dist) / p_exp;
     }
 
     void exponential::write(ini::output &out) const
