@@ -102,18 +102,14 @@ class Buddy:
         return self
 
 
-def download_file(url: str, path: str, has_headers: bool = True) -> None:
+def download_file(url: str, path: str) -> None:
     import requests
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-    headers = (
-        {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
-        }
-        if has_headers
-        else None
-    )
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
+    }
     response = requests.get(url, headers=headers, stream=True, allow_redirects=True)
     with open(path, "wb") as f:
         f.write(response.content)

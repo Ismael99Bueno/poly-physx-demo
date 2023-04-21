@@ -78,9 +78,9 @@ def __install_mingw() -> bool:
 
     print("Starting MinGW installation...")
     print(f"Downloading {zip_url} to {zip_path}...")
-    download_file(zip_url, zip_path, has_headers=False)
+    download_file(zip_url, zip_path)
     print(f"\nExtracting {zip_path}...")
-    unzip_file(zip_path, bud.default_mingw_path)
+    unzip_file(zip_path, "C:/")
 
     bud.add_to_path_with_binaries(bud.default_mingw_path)
     print(f"\nMinGW has been successfully installed at {bud.default_mingw_path}.")
