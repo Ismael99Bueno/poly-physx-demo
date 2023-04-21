@@ -2,7 +2,6 @@ from utils import Buddy, download_file, unzip_file
 import os
 import subprocess
 from exceptions import DependencyNotFoundError
-from setup_win_7z import validate_7z
 
 
 def validate_mingw() -> None:
@@ -63,15 +62,14 @@ def __is_make_installed() -> bool:
 
 
 def __install_mingw() -> bool:
-    validate_7z()
     bud = Buddy()
 
     dir = f"{bud.root_path}/vendor/MinGW/bin"
     arch = "i686" if bud.os_architecture == "x86" else bud.os_architecture
-    thingy = "dwarf" if bud.os_architecture == "x86" else "sjlj"
+    thingy = "dwarf" if bud.os_architecture == "x86" else "seh"
 
-    zip_name = f"{arch}-8.1.0-release-win32-{thingy}-rt_v6-rev0.7z"
-    zip_url = f"https://downloads.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win{'32' if bud.os_architecture == 'x86' else '64'}/Personal%20Builds/mingw-builds/8.1.0/threads-win32/{thingy}/{arch}-8.1.0-release-win32-{thingy}-rt_v6-rev0.7z"
+    zip_name = f"winlibs-{arch}-posix-{thingy}-gcc-12.2.0-mingw-w64ucrt-10.0.0-r5.zip"
+    zip_url = f"https://github.com/brechtsanders/winlibs_mingw/releases/download/12.2.0-16.0.0-10.0.0-ucrt-r5/{zip_name}"
 
     zip_path = f"{dir}/{zip_name}"
 

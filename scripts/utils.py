@@ -126,22 +126,9 @@ def download_file(url: str, path: str, has_headers: bool = True) -> None:
 
 def unzip_file(zip_path: str, extract_path: str) -> None:
     os.makedirs(os.path.dirname(extract_path), exist_ok=True)
-    if zip_path.rsplit(".")[-1] == "7z":
-        __unzip_7z(zip_path, extract_path)
-    else:
-        __unzip_builtin(zip_path, extract_path)
-
-
-def __unzip_builtin(zip_path: str, extract_path: str) -> None:
     from zipfile import ZipFile
 
     with ZipFile(zip_path, "r") as zip:
         zip.extractall(extract_path)
 
     os.remove(zip_path)
-
-
-def __unzip_7z(zip_path: str, extract_path: str) -> None:
-    subprocess.run(
-        ["7z", "e", zip_path, f"-o{extract_path}", "-y"], shell=True, check=True
-    )
