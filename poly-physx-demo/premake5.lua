@@ -17,12 +17,9 @@ project "poly-physx-demo"
 
    links {"profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
    libdirs "../vendor/SFML/build-sfml/lib"
-   
+
    filter "system:macosx"
       links {"sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
-   filter "system:windows"
-      
-      links {"opengl32", "freetype", "winmm", "gdi32"}
       filter {"system:windows", "configurations:debug*"}
          libdirs "../vendor/SFML/build-sfml/lib/Debug"
          links {"sfml-graphics-s-d", "sfml-window-s-d", "sfml-system-s-d"}
@@ -42,3 +39,6 @@ project "poly-physx-demo"
          
       filter {"system:windows", "platforms:x86", "action:gmake*"}
          libdirs "../vendor/SFML/extlibs/libs-mingw/x86"
+
+      filter "system:windows"
+         links {"opengl32", "freetype", "winmm", "gdi32"}
