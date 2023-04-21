@@ -10,7 +10,7 @@ workspace "poly-physx-demo"
    rootpath = script_path()
    
    filter "system:macosx"
-      rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-sfml/lib"
+      rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-gmake/lib"
       linkoptions {rpath}
 
       defines "MACOS"
