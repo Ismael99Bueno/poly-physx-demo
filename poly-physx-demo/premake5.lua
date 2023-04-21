@@ -16,8 +16,9 @@ project "poly-physx-demo"
    includedirs {"../**/include", "../vendor/glm"}
 
    links {"profile-tools", "ini-parser", "rk-integrator", "shapes-2D", "poly-physx", "imgui", "imgui-SFML", "implot", "poly-physx-app", "sfml-primitives"}
+   libdirs "../vendor/SFML/build-sfml/lib"
+   
    filter "system:macosx"
-      libdirs "../vendor/SFML/build-sfml/lib"
       links {"sfml-graphics", "sfml-window", "sfml-system", "OpenGL.framework"}
    filter "system:windows"
       
