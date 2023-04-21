@@ -28,24 +28,22 @@ def __resolve_cmake_installation() -> bool:
 
     print("CMake installation not found in path")
     bud = Buddy()
-    if os.path.exists(bud.default_cmake_path):
-        print(
-            f"CMake installation found at {bud.default_cmake_path}. Adding to path..."
-        )
-        bud.add_to_path_with_binaries(bud.default_cmake_path)
+    if os.path.exists(bud.cmake_path):
+        print(f"CMake installation found at {bud.cmake_path}. Adding to path...")
+        bud.add_to_path_with_binaries(bud.cmake_path)
         if __is_cmake_installed():
             return True
         print("Failed. Still unable to find CMake executable in path.")
 
     if bud.prompt(
-        f"CMake installation not found at {bud.default_cmake_path}. Is it located elsewhere?"
+        f"CMake installation not found at {bud.cmake_path}. Is it located elsewhere?"
     ):
         cmake_path = input(
             "Enter CMake installation path (Use forward or double backward slashes): "
         )
         print(f"Adding {cmake_path} to path...")
         bud.add_to_path_with_binaries(cmake_path)
-        bud.default_cmake_path = cmake_path
+        bud.cmake_path = cmake_path
         return __is_cmake_installed()
     return False
 
