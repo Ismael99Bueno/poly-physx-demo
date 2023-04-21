@@ -113,7 +113,7 @@ class SFMLGenerator(Generator):
             ["cmake", "--build", build_sfml_path, "--config", "Release"],
             check=True,
         )
-        if is_visual_studio:
+        if bud.is_windows:
             subprocess.run(
                 ["cmake", "--build", build_sfml_path, "--config", "Debug"],
                 check=True,

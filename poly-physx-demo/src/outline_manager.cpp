@@ -42,7 +42,7 @@ namespace ppx_demo
             if (priority)
             {
                 const float ampl = 3.f, freq = 3.5f;
-                shapes[i].setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
+                shapes[i].setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
             else
                 shapes[i].setOutlineThickness(0.f);
