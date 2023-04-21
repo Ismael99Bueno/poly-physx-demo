@@ -116,7 +116,7 @@ namespace ppx_demo
                 den *= dist;
             return cte / den;
         }
-        return -cte * std::logf(dist);
+        return -cte * logf(dist);
     }
 
     void electrical::write(ini::output &out) const
