@@ -17,25 +17,22 @@ def main() -> None:
     validate_premake()
     validate_cmake()
 
-    while True:
-        answer = input(
-            "Do you want to go ahead and generate all the project build files? Default generator for Windows is vs2022 [Y]/N "
+    if bud.prompt(
+        "Do you want to go ahead and generate all the project build files? Default generator for Windows is vs2022"
+    ):
+        subprocess.run(
+            [
+                "python",
+                f"{bud.root_path}/scripts/generate_build_files.py",
+            ],
+            check=True,
         )
-        if answer == "n" or answer == "N":
-            print(
-                "Run generate_build_files.py to generate the project's build files. Use the -h flag to display the options available"
-            )
-            break
-        elif answer == "y" or answer == "Y" or answer == "":
-            subprocess.run(
-                [
-                    "python",
-                    f"{bud.root_path}/scripts/generate_build_files.py",
-                ],
-                check=True,
-            )
-            break
-    print("\nSetup completed successfully! (hopefully)")
+    else:
+        print(
+            "Run generate_build_files.py to generate the project's build files. Use the -h flag to display the options available"
+        )
+
+    print("\nSetup completed successfully!")
 
 
 if __name__ == "__main__":
