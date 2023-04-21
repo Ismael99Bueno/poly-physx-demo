@@ -17,14 +17,14 @@ def main() -> None:
     bud = Buddy()
     parser = ArgumentParser(
         description="Generate the build files for the project.",
-        epilog="Once the build files have been generated, the project must be compiled according to the chosen generator.",
+        epilog="Once the build files have been generated, the project must be compiled according to the chosen generator and your operating system. Instructions will be given once the execution of this script has been successful",
     )
     parser.add_argument(
         "--which",
         dest="which",
         default="all",
         type=str,
-        help="can be one of the following: 'sfml' - builds SFML as a shared library using CMake, 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first or 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
+        help="can be one of the following: 'sfml' - builds SFML as a shared (MacOS) or static (Windows) library using CMake. 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first. 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
     )
     parser.add_argument(
         "--clean",
@@ -32,18 +32,18 @@ def main() -> None:
         action="store_const",
         const=True,
         default=False,
-        help="clears all build files for the selected project component",
+        help="clears all build files for the selected project component, specified with --which",
     )
     parser.add_argument(
         "--generator",
         dest="generator",
         default="gmake2" if bud.is_macos else "vs2022",
         type=str,
-        help="Can be gmake or gmake2. If on windows, it can be any of the premake actions for Visual Studio.",
+        help="Can be gmake or gmake2. If on Windows, it can also be any of the premake actions for Visual Studio",
     )
 
     if bud.is_os_unsupported:
-        raise BadOSError("MacOS or Windows", bud.current_os)
+        raise BadOSError(bud.current_os, "MacOS or Windows")
 
     args = parser.parse_args()
     if (
@@ -70,15 +70,33 @@ def main() -> None:
             gen.clean()
         else:
             gen.build()
-            print("\nCompile the project according to the selected generator.\n")
             print(
-                "If you have selected gmake/gmake2, use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture."
+                "\nBuild files have been successfully generated. Next step: build the project"
             )
+            if bud.is_macos:
+                print("\n==== MacOS instructions ====")
+                print(
+                    f"Build the project from terminal with make by entering 'make' from the root directory at {bud.root_path}"
+                )
+            elif bud.is_windows and args.generator.startswith("vs"):
+                print("\n==== Windows instructions (Visual Studio) ====")
+                print(
+                    f"Open the solution file at {bud.root_path}/poly-physx-demo.sln and build the project with Visual Studio, which must be installed for this configuration to work"
+                )
+                print(
+                    "If you don't want to install Visual Studio, you can build the project with the gmake2 generator to generate MinGW makefiles. MinGW will be automatically installed"
+                )
+            elif bud.is_windows and args.generator.startswith("gmake"):
+                print("\n==== Windows instructions (MinGW) ====")
+                print(
+                    f"ATTENTION: To avoid any issues, make sure to add the MinGW folder and binaries to path by running 'set PATH=%PATH%;{bud.mingw_path}' and 'set PATH=%PATH%;{bud.mingw_path}/bin' in the current cmd session. You should also run the executable from this session to avoid having to copy the required dlls. If you do need them because the executable asks for them, you will find them at {bud.mingw_path}/binf folder."
+                )
+                print(
+                    f"\nBuild the project from terminal with make by entering 'mingw32-make' from the root directory at {bud.root_path}"
+                )
+
             print(
-                "If you have selected Visual Studio, open the solution and build it from there, choosing a configuration and architecture."
-            )
-            print(
-                "\nOnce built, the executable will be located in the poly-physx-demo subfolder's binaries."
+                f"Once the compilation finishes, execute the binary from the 'bin' folder at the poly-physx-demo project, at {bud.root_path}/poly-physx-demo/bin"
             )
     except KeyError:
         raise UnrecognizedWhichArgumentError(args.which)
