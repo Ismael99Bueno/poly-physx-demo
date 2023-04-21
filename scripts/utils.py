@@ -136,6 +136,6 @@ def unzip_file(zip_path: str, extract_path: str) -> None:
 
     with ZipFile(zip_path, "r") as zip:
         for file in tqdm(iterable=zip.namelist(), total=len(zip.namelist())):
-            zip.extract(member=file, path=f"{extract_path}/{file}")
+            zip.extract(member=file, path=extract_path)
 
     os.remove(zip_path)
