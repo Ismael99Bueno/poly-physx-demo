@@ -70,20 +70,22 @@ class PPXGenerator(Generator):
 class SFMLGenerator(Generator):
     def __init__(self, generator: str) -> None:
         super().__init__(generator)
+        self.__build_name = "vs" if self._generator.startswith("vs") else "gmake"
 
     def build(self) -> None:
-        self.clean()
+        bud = Buddy()
+
+        self.__clean(f"{bud.root_path}/vendor/SFML/build-{self.__build_name}")
         print("Generating build files for SFML...")
 
-        bud = Buddy()
         sfml_path = f"{bud.root_path}/vendor/SFML"
         if not os.path.exists(sfml_path):
             raise PathNotFoundError(sfml_path)
-        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-sfml"
+        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-{self.__build_name}"
         os.mkdir(build_sfml_path)
 
         if bud.is_windows and self._generator.startswith("gmake"):
-            bud.add_to_path_with_binaries(bud.default_mingw_path)
+            bud.add_to_path_with_binaries(bud.mingw_path)
 
         is_visual_studio = bud.is_windows and self._generator.startswith("vs")
         premake_to_cmake_vs = (
@@ -92,7 +94,7 @@ class SFMLGenerator(Generator):
             else "MinGW Makefiles"
         )
 
-        bud.add_to_path_with_binaries(bud.default_cmake_path)
+        bud.add_to_path_with_binaries(bud.cmake_path)
         subprocess.run(
             [
                 "cmake",
@@ -113,7 +115,7 @@ class SFMLGenerator(Generator):
             ["cmake", "--build", build_sfml_path, "--config", "Release"],
             check=True,
         )
-        if bud.is_windows:
+        if is_visual_studio:
             subprocess.run(
                 ["cmake", "--build", build_sfml_path, "--config", "Debug"],
                 check=True,
@@ -121,10 +123,12 @@ class SFMLGenerator(Generator):
         print("Done.\n")
 
     def clean(self) -> None:
-        print("Removing build files for SFML...")
-
         bud = Buddy()
-        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-sfml"
+        self.__clean(f"{bud.root_path}/vendor/SFML/build-vs")
+        self.__clean(f"{bud.root_path}/vendor/SFML/build-gmake")
+
+    def __clean(self, build_sfml_path: str) -> None:
+        print("Removing build files for SFML...")
         try:
             shutil.rmtree(build_sfml_path)
             print(f"Removed {build_sfml_path}")
