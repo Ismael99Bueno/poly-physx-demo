@@ -64,10 +64,6 @@ class Buddy:
     def default_cmake_path(self, cmake_path: str) -> None:
         self.__cmake_path = cmake_path
 
-    @property
-    def default_7z_path(self) -> str:
-        return self.__7z_path
-
     def add_to_path_with_binaries(self, path: str) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
         os.environ["PATH"] += f"{os.pathsep}{path}/bin"
@@ -101,8 +97,7 @@ class Buddy:
             )
         }
         self.__cmake_path = "C:/Program Files/CMake"
-        self.__mingw_path = "C:/MinGW"
-        self.__7z_path = "C:/Program Files/7-Zip"
+        self.__mingw_path = f"C:/mingw{'32' if self.os_architecture == 'x86' else '64'}"
 
         return self
 
