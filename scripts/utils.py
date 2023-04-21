@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from exceptions import PathNotFoundError
 import platform
-import subprocess
 
 
 class Buddy:
@@ -53,15 +52,19 @@ class Buddy:
             return platform.machine().lower()
 
     @property
-    def default_mingw_path(self) -> str:
+    def mingw_path(self) -> str:
         return self.__mingw_path
 
+    @mingw_path.setter
+    def mingw_path(self, mingw_path: str) -> None:
+        self.__mingw_path = mingw_path
+
     @property
-    def default_cmake_path(self) -> str:
+    def cmake_path(self) -> str:
         return self.__cmake_path
 
-    @default_cmake_path.setter
-    def default_cmake_path(self, cmake_path: str) -> None:
+    @cmake_path.setter
+    def cmake_path(self, cmake_path: str) -> None:
         self.__cmake_path = cmake_path
 
     def add_to_path_with_binaries(self, path: str) -> None:
