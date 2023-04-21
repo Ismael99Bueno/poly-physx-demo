@@ -24,23 +24,22 @@ def __resolve_mingw_installation() -> bool:
         "A valid MinGW installation was not found in path (g++ and/or make are missing)"
     )
     bud = Buddy()
-    if os.path.exists(bud.default_mingw_path):
-        print(
-            f"MinGW installation found at {bud.default_mingw_path}. Adding to path..."
-        )
-        bud.add_to_path_with_binaries(bud.default_mingw_path)
+    if os.path.exists(bud.mingw_path):
+        print(f"MinGW installation found at {bud.mingw_path}. Adding to path...")
+        bud.add_to_path_with_binaries(bud.mingw_path)
         if __is_mingw_installed():
             return True
         print("Failed. Still unable to find g++ and make executables in path.")
 
     if bud.prompt(
-        f"MinGW installation not found at {bud.default_mingw_path}. Is it located elsewhere?"
+        f"MinGW installation not found at {bud.mingw_path}. Is it located elsewhere?"
     ):
         mingw_path = input(
             "Enter MinGW installation path (Use forward or double backward slashes): "
         )
         print(f"Adding {mingw_path} to path...")
         bud.add_to_path_with_binaries(mingw_path)
+        bud.mingw_path = mingw_path
         return __is_mingw_installed()
     return False
 
@@ -82,7 +81,7 @@ def __install_mingw() -> bool:
     print(f"\nExtracting {zip_path}...")
     unzip_file(zip_path, "C:/")
 
-    bud.add_to_path_with_binaries(bud.default_mingw_path)
-    print(f"\nMinGW has been successfully installed at {bud.default_mingw_path}.")
+    bud.add_to_path_with_binaries(bud.mingw_path)
+    print(f"\nMinGW has been successfully installed at {bud.mingw_path}.")
 
     return __is_mingw_installed()
