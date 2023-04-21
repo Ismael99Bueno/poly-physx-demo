@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from exceptions import PathNotFoundError
 import platform
+import time
+import sys
 
 
 class Buddy:
@@ -106,6 +108,7 @@ class Buddy:
 
 
 def download_file(url: str, path: str) -> None:
+    from tqdm import tqdm
     import requests
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -114,15 +117,25 @@ def download_file(url: str, path: str) -> None:
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
     }
     response = requests.get(url, headers=headers, stream=True, allow_redirects=True)
-    with open(path, "wb") as f:
-        f.write(response.content)
+    total = int(response.headers.get("content-length", "0"))
+    one_kb = 1024
+
+    with open(path, "wb") as f, tqdm(
+        total=total, unit="MiB", unit_scale=True, unit_divisor=one_kb * one_kb
+    ) as bar:
+        for data in response.iter_content(chunk_size=one_kb):
+            size = f.write(data)
+            bar.update(size)
 
 
 def unzip_file(zip_path: str, extract_path: str) -> None:
-    os.makedirs(os.path.dirname(extract_path), exist_ok=True)
+    from tqdm import tqdm
     from zipfile import ZipFile
 
+    os.makedirs(extract_path, exist_ok=True)
+
     with ZipFile(zip_path, "r") as zip:
-        zip.extractall(extract_path)
+        for file in tqdm(iterable=zip.namelist(), total=len(zip.namelist())):
+            zip.extract(member=file, path=f"{extract_path}/{file}")
 
     os.remove(zip_path)

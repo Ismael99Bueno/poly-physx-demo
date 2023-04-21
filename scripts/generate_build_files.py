@@ -16,7 +16,7 @@ from setup_win_mingw import validate_mingw
 def main() -> None:
     bud = Buddy()
     parser = ArgumentParser(
-        description="Generate the build files for the project.",
+        description="Compile the SFML library and generate the build files for the project.",
         epilog="Once the build files have been generated, the project must be compiled according to the chosen generator and your operating system. Instructions will be given once the execution of this script has been successful",
     )
     parser.add_argument(
