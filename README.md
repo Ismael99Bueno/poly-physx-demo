@@ -31,21 +31,21 @@ The following git submodules are included:
 - [vector-view](https://github.com/ismawno/vector-view)
 - [shapes-2D](https://github.com/ismawno/shapes-2D)
 
-**Note:** The dependency `vec-2D` is no longer used. Instead, `glm` is used for optimized vector operations.
+**Note:** The dependency [vec-2D](https://github.com/ismawno/vec-2D) is no longer used. Instead, [glm](https://github.com/g-truc/glm) is used for optimized vector operations.
 
 ## Setup
 
 ### MacOS
 
-Run the `setup-macos.sh` script. This will automatically install the necessary software: XCode Command Line Tools, homebrew, python, CMake, premake, and make. If authorized, it will also generate the project build files using gmake, the only supported generator on this platform.
+Run the [setup-macos.sh](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-macos.sh) script. This will automatically install the necessary software: XCode Command Line Tools, homebrew, python, CMake, premake, and make. If authorized, it will also generate the project build files using gmake, the only supported generator on this platform.
 
 ### Windows
 
-Run the `setup-win.bat` script. This will automatically install the necessary software. If authorized, it will also generate the project build files using the default generator for this platform, Visual Studio.
+Run the [setup-win.bat](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-win.bat) script. This will automatically install the necessary software. If authorized, it will also generate the project build files using the default generator for this platform, Visual Studio.
 
 ### Generating Build Files
 
-After completing the setup, if you did not authorize the generation of the project build files, manually execute the `generate_build_files.py` script. This script will compile the [SFML](https://github.com/SFML/SFML) library and generate the project build files depending on the generator. The script is executed the same way for both operating systems, with the default generator changing depending on the platform. For Windows, if gmake is chosen as the generator, the MinGW compiler will be used, and the script will automatically install the software if not found.
+After completing the setup, if you did not authorize the generation of the project build files, manually execute the [generate_build_files.py](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/generate_build_files.py) script. This script will compile the [SFML](https://github.com/SFML/SFML) library and generate the project build files depending on the generator. The script is executed the same way for both operating systems, with the default generator changing depending on the platform. For Windows, if gmake is chosen as the generator, the MinGW compiler will be used, and the script will automatically install the software if not found.
 
 ### Compilation
 
