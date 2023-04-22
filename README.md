@@ -18,11 +18,11 @@ The following git submodules are included:
 
 - [poly-physx-app](https://github.com/ismawno/poly-physx-app)
 - [poly-physx](https://github.com/ismawno/poly-physx)
-- [SFML](https://github.com/SFML/SFML)
-- [imgui](https://github.com/ocornut/imgui)
-- [imgui-sfml](https://github.com/eliasdaler/imgui-sfml)
-- [implot](https://github.com/epezent/implot)
-- [glm](https://github.com/g-truc/glm)
+- [SFML](https://github.com/ismawno/SFML)
+- [imgui](https://github.com/ismawno/imgui)
+- [imgui-sfml](https://github.com/ismawno/imgui-sfml)
+- [implot](https://github.com/ismawno/implot)
+- [glm](https://github.com/imsawno/glm)
 - [sfml-primitives](https://github.com/ismawno/sfml-primitives)
 - [rk-integrator](https://github.com/ismawno/rk-integrator)
 - [debug-tools](https://github.com/ismawno/debug-tools)
@@ -30,8 +30,6 @@ The following git submodules are included:
 - [ini-parser](https://github.com/ismawno/ini-parser)
 - [vector-view](https://github.com/ismawno/vector-view)
 - [shapes-2D](https://github.com/ismawno/shapes-2D)
-
-**Note:** The dependency [vec-2D](https://github.com/ismawno/vec-2D) is no longer used. Instead, [glm](https://github.com/g-truc/glm) is used for optimized vector operations.
 
 ## Setup
 
