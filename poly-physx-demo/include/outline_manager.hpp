@@ -1,7 +1,7 @@
 #ifndef OUTLINE_MANAGER_HPP
 #define OUTLINE_MANAGER_HPP
 
-#include "engine2D.hpp"
+#include "ppx/engine2D.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo

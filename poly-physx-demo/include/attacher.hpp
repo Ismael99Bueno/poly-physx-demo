@@ -1,8 +1,8 @@
 #ifndef ATTACHER_HPP
 #define ATTACHER_HPP
 
-#include "entity2D_ptr.hpp"
-#include "rigid_bar2D.hpp"
+#include "ppx/entity2D_ptr.hpp"
+#include "ppx/rigid_bar2D.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo

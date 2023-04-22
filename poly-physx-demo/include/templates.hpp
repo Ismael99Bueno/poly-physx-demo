@@ -1,8 +1,8 @@
 #ifndef TEMPLATES_HPP
 #define TEMPLATES_HPP
 
-#include "spring2D.hpp"
-#include "rigid_bar2D.hpp"
+#include "ppx/spring2D.hpp"
+#include "ppx/rigid_bar2D.hpp"
 #include "globals.hpp"
 #include <vector>
 

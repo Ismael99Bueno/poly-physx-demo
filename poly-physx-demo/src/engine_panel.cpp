@@ -1,9 +1,9 @@
 #include "engine_panel.hpp"
-#include "tableaus.hpp"
+#include "rk/tableaus.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "globals.hpp"
-#include "flat_line_strip.hpp"
+#include "prm/flat_line_strip.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 

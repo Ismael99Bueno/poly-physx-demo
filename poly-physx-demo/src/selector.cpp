@@ -1,5 +1,5 @@
 #include "selector.hpp"
-#include "debug.hpp"
+#include "debug/debug.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include <cmath>

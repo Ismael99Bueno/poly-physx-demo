@@ -1,8 +1,8 @@
 #ifndef PHYS_PREFABS_HPP
 #define PHYS_PREFABS_HPP
 
-#include "force2D.hpp"
-#include "interaction2D.hpp"
+#include "ppx/force2D.hpp"
+#include "ppx/interaction2D.hpp"
 
 namespace ppx_demo
 {

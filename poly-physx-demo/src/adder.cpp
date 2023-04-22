@@ -1,8 +1,8 @@
 #include "adder.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "flat_line.hpp"
-#include "flat_line_strip.hpp"
+#include "prm/flat_line.hpp"
+#include "prm/flat_line_strip.hpp"
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 

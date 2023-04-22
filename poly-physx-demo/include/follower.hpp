@@ -1,7 +1,7 @@
 #ifndef FOLLOWER_HPP
 #define FOLLOWER_HPP
 
-#include "entity2D_ptr.hpp"
+#include "ppx/entity2D_ptr.hpp"
 
 namespace ppx_demo
 {

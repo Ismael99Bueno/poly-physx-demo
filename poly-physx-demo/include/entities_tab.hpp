@@ -1,7 +1,7 @@
 #ifndef ENTITIES_TAB_HPP
 #define ENTITIES_TAB_HPP
 
-#include "entity2D.hpp"
+#include "ppx/entity2D.hpp"
 #include "selector.hpp"
 #include "outline_manager.hpp"
 

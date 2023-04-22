@@ -1,8 +1,8 @@
 #ifndef PREDICTOR_HPP
 #define PREDICTOR_HPP
 
-#include "thick_line_strip.hpp"
-#include "entity2D_ptr.hpp"
+#include "prm/thick_line_strip.hpp"
+#include "ppx/entity2D_ptr.hpp"
 #include <utility>
 
 namespace ppx_demo

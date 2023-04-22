@@ -1,7 +1,7 @@
 #ifndef MENU_BAR_HPP
 #define MENU_BAR_HPP
 
-#include "layer.hpp"
+#include "ppx/layer.hpp"
 #include <optional>
 
 namespace ppx_demo

@@ -1,6 +1,6 @@
 #include "outline_manager.hpp"
-#include "entity2D_ptr.hpp"
-#include "debug.hpp"
+#include "ppx/entity2D_ptr.hpp"
+#include "debug/debug.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 
