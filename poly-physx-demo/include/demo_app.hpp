@@ -1,7 +1,7 @@
 #ifndef DEMO_APP_HPP
 #define DEMO_APP_HPP
 
-#include "app.hpp"
+#include "ppx/app.hpp"
 #include "selector.hpp"
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"
@@ -40,7 +40,7 @@ namespace ppx_demo
 
         void add_borders();
         void remove_selected();
-        void cancel_grab_attach();
+        void cancel_add_attach();
 
         const std::string &session() const;
         void session(const std::string &session);
@@ -69,7 +69,7 @@ namespace ppx_demo
         void on_update() override;
         void on_late_update() override;
         void on_render() override;
-        void on_entity_draw(ppx::entity2D_ptr e, sf::ConvexShape &shape) override;
+        void on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape) override;
         void on_event(sf::Event &event) override;
         void on_end() override;
 

@@ -20,6 +20,8 @@
 # Project files
 *.xcworkspace/
 **.xcodeproj
+*.sln
+**.vcxproj*
 
 #ImGui artifacts
 imgui.ini

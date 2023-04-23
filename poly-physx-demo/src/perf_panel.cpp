@@ -16,9 +16,9 @@ namespace ppx_demo
 
     void perf_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
-        m_unit = (time_unit)in.readi("time_unit");
-        m_fps = in.readi("framerate");
+        p_enabled = (bool)in.readi16("enabled");
+        m_unit = (time_unit)in.readi32("time_unit");
+        m_fps = in.readi32("framerate");
     }
 
     void perf_panel::on_render()
@@ -66,10 +66,10 @@ namespace ppx_demo
 
         ImGui::PushItemWidth(150);
         if (ImGui::Checkbox("Limit FPS", &limited))
-            papp.framerate(limited ? m_fps : 0);
+            papp.framerate((std::uint32_t)(limited ? m_fps : 0));
 
         if (limited && ImGui::SliderInt("FPS Limit", &m_fps, MIN_FPS, MAX_FPS))
-            papp.framerate(m_fps);
+            papp.framerate((std::uint32_t)m_fps);
         ImGui::PopItemWidth();
     }
 
@@ -89,7 +89,7 @@ namespace ppx_demo
         if (maxval < last_total * 1.1f)
             maxval = last_total * 1.1f;
 
-        static std::vector<alg::vec2> phys, draw, total;
+        static std::vector<glm::vec2> phys, draw, total;
         // phys.reserve(buffer_size);
         // draw.reserve(buffer_size);
         // total.reserve(buffer_size);
@@ -113,11 +113,11 @@ namespace ppx_demo
             ImPlot::SetupAxes(nullptr, "Time (s)", ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0, maxval, ImGuiCond_Always);
-            ImPlot::PlotLine("Physics", &phys.data()->x, &phys.data()->y, phys.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Physics", &phys.data()->x, &phys.data()->y, (int)phys.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Drawing", &draw.data()->x, &draw.data()->y, draw.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Drawing", &draw.data()->x, &draw.data()->y, (int)draw.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, (int)total.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
         t += last_total;
@@ -185,8 +185,8 @@ namespace ppx_demo
                 if (ImPlot::BeginPlot("##Pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
                 {
                     const std::size_t size = stats.children().size();
-                    const char *labels[size + 1];
-                    float percents[size + 1];
+                    std::vector<const char *> labels(size + 1);
+                    std::vector<float> percents(size + 1);
                     std::size_t index = 0;
                     float leftovers = 1.f;
                     for (const auto &[name, child] : stats.children())
@@ -200,7 +200,7 @@ namespace ppx_demo
 
                     ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
                     ImPlot::SetupLegend(ImPlotLocation_West, ImPlotLegendFlags_Outside);
-                    ImPlot::PlotPieChart(labels, percents, size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
+                    ImPlot::PlotPieChart(labels.data(), percents.data(), (int)size + 1, 0.5, 0.5, 0.4, "%.1f", 90);
                     ImPlot::EndPlot();
                 }
                 ImGui::PopID();

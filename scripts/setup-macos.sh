@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ "$OSTYPE" != "darwin"* ]]
+then
+    echo "Cannot run setup because your machine does not have the required OS! Required: MacOS, current: $OSTYPE"
+    exit
+fi
+
 echo "Checking XCode CLT intallation..."
 if ! xcode-select -p &> /dev/null
 then
@@ -121,7 +127,7 @@ fi
 echo "make installed
 "
 
-echo "Do you want to go ahead and generate all the project build files? Default premake action is gmake2 [Y]/N"
+echo "Do you want to go ahead and generate all the project build files? Default generator for MacOS is gmake2 [Y]/N"
 read -r ANSWER
     if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
     then
@@ -137,4 +143,4 @@ while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
-python3 "$DIR/generate_build_files.py" "$DIR/.."
+python3 "$DIR/generate_build_files.py"

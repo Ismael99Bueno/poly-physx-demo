@@ -1,9 +1,11 @@
 #include "attacher.hpp"
 #include "demo_app.hpp"
-#include "spring_line.hpp"
-#include "thick_line.hpp"
+#include "prm/spring_line.hpp"
+#include "prm/thick_line.hpp"
 #include "globals.hpp"
 #include <algorithm>
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 namespace ppx_demo
 {
@@ -18,13 +20,13 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         if (p_auto_length)
         {
-            float length = papp.world_mouse().dist(m_e1->pos() + m_joint1);
+            float length = glm::distance(papp.world_mouse(), m_e1->pos() + m_joint1);
             if (snap_e2_to_center)
             {
-                const alg::vec2 mpos = papp.world_mouse();
+                const glm::vec2 mpos = papp.world_mouse();
                 const auto e2 = papp.engine()[mpos];
                 if (e2)
-                    length = e2->pos().dist(m_e1->pos() + m_joint1);
+                    length = glm::distance(e2->pos(), m_e1->pos() + m_joint1);
             }
             p_sp_length = length;
         }
@@ -40,12 +42,12 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 mpos = papp.world_mouse();
+        const glm::vec2 mpos = papp.world_mouse();
         const auto e1 = papp.engine()[mpos];
         if (!e1)
             return;
         m_e1 = e1;
-        m_joint1 = snap_e1_to_center ? alg::vec2::zero : (mpos - e1->pos());
+        m_joint1 = snap_e1_to_center ? glm::vec2(0.f) : (mpos - e1->pos());
         if (!snap_e1_to_center)
             m_last_angle = e1->angpos();
         m_snap_e1_to_center = snap_e1_to_center;
@@ -55,11 +57,11 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 mpos = papp.world_mouse();
+        const glm::vec2 mpos = papp.world_mouse();
         const auto e2 = papp.engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
-        const alg::vec2 joint2 = snap_e2_to_center ? alg::vec2::zero : (mpos - e2->pos());
+        const glm::vec2 joint2 = snap_e2_to_center ? glm::vec2(0.f) : (mpos - e2->pos());
 
         const bool no_joints = m_snap_e1_to_center && snap_e2_to_center;
         switch (p_attach)
@@ -85,16 +87,16 @@ namespace ppx_demo
 
     void attacher::rotate_joint()
     {
-        m_joint1.rotate(m_e1->angpos() - m_last_angle);
+        m_joint1 = glm::rotate(m_joint1, m_e1->angpos() - m_last_angle);
         m_last_angle = m_e1->angpos();
     }
     void attacher::draw_unattached_joint(const bool snap_e2_to_center) const
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 mpos = papp.world_mouse();
+        const glm::vec2 mpos = papp.world_mouse();
         const auto e2 = papp.engine()[mpos];
-        const alg::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
+        const glm::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
         switch (p_attach)
         {
         case SPRING:
@@ -121,13 +123,13 @@ namespace ppx_demo
 
     void attacher::read(ini::input &in)
     {
-        p_sp_stiffness = in.readf("sp_stiffness");
-        p_sp_dampening = in.readf("sp_dampening");
-        p_sp_length = in.readf("sp_length");
-        p_rb_stiffness = in.readf("rb_stiffness");
-        p_rb_dampening = in.readf("rb_dampening");
-        p_auto_length = (bool)in.readi("auto_length");
-        p_attach = (attach_type)in.readi("attach");
+        p_sp_stiffness = in.readf32("sp_stiffness");
+        p_sp_dampening = in.readf32("sp_dampening");
+        p_sp_length = in.readf32("sp_length");
+        p_rb_stiffness = in.readf32("rb_stiffness");
+        p_rb_dampening = in.readf32("rb_dampening");
+        p_auto_length = (bool)in.readi16("auto_length");
+        p_attach = (attach_type)in.readi32("attach");
     }
 
     bool attacher::has_first() const { return (bool)m_e1; }

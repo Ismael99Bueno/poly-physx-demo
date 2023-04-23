@@ -1,7 +1,7 @@
 #ifndef SELECTOR_HPP
 #define SELECTOR_HPP
 
-#include "engine2D.hpp"
+#include "ppx/engine2D.hpp"
 #include <unordered_set>
 #include <SFML/Graphics.hpp>
 
@@ -18,11 +18,11 @@ namespace ppx_demo
         void begin_select();
         void end_select(bool clear_previous);
 
-        bool is_selecting(ppx::entity2D_ptr e) const;
-        bool is_selected(ppx::entity2D_ptr e) const;
+        bool is_selecting(const ppx::entity2D_ptr &e) const;
+        bool is_selected(const ppx::entity2D_ptr &e) const;
 
-        void select(ppx::entity2D_ptr e);
-        void deselect(ppx::entity2D_ptr e);
+        void select(const ppx::entity2D_ptr &e);
+        void deselect(const ppx::entity2D_ptr &e);
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
@@ -36,7 +36,7 @@ namespace ppx_demo
     private:
         std::unordered_set<ppx::entity2D_ptr> m_entities;
         std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> m_springs, m_rbars;
-        alg::vec2 m_mpos_start;
+        glm::vec2 m_mpos_start{0.f};
         bool m_selecting = false;
 
         void draw_select_box() const;

@@ -1,6 +1,6 @@
 #include "outline_manager.hpp"
-#include "entity2D_ptr.hpp"
-#include "debug.hpp"
+#include "ppx/entity2D_ptr.hpp"
+#include "debug/debug.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 
@@ -14,7 +14,7 @@ namespace ppx_demo
     void outline_manager::start()
     {
 
-        const auto on_addition = [this](ppx::entity2D_ptr e)
+        const auto on_addition = [this](const ppx::entity2D_ptr &e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
         const auto on_removal = [this](const std::size_t index)
@@ -42,7 +42,7 @@ namespace ppx_demo
             if (priority)
             {
                 const float ampl = 3.f, freq = 3.5f;
-                shapes[i].setOutlineThickness(ampl * (2.0f + std::sinf(freq * m_clock.getElapsedTime().asSeconds())));
+                shapes[i].setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
             else
                 shapes[i].setOutlineThickness(0.f);

@@ -1,8 +1,8 @@
 #ifndef ATTACHER_HPP
 #define ATTACHER_HPP
 
-#include "entity2D_ptr.hpp"
-#include "rigid_bar2D.hpp"
+#include "ppx/entity2D_ptr.hpp"
+#include "ppx/rigid_bar2D.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
@@ -41,7 +41,7 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_e1;
-        alg::vec2 m_joint1;
+        glm::vec2 m_joint1{0.f};
 
         float m_last_angle;
         bool m_snap_e1_to_center;

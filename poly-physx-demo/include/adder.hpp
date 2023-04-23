@@ -2,7 +2,7 @@
 #define ADDER_HPP
 
 #include "templates.hpp"
-#include "app.hpp"
+#include "ppx/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
@@ -12,10 +12,9 @@ namespace ppx_demo
     public:
         enum shape_type
         {
-            BOX = 0,
-            RECT = 1,
-            NGON = 2,
-            CUSTOM = 3
+            RECT = 0,
+            NGON = 1,
+            CUSTOM = 2
         };
 
     private:
@@ -23,8 +22,8 @@ namespace ppx_demo
         {
             std::string name;
             entity_template entity_templ;
-            shape_type shape = BOX;
-            float size = DEFAULT_SIZE, width = DEFAULT_SIZE, height = DEFAULT_SIZE, radius = 0.6f * DEFAULT_SIZE;
+            shape_type shape = RECT;
+            float width = DEFAULT_SIZE, height = DEFAULT_SIZE, radius = 0.6f * DEFAULT_SIZE;
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
 
@@ -60,12 +59,12 @@ namespace ppx_demo
     private:
         std::map<std::string, add_template> m_templates;
 
-        alg::vec2 m_start_pos;
+        glm::vec2 m_start_pos{0.f};
         bool m_adding = false;
 
         sf::ConvexShape m_preview;
 
-        std::pair<alg::vec2, alg::vec2> pos_vel_upon_addition() const;
+        std::pair<glm::vec2, glm::vec2> pos_vel_upon_addition() const;
 
         void setup_preview();
         void preview();

@@ -1,8 +1,14 @@
 #include "adder.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "flat_line.hpp"
-#include "flat_line_strip.hpp"
+#include "prm/flat_line.hpp"
+#include "prm/flat_line_strip.hpp"
+#include <glm/geometric.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 namespace ppx_demo
 {
@@ -31,8 +37,8 @@ namespace ppx_demo
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : alg::vec2::zero,
-                                                           std::atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : glm::vec2(0.f),
+                                                           atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                                            entity_templ.charge, entity_templ.vertices, entity_templ.kinematic);
         m_adding = !definitive;
         return e;
@@ -67,7 +73,6 @@ namespace ppx_demo
     {
         out.write("name", name);
         out.write("shape", shape);
-        out.write("size", size);
         out.write("width", width);
         out.write("height", height);
         out.write("radius", radius);
@@ -83,13 +88,12 @@ namespace ppx_demo
     void adder::add_template::read(ini::input &in)
     {
         name = in.readstr("name");
-        shape = (shape_type)in.readi("shape");
-        size = in.readf("size");
-        width = in.readf("width");
-        height = in.readf("height");
-        radius = in.readf("radius");
-        sides = in.readi("sides");
-        color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+        shape = (shape_type)in.readi32("shape");
+        width = in.readf32("width");
+        height = in.readf32("height");
+        radius = in.readf32("radius");
+        sides = in.readui32("sides");
+        color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
         in.begin_section("entity_template");
         entity_templ.read(in);
         in.end_section();
@@ -142,10 +146,10 @@ namespace ppx_demo
 
     bool adder::has_saved_entity() const { return !p_current_templ.name.empty(); }
 
-    std::pair<alg::vec2, alg::vec2> adder::pos_vel_upon_addition() const
+    std::pair<glm::vec2, glm::vec2> adder::pos_vel_upon_addition() const
     {
         const float speed_mult = 0.5f;
-        const alg::vec2 pos = m_start_pos,
+        const glm::vec2 pos = m_start_pos,
                         vel = speed_mult * (m_start_pos - demo_app::get().world_mouse());
         return std::make_pair(pos, vel);
     }
@@ -155,9 +159,6 @@ namespace ppx_demo
         auto &vertices = p_current_templ.entity_templ.vertices;
         switch (p_current_templ.shape)
         {
-        case BOX:
-            vertices = geo::polygon::box(p_current_templ.size);
-            break;
         case RECT:
             vertices = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
             break;
@@ -195,12 +196,12 @@ namespace ppx_demo
     {
         const auto [pos, vel] = pos_vel_upon_addition();
         geo::polygon poly(pos, p_current_templ.entity_templ.vertices);
-        poly.rotation(std::atan2f(vel.y, vel.x));
+        poly.rotation(atan2f(vel.y, vel.x));
 
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const alg::vec2 point = poly[i] * WORLD_TO_PIXEL;
-            m_preview.setPoint(i, VEC2_AS(point));
+            const glm::vec2 point = poly[i] * WORLD_TO_PIXEL;
+            m_preview.setPoint(i, {point.x, point.y});
         }
 
         demo_app::get().window().draw(m_preview);
@@ -212,15 +213,15 @@ namespace ppx_demo
         const auto [pos, vel] = pos_vel_upon_addition();
 
         const float max_arrow_length = 200.f;
-        const alg::vec2 start = pos * WORLD_TO_PIXEL,
-                        end = (vel.norm() < max_arrow_length ? (pos + vel) : (pos + vel.normalized() * max_arrow_length)) * WORLD_TO_PIXEL,
+        const glm::vec2 start = pos * WORLD_TO_PIXEL,
+                        end = (glm::length(vel) < max_arrow_length ? (pos + vel) : (pos + glm::normalize(vel) * max_arrow_length)) * WORLD_TO_PIXEL,
                         segment = start - end;
 
-        const float antlers_length = 0.2f * segment.norm(),
-                    antlers_angle = 0.33f * M_PI / (1.f + 0.015f * segment.norm());
+        const float antlers_length = 0.2f * glm::length(segment),
+                    antlers_angle = 0.33f * (float)M_PI / (1.f + 0.015f * glm::length(segment));
 
-        const alg::vec2 antler1 = end + (segment.normalized() * antlers_length).rotated(antlers_angle),
-                        antler2 = end + (segment.normalized() * antlers_length).rotated(-antlers_angle);
+        const glm::vec2 antler1 = end + glm::rotate(glm::normalize(segment) * antlers_length, antlers_angle),
+                        antler2 = end + glm::rotate(glm::normalize(segment) * antlers_length, -antlers_angle);
 
         sf::Color color = papp.entity_color();
         color.a = 120;

@@ -3,6 +3,7 @@
 #include "imgui-SFML.h"
 #include "demo_app.hpp"
 #include "globals.hpp"
+#include <glm/geometric.hpp>
 
 namespace ppx_demo
 {
@@ -20,16 +21,16 @@ namespace ppx_demo
         {
         case attacher::SPRING:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, 150.f);
+            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the spring will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, 50.f);
+            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
             if (!attch.p_auto_length)
-                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, 100.f);
+                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, FLT_MAX);
             else
                 ImGui::Text("Length: %f", attch.p_sp_length);
             ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
@@ -44,11 +45,11 @@ namespace ppx_demo
         }
         case attacher::RIGID_BAR:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, 2000.f, "%.1f");
+            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, 500.f, "%.2f");
+            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
@@ -98,19 +99,19 @@ namespace ppx_demo
                 if (expanded)
                 {
                     float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
-                    ImGui::Text("Stress - %f", std::get<alg::vec2>(sp.force()).norm());
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 50.f))
+                    ImGui::Text("Stress - %f", glm::length(std::get<glm::vec2>(sp.force())));
+                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
                         sp.stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 10.f))
+                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
                         sp.dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
                         sp.length(len);
                     ImGui::TreePop();
                 }
                 else
                     ImGui::SameLine();
 
-                ImGui::PushID(i);
+                ImGui::PushID((int)i);
                 if (ImGui::Button("Remove"))
                     to_remove = i;
                 ImGui::PopID();
@@ -145,18 +146,18 @@ namespace ppx_demo
                 {
                     float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
                     ImGui::Text("Stress - %f", rb->value());
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, 2000.f))
+                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
                         rb->stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
                         rb->dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, 100.f))
+                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
                         rb->length(len);
                     ImGui::TreePop();
                 }
                 else
                     ImGui::SameLine();
 
-                ImGui::PushID(-i - 1);
+                ImGui::PushID(-(int)(i + 1));
                 if (ImGui::Button("Remove"))
                     to_remove = ctrs[i];
                 ImGui::PopID();
@@ -172,7 +173,7 @@ namespace ppx_demo
         attacher &atch = papp.p_attacher;
         ImGui::Text("Selected springs: %zu", slct.springs().size());
 
-        ppx::spring2D *springs[slct.springs().size()];
+        std::vector<ppx::spring2D *> springs(slct.springs().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
         std::size_t index = 0;
@@ -188,18 +189,18 @@ namespace ppx_demo
         avg_dampening /= slct.springs().size();
         avg_length /= slct.springs().size();
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 50.f))
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 10.f))
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
                 sp->length(avg_length);
         if (ImGui::Button("Auto adjust length##Selected"))
             for (ppx::spring2D *sp : springs)
-                sp->length(sp->e1()->pos().dist(sp->e2()->pos()));
+                sp->length(glm::distance(sp->e1()->pos(), sp->e2()->pos()));
 
         const auto remove_springs = [&slct, &papp]()
         {
@@ -237,7 +238,7 @@ namespace ppx_demo
         attacher &atch = papp.p_attacher;
         ImGui::Text("Selected rigid bars: %zu", slct.rbars().size());
 
-        std::shared_ptr<ppx::rigid_bar2D> rbars[slct.rbars().size()];
+        std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars(slct.rbars().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
         std::size_t index = 0;
@@ -253,13 +254,13 @@ namespace ppx_demo
         avg_dampening /= slct.rbars().size();
         avg_length /= slct.rbars().size();
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, 2000.f))
+        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, 100.f))
+        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
                 rb->length(avg_length);
         if (ImGui::Button("Transform to springs"))
@@ -288,7 +289,9 @@ namespace ppx_demo
         const sf::Color &color = papp.springs_color();
         float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp.springs_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp.springs_color(sf::Color((sf::Uint8)(att_color[0] * 255.f),
+                                         (sf::Uint8)(att_color[1] * 255.f),
+                                         (sf::Uint8)(att_color[2] * 255.f)));
     }
 
     void attach_tab::render_rb_color_pickers() const
@@ -296,9 +299,13 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const sf::Color &color = papp.rigid_bars_color();
-        float att_color[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
+        float att_color[3] = {(float)color.r / 255.f,
+                              (float)color.g / 255.f,
+                              (float)color.b / 255.f};
         if (ImGui::ColorPicker3("Attach color", att_color, ImGuiColorEditFlags_NoTooltip))
-            papp.rigid_bars_color(sf::Color(att_color[0] * 255.f, att_color[1] * 255.f, att_color[2] * 255.f));
+            papp.rigid_bars_color(sf::Color((sf::Uint8)(att_color[0] * 255.f),
+                                            (sf::Uint8)(att_color[1] * 255.f),
+                                            (sf::Uint8)(att_color[2] * 255.f)));
     }
 
 }

@@ -1,8 +1,8 @@
 #ifndef ENGINE_PANEL_HPP
 #define ENGINE_PANEL_HPP
 
-#include "quad_tree2D.hpp"
-#include "layer.hpp"
+#include "ppx/quad_tree2D.hpp"
+#include "ppx/layer.hpp"
 
 namespace ppx_demo
 {
@@ -27,10 +27,13 @@ namespace ppx_demo
             RKF78 = 7
         };
 
+        void on_start() override;
         void on_render() override;
 
         integ_method m_method = RK4;
         bool m_visualize_qt = false;
+        std::size_t m_max_entities = 5;
+        std::uint32_t m_period = 35, m_max_depth = 4;
 
         void render_integration();
         void render_sliders();

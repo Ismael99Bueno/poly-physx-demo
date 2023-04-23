@@ -1,13 +1,18 @@
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "flat_line_strip.hpp"
-#include "flat_line.hpp"
+#include "prm/flat_line_strip.hpp"
+#include "prm/flat_line.hpp"
 #include "implot.h"
 #include <filesystem>
 
 namespace ppx_demo
 {
-    demo_app::demo_app() : app() {}
+    demo_app::demo_app() : app()
+    {
+#ifdef ROOT_PATH
+        ImGui::GetIO().IniFilename = ROOT_PATH "imgui.ini";
+#endif
+    }
 
     void demo_app::on_start()
     {
@@ -115,12 +120,24 @@ namespace ppx_demo
         p_predictor.update();
         p_trails.update();
         p_follower.update();
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))
+            {
+                read_save(DEFAULT_SAVE);
+                add_borders();
+            }
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && has_session())
+                write_save();
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::L) && has_session())
+                read_save();
+        }
     }
 
     void demo_app::on_render()
     {
         PERF_FUNCTION()
-        draw_interaction_lines();
+        // draw_interaction_lines();
         p_grabber.render();
         p_selector.render();
         p_adder.render();
@@ -140,7 +157,7 @@ namespace ppx_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(ppx::entity2D_ptr e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color(150, 90, 70), 3);
@@ -172,6 +189,8 @@ namespace ppx_demo
             default:
                 break;
             }
+            if (event.mouseButton.button == sf::Mouse::Right)
+                cancel_add_attach();
             break;
 
         case sf::Event::MouseButtonReleased:
@@ -198,13 +217,20 @@ namespace ppx_demo
             switch (event.key.code)
             {
             case sf::Keyboard::BackSpace:
-                cancel_grab_attach();
+                cancel_add_attach();
                 break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;
             case sf::Keyboard::V: // TODO: Que para añadir sea clic izq
                 p_copy_paste.paste();
+                break;
+            case sf::Keyboard::F10:
+                recreate_window(style() == sf::Style::Fullscreen ? sf::Style::Default : sf::Style::Fullscreen);
+                break;
+            case sf::Keyboard::R:
+                remove_selected();
+                break;
             default:
                 break;
             }
@@ -224,7 +250,7 @@ namespace ppx_demo
     {
         PERF_FUNCTION()
         const ppx::engine2D &eng = engine();
-        const ppx::const_entity2D_ptr e1 = eng[world_mouse()];
+        const ppx::const_entity2D_ptr &e1 = eng[world_mouse()];
         if (e1)
             for (const auto &inter : eng.interactions())
                 if (inter->contains(*e1))
@@ -248,10 +274,10 @@ namespace ppx_demo
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
-        cancel_grab_attach();
+        cancel_add_attach();
     }
 
-    void demo_app::cancel_grab_attach()
+    void demo_app::cancel_add_attach()
     {
         p_attacher.cancel();
         p_adder.cancel();
@@ -266,7 +292,7 @@ namespace ppx_demo
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();
-        const ppx::entity2D_ptr e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
+        const ppx::entity2D_ptr &e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
                                 e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
                                 e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
                                 e4 = eng.add_entity({0.f, h + 0.5f * thck});

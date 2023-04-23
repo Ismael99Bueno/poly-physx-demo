@@ -1,7 +1,7 @@
 #ifndef PHYS_PANEL_HPP
 #define PHYS_PANEL_HPP
 
-#include "app.hpp"
+#include "ppx/app.hpp"
 #include "phys_prefabs.hpp"
 #include "selector.hpp"
 #include "outline_manager.hpp"
@@ -39,8 +39,8 @@ namespace ppx_demo
                 {"gravitational", m_gravitational},
                 {"exponential", m_exponential}};
 
-        alg::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
-        std::array<alg::vec2, PLOT_POINTS> m_potential_data;
+        glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
+        std::array<glm::vec2, PLOT_POINTS> m_potential_data;
 
         void render_energy() const;
         void render_energy_values() const;
@@ -50,7 +50,7 @@ namespace ppx_demo
         void render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled);
 
         void update_potential_data();
-        void compare_and_update_xlimits(const alg::vec2 &xlim);
+        void compare_and_update_xlimits(const glm::vec2 &xlim);
     };
 }
 

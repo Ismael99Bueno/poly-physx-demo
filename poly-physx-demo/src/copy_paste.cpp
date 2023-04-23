@@ -52,7 +52,7 @@ namespace ppx_demo
         rbars.clear();
 
         name = in.readstr("name");
-        ref_pos = {in.readf("refposx"), in.readf("refposy")};
+        ref_pos = {in.readf32("refposx"), in.readf32("refposy")};
 
         std::string section = "entity";
         std::size_t index = 0;
@@ -64,7 +64,7 @@ namespace ppx_demo
                 in.end_section();
                 break;
             }
-            const std::size_t id = in.readi("key_id");
+            const std::size_t id = in.readui64("key_id");
             entities[id].read(in);
             in.end_section();
         }
@@ -157,7 +157,7 @@ namespace ppx_demo
         const selector &slct = papp.p_selector;
         DBG_ASSERT(!slct.entities().empty(), "Must have something selected to copy!\n")
 
-        group.ref_pos = alg::vec2::zero;
+        group.ref_pos = glm::vec2(0.f);
 
         for (const auto &e : slct.entities())
         {
@@ -188,19 +188,19 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
+        const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
             const geo::polygon poly(tmpl.vertices);
             added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
-                                                          alg::vec2::zero, 0.f, 0.f, tmpl.mass,
+                                                          glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
                                                           tmpl.charge, poly.vertices(), tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {
-            ppx::entity2D_ptr e1 = added_entities.at(spt.id1),
-                              &e2 = added_entities.at(spt.id2);
+            const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
+                                    &e2 = added_entities.at(spt.id2);
 
             if (spt.has_joints)
                 papp.engine().add_spring(e1, e2, spt.joint1, spt.joint2, spt.stiffness, spt.dampening, spt.length);
@@ -209,8 +209,8 @@ namespace ppx_demo
         }
         for (rigid_bar_template &rbt : m_copy.rbars)
         {
-            ppx::entity2D_ptr e1 = added_entities[rbt.id1],
-                              &e2 = added_entities[rbt.id2];
+            const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
+                                    &e2 = added_entities[rbt.id2];
 
             const auto rb = !rbt.has_joints ? std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening)
                                             : std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
@@ -223,7 +223,7 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
+        const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         for (auto &[id, tmpl] : m_copy.entities)
         {
             geo::polygon poly(tmpl.vertices);

@@ -1,5 +1,5 @@
 #include "selector.hpp"
-#include "debug.hpp"
+#include "debug/debug.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include <cmath>
@@ -85,8 +85,8 @@ namespace ppx_demo
 
         m_springs.clear();
         for (const ppx::spring2D &sp : papp.engine().springs())
-            for (ppx::entity2D_ptr e1 : m_entities)
-                for (ppx::entity2D_ptr e2 : m_entities)
+            for (const ppx::entity2D_ptr &e1 : m_entities)
+                for (const ppx::entity2D_ptr &e2 : m_entities)
                     if (sp.e1() == e1 && sp.e2() == e2)
                         m_springs.emplace_back(e1, e2);
         m_rbars.clear();
@@ -94,37 +94,37 @@ namespace ppx_demo
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (rb)
-                for (ppx::entity2D_ptr e1 : m_entities)
-                    for (ppx::entity2D_ptr e2 : m_entities)
+                for (const ppx::entity2D_ptr &e1 : m_entities)
+                    for (const ppx::entity2D_ptr &e2 : m_entities)
                         if (rb->e1() == e1 && rb->e2() == e2)
                             m_rbars.emplace_back(e1, e2);
         }
     }
 
-    bool selector::is_selecting(ppx::entity2D_ptr e) const
+    bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
         const geo::aabb2D aabb = select_box();
         return (m_selecting && aabb.overlaps(e->aabb())) ||
                m_entities.find(e) != m_entities.end();
     }
 
-    bool selector::is_selected(ppx::entity2D_ptr e) const { return m_entities.find(e) != m_entities.end(); }
+    bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
 
-    void selector::select(ppx::entity2D_ptr e) { m_entities.insert(e); }
+    void selector::select(const ppx::entity2D_ptr &e) { m_entities.insert(e); }
 
-    void selector::deselect(ppx::entity2D_ptr e) { m_entities.erase(e); }
+    void selector::deselect(const ppx::entity2D_ptr &e) { m_entities.erase(e); }
     void selector::draw_select_box() const
     {
         const geo::aabb2D aabb = select_box();
-        const alg::vec2 &mm = aabb.min(),
+        const glm::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         sf::Vertex vertices[5];
-        const alg::vec2 p1 = alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
-                        p3 = alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
-        vertices[0].position = VEC2_AS(p1);
-        vertices[1].position = VEC2_AS(p2);
-        vertices[2].position = VEC2_AS(p3);
-        vertices[3].position = VEC2_AS(p4);
+        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
+                        p3 = glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
+        vertices[0].position = {p1.x, p1.y};
+        vertices[1].position = {p2.x, p2.y};
+        vertices[2].position = {p3.x, p3.y};
+        vertices[3].position = {p4.x, p4.y};
         vertices[4].position = vertices[0].position;
         demo_app::get().window().draw(vertices, 5, sf::LineStrip);
     }
@@ -157,10 +157,10 @@ namespace ppx_demo
 
     geo::aabb2D selector::select_box() const
     {
-        const alg::vec2 mpos = demo_app::get().world_mouse();
-        return geo::aabb2D(alg::vec2(std::min(mpos.x, m_mpos_start.x),
+        const glm::vec2 mpos = demo_app::get().world_mouse();
+        return geo::aabb2D(glm::vec2(std::min(mpos.x, m_mpos_start.x),
                                      std::min(mpos.y, m_mpos_start.y)),
-                           alg::vec2(std::max(mpos.x, m_mpos_start.x),
+                           glm::vec2(std::max(mpos.x, m_mpos_start.x),
                                      std::max(mpos.y, m_mpos_start.y)));
     }
 }

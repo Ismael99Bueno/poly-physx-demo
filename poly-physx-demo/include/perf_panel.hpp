@@ -1,10 +1,10 @@
 #ifndef PERF_PANEL_HPP
 #define PERF_PANEL_HPP
 
-#include "perf.hpp"
-#include "layer.hpp"
-#include "saveable.hpp"
-#include "app.hpp"
+#include "perf/perf.hpp"
+#include "ppx/layer.hpp"
+#include "ini/saveable.hpp"
+#include "ppx/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo

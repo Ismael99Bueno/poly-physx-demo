@@ -1,7 +1,7 @@
 #ifndef GRABBER_HPP
 #define GRABBER_HPP
 
-#include "engine2D.hpp"
+#include "ppx/engine2D.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
@@ -27,11 +27,11 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_grabbed;
-        alg::vec2 m_joint;
+        glm::vec2 m_joint{0.f};
         float m_angle;
 
         void move_grabbed_entity() const;
-        void draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint) const;
+        void draw_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const;
     };
 }
 

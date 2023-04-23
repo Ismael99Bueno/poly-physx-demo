@@ -18,7 +18,7 @@ namespace ppx_demo
 
         const std::string key = "vertex";
         std::size_t index = 0;
-        for (const alg::vec2 &v : vertices)
+        for (const glm::vec2 &v : vertices)
         {
             out.write(key + std::to_string(index) + "x", v.x);
             out.write(key + std::to_string(index++) + "y", v.y);
@@ -26,15 +26,15 @@ namespace ppx_demo
     }
     void entity_template::read(ini::input &in)
     {
-        pos = {in.readf("px"), in.readf("py")};
-        vel = {in.readf("vx"), in.readf("vy")};
-        index = in.readi("index");
-        id = in.readi("id");
-        angpos = in.readf("angpos");
-        angvel = in.readf("angvel");
-        mass = in.readf("mass");
-        charge = in.readf("charge");
-        kinematic = (bool)in.readi("kinematic");
+        pos = {in.readf32("px"), in.readf32("py")};
+        vel = {in.readf32("vx"), in.readf32("vy")};
+        index = in.readui64("index");
+        id = in.readui64("id");
+        angpos = in.readf32("angpos");
+        angvel = in.readf32("angvel");
+        mass = in.readf32("mass");
+        charge = in.readf32("charge");
+        kinematic = (bool)in.readi16("kinematic");
 
         vertices.clear();
         std::size_t index = 0;
@@ -48,7 +48,7 @@ namespace ppx_demo
                        "Vector key only contains a component of the vector! Weird.\n")
             if (!in.contains_key(kx) || !in.contains_key(ky)) // Just for ick reasons
                 break;
-            vertices.emplace_back(in.readf(kx), in.readf(ky));
+            vertices.emplace_back(in.readf32(kx), in.readf32(ky));
         }
     }
 
@@ -83,14 +83,14 @@ namespace ppx_demo
     }
     void spring_template::read(ini::input &in)
     {
-        stiffness = in.readf("stiffness");
-        dampening = in.readf("dampening");
-        length = in.readf("length");
-        id1 = in.readi("id1");
-        id2 = in.readi("id2");
-        joint1 = {in.readf("joint1x"), in.readf("joint1y")};
-        joint2 = {in.readf("joint2x"), in.readf("joint2y")};
-        has_joints = (bool)in.readi("has_joints");
+        stiffness = in.readf32("stiffness");
+        dampening = in.readf32("dampening");
+        length = in.readf32("length");
+        id1 = in.readui64("id1");
+        id2 = in.readui64("id2");
+        joint1 = {in.readf32("joint1x"), in.readf32("joint1y")};
+        joint2 = {in.readf32("joint2x"), in.readf32("joint2y")};
+        has_joints = (bool)in.readi16("has_joints");
     }
 
     spring_template spring_template::from_spring(const ppx::spring2D &sp)
@@ -122,14 +122,14 @@ namespace ppx_demo
     }
     void rigid_bar_template::read(ini::input &in)
     {
-        stiffness = in.readf("stiffness");
-        dampening = in.readf("dampening");
-        length = in.readf("length");
-        id1 = in.readi("id1");
-        id2 = in.readi("id2");
-        joint1 = {in.readf("joint1x"), in.readf("joint1y")};
-        joint2 = {in.readf("joint2x"), in.readf("joint2y")};
-        has_joints = (bool)in.readi("has_joints");
+        stiffness = in.readf32("stiffness");
+        dampening = in.readf32("dampening");
+        length = in.readf32("length");
+        id1 = in.readui64("id1");
+        id2 = in.readui64("id2");
+        joint1 = {in.readf32("joint1x"), in.readf32("joint1y")};
+        joint2 = {in.readf32("joint2x"), in.readf32("joint2y")};
+        has_joints = (bool)in.readi16("has_joints");
     }
 
     rigid_bar_template rigid_bar_template::from_bar(const ppx::rigid_bar2D &rb)

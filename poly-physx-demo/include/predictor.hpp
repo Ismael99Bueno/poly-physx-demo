@@ -1,8 +1,8 @@
 #ifndef PREDICTOR_HPP
 #define PREDICTOR_HPP
 
-#include "thick_line_strip.hpp"
-#include "entity2D_ptr.hpp"
+#include "prm/thick_line_strip.hpp"
+#include "ppx/entity2D_ptr.hpp"
 #include <utility>
 
 namespace ppx_demo
@@ -16,7 +16,7 @@ namespace ppx_demo
         void update();
         void render() const;
 
-        void predict(ppx::const_entity2D_ptr e);
+        void predict(const ppx::const_entity2D_ptr &e);
         void stop_predicting(const ppx::entity2D &e);
 
         void predict_and_render(const ppx::entity2D &e);

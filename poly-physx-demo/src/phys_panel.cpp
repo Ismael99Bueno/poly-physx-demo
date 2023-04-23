@@ -4,6 +4,7 @@
 #include "implot.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
+#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {
@@ -31,10 +32,10 @@ namespace ppx_demo
     }
     void phys_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
+        p_enabled = (bool)in.readi16("enabled");
 
-        m_xlim = {in.readf("xlimx"), in.readf("xlimy")};
-        m_ylim = {in.readf("ylimx"), in.readf("ylimy")};
+        m_xlim = {in.readf32("xlimx"), in.readf32("xlimy")};
+        m_ylim = {in.readf32("ylimx"), in.readf32("ylimy")};
 
         for (const auto &[section, saveable] : m_saveables)
         {
@@ -59,7 +60,7 @@ namespace ppx_demo
         m_attractive->p_mag = -20.f;
         update_potential_data();
 
-        const auto auto_include = [this](ppx::entity2D_ptr e)
+        const auto auto_include = [this](const ppx::entity2D_ptr &e)
         {
             for (auto &[name, saveable] : m_saveables) // I know this is horrible
             {
@@ -134,7 +135,7 @@ namespace ppx_demo
         const float t = papp.engine().elapsed();
         static std::size_t offset = 0;
 
-        static std::vector<alg::vec2> kc, pot, total;
+        static std::vector<glm::vec2> kc, pot, total;
         if (kc.size() < buffer_size)
         {
             kc.emplace_back(t, kinetic);
@@ -154,27 +155,27 @@ namespace ppx_demo
             ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_NoTickLabels);
             ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, minval, maxval, ImGuiCond_Always);
-            ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Kinetic", &kc.data()->x, &kc.data()->y, (int)kc.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
-            ImPlot::PlotShaded("Kinetic", &kc.data()->x, &kc.data()->y, kc.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PlotShaded("Kinetic", &kc.data()->x, &kc.data()->y, (int)kc.size(), 0., 0, (int)offset, 2 * sizeof(float));
             ImPlot::PopStyleVar();
             // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Potential", &pot.data()->x, &pot.data()->y, (int)pot.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, .2f);
-            ImPlot::PlotShaded("Potential", &pot.data()->x, &pot.data()->y, pot.size(), 0., 0, offset, 2 * sizeof(float));
+            ImPlot::PlotShaded("Potential", &pot.data()->x, &pot.data()->y, (int)pot.size(), 0., 0, (int)offset, 2 * sizeof(float));
             ImPlot::PopStyleVar();
             // ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, .5f);
-            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, total.size(), 0, offset, 2 * sizeof(float));
+            ImPlot::PlotLine("Total", &total.data()->x, &total.data()->y, (int)total.size(), 0, (int)offset, 2 * sizeof(float));
             ImPlot::EndPlot();
         }
         maxval *= 0.999f;
         minval *= 0.999f;
     }
 
-    void phys_panel::compare_and_update_xlimits(const alg::vec2 &xlim)
+    void phys_panel::compare_and_update_xlimits(const glm::vec2 &xlim)
     {
         const float tol = 0.1f;
-        if (m_xlim.sq_dist(xlim) > tol)
+        if (glm::distance2(m_xlim, xlim) > tol)
         {
             m_xlim = xlim;
             update_potential_data();
@@ -295,7 +296,7 @@ namespace ppx_demo
         for (std::size_t i = 0; i < PLOT_POINTS; i++)
             m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
 
-        const alg::vec2 refpos = alg::vec2::right;
+        const glm::vec2 refpos = glm::vec2(1.f, 0.f);
         const ppx::entity2D unit;
 
         for (const auto &inter : inters)

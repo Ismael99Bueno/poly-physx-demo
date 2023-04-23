@@ -16,16 +16,16 @@ namespace glob
         char name[mx + 1];
 
         std::size_t index = 0;
-        const std::uint8_t is_pair = rand() % 2;
+        const std::uint8_t is_pair = (std::uint8_t)(rand() % 2);
         while (index < mx)
         {
-            const bool is_syllable = index % 2 == is_pair;
-            const std::size_t idx = rand() % (is_syllable ? 5 : 21);
+            const bool is_syllable = index % 2 == is_pair && rand() % 12 < 11;
+            const std::size_t idx = (std::size_t)(rand() % (is_syllable ? 5 : 21));
             if (index >= mm && (is_syllable ? (idx == 4) : (idx == 20)))
                 break;
             name[index++] = is_syllable ? syllables[idx] : consonants[idx];
         }
-        name[0] = toupper(name[0]);
+        name[0] = (char)toupper(name[0]);
         name[index] = '\0';
         names[id] = name;
         return names.at(id).c_str();

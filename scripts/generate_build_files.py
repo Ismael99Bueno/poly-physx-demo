@@ -1,25 +1,30 @@
+from setup_py import validate_python_version
+
+validate_python_version()
+
 from argparse import ArgumentParser
-import os
 from generator import FullGenerator, PPXGenerator, SFMLGenerator, Generator
+from exceptions import (
+    UnrecognizedWhichArgumentError,
+    GeneratorNotSupportedError,
+    BadOSError,
+)
+from utils import Buddy
+from setup_win_mingw import validate_mingw
 
 
 def main() -> None:
+    bud = Buddy()
     parser = ArgumentParser(
-        description="Generate the build files for the project.",
-        epilog="Once the build files have been generated, the project must be compiled according to the chosen premake5 action.",
-    )
-    parser.add_argument(
-        "src",
-        metavar="root-relpath",
-        type=str,
-        help="the relative path to the project root",
+        description="Compile the SFML library and generate the build files for the project.",
+        epilog="Once the build files have been generated, the project must be compiled according to the chosen generator and your operating system. Instructions will be given once the execution of this script has been successful",
     )
     parser.add_argument(
         "--which",
         dest="which",
         default="all",
         type=str,
-        help="can be one of the following: 'sfml' - builds SFML as a shared library using CMake, 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first or 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
+        help="can be one of the following: 'sfml' - builds SFML as a shared (MacOS) or static (Windows) library using CMake. 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first. 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
     )
     parser.add_argument(
         "--clean",
@@ -27,27 +32,36 @@ def main() -> None:
         action="store_const",
         const=True,
         default=False,
-        help="clears all build files for the selected project component",
+        help="clears all build files for the selected project component, specified with --which",
     )
     parser.add_argument(
-        "--premake-action",
-        dest="action",
-        default="gmake2",
+        "--generator",
+        dest="generator",
+        default="gmake2" if bud.is_macos else "vs2022",
         type=str,
-        help="Can be one of the actions listed in 'premake5 --help' option. Defaults to 'gmake2'",
+        help="Can be gmake or gmake2. If on Windows, it can also be any of the premake actions for Visual Studio",
     )
 
+    if bud.is_os_unsupported:
+        raise BadOSError(bud.current_os, "MacOS or Windows")
+
     args = parser.parse_args()
+    if (
+        not args.generator.startswith("vs")
+        and not args.generator.startswith("gmake")
+        or args.generator.startswith("vs")
+        and bud.is_macos
+    ):
+        raise GeneratorNotSupportedError(args.generator)
 
-    root_path = os.path.abspath(args.src)
-    if not os.path.exists(root_path):
-        raise ValueError(f"Path {root_path} does not exist.")
+    if args.generator.startswith("gmake") and bud.is_windows:
+        validate_mingw()
 
-    print(f"Setup wrt root: {root_path}\n")
+    print(f"Setup wrt root: {bud.root_path}\n")
     options = {
-        "all": FullGenerator(root_path, args.action),
-        "ppx": PPXGenerator(root_path, args.action),
-        "sfml": SFMLGenerator(root_path),
+        "all": FullGenerator(args.generator),
+        "ppx": PPXGenerator(args.generator),
+        "sfml": SFMLGenerator(args.generator),
     }
 
     try:
@@ -57,12 +71,35 @@ def main() -> None:
         else:
             gen.build()
             print(
-                "\nCompile the project according to the selected premake action.\nIf you have selected gmake2 (default), use 'make' from the root folder to compile the project. Enter 'make help' to see all possible configurations. Choose the one compatible with your architecture.\nThe executable will be located in the poly-physx-demo subfolder's binaries.\nThe program should be executed from the source path for the executable to be able to locate the SFML shared libs."
+                "\nBuild files have been successfully generated. Next step: build the project"
+            )
+            if bud.is_macos:
+                print("\n==== MacOS instructions ====")
+                print(
+                    f"Build the project from terminal with make by entering 'make' from the root directory at {bud.root_path}"
+                )
+            elif bud.is_windows and args.generator.startswith("vs"):
+                print("\n==== Windows instructions (Visual Studio) ====")
+                print(
+                    f"Open the solution file at {bud.root_path}/poly-physx-demo.sln and build the project with Visual Studio, which must be installed for this configuration to work"
+                )
+                print(
+                    "If you don't want to install Visual Studio, you can build the project with the gmake2 generator to generate MinGW makefiles. MinGW will be automatically installed"
+                )
+            elif bud.is_windows and args.generator.startswith("gmake"):
+                print("\n==== Windows instructions (MinGW) ====")
+                print(
+                    f"ATTENTION: To avoid any issues, make sure to add the MinGW folder and binaries to path by running 'set PATH=%PATH%;{bud.mingw_path}' and 'set PATH=%PATH%;{bud.mingw_path}/bin' in the current cmd session. You should also run the executable from this session to avoid having to copy the required dlls. If you do need them because the executable asks for them, you will find them at {bud.mingw_path}/binf folder."
+                )
+                print(
+                    f"\nBuild the project from terminal with make by entering 'mingw32-make' from the root directory at {bud.root_path}"
+                )
+
+            print(
+                f"Once the compilation finishes, execute the binary from the 'bin' folder at the poly-physx-demo project, at {bud.root_path}/poly-physx-demo/bin"
             )
     except KeyError:
-        raise ValueError(
-            f"Unrecognized --which argument '{args.which}'. Expected 'all', 'ppx' or 'sfml'."
-        )
+        raise UnrecognizedWhichArgumentError(args.which)
 
 
 if __name__ == "__main__":

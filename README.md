@@ -1,41 +1,60 @@
 # poly-physx-demo
 
-poly-physx-demo is a full demo application that showcases the capabilities of the [poly-physx](https://github.com/Ismael99Bueno/poly-physx) engine, utilizing the visualization features of [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app) as its base. The demo allows users to add entities, springs, rigid bars, forces, interactions, and more through an in-app UI. This is a complete application, not a library.
+poly-physx-demo is a visual demo application showcasing the capabilities of the [poly-physx](https://github.com/ismawno/poly-physx) engine. The engine is designed to simulate any convex polygonal physical objects in 2D environments. This demo is a representation of poly-physx's features and capabilities, aiming to provide an easy-to-understand and interactive demonstration of the physics engine.
 
 ## Features
 
-- Full demo application showcasing the [poly-physx](https://github.com/Ismael99Bueno/poly-physx) engine's capabilities
-- Uses [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app) visualization features as a base
-- In-app UI for adding entities, springs, rigid bars, forces, interactions, and more
-- Pre-configured premake5 workspace
+- Convex polygon collisions
+- Springs and user-defined forces
+- Customizable physics constraints
+- Rigid bars (joints) between polygons
+- Cross-platform compatibility (MacOS and Windows)
 
 ## Dependencies
 
-All dependencies for poly-physx-demo are included as git submodules in the repository. Make sure to clone the repository recursively to download all submodules: `git clone --recursive https://github.com/Ismael99Bueno/poly-physx-demo.git`. The list of dependencies is the following:
+All dependencies are included as git submodules in the repository. Clone the repository recursively to download all submodules: `git clone --recursive https://github.com/ismawno/poly-physx-demo.git`. No extra steps are required to install the dependencies, except for cloning the repository recursively.
 
-- [poly-physx-app](https://github.com/Ismael99Bueno/poly-physx-app): Visualization tools for the [poly-physx](https://github.com/Ismael99Bueno/poly-physx) engine
-- [poly-physx](https://github.com/Ismael99Bueno/poly-physx): The original 2D physics engine
-- [SFML](https://github.com/Ismael99Bueno/SFML): The Simple and Fast Multimedia Library (build from source using CMake from the fork on the author's GitHub page)
-- [Dear ImGui](https://github.com/Ismael99Bueno/imgui): Immediate-mode graphical user interface library
-- [imgui-sfml](https://github.com/Ismael99Bueno/imgui-sfml): ImGui backend for SFML
-- [vec-2D](https://github.com/Ismael99Bueno/vec-2D): A 2D vector implementation with usual operations
-- [shapes-2D](https://github.com/Ismael99Bueno/shapes-2D): A polygon geometry library for creating and manipulating convex polygons
-- [rk-integrator](https://github.com/Ismael99Bueno/rk-integrator): an implementation of the Runge-Kutta method for integrating the movement of entities
-- [debug-tools](https://github.com/Ismael99Bueno/debug-tools): A set of tools for debugging poly-physx simulations
-- [profile-tools](https://github.com/Ismael99Bueno/profile-tools): A set of tools for profiling poly-physx simulations
-- [ini-parser](https://github.com/Ismael99Bueno/ini-parser): A simple INI file parser that allows for reading and writing the state of the simulation to and from a file
-- [vector-view](https://github.com/Ismael99Bueno/vector-view): A header only library for modifying the contents of a std::vector without letting the user to modify its size.
-- [sfml-primitives](https://github.com/Ismael99Bueno/sfml-primitives): A C++ library providing line primitive implementations
+The following git submodules are included:
 
-If the repository was cloned non-recursively previously, use `git submodule update --init` to clone the necessary submodules.
+- [poly-physx-app](https://github.com/ismawno/poly-physx-app)
+- [poly-physx](https://github.com/ismawno/poly-physx)
+- [SFML](https://github.com/ismawno/SFML)
+- [imgui](https://github.com/ismawno/imgui)
+- [imgui-sfml](https://github.com/ismawno/imgui-sfml)
+- [implot](https://github.com/ismawno/implot)
+- [glm](https://github.com/imsawno/glm)
+- [sfml-primitives](https://github.com/ismawno/sfml-primitives)
+- [rk-integrator](https://github.com/ismawno/rk-integrator)
+- [debug-tools](https://github.com/ismawno/debug-tools)
+- [profile-tools](https://github.com/ismawno/profile-tools)
+- [ini-parser](https://github.com/ismawno/ini-parser)
+- [vector-view](https://github.com/ismawno/vector-view)
+- [shapes-2D](https://github.com/ismawno/shapes-2D)
 
-## Building and Usage
+## Setup
 
-1. Clone the repository recursively to download all submodules.
-2. Run the `generate_build_files.py` script located in the `scripts` folder. This script will automatically build SFML and generate the build files for the rest of the project. Note that `generate_build_files.py` currently supports MacOS, with Windows support in progress.
-3. Compile the project using the `make` command and execute it. The distribution by default is release.
+### MacOS
 
-For more information on how to use poly-physx-demo and explore its features, please refer to the documentation.
+Run the [setup-macos.sh](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-macos.sh) script. This will automatically install the necessary software: XCode Command Line Tools, homebrew, python (3.5 of later), CMake, premake, and make. If authorized, it will also generate the project build files using gmake, the only supported generator on this platform.
+
+### Windows
+
+Run the [setup-win.bat](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-win.bat) script. This will automatically install the necessary software. If authorized, it will also generate the project build files using the default generator for this platform, Visual Studio.
+
+### Generating Build Files
+
+After completing the setup, if you did not authorize the generation of the project build files, manually execute the [generate_build_files.py](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/generate_build_files.py) script. This script will compile the [SFML](https://github.com/SFML/SFML) library and generate the project build files depending on the generator. The script is executed the same way for both operating systems, with the default generator changing depending on the platform. For Windows, if gmake is chosen as the generator, the MinGW compiler will be used, and the script will automatically install the software if not found.
+
+### Compilation
+
+#### MacOS
+
+From the root, simply run the `make` command, and the project will compile with the default configuration. Type `make help` for a list of configurations.
+
+#### Windows
+
+For Visual Studio, open the generated solution and compile the project from there. Visual Studio should handle the rest
+For gmake with MinGW, from the root, simply run the `mingw32-make` command, and the project will compile with the default configuration. Type `mingw32-make help` for a list of configurations.
 
 ## License
 

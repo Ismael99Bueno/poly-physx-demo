@@ -1,11 +1,13 @@
 #include "grabber.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
-#include "spring_line.hpp"
+#include "prm/spring_line.hpp"
 #include <limits>
+#include <glm/gtx/rotate_vector.hpp>
 
 namespace ppx_demo
 {
+    static float cross(const glm::vec2 &v1, const glm::vec2 &v2) { return v1.x * v2.y - v1.y * v2.x; }
     void grabber::start()
     {
         const auto validate = [this](ppx::entity2D &e)
@@ -27,14 +29,14 @@ namespace ppx_demo
     {
         PERF_PRETTY_FUNCTION()
         if (m_grabbed)
-            draw_spring(demo_app::get().pixel_mouse(), m_joint.rotated(m_grabbed->angpos() - m_angle));
+            draw_spring(demo_app::get().pixel_mouse(), glm::rotate(m_joint, m_grabbed->angpos() - m_angle));
     }
 
     void grabber::try_grab_entity()
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 mpos = papp.world_mouse();
+        const glm::vec2 mpos = papp.world_mouse();
         m_grabbed = papp.engine()[mpos];
         if (!m_grabbed)
             return;
@@ -45,18 +47,18 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        const alg::vec2 mpos = papp.world_mouse(), mdelta = papp.world_mouse_delta();
-        const alg::vec2 rot_joint = m_joint.rotated(m_grabbed->angpos() - m_angle);
-        const alg::vec2 relpos = mpos - (m_grabbed->pos() + rot_joint),
+        const glm::vec2 mpos = papp.world_mouse(), mdelta = papp.world_mouse_delta();
+        const glm::vec2 rot_joint = glm::rotate(m_joint, m_grabbed->angpos() - m_angle);
+        const glm::vec2 relpos = mpos - (m_grabbed->pos() + rot_joint),
                         relvel = mdelta - m_grabbed->vel_at(rot_joint),
                         force = p_stiffness * relpos + p_dampening * relvel;
-        const float torque = rot_joint.cross(force);
+        const float torque = cross(rot_joint, force);
 
         m_grabbed->add_force(force);
         m_grabbed->add_torque(torque);
     }
 
-    void grabber::draw_spring(const alg::vec2 &pmpos, const alg::vec2 &rot_joint) const
+    void grabber::draw_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const
     {
         prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_joint) * WORLD_TO_PIXEL, p_color);
         sl.right_padding(30.f);
@@ -74,9 +76,9 @@ namespace ppx_demo
     }
     void grabber::read(ini::input &in)
     {
-        p_stiffness = in.readf("stiffness");
-        p_dampening = in.readf("dampening");
-        p_color = {(sf::Uint8)in.readi("r"), (sf::Uint8)in.readi("g"), (sf::Uint8)in.readi("b")};
+        p_stiffness = in.readf32("stiffness");
+        p_dampening = in.readf32("dampening");
+        p_color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
     }
 
     void grabber::null() { m_grabbed = nullptr; }

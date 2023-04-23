@@ -62,7 +62,7 @@ namespace ppx_demo
         }
         if (slct.entities().size() == 1)
         {
-            ppx::entity2D_ptr e = *slct.entities().begin();
+            const ppx::entity2D_ptr &e = *slct.entities().begin();
             ImGui::Text("Entity '%s'", glob::generate_name(e.id()));
             render_entity_data(*e);
             if (ImGui::Button("Remove##Single"))
@@ -74,7 +74,7 @@ namespace ppx_demo
         float avg_mass = 0.f, avg_charge = 0.f;
         bool kinematic = true, predicting = true,
              has_trail = true, following = true;
-        alg::vec2 com;
+        glm::vec2 com(0.f);
 
         for (const auto &e : slct.entities())
         {
@@ -96,7 +96,7 @@ namespace ppx_demo
         if (ImGui::DragFloat("Mass", &avg_mass, 0.2f, 1.f, FLT_MAX, "%.1f"))
             for (auto &e : slct.entities())
                 e->mass(avg_mass);
-        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, 1.f, FLT_MAX, "%.1f"))
+        if (ImGui::DragFloat("Charge", &avg_charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f"))
             for (auto &e : slct.entities())
                 e->charge(avg_charge);
 
@@ -163,7 +163,7 @@ namespace ppx_demo
                 if (!render_entity_node(e, -1))
                     ImGui::SameLine();
 
-                ImGui::PushID(-e.id());
+                ImGui::PushID(-(int)e.id());
                 if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
                 {
                     if (slct.is_selected(e_ptr))
@@ -173,7 +173,7 @@ namespace ppx_demo
                 }
                 ImGui::PopID();
                 ImGui::SameLine();
-                ImGui::PushID(-e.id());
+                ImGui::PushID(-(int)e.id());
                 if (ImGui::Button("Remove"))
                     to_remove = &e;
                 ImGui::PopID();
@@ -209,7 +209,7 @@ namespace ppx_demo
 
     bool entities_tab::render_entity_node(ppx::entity2D &e, std::int8_t sign) const
     {
-        const bool expanded = ImGui::TreeNode((void *)(intptr_t)(e.id() * sign), "Entity '%s'", glob::generate_name(e.id()));
+        const bool expanded = ImGui::TreeNode((void *)(intptr_t)((std::int64_t)e.id() * sign), "Entity '%s'", glob::generate_name(e.id()));
         if (expanded || ImGui::IsItemHovered())
             demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
@@ -229,12 +229,12 @@ namespace ppx_demo
         ImGui::Text("ID: %zu", e.id());
         if (ImGui::DragFloat2("Position", pos, 0.2f))
         {
-            e.pos(alg::vec2(pos[0], pos[1]));
+            e.pos(glm::vec2(pos[0], pos[1]));
             e.dispatch();
         }
         if (ImGui::DragFloat2("Velocity", vel, 0.2f))
         {
-            e.vel(alg::vec2(vel[0], vel[1]));
+            e.vel(glm::vec2(vel[0], vel[1]));
             e.dispatch();
         }
         ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
@@ -251,11 +251,20 @@ namespace ppx_demo
         ImGui::Text("Torque - %f", e.torque());
         if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, FLT_MAX))
             e.mass(mass);
-        if (ImGui::DragFloat("Charge", &charge, 0.2f, 1.f, FLT_MAX))
+        if (ImGui::DragFloat("Charge", &charge, 0.2f, -FLT_MAX, FLT_MAX))
             e.charge(charge);
         ImGui::Text("Area - %f", e.shape().area());
         ImGui::Text("Inertia - %f", e.inertia());
         ImGui::Text("Kinetic energy - %f", e.kinetic_energy());
+        if (ImGui::TreeNode("Vertices"))
+        {
+            for (std::size_t i = 0; i < e.shape().size(); i++)
+            {
+                const glm::vec2 v = e.shape().vertices()[i] - e.pos();
+                ImGui::Text("Vertex %zu - x: %f, y: %f", i, v.x, v.y);
+            }
+            ImGui::TreePop();
+        }
 
         bool kinematic = e.kinematic();
         if (ImGui::Checkbox("Kinematic", &kinematic))

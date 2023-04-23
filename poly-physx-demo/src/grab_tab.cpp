@@ -13,11 +13,11 @@ namespace ppx_demo
         float imcolor[3] = {color.r / 255.f, color.g / 255.f, color.b / 255.f};
 
         ImGui::PushItemWidth(150);
-        ImGui::DragFloat("Stiffness", &grb.p_stiffness, 0.2f, 0.f, 500.f, "%.1f");
+        ImGui::DragFloat("Stiffness", &grb.p_stiffness, 0.2f, 0.f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("How stiff the grab spring will be.");
 
-        ImGui::DragFloat("Dampening", &grb.p_dampening, 0.2f, 0.f, 50.f, "%.2f");
+        ImGui::DragFloat("Dampening", &grb.p_dampening, 0.2f, 0.f, FLT_MAX, "%.2f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("How much the grab spring will resist to movement.");
 

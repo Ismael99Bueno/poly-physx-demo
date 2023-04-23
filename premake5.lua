@@ -1,18 +1,19 @@
 workspace "poly-physx-demo"
-   --architecture "arm64"
    configurations {"release", "debug", "release-profile", "debug-profile"}
-   buildoptions "-Wall"
+   startproject "poly-physx-demo"
 
    function script_path()
-   local str = debug.getinfo(2, "S").source:sub(2)
-   return str:match("(.*/)")
+      local str = debug.getinfo(2, "S").source:sub(2)
+      return str:match("(.*/)")
    end
-   
-   scrpath = script_path()
-   rpath = "-Wl,-rpath," .. scrpath .. "vendor/SFML/build-sfml/lib"
-   linkoptions {rpath}
 
+   rootpath = script_path()
+   
    filter "system:macosx"
+      rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-gmake/lib"
+      linkoptions {rpath}
+
+      defines "MACOS"
       platforms {"arm64", "x86_64"}
       
       filter "platforms:arm64"
@@ -23,6 +24,7 @@ workspace "poly-physx-demo"
 
    filter "system:windows"
       platforms {"x86_64", "x86"}
+      defines {"SFML_STATIC", "WINDOWS"}
 
       filter "platforms:x86_64"
          architecture "x86_64"
@@ -30,12 +32,8 @@ workspace "poly-physx-demo"
          architecture "x86"
       filter {}
    
-      
-
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 defines "HAS_IMPLOT"
-
-filter {}
 
    filter "configurations:debug*"
       defines "DEBUG"
@@ -50,7 +48,6 @@ filter {}
    filter "configurations:*profile"
       defines "PERF"
 
-include "vec-2D"
 include "rk-integrator"
 include "shapes-2D"
 include "ini-parser"
@@ -62,23 +59,3 @@ include "vendor/implot"
 include "poly-physx-app"
 include "sfml-primitives"
 include "poly-physx-demo"
-
-newaction {
-    trigger = "clean",
-    description = "Remove all object and binary files",
-    execute = function()
-        print("Removing binaries...")
-        os.rmdir("**/bin")
-        print("Removing objects...")
-        os.rmdir("**/build")
-        print("Removing Makefiles...")
-        os.remove("**/Makefile")
-        os.remove("Makefile")
-        print("Removing project files...")
-        os.rmdir(".vs/")
-        os.rmdir("**.xcworkspace/")
-        os.rmdir("**.xcodeproj/")
-        os.remove("**.xcodeproj")
-        print("Done")
-    end
-}

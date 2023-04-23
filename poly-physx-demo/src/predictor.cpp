@@ -6,7 +6,7 @@ namespace ppx_demo
 {
     void predictor::start()
     {
-        const auto on_addition = [this](ppx::entity2D_ptr e)
+        const auto on_addition = [this](const ppx::entity2D_ptr &e)
         {
             if (p_enabled && p_auto_predict)
                 predict(e);
@@ -16,7 +16,7 @@ namespace ppx_demo
             for (std::size_t i = 0; i < m_paths.size(); i++)
                 if (*m_paths[i].first == e)
                 {
-                    m_paths.erase(m_paths.begin() + i);
+                    m_paths.erase(m_paths.begin() + (long)i);
                     break;
                 }
         };
@@ -46,6 +46,7 @@ namespace ppx_demo
         eng.checkpoint();
         if (!p_with_collisions)
             eng.collider().enabled(false);
+        eng.integrator().limited_timestep(false);
 
         for (std::size_t i = 0; i < p_steps; i++)
         {
@@ -60,6 +61,7 @@ namespace ppx_demo
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();
+        eng.integrator().limited_timestep(true);
     }
 
     void predictor::render() const
@@ -71,7 +73,7 @@ namespace ppx_demo
             demo_app::get().window().draw(path);
     }
 
-    void predictor::predict(ppx::const_entity2D_ptr e)
+    void predictor::predict(const ppx::const_entity2D_ptr &e)
     {
         if (!is_predicting(*e))
             m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
@@ -98,6 +100,7 @@ namespace ppx_demo
         eng.checkpoint();
         if (!p_with_collisions)
             eng.collider().enabled(false);
+        eng.integrator().limited_timestep(false);
 
         for (std::size_t i = 0; i < p_steps; i++)
         {
@@ -109,6 +112,7 @@ namespace ppx_demo
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();
+        eng.integrator().limited_timestep(true);
     }
 
     bool predictor::is_predicting(const ppx::entity2D &e) const
@@ -135,12 +139,12 @@ namespace ppx_demo
 
     void predictor::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
-        p_dt = in.readf("timestep");
-        p_line_thickness = in.readf("thickness");
-        p_steps = in.readi("steps");
-        p_with_collisions = (bool)in.readi("with_collisions");
-        p_auto_predict = (bool)in.readi("auto_predict");
+        p_enabled = (bool)in.readi16("enabled");
+        p_dt = in.readf32("timestep");
+        p_line_thickness = in.readf32("thickness");
+        p_steps = in.readui32("steps");
+        p_with_collisions = (bool)in.readi16("with_collisions");
+        p_auto_predict = (bool)in.readi16("auto_predict");
         m_paths.clear();
 
         const std::string key = "entity";

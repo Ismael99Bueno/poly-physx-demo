@@ -10,12 +10,13 @@ namespace ppx_demo
             for (std::size_t i = 0; i < m_entities.size(); i++)
                 if (*m_entities[i] == e)
                 {
-                    m_entities.erase(m_entities.begin() + i);
+                    m_entities.erase(m_entities.begin() + (long)i);
                     break;
                 }
         };
         demo_app &papp = demo_app::get();
-        m_prev_com = AS_VEC2(papp.window().getView().getCenter() * PIXEL_TO_WORLD);
+        const auto &center = papp.window().getView().getCenter();
+        m_prev_com = glm::vec2(center.x, center.y);
         papp.engine().callbacks().on_early_entity_removal(on_removal);
     }
 
@@ -24,12 +25,12 @@ namespace ppx_demo
         if (m_entities.empty())
             return;
 
-        const alg::vec2 com = center_of_mass();
+        const glm::vec2 com = center_of_mass();
         demo_app::get().transform_camera((com - m_prev_com) * WORLD_TO_PIXEL);
         m_prev_com = com;
     }
 
-    void follower::follow(ppx::const_entity2D_ptr e)
+    void follower::follow(const ppx::const_entity2D_ptr &e)
     {
         if (!is_following(*e))
             m_entities.emplace_back(e);
@@ -59,27 +60,27 @@ namespace ppx_demo
         out.write("prevcomx", m_prev_com.x);
         out.write("prevcomy", m_prev_com.y);
         const std::string key = "entity";
-        for (ppx::const_entity2D_ptr e : m_entities)
+        for (const ppx::const_entity2D_ptr &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
     void follower::read(ini::input &in)
     {
-        m_prev_com = {in.readf("prevcomx"), in.readf("prevcomy")};
+        m_prev_com = {in.readf32("prevcomx"), in.readf32("prevcomy")};
         const std::string key = "entity";
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const ppx::entity2D_ptr e = papp.engine()[i];
+            const ppx::entity2D_ptr &e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 follow(e);
         }
     }
 
-    alg::vec2 follower::center_of_mass() const
+    glm::vec2 follower::center_of_mass() const
     {
         if (m_entities.size() == 1)
             return m_entities[0]->pos();
-        alg::vec2 com;
+        glm::vec2 com(0.f);
         float mass = 0.f;
 
         for (const auto &e : m_entities)

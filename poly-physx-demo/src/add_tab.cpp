@@ -4,6 +4,7 @@
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include <SFML/Graphics.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {
@@ -72,25 +73,18 @@ namespace ppx_demo
         adder &addr = papp.p_adder;
         adder::shape_type &shape = addr.p_current_templ.shape;
 
-        const char *shapes[4] = {"Box", "Rectangle", "NGon", "Custom"};
+        const char *shapes[3] = {"Rectangle", "NGon", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
             addr.update_template_vertices();
 
         const sf::Color &color = papp.entity_color();
         switch (shape)
         {
-        case adder::BOX:
-        {
-            const alg::vec2 size = alg::vec2(addr.p_current_templ.size, addr.p_current_templ.size) * WORLD_TO_PIXEL,
-                            pos = alg::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(VEC2_AS(pos), VEC2_AS(size)), color);
-            break;
-        }
         case adder::RECT:
         {
-            const alg::vec2 size = alg::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
-                            pos = alg::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect(VEC2_AS(pos), VEC2_AS(size)), color);
+            const glm::vec2 size = glm::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
+                            pos = glm::vec2(350.f, -30.f) - 0.5f * size;
+            ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
             break;
         }
         case adder::NGON:
@@ -98,7 +92,7 @@ namespace ppx_demo
             const float radius = addr.p_current_templ.radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), addr.p_current_templ.sides);
+            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)addr.p_current_templ.sides);
             break;
         }
         default:
@@ -115,14 +109,11 @@ namespace ppx_demo
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
-        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, 1.f, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (addr.p_current_templ.shape)
         {
-        case adder::BOX:
-            ImGui::DragFloat("Size", &addr.p_current_templ.size, 0.2f, 1.f, FLT_MAX, "%.1f");
-            break;
         case adder::RECT:
             ImGui::DragFloat("Width", &addr.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
             // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
@@ -142,7 +133,7 @@ namespace ppx_demo
 
         ImGui::Checkbox("Kinematic", &addr.p_current_templ.entity_templ.kinematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("If unchecked, the entity will not move by any means.");
+            ImGui::SetTooltip("If unchecked, the entity will not accelerate by any means.");
 
         if (papp.p_predictor.p_enabled)
             ImGui::Checkbox("Predict path", &addr.p_predict_path);
@@ -164,10 +155,10 @@ namespace ppx_demo
 
     void add_tab::render_canvas() const
     {
-        static alg::vec2 scrolling;
+        static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        std::vector<alg::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
+        std::vector<glm::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
         geo::polygon poly(vertices);
 
         const bool is_convex = poly.is_convex();
@@ -183,7 +174,7 @@ namespace ppx_demo
                      canvas_sz = ImGui::GetContentRegionAvail(),
                      canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 
-        const alg::vec2 canvas_hdim = alg::vec2(canvas_sz.x, canvas_sz.y) * 0.5f;
+        const glm::vec2 canvas_hdim = glm::vec2(canvas_sz.x, canvas_sz.y) * 0.5f;
 
         // Draw border and background color
         ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -196,13 +187,13 @@ namespace ppx_demo
 
         const float scale_factor = 1.5f;
         ImGuiIO &io = ImGui::GetIO();
-        const alg::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
-            pixel_mouse = (alg::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
+        const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
+            pixel_mouse = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
             world_mouse = pixel_mouse * PIXEL_TO_WORLD;
 
-        const alg::vec2 towards_poly = poly.towards_closest_edge_from(world_mouse);
+        const glm::vec2 towards_poly = poly.towards_closest_edge_from(world_mouse);
         const float max_dist = 5.f;
-        const bool valid_to_add = is_hovered && towards_poly.sq_norm() < max_dist;
+        const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
         std::size_t to_edit = vertices.size() - 1;
         const float thres_distance = 2.f;
@@ -210,7 +201,7 @@ namespace ppx_demo
 
         for (std::size_t i = 0; i < vertices.size(); i++)
         {
-            const float dist = vertices[i].sq_dist(world_mouse);
+            const float dist = glm::distance2(vertices[i], world_mouse);
             if (dist < min_distance)
             {
                 min_distance = dist;
@@ -239,24 +230,24 @@ namespace ppx_demo
         const auto col = is_convex ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
                                    : IM_COL32(255, 0, 0, 255);
 
-        ImVec2 points[poly.size()];
+        std::vector<ImVec2> points(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const alg::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
+            const glm::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
                             p2 = origin + poly[i + 1] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
             const float thickness = 3.f;
-            draw_list->AddLine(VEC2_AS(p1), VEC2_AS(p2), col, thickness);
-            points[i] = VEC2_AS(p1);
+            draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
+            points[i] = {p1.x, p1.y};
         }
 
         if (is_convex)
-            draw_list->AddConvexPolyFilled(points, poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
+            draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
-            const alg::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
+            const glm::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
                                                    : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
             const float radius = 8.f;
-            draw_list->AddCircleFilled(VEC2_AS(center), radius, IM_COL32(207, 185, 151, 180));
+            draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
     }

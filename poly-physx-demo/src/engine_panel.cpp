@@ -1,9 +1,9 @@
 #include "engine_panel.hpp"
-#include "tableaus.hpp"
+#include "rk/tableaus.hpp"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include "globals.hpp"
-#include "flat_line_strip.hpp"
+#include "prm/flat_line_strip.hpp"
 #include "demo_app.hpp"
 #include <cmath>
 
@@ -14,13 +14,35 @@ namespace ppx_demo
         out.write("enabled", p_enabled);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
+        out.write("period", m_period);
+        out.write("max_depth", m_max_depth);
+        out.write("max_entities", m_max_entities);
     }
 
     void engine_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi("enabled");
-        m_method = (integ_method)in.readi("method");
-        m_visualize_qt = (bool)in.readi("visualize_qt");
+        p_enabled = (bool)in.readi16("enabled");
+        m_method = (integ_method)in.readi32("method");
+        m_visualize_qt = (bool)in.readi16("visualize_qt");
+        m_period = in.readui32("period");
+        m_max_depth = in.readui32("max_depth");
+        m_max_entities = (std::size_t)in.readui64("max_entities");
+
+        ppx::collider2D &collider = demo_app::get().engine().collider();
+        collider.quad_tree().max_entities(m_max_entities);
+        ppx::quad_tree2D::max_depth(m_max_depth);
+        collider.quad_tree_build_period(m_period);
+        collider.rebuild_quad_tree();
+        update_method();
+    }
+
+    void engine_panel::on_start()
+    {
+        ppx::collider2D &collider = demo_app::get().engine().collider();
+        m_max_entities = collider.quad_tree().max_entities();
+        m_period = collider.quad_tree_build_period();
+        m_max_depth = ppx::quad_tree2D::max_depth();
+        update_method();
     }
 
     void engine_panel::on_render()
@@ -81,7 +103,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         float dt = papp.timestep();
-        int integ_per_frame = papp.integrations_per_frame();
+        int integ_per_frame = (int)papp.integrations_per_frame();
         bool align_dt = papp.aligned_timestep();
         if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
             papp.aligned_timestep(align_dt);
@@ -90,14 +112,14 @@ namespace ppx_demo
         if (!align_dt)
         {
             const rk::integrator &integ = papp.engine().integrator();
-            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt() * 10.f, integ.max_dt() * 0.1f, "%.5f", ImGuiSliderFlags_Logarithmic))
+            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt(), integ.max_dt(), "%.5f", ImGuiSliderFlags_Logarithmic))
                 papp.timestep(dt);
         }
         else
             ImGui::Text("Timestep: %f", dt);
 
         if (ImGui::SliderInt("Integrations per frame", &integ_per_frame, 1, 100))
-            papp.integrations_per_frame(integ_per_frame);
+            papp.integrations_per_frame((std::uint32_t)integ_per_frame);
         ImGui::PopItemWidth();
     }
 
@@ -165,9 +187,9 @@ namespace ppx_demo
             collider.enabled(enabled);
 
         float stiffness = collider.stiffness(), dampening = collider.dampening();
-        if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, 10000.f, "%.1f"))
+        if (ImGui::DragFloat("Stiffness", &stiffness, 4.f, 1000.f, FLT_MAX, "%.1f"))
             collider.stiffness(stiffness);
-        if (ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, 50.f))
+        if (ImGui::DragFloat("Dampening", &dampening, 0.5f, 0.f, FLT_MAX))
             collider.dampening(dampening);
         ImGui::PopItemWidth();
     }
@@ -175,14 +197,19 @@ namespace ppx_demo
     void engine_panel::render_coldet_list()
     {
         ImGui::PushItemWidth(300);
-        ppx::collider2D &collider = demo_app::get().engine().collider();
+        demo_app &papp = demo_app::get();
+        ppx::collider2D &collider = papp.engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         int coldet = collider.coldet();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
+        {
             collider.coldet((ppx::collider2D::coldet_method)coldet);
+            if (coldet == ppx::collider2D::QUAD_TREE)
+                papp.resize_quad_tree_to_window();
+        }
 
-        if (collider.coldet() == ppx::collider2D::coldet_method::QUAD_TREE)
+        if (collider.coldet() == ppx::collider2D::QUAD_TREE)
             render_quad_tree_params();
         else
             m_visualize_qt = false;
@@ -192,17 +219,20 @@ namespace ppx_demo
     void engine_panel::render_quad_tree_params()
     {
         ppx::collider2D &collider = demo_app::get().engine().collider();
-        static int max_entities = collider.quad_tree().max_entities(),
-                   period = collider.quad_tree_build_period();
 
         ImGui::Text("Quad Tree parameters");
-        if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
+        if (ImGui::SliderInt("Maximum entities", (int *)&m_max_entities, 2, 20))
         {
-            collider.quad_tree().max_entities(max_entities);
+            collider.quad_tree().max_entities(m_max_entities);
             collider.rebuild_quad_tree();
         }
-        if (ImGui::SliderInt("Refresh period", &period, 1, 150))
-            collider.quad_tree_build_period(period);
+        if (ImGui::SliderInt("Maximum depth", (int *)&m_max_depth, 2, 10))
+        {
+            ppx::quad_tree2D::max_depth(m_max_depth);
+            // collider.rebuild_quad_tree();
+        }
+        if (ImGui::SliderInt("Refresh period", (int *)&m_period, 1, 150))
+            collider.quad_tree_build_period(m_period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 
@@ -245,13 +275,13 @@ namespace ppx_demo
                 draw_quad_tree(*child);
         else
         {
-            const alg::vec2 &mm = qt.aabb().min(),
+            const glm::vec2 &mm = qt.aabb().min(),
                             &mx = qt.aabb().max();
-            prm::flat_line_strip fls({alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
                                       mx * WORLD_TO_PIXEL,
-                                      alg::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
                                       mm * WORLD_TO_PIXEL,
-                                      alg::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
             demo_app::get().window().draw(fls);
         }
     }
