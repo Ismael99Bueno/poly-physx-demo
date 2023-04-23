@@ -35,7 +35,7 @@ The following git submodules are included:
 
 ### MacOS
 
-Run the [setup-macos.sh](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-macos.sh) script. This will automatically install the necessary software: XCode Command Line Tools, homebrew, python, CMake, premake, and make. If authorized, it will also generate the project build files using gmake, the only supported generator on this platform.
+Run the [setup-macos.sh](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-macos.sh) script. This will automatically install the necessary software: XCode Command Line Tools, homebrew, python (3.5 of later), CMake, premake, and make. If authorized, it will also generate the project build files using gmake, the only supported generator on this platform.
 
 ### Windows
 
