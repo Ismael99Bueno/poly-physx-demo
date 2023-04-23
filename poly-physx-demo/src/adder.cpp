@@ -73,7 +73,6 @@ namespace ppx_demo
     {
         out.write("name", name);
         out.write("shape", shape);
-        out.write("size", size);
         out.write("width", width);
         out.write("height", height);
         out.write("radius", radius);
@@ -90,7 +89,6 @@ namespace ppx_demo
     {
         name = in.readstr("name");
         shape = (shape_type)in.readi32("shape");
-        size = in.readf32("size");
         width = in.readf32("width");
         height = in.readf32("height");
         radius = in.readf32("radius");
@@ -161,9 +159,6 @@ namespace ppx_demo
         auto &vertices = p_current_templ.entity_templ.vertices;
         switch (p_current_templ.shape)
         {
-        case BOX:
-            vertices = geo::polygon::box(p_current_templ.size);
-            break;
         case RECT:
             vertices = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
             break;

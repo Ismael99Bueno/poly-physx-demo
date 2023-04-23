@@ -73,20 +73,13 @@ namespace ppx_demo
         adder &addr = papp.p_adder;
         adder::shape_type &shape = addr.p_current_templ.shape;
 
-        const char *shapes[4] = {"Box", "Rectangle", "NGon", "Custom"};
+        const char *shapes[3] = {"Rectangle", "NGon", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
             addr.update_template_vertices();
 
         const sf::Color &color = papp.entity_color();
         switch (shape)
         {
-        case adder::BOX:
-        {
-            const glm::vec2 size = glm::vec2(addr.p_current_templ.size, addr.p_current_templ.size) * WORLD_TO_PIXEL,
-                            pos = glm::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
-            break;
-        }
         case adder::RECT:
         {
             const glm::vec2 size = glm::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
@@ -121,9 +114,6 @@ namespace ppx_demo
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
         switch (addr.p_current_templ.shape)
         {
-        case adder::BOX:
-            ImGui::DragFloat("Size", &addr.p_current_templ.size, 0.2f, 1.f, FLT_MAX, "%.1f");
-            break;
         case adder::RECT:
             ImGui::DragFloat("Width", &addr.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
             // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
