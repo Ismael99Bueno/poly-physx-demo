@@ -191,7 +191,7 @@ namespace ppx_demo
             pixel_mouse = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
             world_mouse = pixel_mouse * PIXEL_TO_WORLD;
 
-        const glm::vec2 towards_poly = poly.towards_closest_edge_from(world_mouse);
+        const glm::vec2 towards_poly = poly.closest_direction_from(world_mouse);
         const float max_dist = 5.f;
         const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
