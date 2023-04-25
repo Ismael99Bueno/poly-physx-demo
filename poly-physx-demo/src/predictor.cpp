@@ -70,7 +70,7 @@ namespace ppx_demo
             return;
         PERF_PRETTY_FUNCTION()
         for (const auto &[e, path] : m_paths)
-            demo_app::get().window().draw(path);
+            demo_app::get().draw(path);
     }
 
     void predictor::predict(const ppx::const_entity2D_ptr &e)
@@ -108,7 +108,7 @@ namespace ppx_demo
             path.alpha(1.f - (float)i / (float)(p_steps - 1));
             path.append(e.pos() * WORLD_TO_PIXEL);
         }
-        papp.window().draw(path);
+        papp.draw(path);
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();

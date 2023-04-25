@@ -62,8 +62,8 @@ namespace ppx_demo
                 const auto &[last_pos, last_color] = trail.vertices().back();
                 prm::thick_line tl(last_pos, e->pos() * WORLD_TO_PIXEL, p_line_thickness, last_color, true);
 
-                papp.window().draw(tl);
-                papp.window().draw(trail);
+                papp.draw(tl);
+                papp.draw(trail);
             }
     }
 

@@ -264,7 +264,7 @@ namespace ppx_demo
                             prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
                                               e2->pos() * WORLD_TO_PIXEL,
                                               c1, c2);
-                            window().draw(fl);
+                            draw(fl);
                         }
     }
 

@@ -232,8 +232,9 @@ namespace ppx_demo
             sf::Color col = papp.entity_color();
             col.a = 120;
 
-            sf::ConvexShape shape;
-            papp.draw_entity(poly.vertices(), shape, col);
+            sf::ConvexShape shape(poly.size());
+            shape.setFillColor(col);
+            papp.draw_polygon(poly.vertices(), shape);
         }
 
         for (const spring_template &spt : m_copy.springs)

@@ -205,7 +205,7 @@ namespace ppx_demo
             m_preview.setPoint(i, {point.x, point.y});
         }
 
-        demo_app::get().window().draw(m_preview);
+        demo_app::get().draw(m_preview);
     }
 
     void adder::draw_velocity_arrow() const
@@ -229,7 +229,7 @@ namespace ppx_demo
 
         prm::flat_line_strip fls({start, end, antler1}, color);
         prm::flat_line fl(end, antler2, color);
-        papp.window().draw(fls);
-        papp.window().draw(fl);
+        papp.draw(fls);
+        papp.draw(fl);
     }
 }

@@ -282,7 +282,7 @@ namespace ppx_demo
                                       glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
                                       mm * WORLD_TO_PIXEL,
                                       glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
-            demo_app::get().window().draw(fls);
+            demo_app::get().draw(fls);
         }
     }
 }

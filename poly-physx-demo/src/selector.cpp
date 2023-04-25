@@ -127,7 +127,7 @@ namespace ppx_demo
         vertices[2].position = {p3.x, p3.y};
         vertices[3].position = {p4.x, p4.y};
         vertices[4].position = vertices[0].position;
-        demo_app::get().window().draw(vertices, 5, sf::LineStrip);
+        demo_app::get().draw(vertices, 5u, sf::LineStrip);
     }
 
     void selector::write(ini::output &out) const
