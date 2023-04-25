@@ -37,9 +37,10 @@ namespace ppx_demo
         const auto [pos, vel] = pos_vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(pos, entity_templ.kinematic ? vel : glm::vec2(0.f),
+        const auto e = demo_app::get().engine().add_entity(entity_templ.vertices, pos,
+                                                           entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                            atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                           entity_templ.charge, entity_templ.vertices, entity_templ.kinematic);
+                                                           entity_templ.charge, entity_templ.kinematic);
         m_adding = !definitive;
         return e;
     }

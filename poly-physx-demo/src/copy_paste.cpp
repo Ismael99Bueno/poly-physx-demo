@@ -170,7 +170,7 @@ namespace ppx_demo
             const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
                        has_second = group.entities.find(sp.e2().id()) != group.entities.end();
             if (has_first && has_second)
-                group.springs.emplace_back(spring_template::from_spring(sp));
+                group.springs.push_back(spring_template::from_spring(sp));
         }
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
@@ -180,7 +180,7 @@ namespace ppx_demo
             const bool has_first = group.entities.find(rb->e1().id()) != group.entities.end(),
                        has_second = group.entities.find(rb->e2().id()) != group.entities.end();
             if (has_first && has_second)
-                group.rbars.emplace_back(rigid_bar_template::from_bar(*rb));
+                group.rbars.push_back(rigid_bar_template::from_bar(*rb));
         }
     }
 
@@ -193,9 +193,9 @@ namespace ppx_demo
         for (const auto &[id, tmpl] : m_copy.entities)
         {
             const geo::polygon poly(tmpl.vertices);
-            added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
+            added_entities[id] = papp.engine().add_entity(poly.vertices(), poly.centroid() + offset,
                                                           glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                          tmpl.charge, poly.vertices(), tmpl.kinematic);
+                                                          tmpl.charge, tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {

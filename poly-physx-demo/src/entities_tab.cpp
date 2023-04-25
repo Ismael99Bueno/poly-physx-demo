@@ -253,14 +253,16 @@ namespace ppx_demo
             e.mass(mass);
         if (ImGui::DragFloat("Charge", &charge, 0.2f, -FLT_MAX, FLT_MAX))
             e.charge(charge);
-        ImGui::Text("Area - %f", e.shape().area());
+
+        const geo::polygon &poly = e.shape<geo::polygon>();
+        ImGui::Text("Area - %f", poly.area());
         ImGui::Text("Inertia - %f", e.inertia());
         ImGui::Text("Kinetic energy - %f", e.kinetic_energy());
         if (ImGui::TreeNode("Vertices"))
         {
-            for (std::size_t i = 0; i < e.shape().size(); i++)
+            for (std::size_t i = 0; i < poly.size(); i++)
             {
-                const glm::vec2 v = e.shape().vertices()[i] - e.pos();
+                const glm::vec2 v = poly.vertices()[i] - e.pos();
                 ImGui::Text("Vertex %zu - x: %f, y: %f", i, v.x, v.y);
             }
             ImGui::TreePop();

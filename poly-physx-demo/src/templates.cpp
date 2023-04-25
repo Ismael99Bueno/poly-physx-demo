@@ -63,7 +63,7 @@ namespace ppx_demo
         tmpl.angvel = e.angvel();
         tmpl.mass = e.mass();
         tmpl.charge = e.charge();
-        tmpl.vertices = e.shape().vertices();
+        tmpl.vertices = e.shape<geo::polygon>().vertices();
         tmpl.kinematic = e.kinematic();
         return tmpl;
     }

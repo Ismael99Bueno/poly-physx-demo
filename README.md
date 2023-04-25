@@ -22,7 +22,7 @@ The following git submodules are included:
 - [imgui](https://github.com/ismawno/imgui)
 - [imgui-sfml](https://github.com/ismawno/imgui-sfml)
 - [implot](https://github.com/ismawno/implot)
-- [glm](https://github.com/imsawno/glm)
+- [glm](https://github.com/g-truc/glm)
 - [sfml-primitives](https://github.com/ismawno/sfml-primitives)
 - [rk-integrator](https://github.com/ismawno/rk-integrator)
 - [debug-tools](https://github.com/ismawno/debug-tools)

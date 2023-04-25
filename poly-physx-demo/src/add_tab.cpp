@@ -213,7 +213,7 @@ namespace ppx_demo
         if (create_vertex)
         {
             if (valid_to_add && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                vertices.emplace_back(world_mouse);
+                vertices.push_back(world_mouse);
             to_edit = vertices.size() - 1;
         }
         if (valid_to_add && ImGui::IsMouseDown(ImGuiMouseButton_Left))

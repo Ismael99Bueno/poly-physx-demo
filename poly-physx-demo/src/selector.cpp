@@ -2,6 +2,7 @@
 #include "debug/debug.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
+#include "geo/intersection.hpp"
 #include <cmath>
 
 namespace ppx_demo
@@ -104,7 +105,7 @@ namespace ppx_demo
     bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
         const geo::aabb2D aabb = select_box();
-        return (m_selecting && aabb.overlaps(e->aabb())) ||
+        return (m_selecting && geo::intersect(aabb, e->shape().bounding_box())) ||
                m_entities.find(e) != m_entities.end();
     }
 

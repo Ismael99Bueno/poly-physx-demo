@@ -292,10 +292,10 @@ namespace ppx_demo
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();
-        const ppx::entity2D_ptr &e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
-                                e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
-                                e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
-                                e4 = eng.add_entity({0.f, h + 0.5f * thck});
+        const ppx::entity2D_ptr &e1 = eng.add_entity(glm::vec2(-w - 0.5f * thck, 0.f)),
+                                e2 = eng.add_entity(glm::vec2(w + 0.5f * thck, 0.f)),
+                                e3 = eng.add_entity(glm::vec2(0.f, -h - 0.5f * thck)),
+                                e4 = eng.add_entity(glm::vec2(0.f, h + 0.5f * thck));
 
         e1->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
         e2->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
