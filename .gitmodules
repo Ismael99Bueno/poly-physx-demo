@@ -28,9 +28,6 @@
 [submodule "sfml-primitives"]
 	path = sfml-primitives
 	url = https://github.com/ismawno/sfml-primitives.git
-[submodule "vector-view"]
-	path = vector-view
-	url = https://github.com/ismawno/vector-view.git
 [submodule "poly-physx"]
 	path = poly-physx
 	url = https://github.com/ismawno/poly-physx.git
