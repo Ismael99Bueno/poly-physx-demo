@@ -306,7 +306,9 @@ namespace ppx_demo
         e2->kinematic(false);
         e3->kinematic(false);
         e4->kinematic(false);
+
         entity_color(prev_color);
+        update_convex_shapes_from_polygons();
     }
 
     const std::string &demo_app::session() const { return m_session; }
