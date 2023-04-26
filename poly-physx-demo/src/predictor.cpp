@@ -76,7 +76,7 @@ namespace ppx_demo
     void predictor::predict(const ppx::const_entity2D_ptr &e)
     {
         if (!is_predicting(*e))
-            m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
+            m_paths.emplace_back(e, demo_app::get()[e.index()].getFillColor());
     }
     void predictor::stop_predicting(const ppx::entity2D &e)
     {
@@ -93,7 +93,7 @@ namespace ppx_demo
         PERF_FUNCTION()
         demo_app &papp = demo_app::get();
         ppx::engine2D &eng = papp.engine();
-        prm::thick_line_strip path(papp.shapes()[e.index()].getFillColor(), p_line_thickness);
+        prm::thick_line_strip path(papp[e.index()].getFillColor(), p_line_thickness);
         path.append(e.pos() * WORLD_TO_PIXEL);
 
         const bool collisions = eng.collider().enabled();

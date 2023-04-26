@@ -28,7 +28,7 @@ The following git submodules are included:
 - [debug-tools](https://github.com/ismawno/debug-tools)
 - [profile-tools](https://github.com/ismawno/profile-tools)
 - [ini-parser](https://github.com/ismawno/ini-parser)
-- [vector-view](https://github.com/ismawno/vector-view)
+- [container-view](https://github.com/ismawno/container-view)
 - [shapes-2D](https://github.com/ismawno/shapes-2D)
 
 ## Setup

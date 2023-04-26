@@ -13,7 +13,6 @@ namespace ppx_demo
 
     void outline_manager::start()
     {
-
         const auto on_addition = [this](const ppx::entity2D_ptr &e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
@@ -30,22 +29,24 @@ namespace ppx_demo
 
     void outline_manager::update()
     {
-        paint_outlines(demo_app::get().shapes());
+        paint_outlines();
         reset_priorities();
     }
-    void outline_manager::paint_outlines(utils::vector_view<sf::ConvexShape> shapes) const
+    void outline_manager::paint_outlines() const
     {
-        for (std::size_t i = 0; i < shapes.unwrap().size(); i++)
+        demo_app &papp = demo_app::get();
+        for (std::size_t i = 0; i < m_outline_colors.size(); i++)
         {
             const auto &[priority, color] = m_outline_colors[i];
-            shapes[i].setOutlineColor(color);
+            sf::Shape &shape = papp[i];
+            shape.setOutlineColor(color);
             if (priority)
             {
                 const float ampl = 3.f, freq = 3.5f;
-                shapes[i].setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
+                shape.setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
             else
-                shapes[i].setOutlineThickness(0.f);
+                shape.setOutlineThickness(0.f);
         }
     }
 

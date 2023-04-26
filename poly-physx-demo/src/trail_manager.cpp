@@ -70,7 +70,7 @@ namespace ppx_demo
     void trail_manager::include(const ppx::const_entity2D_ptr &e)
     {
         if (!contains(*e))
-            m_trails.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
+            m_trails.emplace_back(e, demo_app::get()[e.index()].getFillColor());
     }
     void trail_manager::exclude(const ppx::entity2D &e)
     {

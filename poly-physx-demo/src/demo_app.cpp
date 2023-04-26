@@ -157,7 +157,7 @@ namespace ppx_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::Shape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color(150, 90, 70), 3);
@@ -257,8 +257,8 @@ namespace ppx_demo
                     for (const auto &e2 : inter->entities())
                         if (e1 != e2)
                         {
-                            sf::Color c1 = shapes()[e1.index()].getFillColor(),
-                                      c2 = shapes()[e2.index()].getFillColor();
+                            sf::Color c1 = (*this)[e1.index()].getFillColor(),
+                                      c2 = (*this)[e2.index()].getFillColor();
                             c1.a = 120;
                             c2.a = 120;
                             prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
