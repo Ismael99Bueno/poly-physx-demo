@@ -14,7 +14,7 @@ namespace ppx_demo
         glm::vec2 pos, vel;
         std::size_t index = 0, id = 0;
         float angpos = 0.f, angvel = 0.f, mass = 1.f, charge = 1.f;
-        std::variant<std::vector<glm::vec2>, float> shape_properties = geo::polygon::box(DEFAULT_SIZE);
+        std::variant<geo::polygon, geo::circle> shape = geo::polygon(geo::polygon::box(DEFAULT_SIZE));
         bool kinematic = true;
         ppx::entity2D::shape_type type = ppx::entity2D::POLYGON;
 

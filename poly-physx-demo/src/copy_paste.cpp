@@ -192,14 +192,9 @@ namespace ppx_demo
         std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
-            if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&tmpl.shape_properties))
-                added_entities[id] = papp.engine().add_entity(*vertices, tmpl.pos + offset,
-                                                              glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                              tmpl.charge, tmpl.kinematic);
-            else
-                added_entities[id] = papp.engine().add_entity(std::get<float>(tmpl.shape_properties), tmpl.pos + offset,
-                                                              glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                              tmpl.charge, tmpl.kinematic);
+            added_entities[id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,
+                                                          glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
+                                                          tmpl.charge, tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {
@@ -232,16 +227,15 @@ namespace ppx_demo
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
-            if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&tmpl.shape_properties))
+            if (const auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
             {
-                geo::polygon poly(tmpl.pos + offset, *vertices);
-                sf::ConvexShape shape = papp.convex_shape_from_polygon(poly);
+                sf::ConvexShape shape = papp.convex_shape_from_polygon(*poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }
             else
             {
-                sf::CircleShape shape = papp.circle_shape_from_radius(std::get<float>(tmpl.shape_properties));
+                sf::CircleShape shape = papp.circle_shape_from_radius(std::get<geo::circle>(tmpl.shape).radius());
                 shape.setFillColor(col);
                 papp.draw(shape);
             }

@@ -19,14 +19,14 @@ namespace ppx_demo
 
         const std::string key = "vertex";
         std::size_t index = 0;
-        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape_properties))
-            for (const glm::vec2 &v : *vertices)
+        if (const auto *poly = std::get_if<geo::polygon>(&shape))
+            for (const glm::vec2 &v : poly->vertices())
             {
                 out.write(key + std::to_string(index) + "x", v.x);
                 out.write(key + std::to_string(index++) + "y", v.y);
             }
         else
-            out.write("radius", std::get<float>(shape_properties));
+            out.write("radius", std::get<geo::circle>(shape).radius());
     }
     void entity_template::read(ini::input &in)
     {
@@ -58,10 +58,10 @@ namespace ppx_demo
                     break;
                 vertices.emplace_back(in.readf32(kx), in.readf32(ky));
             }
-            shape_properties = vertices;
+            shape = vertices;
         }
         else
-            shape_properties = in.readf32("radius");
+            shape = in.readf32("radius");
     }
 
     entity_template entity_template::from_entity(const ppx::entity2D &e)
@@ -80,12 +80,12 @@ namespace ppx_demo
         if (const geo::polygon *poly = e.shape_if<geo::polygon>())
         {
             tmpl.type = ppx::entity2D::POLYGON;
-            tmpl.shape_properties = poly->vertices();
+            tmpl.shape = poly->vertices();
         }
         else
         {
             tmpl.type = ppx::entity2D::CIRCLE;
-            tmpl.shape_properties = e.shape<geo::circle>().radius();
+            tmpl.shape = e.shape<geo::circle>().radius();
         }
         return tmpl;
     }

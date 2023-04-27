@@ -9,6 +9,7 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
+#define TO_DEGREES (180.0f / (float)M_PI)
 
 namespace ppx_demo
 {
@@ -38,12 +39,7 @@ namespace ppx_demo
         const glm::vec2 vel = vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&entity_templ.shape_properties))
-            return demo_app::get().engine().add_entity(*vertices, m_start_pos,
-                                                       entity_templ.kinematic ? vel : glm::vec2(0.f),
-                                                       atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                       entity_templ.charge, entity_templ.kinematic);
-        return demo_app::get().engine().add_entity(std::get<float>(entity_templ.shape_properties), m_start_pos,
+        return demo_app::get().engine().add_entity(entity_templ.shape, m_start_pos,
                                                    entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                    atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                                    entity_templ.charge, entity_templ.kinematic);
@@ -161,7 +157,7 @@ namespace ppx_demo
 
     void adder::update_template_vertices()
     {
-        auto &shape = p_current_templ.entity_templ.shape_properties;
+        auto &shape = p_current_templ.entity_templ.shape;
         switch (p_current_templ.shape)
         {
         case RECT:
@@ -186,13 +182,13 @@ namespace ppx_demo
 
     void adder::setup_preview()
     {
-        auto &shape = p_current_templ.entity_templ.shape_properties;
+        auto &shape = p_current_templ.entity_templ.shape;
         demo_app &papp = demo_app::get();
 
-        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape))
-            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from_polygon(geo::polygon(*vertices)));
+        if (const auto *poly = std::get_if<geo::polygon>(&shape))
+            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from_polygon(*poly));
         else
-            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from_radius(std::get<float>(shape)));
+            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from_radius(std::get<geo::circle>(shape).radius()));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview->setFillColor(color);
@@ -218,7 +214,7 @@ namespace ppx_demo
     void adder::draw_preview()
     {
         const glm::vec2 vel = vel_upon_addition();
-        m_preview->setRotation(atan2f(vel.y, vel.x));
+        m_preview->setRotation(atan2f(vel.y, vel.x) * TO_DEGREES);
         demo_app::get().draw(*m_preview);
     }
 

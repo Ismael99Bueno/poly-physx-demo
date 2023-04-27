@@ -169,8 +169,8 @@ namespace ppx_demo
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        auto &vertices = std::get<std::vector<glm::vec2>>(papp.p_adder.p_current_templ.entity_templ.shape_properties);
-        geo::polygon poly(vertices);
+        const geo::polygon &poly = std::get<geo::polygon>(papp.p_adder.p_current_templ.entity_templ.shape);
+        std::vector<glm::vec2> vertices = poly.vertices();
 
         const bool is_convex = poly.is_convex();
         if (!is_convex)
