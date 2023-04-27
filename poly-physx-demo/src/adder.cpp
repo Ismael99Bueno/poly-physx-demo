@@ -173,8 +173,11 @@ namespace ppx_demo
             p_current_templ.entity_templ.type = ppx::entity2D::CIRCLE;
             break;
         case CUSTOM:
+            if (p_current_templ.entity_templ.type == ppx::entity2D::POLYGON)
+                return;
             shape = geo::polygon::box(5.f);
             p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
+            break;
         default:
             break;
         }

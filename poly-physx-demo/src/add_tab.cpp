@@ -261,5 +261,6 @@ namespace ppx_demo
             draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
+        papp.p_adder.p_current_templ.entity_templ.shape = vertices;
     }
 }
