@@ -73,7 +73,7 @@ namespace ppx_demo
         adder &addr = papp.p_adder;
         adder::shape_type &shape = addr.p_current_templ.shape;
 
-        const char *shapes[3] = {"Rectangle", "NGon", "Custom"};
+        const char *shapes[4] = {"Rectangle", "NGon", "Circle", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
             addr.update_template_vertices();
 
@@ -89,10 +89,18 @@ namespace ppx_demo
         }
         case adder::NGON:
         {
-            const float radius = addr.p_current_templ.radius * WORLD_TO_PIXEL;
+            const float radius = addr.p_current_templ.ngon_radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)addr.p_current_templ.sides);
+            break;
+        }
+        case adder::CIRCLE:
+        {
+            const float radius = addr.p_current_templ.circle_radius * WORLD_TO_PIXEL;
+            const ImVec2 pos = ImGui::GetCursorScreenPos();
+            ImDrawList *draw_list = ImGui::GetWindowDrawList();
+            draw_list->AddCircle({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
             break;
         }
         default:
@@ -122,7 +130,10 @@ namespace ppx_demo
             break;
         case adder::NGON:
             ImGui::SliderInt("Sides", (int *)&addr.p_current_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &addr.p_current_templ.radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Radius", &addr.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            break;
+        case adder::CIRCLE:
+            ImGui::DragFloat("Radius", &addr.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CUSTOM:
             render_canvas();
@@ -158,7 +169,7 @@ namespace ppx_demo
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        std::vector<glm::vec2> &vertices = papp.p_adder.p_current_templ.entity_templ.vertices;
+        auto &vertices = std::get<std::vector<glm::vec2>>(papp.p_adder.p_current_templ.entity_templ.shape_properties);
         geo::polygon poly(vertices);
 
         const bool is_convex = poly.is_convex();

@@ -33,16 +33,20 @@ namespace ppx_demo
     {
         if (!m_adding)
             return nullptr;
+        m_adding = !definitive;
 
-        const auto [pos, vel] = pos_vel_upon_addition();
+        const glm::vec2 vel = vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
 
-        const auto e = demo_app::get().engine().add_entity(entity_templ.vertices, pos,
-                                                           entity_templ.kinematic ? vel : glm::vec2(0.f),
-                                                           atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                           entity_templ.charge, entity_templ.kinematic);
-        m_adding = !definitive;
-        return e;
+        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&entity_templ.shape_properties))
+            return demo_app::get().engine().add_entity(*vertices, m_start_pos,
+                                                       entity_templ.kinematic ? vel : glm::vec2(0.f),
+                                                       atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+                                                       entity_templ.charge, entity_templ.kinematic);
+        return demo_app::get().engine().add_entity(std::get<float>(entity_templ.shape_properties), m_start_pos,
+                                                   entity_templ.kinematic ? vel : glm::vec2(0.f),
+                                                   atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+                                                   entity_templ.charge, entity_templ.kinematic);
     }
 
     void adder::save_template(const std::string &name)
@@ -76,7 +80,8 @@ namespace ppx_demo
         out.write("shape", shape);
         out.write("width", width);
         out.write("height", height);
-        out.write("radius", radius);
+        out.write("ngon_radius", ngon_radius);
+        out.write("circle_radius", circle_radius);
         out.write("sides", sides);
         out.write("r", (int)color.r);
         out.write("g", (int)color.g);
@@ -92,7 +97,8 @@ namespace ppx_demo
         shape = (shape_type)in.readi32("shape");
         width = in.readf32("width");
         height = in.readf32("height");
-        radius = in.readf32("radius");
+        ngon_radius = in.readf32("ngon_radius");
+        circle_radius = in.readf32("circle_radius");
         sides = in.readui32("sides");
         color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
         in.begin_section("entity_template");
@@ -147,25 +153,32 @@ namespace ppx_demo
 
     bool adder::has_saved_entity() const { return !p_current_templ.name.empty(); }
 
-    std::pair<glm::vec2, glm::vec2> adder::pos_vel_upon_addition() const
+    glm::vec2 adder::vel_upon_addition() const
     {
         const float speed_mult = 0.5f;
-        const glm::vec2 pos = m_start_pos,
-                        vel = speed_mult * (m_start_pos - demo_app::get().world_mouse());
-        return std::make_pair(pos, vel);
+        return speed_mult * (m_start_pos - demo_app::get().world_mouse());
     }
 
     void adder::update_template_vertices()
     {
-        auto &vertices = p_current_templ.entity_templ.vertices;
+        auto &shape = p_current_templ.entity_templ.shape_properties;
         switch (p_current_templ.shape)
         {
         case RECT:
-            vertices = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
+            shape = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
+            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
             break;
         case NGON:
-            vertices = geo::polygon::ngon(p_current_templ.radius, p_current_templ.sides);
+            shape = geo::polygon::ngon(p_current_templ.ngon_radius, p_current_templ.sides);
+            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
             break;
+        case CIRCLE:
+            shape = p_current_templ.circle_radius;
+            p_current_templ.entity_templ.type = ppx::entity2D::CIRCLE;
+            break;
+        case CUSTOM:
+            shape = geo::polygon::box(5.f);
+            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
         default:
             break;
         }
@@ -173,10 +186,19 @@ namespace ppx_demo
 
     void adder::setup_preview()
     {
-        m_preview.setPointCount(p_current_templ.entity_templ.vertices.size());
+        auto &shape = p_current_templ.entity_templ.shape_properties;
+        demo_app &papp = demo_app::get();
+
+        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape))
+            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from_polygon(geo::polygon(*vertices)));
+        else
+            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from_radius(std::get<float>(shape)));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
-        m_preview.setFillColor(color);
+        m_preview->setFillColor(color);
+
+        const glm::vec2 pos = m_start_pos * WORLD_TO_PIXEL;
+        m_preview->setPosition(pos.x, pos.y);
     }
 
     void adder::preview()
@@ -195,27 +217,19 @@ namespace ppx_demo
 
     void adder::draw_preview()
     {
-        const auto [pos, vel] = pos_vel_upon_addition();
-        geo::polygon poly(pos, p_current_templ.entity_templ.vertices);
-        poly.rotation(atan2f(vel.y, vel.x));
-
-        for (std::size_t i = 0; i < poly.size(); i++)
-        {
-            const glm::vec2 point = poly[i] * WORLD_TO_PIXEL;
-            m_preview.setPoint(i, {point.x, point.y});
-        }
-
-        demo_app::get().draw(m_preview);
+        const glm::vec2 vel = vel_upon_addition();
+        m_preview->setRotation(atan2f(vel.y, vel.x));
+        demo_app::get().draw(*m_preview);
     }
 
     void adder::draw_velocity_arrow() const
     {
         demo_app &papp = demo_app::get();
-        const auto [pos, vel] = pos_vel_upon_addition();
+        const glm::vec2 vel = vel_upon_addition();
 
         const float max_arrow_length = 200.f;
-        const glm::vec2 start = pos * WORLD_TO_PIXEL,
-                        end = (glm::length(vel) < max_arrow_length ? (pos + vel) : (pos + glm::normalize(vel) * max_arrow_length)) * WORLD_TO_PIXEL,
+        const glm::vec2 start = m_start_pos * WORLD_TO_PIXEL,
+                        end = (glm::length(vel) < max_arrow_length ? (m_start_pos + vel) : (m_start_pos + glm::normalize(vel) * max_arrow_length)) * WORLD_TO_PIXEL,
                         segment = start - end;
 
         const float antlers_length = 0.2f * glm::length(segment),

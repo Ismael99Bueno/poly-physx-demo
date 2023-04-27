@@ -14,7 +14,8 @@ namespace ppx_demo
         {
             RECT = 0,
             NGON = 1,
-            CUSTOM = 2
+            CIRCLE = 2,
+            CUSTOM = 3
         };
 
     private:
@@ -23,7 +24,8 @@ namespace ppx_demo
             std::string name;
             entity_template entity_templ;
             shape_type shape = RECT;
-            float width = DEFAULT_SIZE, height = DEFAULT_SIZE, radius = 0.6f * DEFAULT_SIZE;
+            float width = DEFAULT_SIZE, height = DEFAULT_SIZE,
+                  ngon_radius = 0.6f * DEFAULT_SIZE, circle_radius = 0.6f * DEFAULT_SIZE;
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
 
@@ -62,9 +64,9 @@ namespace ppx_demo
         glm::vec2 m_start_pos{0.f};
         bool m_adding = false;
 
-        sf::ConvexShape m_preview;
+        std::unique_ptr<sf::Shape> m_preview;
 
-        std::pair<glm::vec2, glm::vec2> pos_vel_upon_addition() const;
+        glm::vec2 vel_upon_addition() const;
 
         void setup_preview();
         void preview();
