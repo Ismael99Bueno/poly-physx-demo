@@ -7,6 +7,8 @@ project "poly-physx-demo"
    cppdialect "C++17"
    filter "system:macosx"
       buildoptions {"-Wall", "-Wextra", "-Wpedantic", "-Wconversion", "-Wno-unused-parameter"}
+   filter "system:windows"
+      defines "SFML_STATIC"
    filter{}
 
    targetdir("bin/" .. outputdir)
