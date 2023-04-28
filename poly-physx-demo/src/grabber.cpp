@@ -1,9 +1,8 @@
+#include "pch.hpp"
 #include "grabber.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include "prm/spring_line.hpp"
-#include <limits>
-#include <glm/gtx/rotate_vector.hpp>
 
 namespace ppx_demo
 {

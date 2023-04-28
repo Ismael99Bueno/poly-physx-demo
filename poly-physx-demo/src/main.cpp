@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 

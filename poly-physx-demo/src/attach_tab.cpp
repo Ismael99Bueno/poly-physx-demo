@@ -1,9 +1,8 @@
+#include "pch.hpp"
 #include "attach_tab.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include <glm/geometric.hpp>
+#include "implot.h"
 
 namespace ppx_demo
 {

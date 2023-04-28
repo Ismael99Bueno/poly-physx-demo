@@ -1,11 +1,9 @@
+#include "pch.hpp"
 #include "attacher.hpp"
 #include "demo_app.hpp"
 #include "prm/spring_line.hpp"
 #include "prm/thick_line.hpp"
 #include "globals.hpp"
-#include <algorithm>
-#include <glm/geometric.hpp>
-#include <glm/gtx/rotate_vector.hpp>
 
 namespace ppx_demo
 {

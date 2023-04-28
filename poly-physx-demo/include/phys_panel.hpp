@@ -1,7 +1,7 @@
 #ifndef PHYS_PANEL_HPP
 #define PHYS_PANEL_HPP
 
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include "phys_prefabs.hpp"
 #include "selector.hpp"
 #include "outline_manager.hpp"

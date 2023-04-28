@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "copy_paste.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"

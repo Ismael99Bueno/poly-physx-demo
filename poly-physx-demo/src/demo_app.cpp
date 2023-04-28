@@ -1,9 +1,8 @@
+#include "pch.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 #include "prm/flat_line_strip.hpp"
 #include "prm/flat_line.hpp"
-#include "implot.h"
-#include <filesystem>
 
 namespace ppx_demo
 {

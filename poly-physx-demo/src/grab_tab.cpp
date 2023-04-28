@@ -1,6 +1,5 @@
+#include "pch.hpp"
 #include "grab_tab.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "demo_app.hpp"
 
 namespace ppx_demo

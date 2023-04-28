@@ -1,7 +1,7 @@
 #ifndef DEMO_APP_HPP
 #define DEMO_APP_HPP
 
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include "selector.hpp"
 #include "actions_panel.hpp"
 #include "engine_panel.hpp"

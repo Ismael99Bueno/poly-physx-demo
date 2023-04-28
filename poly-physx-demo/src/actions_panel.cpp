@@ -1,6 +1,5 @@
+#include "pch.hpp"
 #include "actions_panel.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
 

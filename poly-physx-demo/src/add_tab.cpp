@@ -1,10 +1,8 @@
+#include "pch.hpp"
 #include "add_tab.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include <SFML/Graphics.hpp>
-#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {

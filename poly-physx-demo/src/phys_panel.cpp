@@ -1,10 +1,7 @@
+#include "pch.hpp"
 #include "phys_panel.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
-#include "implot.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
-#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {

@@ -1,8 +1,8 @@
+#include "pch.hpp"
 #include "outline_manager.hpp"
 #include "ppx/entity2D_ptr.hpp"
 #include "debug/debug.hpp"
 #include "demo_app.hpp"
-#include <cmath>
 
 namespace ppx_demo
 {

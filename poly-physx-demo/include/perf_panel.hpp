@@ -2,9 +2,9 @@
 #define PERF_PANEL_HPP
 
 #include "perf/perf.hpp"
-#include "ppx/layer.hpp"
+#include "ppx-app/layer.hpp"
 #include "ini/saveable.hpp"
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo

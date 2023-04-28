@@ -1,9 +1,6 @@
+#include "pch.hpp"
 #include "perf_panel.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
-#include "implot.h"
 #include "demo_app.hpp"
-#include <cmath>
 
 namespace ppx_demo
 {

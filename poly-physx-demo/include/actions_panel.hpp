@@ -5,7 +5,7 @@
 #include "entities_tab.hpp"
 #include "attach_tab.hpp"
 #include "add_tab.hpp"
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 
 namespace ppx_demo
 {

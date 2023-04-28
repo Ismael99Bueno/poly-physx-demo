@@ -1,9 +1,7 @@
+#include "pch.hpp"
 #include "menu_bar.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include <filesystem>
 
 namespace ppx_demo
 {

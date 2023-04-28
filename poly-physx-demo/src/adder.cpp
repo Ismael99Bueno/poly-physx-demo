@@ -1,10 +1,9 @@
+#include "pch.hpp"
 #include "adder.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 #include "prm/flat_line.hpp"
 #include "prm/flat_line_strip.hpp"
-#include <glm/geometric.hpp>
-#include <glm/gtx/rotate_vector.hpp>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f

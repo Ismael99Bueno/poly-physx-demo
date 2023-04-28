@@ -2,7 +2,7 @@
 #define ADDER_HPP
 
 #include "templates.hpp"
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
