@@ -69,7 +69,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const ppx::entity2D_ptr &e = papp.engine()[i];
+            const ppx::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 follow(e);
         }
