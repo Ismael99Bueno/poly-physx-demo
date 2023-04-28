@@ -189,9 +189,9 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         if (const auto *poly = std::get_if<geo::polygon>(&shape))
-            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from_polygon(*poly));
+            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from(*poly));
         else
-            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from_radius(std::get<geo::circle>(shape).radius()));
+            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from(std::get<geo::circle>(shape)));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview->setFillColor(color);

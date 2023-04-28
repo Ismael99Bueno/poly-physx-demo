@@ -227,15 +227,18 @@ namespace ppx_demo
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
-            if (const auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
+            if (auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
             {
-                sf::ConvexShape shape = papp.convex_shape_from_polygon(*poly);
+                poly->pos(tmpl.pos + offset);
+                sf::ConvexShape shape = papp.convex_shape_from(*poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }
             else
             {
-                sf::CircleShape shape = papp.circle_shape_from_radius(std::get<geo::circle>(tmpl.shape).radius());
+                geo::circle &c = std::get<geo::circle>(tmpl.shape);
+                c.pos(tmpl.pos + offset);
+                sf::CircleShape shape = papp.circle_shape_from(c);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }

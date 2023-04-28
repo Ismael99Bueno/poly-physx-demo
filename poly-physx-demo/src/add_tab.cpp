@@ -100,7 +100,7 @@ namespace ppx_demo
             const float radius = addr.p_current_templ.circle_radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddCircle({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
+            draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
             break;
         }
         default:

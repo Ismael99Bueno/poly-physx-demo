@@ -28,7 +28,9 @@ namespace ppx_demo
         float p_dt = 3e-2f;
         std::uint32_t p_steps = 100;
         float p_line_thickness = 6.f;
-        bool p_with_collisions = false, p_enabled = true, p_auto_predict = false;
+        bool p_with_collisions = false,
+             p_enabled = false,
+             p_auto_predict = false;
 
     private:
         std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_paths;
