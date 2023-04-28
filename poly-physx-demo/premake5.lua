@@ -11,7 +11,7 @@ project "poly-physx-demo"
       defines "SFML_STATIC"
    filter{}
 
-   pchheader "include/pch.hpp"
+   pchheader "pch.hpp"
    pchsource "src/pch.cpp"
 
    targetdir("bin/" .. outputdir)
