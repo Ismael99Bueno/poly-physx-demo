@@ -18,10 +18,11 @@ namespace ppx_demo
     {
         const auto validate_entity = [this](const std::size_t index)
         {
-            for (auto it = m_entities.begin(); it != m_entities.end();)
+            const auto entities = m_entities;
+            m_entities.clear();
+
+            for (ppx::entity2D_ptr e : entities)
             {
-                auto e = *it;
-                it = m_entities.erase(it);
                 if (e.try_validate())
                     m_entities.insert(e);
             }
