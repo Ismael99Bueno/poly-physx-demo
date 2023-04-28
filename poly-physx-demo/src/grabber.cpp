@@ -10,12 +10,12 @@ namespace ppx_demo
     static float cross(const glm::vec2 &v1, const glm::vec2 &v2) { return v1.x * v2.y - v1.y * v2.x; }
     void grabber::start()
     {
-        const auto validate = [this](ppx::entity2D &e)
+        const auto validate = [this](const std::size_t index)
         {
-            if (m_grabbed && *m_grabbed == e)
+            if (m_grabbed && !m_grabbed.try_validate())
                 m_grabbed = nullptr;
         };
-        demo_app::get().engine().callbacks().on_early_entity_removal(validate);
+        demo_app::get().engine().events().on_late_entity_removal(validate);
     }
 
     void grabber::update() const

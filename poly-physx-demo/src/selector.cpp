@@ -16,14 +16,15 @@ namespace ppx_demo
 
     void selector::start()
     {
-        const auto validate_entity = [this](ppx::entity2D &e)
+        const auto validate_entity = [this](const std::size_t index)
         {
-            for (auto it = m_entities.begin(); it != m_entities.end(); ++it)
-                if (**it == e)
-                {
-                    m_entities.erase(it);
-                    break;
-                }
+            for (auto it = m_entities.begin(); it != m_entities.end();)
+            {
+                auto e = *it;
+                it = m_entities.erase(it);
+                if (e.try_validate())
+                    m_entities.insert(e);
+            }
         };
         const auto validate_spring = [this](ppx::spring2D &sp)
         {
@@ -51,9 +52,9 @@ namespace ppx_demo
             }
         };
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_early_entity_removal(validate_entity);
-        papp.engine().callbacks().on_spring_removal(validate_spring);
-        papp.engine().callbacks().on_constraint_removal(validate_rb);
+        papp.engine().events().on_late_entity_removal(validate_entity);
+        papp.engine().events().on_spring_removal(validate_spring);
+        papp.engine().events().on_constraint_removal(validate_rb);
     }
 
     void selector::render() const

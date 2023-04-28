@@ -23,8 +23,8 @@ namespace ppx_demo
         };
 
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_entity_addition(on_addition);
-        papp.engine().callbacks().on_late_entity_removal(on_removal);
+        papp.engine().events().on_entity_addition(on_addition);
+        papp.engine().events().on_late_entity_removal(on_removal);
     }
 
     void outline_manager::update()
