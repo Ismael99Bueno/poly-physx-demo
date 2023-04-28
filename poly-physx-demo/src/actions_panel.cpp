@@ -6,15 +6,10 @@
 
 namespace ppx_demo
 {
-    actions_panel::actions_panel() {}
-
-    void actions_panel::write(ini::output &out) const { out.write("enabled", p_enabled); }
-    void actions_panel::read(ini::input &in) { p_enabled = (bool)in.readi16("enabled"); }
+    actions_panel::actions_panel() : ppx::layer("actions_panel") {}
 
     void actions_panel::on_render()
     {
-        if (!p_enabled)
-            return;
         const bool enabled = ImGui::Begin("Actions", &p_enabled, ImGuiWindowFlags_MenuBar);
         if (enabled)
             ImGui::HelpMarker("The Actions panel allows you to make high level changes to the simulation, such as adding, removing and grabbing entities, modify their properties or attach springs and rigid bars to them.");

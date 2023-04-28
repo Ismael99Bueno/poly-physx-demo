@@ -217,12 +217,13 @@ namespace ppx_demo
         {
             for (ppx::spring2D *sp : springs)
             {
-                const auto rb = sp->has_joints() ? std::make_shared<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                                      sp->joint1(), sp->joint2(),
-                                                                                      atch.p_rb_stiffness, atch.p_rb_dampening)
-                                                 : std::make_shared<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                                      atch.p_rb_stiffness, atch.p_rb_dampening);
-                papp.engine().add_constraint(rb);
+                if (sp->has_joints())
+                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                   sp->joint1(), sp->joint2(),
+                                                                   atch.p_rb_stiffness, atch.p_rb_dampening);
+                else
+                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                   atch.p_rb_stiffness, atch.p_rb_dampening);
             }
             remove_springs();
             slct.update_selected_springs_rbars();

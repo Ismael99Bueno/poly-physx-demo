@@ -9,9 +9,10 @@
 
 namespace ppx_demo
 {
-    class perf_panel : public ppx::layer, public ini::saveable
+    class perf_panel : public ppx::layer
     {
     public:
+        perf_panel();
         enum time_unit
         {
             SECONDS = 0,
@@ -19,8 +20,6 @@ namespace ppx_demo
             MICROSECONDS = 2,
             NANOSECONDS = 3,
         };
-
-        bool p_enabled = true;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

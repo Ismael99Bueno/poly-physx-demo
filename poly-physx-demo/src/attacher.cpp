@@ -76,9 +76,10 @@ namespace ppx_demo
         }
         case RIGID_BAR:
         {
-            const std::shared_ptr<ppx::rigid_bar2D> rb = no_joints ? std::make_shared<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening)
-                                                                   : std::make_shared<ppx::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
-            papp.engine().add_constraint(rb);
+            if (no_joints)
+                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening);
+            else
+                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
             break;
         }
         }

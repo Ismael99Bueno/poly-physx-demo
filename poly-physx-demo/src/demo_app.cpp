@@ -16,11 +16,11 @@ namespace ppx_demo
 
     void demo_app::on_start()
     {
-        push_layer(&p_phys_panel);
-        push_layer(&p_perf_panel);
-        push_layer(&p_engine_panel);
-        push_layer(&p_actions_panel);
-        push_layer(&p_menu_bar);
+        p_phys_panel = push_layer<phys_panel>();
+        p_perf_panel = push_layer<perf_panel>();
+        p_engine_panel = push_layer<engine_panel>();
+        p_actions_panel = push_layer<actions_panel>();
+        p_menu_bar = push_layer<menu_bar>();
 
         p_grabber.start();
         p_selector.start();
@@ -169,7 +169,7 @@ namespace ppx_demo
         {
         case sf::Event::MouseButtonPressed:
             p_copy_paste.delete_copy(); // TODO: Que se quite con clic derecho
-            switch (p_actions_panel.action())
+            switch (p_actions_panel->action())
             {
             case actions_panel::ADD:
                 p_adder.setup();
@@ -195,7 +195,7 @@ namespace ppx_demo
 
         case sf::Event::MouseButtonReleased:
         {
-            switch (p_actions_panel.action())
+            switch (p_actions_panel->action())
             {
             case actions_panel::ADD:
                 p_adder.add();

@@ -9,7 +9,7 @@
 
 namespace ppx_demo
 {
-    class actions_panel : public ppx::layer, public ini::saveable
+    class actions_panel : public ppx::layer
     {
     public:
         enum actions
@@ -22,10 +22,6 @@ namespace ppx_demo
         };
         actions_panel();
         actions action() const;
-
-        bool p_enabled = true;
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
 
     private:
         void on_render() override;

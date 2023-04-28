@@ -7,16 +7,17 @@
 
 namespace ppx_demo
 {
+    perf_panel::perf_panel() : ppx::layer("perf_panel") {}
     void perf_panel::write(ini::output &out) const
     {
-        out.write("enabled", p_enabled);
+        layer::write(out);
         out.write("time_unit", m_unit);
         out.write("framerate", m_fps);
     }
 
     void perf_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi16("enabled");
+        layer::read(in);
         m_unit = (time_unit)in.readi32("time_unit");
         m_fps = in.readi32("framerate");
     }
@@ -214,8 +215,6 @@ namespace ppx_demo
 #else
     void perf_panel::render_simple()
     {
-        if (!p_enabled)
-            return;
         if (ImGui::Begin("Performance", &p_enabled))
         {
             render_unit_slider();

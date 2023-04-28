@@ -56,11 +56,11 @@ namespace ppx_demo
         trail_manager p_trails;
         follower p_follower;
 
-        actions_panel p_actions_panel;
-        engine_panel p_engine_panel;
-        perf_panel p_perf_panel;
-        phys_panel p_phys_panel;
-        menu_bar p_menu_bar;
+        std::shared_ptr<actions_panel> p_actions_panel;
+        std::shared_ptr<engine_panel> p_engine_panel;
+        std::shared_ptr<perf_panel> p_perf_panel;
+        std::shared_ptr<phys_panel> p_phys_panel;
+        std::shared_ptr<menu_bar> p_menu_bar;
 
     private:
         demo_app();
@@ -85,10 +85,6 @@ namespace ppx_demo
             {"selector", &p_selector},
             {"attacher", &p_attacher},
             {"copy_paste", &p_copy_paste},
-            {"actions_panel", &p_actions_panel},
-            {"engine_panel", &p_engine_panel},
-            {"perf_panel", &p_perf_panel},
-            {"phys_panel", &p_phys_panel},
             {"predictor", &p_predictor},
             {"trails", &p_trails},
             {"follower", &p_follower}};

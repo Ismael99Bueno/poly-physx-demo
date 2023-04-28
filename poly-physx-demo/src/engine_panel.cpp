@@ -9,9 +9,10 @@
 
 namespace ppx_demo
 {
+    engine_panel::engine_panel() : ppx::layer("engine_panel") {}
     void engine_panel::write(ini::output &out) const
     {
-        out.write("enabled", p_enabled);
+        layer::write(out);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
         out.write("period", m_period);
@@ -21,7 +22,7 @@ namespace ppx_demo
 
     void engine_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi16("enabled");
+        layer::read(in);
         m_method = (integ_method)in.readi32("method");
         m_visualize_qt = (bool)in.readi16("visualize_qt");
         m_period = in.readui32("period");
@@ -47,9 +48,6 @@ namespace ppx_demo
 
     void engine_panel::on_render()
     {
-        if (!p_enabled)
-            return;
-
         demo_app &papp = demo_app::get();
         if (ImGui::Begin("Engine", &p_enabled))
         {

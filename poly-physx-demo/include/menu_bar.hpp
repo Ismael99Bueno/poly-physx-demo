@@ -9,7 +9,7 @@ namespace ppx_demo
     class menu_bar : public ppx::layer
     {
     public:
-        menu_bar() = default;
+        menu_bar();
 
     private:
         void on_render() override;
