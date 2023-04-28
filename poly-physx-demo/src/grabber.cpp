@@ -15,7 +15,7 @@ namespace ppx_demo
             if (m_grabbed && !m_grabbed.try_validate())
                 m_grabbed = nullptr;
         };
-        demo_app::get().engine().events().on_late_entity_removal(validate);
+        demo_app::get().engine().events().on_late_entity_removal += validate;
     }
 
     void grabber::update() const

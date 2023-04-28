@@ -16,7 +16,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         const auto &center = papp.window().getView().getCenter();
         m_prev_com = glm::vec2(center.x, center.y);
-        papp.engine().events().on_late_entity_removal(on_removal);
+        papp.engine().events().on_late_entity_removal += on_removal;
     }
 
     void follower::update()

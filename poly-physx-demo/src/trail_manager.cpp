@@ -20,8 +20,8 @@ namespace ppx_demo
                     ++it;
         };
         demo_app &papp = demo_app::get();
-        papp.engine().events().on_entity_addition(on_addition);
-        papp.engine().events().on_late_entity_removal(on_removal);
+        papp.engine().events().on_entity_addition += on_addition;
+        papp.engine().events().on_late_entity_removal += on_removal;
         m_trails.reserve(p_steps);
     }
 

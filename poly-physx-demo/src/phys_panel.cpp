@@ -81,7 +81,7 @@ namespace ppx_demo
                 }
             }
         };
-        eng.events().on_entity_addition(auto_include);
+        eng.events().on_entity_addition += auto_include;
     }
 
     void phys_panel::on_render()

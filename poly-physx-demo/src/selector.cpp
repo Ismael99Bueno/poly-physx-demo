@@ -52,9 +52,9 @@ namespace ppx_demo
             }
         };
         demo_app &papp = demo_app::get();
-        papp.engine().events().on_late_entity_removal(validate_entity);
-        papp.engine().events().on_spring_removal(validate_spring);
-        papp.engine().events().on_constraint_removal(validate_rb);
+        papp.engine().events().on_late_entity_removal += validate_entity;
+        papp.engine().events().on_spring_removal += validate_spring;
+        papp.engine().events().on_constraint_removal += validate_rb;
     }
 
     void selector::render() const
