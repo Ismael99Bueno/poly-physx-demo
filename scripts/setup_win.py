@@ -4,6 +4,7 @@ from setup_win_cmake import validate_cmake
 from exceptions import BadOSError
 import subprocess
 from utils import Buddy
+import sys
 
 
 def main() -> None:
@@ -23,7 +24,7 @@ def main() -> None:
         subprocess.run(
             [
                 "python",
-                f"{bud.root_path}/scripts/generate_build_files.py",
+                f"{bud.root_path}/scripts/generate_build_files.py {sys.argv[1]} {sys.argv[2]}",
             ],
             check=True,
         )
