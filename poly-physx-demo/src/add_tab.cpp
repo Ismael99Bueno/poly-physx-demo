@@ -96,7 +96,7 @@ namespace ppx_demo
         }
         case adder::CIRCLE:
         {
-            const float radius = std::min(m_adder.p_current_templ.ngon_radius, 9.f) * WORLD_TO_PIXEL;
+            const float radius = std::min(m_adder.p_current_templ.circle_radius, 9.f) * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
