@@ -128,7 +128,7 @@ namespace ppx_demo
     {
         if (!p_enabled)
             return;
-        if (ImGui::Begin("Performance", &p_enabled))
+        if (ImGui::Begin("Performance", &p_visible))
         {
             render_unit_slider();
             render_smooth_factor();
@@ -212,7 +212,7 @@ namespace ppx_demo
 #else
     void perf_panel::render_simple()
     {
-        if (ImGui::Begin("Performance", &p_enabled))
+        if (ImGui::Begin("Performance", &p_visible))
         {
             render_unit_slider();
             render_simple_time();

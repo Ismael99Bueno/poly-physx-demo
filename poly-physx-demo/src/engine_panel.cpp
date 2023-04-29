@@ -47,7 +47,7 @@ namespace ppx_demo
     void engine_panel::on_render()
     {
         demo_app &papp = demo_app::get();
-        if (ImGui::Begin("Engine", &p_enabled))
+        if (ImGui::Begin("Engine", &p_visible))
         {
             ImGui::Text("Entities: %zu", papp.engine().size());
             if (ImGui::CollapsingHeader("Integration"))
