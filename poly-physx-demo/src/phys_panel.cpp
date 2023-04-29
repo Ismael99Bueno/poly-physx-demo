@@ -83,6 +83,8 @@ namespace ppx_demo
 
     void phys_panel::on_render()
     {
+        if (!p_visible)
+            return;
         if (ImGui::Begin("Physics", &p_visible))
         {
             if (ImGui::CollapsingHeader("Energy"))

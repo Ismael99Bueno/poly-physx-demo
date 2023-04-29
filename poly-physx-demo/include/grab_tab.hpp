@@ -8,8 +8,11 @@ namespace ppx_demo
     class grab_tab
     {
     public:
-        grab_tab() = default;
+        grab_tab(grabber &grb);
         void render() const;
+
+    private:
+        grabber &m_grabber;
     };
 }
 

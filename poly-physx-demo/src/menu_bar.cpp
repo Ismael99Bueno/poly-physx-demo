@@ -44,10 +44,10 @@ namespace ppx_demo
         demo_app &app = demo_app::get();
         if (ImGui::BeginMenu("Windows"))
         {
-            ImGui::MenuItem("Actions", nullptr, &app.p_actions_panel->p_enabled);
-            ImGui::MenuItem("Engine", nullptr, &app.p_engine_panel->p_enabled);
-            ImGui::MenuItem("Physics", nullptr, &app.p_phys_panel->p_enabled);
-            ImGui::MenuItem("Performance", nullptr, &app.p_perf_panel->p_enabled);
+            ImGui::MenuItem("Actions", nullptr, &app.p_actions_panel->p_visible);
+            ImGui::MenuItem("Engine", nullptr, &app.p_engine_panel->p_visible);
+            ImGui::MenuItem("Physics", nullptr, &app.p_phys_panel->p_visible);
+            ImGui::MenuItem("Performance", nullptr, &app.p_perf_panel->p_visible);
             ImGui::EndMenu();
         }
     }

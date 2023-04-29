@@ -40,16 +40,12 @@ namespace ppx_demo
 
         void add_borders();
         void remove_selected();
-        void cancel_add_attach();
 
         const std::string &session() const;
         void session(const std::string &session);
         bool has_session() const;
 
-        grabber p_grabber;
         selector p_selector;
-        adder p_adder;
-        attacher p_attacher;
         outline_manager p_outline_manager;
         copy_paste p_copy_paste;
         predictor p_predictor;
@@ -80,10 +76,7 @@ namespace ppx_demo
         sf::Clock m_clock;
 
         const std::unordered_map<const char *, ini::saveable *> m_saveables = {
-            {"adder", &p_adder},
-            {"grabber", &p_grabber},
             {"selector", &p_selector},
-            {"attacher", &p_attacher},
             {"copy_paste", &p_copy_paste},
             {"predictor", &p_predictor},
             {"trails", &p_trails},

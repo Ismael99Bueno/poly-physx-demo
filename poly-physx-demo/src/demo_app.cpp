@@ -21,7 +21,6 @@ namespace ppx_demo
         p_actions_panel = push_layer<actions_panel>();
         p_menu_bar = push_layer<menu_bar>();
 
-        p_grabber.start();
         p_selector.start();
         p_outline_manager.start();
         p_predictor.start();
@@ -114,8 +113,6 @@ namespace ppx_demo
     void demo_app::on_update()
     {
         PERF_FUNCTION()
-        p_grabber.update();
-        p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.update();
         p_trails.update();
         p_follower.update();
@@ -137,11 +134,8 @@ namespace ppx_demo
     {
         PERF_FUNCTION()
         // draw_interaction_lines();
-        p_grabber.render();
         p_selector.render();
-        p_adder.render();
         p_copy_paste.render();
-        p_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.render();
         p_trails.render();
 #ifdef DEBUG
@@ -166,58 +160,11 @@ namespace ppx_demo
     {
         switch (event.type)
         {
-        case sf::Event::MouseButtonPressed:
-            p_copy_paste.delete_copy(); // TODO: Que se quite con clic derecho
-            switch (p_actions_panel->action())
-            {
-            case actions_panel::ADD:
-                p_adder.setup();
-                break;
-            case actions_panel::GRAB:
-                p_grabber.try_grab_entity();
-                break;
-            case actions_panel::ATTACH:
-                if (p_attacher.has_first())
-                    p_attacher.try_attach_second(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                else
-                    p_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                break;
-            case actions_panel::SELECT:
-                p_selector.begin_select();
-                break;
-            default:
-                break;
-            }
-            if (event.mouseButton.button == sf::Mouse::Right)
-                cancel_add_attach();
-            break;
-
-        case sf::Event::MouseButtonReleased:
-        {
-            switch (p_actions_panel->action())
-            {
-            case actions_panel::ADD:
-                p_adder.add();
-                break;
-            case actions_panel::GRAB:
-                p_grabber.null();
-                break;
-            case actions_panel::SELECT:
-                p_selector.end_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                break;
-            default:
-                break;
-            }
-            break;
-        }
         case sf::Event::KeyPressed:
             if (ImGui::GetIO().WantCaptureKeyboard)
                 break;
             switch (event.key.code)
             {
-            case sf::Keyboard::BackSpace:
-                cancel_add_attach();
-                break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;
@@ -273,13 +220,7 @@ namespace ppx_demo
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
-        cancel_add_attach();
-    }
-
-    void demo_app::cancel_add_attach()
-    {
-        p_attacher.cancel();
-        p_adder.cancel();
+        p_actions_panel->cancel_add_attach();
     }
 
     void demo_app::add_borders()

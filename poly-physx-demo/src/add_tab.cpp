@@ -6,6 +6,7 @@
 
 namespace ppx_demo
 {
+    add_tab::add_tab(adder &addr) : m_adder(addr) {}
     void add_tab::render() const
     {
         ImGui::PushItemWidth(150);
@@ -19,22 +20,21 @@ namespace ppx_demo
 
     void add_tab::render_menu_bar() const
     {
-        adder &addr = demo_app::get().p_adder;
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("Entities"))
             {
-                if (ImGui::MenuItem("Save", nullptr, nullptr, addr.has_saved_entity()))
-                    addr.save_template();
-                if (ImGui::MenuItem("Load", nullptr, nullptr, addr.has_saved_entity()))
-                    addr.load_template();
+                if (ImGui::MenuItem("Save", nullptr, nullptr, m_adder.has_saved_entity()))
+                    m_adder.save_template();
+                if (ImGui::MenuItem("Load", nullptr, nullptr, m_adder.has_saved_entity()))
+                    m_adder.load_template();
                 if (ImGui::BeginMenu("Save as..."))
                 {
                     static char buffer[24] = "\0";
                     if (ImGui::InputTextWithHint("##", "Entity name", buffer, IM_ARRAYSIZE(buffer), ImGuiInputTextFlags_EnterReturnsTrue) && buffer[0] != '\0')
                     {
                         SUBSTITUTE(buffer, ' ', '-')
-                        addr.save_template(buffer);
+                        m_adder.save_template(buffer);
                         buffer[0] = '\0';
                     }
                     ImGui::EndMenu();
@@ -42,7 +42,7 @@ namespace ppx_demo
                 if (ImGui::BeginMenu("Load as..."))
                 {
                     std::string selected, to_remove;
-                    for (const auto &[name, templ] : addr.templates())
+                    for (const auto &[name, templ] : m_adder.templates())
                     {
                         if (ImGui::Button("X"))
                             to_remove = name;
@@ -51,16 +51,16 @@ namespace ppx_demo
                             selected = name;
                     }
                     if (!to_remove.empty())
-                        addr.erase_template(to_remove);
+                        m_adder.erase_template(to_remove);
 
                     if (!selected.empty())
-                        addr.load_template(selected);
+                        m_adder.load_template(selected);
                     ImGui::EndMenu();
                 }
 
                 ImGui::EndMenu();
             }
-            ImGui::BeginMenu(addr.has_saved_entity() ? ("Current entity: " + addr.p_current_templ.name).c_str() : "No entity template. Select 'Save as...' to create one", false);
+            ImGui::BeginMenu(m_adder.has_saved_entity() ? ("Current entity: " + m_adder.p_current_templ.name).c_str() : "No entity template. Select 'Save as...' to create one", false);
             ImGui::EndMenuBar();
         }
     }
@@ -68,34 +68,33 @@ namespace ppx_demo
     void add_tab::render_shape_list() const
     {
         demo_app &papp = demo_app::get();
-        adder &addr = papp.p_adder;
-        adder::shape_type &shape = addr.p_current_templ.shape;
+        adder::shape_type &shape = m_adder.p_current_templ.shape;
 
         const char *shapes[4] = {"Rectangle", "NGon", "Circle", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
-            addr.update_template_vertices();
+            m_adder.update_template_vertices();
 
         const sf::Color &color = papp.entity_color();
         switch (shape)
         {
         case adder::RECT:
         {
-            const glm::vec2 size = glm::vec2(addr.p_current_templ.width, addr.p_current_templ.height) * WORLD_TO_PIXEL,
+            const glm::vec2 size = glm::vec2(m_adder.p_current_templ.width, m_adder.p_current_templ.height) * WORLD_TO_PIXEL,
                             pos = glm::vec2(350.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
             break;
         }
         case adder::NGON:
         {
-            const float radius = addr.p_current_templ.ngon_radius * WORLD_TO_PIXEL;
+            const float radius = m_adder.p_current_templ.ngon_radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)addr.p_current_templ.sides);
+            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)m_adder.p_current_templ.sides);
             break;
         }
         case adder::CIRCLE:
         {
-            const float radius = addr.p_current_templ.circle_radius * WORLD_TO_PIXEL;
+            const float radius = m_adder.p_current_templ.circle_radius * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
@@ -109,29 +108,28 @@ namespace ppx_demo
     void add_tab::render_entity_inputs() const
     {
         demo_app &papp = demo_app::get();
-        adder &addr = papp.p_adder;
 
-        ImGui::DragFloat("Mass", &addr.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Mass", &m_adder.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
 
-        ImGui::DragFloat("Charge", &addr.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
+        ImGui::DragFloat("Charge", &m_adder.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
-        switch (addr.p_current_templ.shape)
+        switch (m_adder.p_current_templ.shape)
         {
         case adder::RECT:
-            ImGui::DragFloat("Width", &addr.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Width", &m_adder.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
             // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             //     ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
-            ImGui::DragFloat("Height", &addr.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Height", &m_adder.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::NGON:
-            ImGui::SliderInt("Sides", (int *)&addr.p_current_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &addr.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::SliderInt("Sides", (int *)&m_adder.p_current_templ.sides, 3, 30);
+            ImGui::DragFloat("Radius", &m_adder.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CIRCLE:
-            ImGui::DragFloat("Radius", &addr.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Radius", &m_adder.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CUSTOM:
             render_canvas();
@@ -140,13 +138,13 @@ namespace ppx_demo
             break;
         }
 
-        ImGui::Checkbox("Kinematic", &addr.p_current_templ.entity_templ.kinematic);
+        ImGui::Checkbox("Kinematic", &m_adder.p_current_templ.entity_templ.kinematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not accelerate by any means.");
 
         if (papp.p_predictor.p_enabled)
-            ImGui::Checkbox("Predict path", &addr.p_predict_path);
-        addr.update_template_vertices();
+            ImGui::Checkbox("Predict path", &m_adder.p_predict_path);
+        m_adder.update_template_vertices();
     }
 
     void add_tab::render_color_picker() const
@@ -158,7 +156,7 @@ namespace ppx_demo
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip))
         {
             papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
-            papp.p_adder.p_current_templ.color = color;
+            m_adder.p_current_templ.color = color;
         }
     }
 
@@ -167,7 +165,7 @@ namespace ppx_demo
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        const geo::polygon &poly = std::get<geo::polygon>(papp.p_adder.p_current_templ.entity_templ.shape);
+        const geo::polygon &poly = std::get<geo::polygon>(m_adder.p_current_templ.entity_templ.shape);
         std::vector<glm::vec2> vertices = poly.vertices();
 
         const bool is_convex = poly.is_convex();
@@ -259,6 +257,6 @@ namespace ppx_demo
             draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
-        papp.p_adder.p_current_templ.entity_templ.shape = vertices;
+        m_adder.p_current_templ.entity_templ.shape = vertices;
     }
 }

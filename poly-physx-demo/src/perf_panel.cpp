@@ -126,7 +126,7 @@ namespace ppx_demo
 
     void perf_panel::render_full()
     {
-        if (!p_enabled)
+        if (!p_visible)
             return;
         if (ImGui::Begin("Performance", &p_visible))
         {
@@ -212,6 +212,8 @@ namespace ppx_demo
 #else
     void perf_panel::render_simple()
     {
+        if (!p_visible)
+            return;
         if (ImGui::Begin("Performance", &p_visible))
         {
             render_unit_slider();

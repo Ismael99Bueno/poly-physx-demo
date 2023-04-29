@@ -46,6 +46,8 @@ namespace ppx_demo
 
     void engine_panel::on_render()
     {
+        if (!p_visible)
+            return;
         demo_app &papp = demo_app::get();
         if (ImGui::Begin("Engine", &p_visible))
         {
