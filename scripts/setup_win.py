@@ -21,7 +21,9 @@ def main() -> None:
     subprocess.run(
         [
             "python",
-            f"{bud.root_path}/scripts/generate_build_files.py {sys.argv[1]} {sys.argv[2]}",
+            f"{bud.root_path}/scripts/generate_build_files.py",
+            sys.argv[1],
+            sys.argv[2],
         ],
         check=True,
     )
