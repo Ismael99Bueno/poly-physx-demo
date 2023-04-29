@@ -79,14 +79,16 @@ namespace ppx_demo
         {
         case adder::RECT:
         {
-            const glm::vec2 size = glm::vec2(m_adder.p_current_templ.width, m_adder.p_current_templ.height) * WORLD_TO_PIXEL,
+            const float w = std::min(m_adder.p_current_templ.width, 18.f),
+                        h = std::min(m_adder.p_current_templ.height, 18.f);
+            const glm::vec2 size = glm::vec2(w, h) * WORLD_TO_PIXEL,
                             pos = glm::vec2(350.f, -30.f) - 0.5f * size;
             ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
             break;
         }
         case adder::NGON:
         {
-            const float radius = m_adder.p_current_templ.ngon_radius * WORLD_TO_PIXEL;
+            const float radius = std::min(m_adder.p_current_templ.ngon_radius, 9.f) * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)m_adder.p_current_templ.sides);
@@ -94,7 +96,7 @@ namespace ppx_demo
         }
         case adder::CIRCLE:
         {
-            const float radius = m_adder.p_current_templ.circle_radius * WORLD_TO_PIXEL;
+            const float radius = std::min(m_adder.p_current_templ.ngon_radius, 9.f) * WORLD_TO_PIXEL;
             const ImVec2 pos = ImGui::GetCursorScreenPos();
             ImDrawList *draw_list = ImGui::GetWindowDrawList();
             draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
