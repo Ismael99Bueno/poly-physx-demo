@@ -49,9 +49,8 @@ def main() -> None:
     if (
         not args.generator.startswith("vs")
         and not args.generator.startswith("gmake")
-        or args.generator.startswith("vs")
-        and bud.is_macos
-    ):
+        and (args.generator != "all" or not args.clean)
+    ) or (args.generator.startswith("vs") and bud.is_macos):
         raise GeneratorNotSupportedError(args.generator)
 
     if args.generator.startswith("gmake") and bud.is_windows:
