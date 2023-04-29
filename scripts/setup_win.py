@@ -18,20 +18,16 @@ def main() -> None:
     validate_premake()
     validate_cmake()
 
-    if bud.prompt(
-        "Do you want to go ahead and generate all the project build files? Default generator for Windows is vs2022"
-    ):
-        subprocess.run(
-            [
-                "python",
-                f"{bud.root_path}/scripts/generate_build_files.py {sys.argv[1]} {sys.argv[2]}",
-            ],
-            check=True,
-        )
-    else:
-        print(
-            "Run generate_build_files.py to generate the project's build files. Use the -h flag to display the options available"
-        )
+    subprocess.run(
+        [
+            "python",
+            f"{bud.root_path}/scripts/generate_build_files.py {sys.argv[1]} {sys.argv[2]}",
+        ],
+        check=True,
+    )
+    print(
+        "Run generate_build_files.py with python to have further detain on how the project can be built. Use the -h flag to display the options available"
+    )
 
     print("\nSetup completed successfully!")
 
