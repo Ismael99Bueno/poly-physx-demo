@@ -40,6 +40,9 @@ namespace ppx_demo
         entities_tab m_entities_tab;
         actions m_action = ADD;
 
+        void write(ini::output &out) const override;
+        void read(ini::input &in) override;
+
         actions action() const;
         void update_current_action();
         void render_current_action();

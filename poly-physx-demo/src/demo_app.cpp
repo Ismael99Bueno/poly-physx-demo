@@ -165,6 +165,9 @@ namespace ppx_demo
                 break;
             switch (event.key.code)
             {
+            case sf::Keyboard::Backspace:
+                p_copy_paste.delete_copy();
+                break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
                 break;

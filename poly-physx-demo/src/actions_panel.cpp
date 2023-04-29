@@ -172,6 +172,19 @@ namespace ppx_demo
         }
     }
 
+    void actions_panel::write(ini::output &out) const
+    {
+        m_adder.write(out);
+        m_grabber.write(out);
+        m_attacher.write(out);
+    }
+    void actions_panel::read(ini::input &in)
+    {
+        m_adder.read(in);
+        m_grabber.read(in);
+        m_attacher.read(in);
+    }
+
     void actions_panel::cancel_add_attach()
     {
         m_attacher.cancel();
