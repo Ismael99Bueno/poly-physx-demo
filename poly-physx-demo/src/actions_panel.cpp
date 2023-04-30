@@ -174,6 +174,7 @@ namespace ppx_demo
 
     void actions_panel::write(ini::output &out) const
     {
+        layer::write(out);
         out.begin_section("adder");
         m_adder.write(out);
         out.end_section();
@@ -186,6 +187,7 @@ namespace ppx_demo
     }
     void actions_panel::read(ini::input &in)
     {
+        layer::read(in);
         in.begin_section("adder");
         m_adder.read(in);
         in.end_section();

@@ -24,7 +24,7 @@ def main() -> None:
         dest="which",
         default="all",
         type=str,
-        help="can be one of the following: 'sfml' - builds SFML as a shared (MacOS) or static (Windows) library using CMake. 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first. 'all' - executes both 'sfml' and 'ppx'. Default: 'all'",
+        help="can be one of the following: 'sfml' - builds SFML as a shared (MacOS) or static (Windows) library using CMake. 'ppx' -  generates poly-physx-demo's build files with premake5. SFML must be built first. 'all' - executes both 'sfml' and 'ppx'. Default: 'all'. If the '--clean' option is enabled, it will erase the file generated for the corresponding selection",
     )
     parser.add_argument(
         "--clean",
@@ -32,14 +32,14 @@ def main() -> None:
         action="store_const",
         const=True,
         default=False,
-        help="clears all build files for the selected project component, specified with --which",
+        help="clears all build files for the selected project component and generator, specified with '--which', and '--generator'. If all generators are to be cleaned, you can specify '--generator all'",
     )
     parser.add_argument(
         "--generator",
         dest="generator",
         default="gmake2" if bud.is_macos else "vs2022",
         type=str,
-        help="Can be gmake or gmake2. If on Windows, it can also be any of the premake actions for Visual Studio",
+        help="Can be 'gmake' or 'gmake2'. The latter is recommended as 'gmake' is deprecated. If on Windows, it can also be any of the premake actions for Visual Studio. If the '--clean' option is enabled, 'all' can be passed as well to clean all generators",
     )
 
     if bud.is_os_unsupported:
@@ -67,6 +67,9 @@ def main() -> None:
         gen: Generator = options[args.which]
         if args.clean:
             gen.clean()
+            print(
+                f"\nCleaned build files for {args.which} for {args.generator} generator(s)"
+            )
         else:
             gen.build()
             print(
@@ -88,7 +91,7 @@ def main() -> None:
             elif bud.is_windows and args.generator.startswith("gmake"):
                 print("\n==== Windows instructions (MinGW) ====")
                 print(
-                    f"ATTENTION: To avoid any issues, make sure to add the MinGW folder and binaries to path by running 'set PATH=%PATH%;{bud.mingw_path}' and 'set PATH=%PATH%;{bud.mingw_path}/bin' in the current cmd session. You should also run the executable from this session to avoid having to copy the required dlls. If you do need them because the executable asks for them, you will find them at {bud.mingw_path}/binf folder."
+                    f"ATTENTION: To avoid any issues, make sure to add the MinGW folder and binaries to path by running 'set PATH=%PATH%;{bud.mingw_path}/bin' in the current cmd session. You should also run the executable from this session to avoid having to copy the required dlls. If you do need them because the executable asks for them, you will find them at {bud.mingw_path}/bin folder."
                 )
                 print(
                     f"\nBuild the project from terminal with make by entering 'mingw32-make' from the root directory at {bud.root_path}"
