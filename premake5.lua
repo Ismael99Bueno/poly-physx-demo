@@ -30,7 +30,7 @@ workspace "poly-physx-demo"
          architecture "x86"
       filter {}
    
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 defines "HAS_IMPLOT"
 
    filter "configurations:debug*"

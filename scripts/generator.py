@@ -51,15 +51,15 @@ class PPXGenerator(Generator):
         print("Removing build, binary and project files..")
 
         bud = Buddy()
-        PPXGenerator.__remove(f"{bud.root_path}/*/bin")
-        PPXGenerator.__remove(f"{bud.root_path}/vendor/*/bin")
-        PPXGenerator.__remove(f"{bud.root_path}/**/build")
-        if is_gmake:
-            PPXGenerator.__remove(f"{bud.root_path}/**/Makefile", os.remove)
-        if is_vs:
-            PPXGenerator.__remove(f"{bud.root_path}/**/*.vcxproj*", os.remove)
-            PPXGenerator.__remove(f"{bud.root_path}/**/*.sln", os.remove)
-            PPXGenerator.__remove(f"{bud.root_path}/*.sln", os.remove)
+        for folder in [".", "vendor"]:
+            if is_gmake:
+                PPXGenerator.__remove(f"{bud.root_path}/{folder}/*/Makefile", os.remove)
+            if is_vs:
+                PPXGenerator.__remove(
+                    f"{bud.root_path}/{folder}/*/*.vcxproj*", os.remove
+                )
+                PPXGenerator.__remove(f"{bud.root_path}/{folder}/*/*.sln", os.remove)
+        PPXGenerator.__remove(f"{bud.root_path}/*.sln", os.remove)
         if is_gmake and os.path.exists(f"{bud.root_path}/Makefile"):
             os.remove(f"{bud.root_path}/Makefile")
 
