@@ -55,7 +55,8 @@ def __validate_package(package_name: str) -> bool:
 
 
 def __install_python_package(package_name: str) -> bool:
-    if not Buddy().prompt_to_install(f"'{package_name}' package"):
+    bud = Buddy()
+    if not bud.all_yes and not bud.prompt_to_install(f"'{package_name}' package"):
         return False
 
     print(f"Starting '{package_name}' package installation...")

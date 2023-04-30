@@ -58,7 +58,7 @@ def __install_cmake() -> bool:
     installer_url = f"https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-{arch}.msi"
     installer_path = f"{dir}/cmake-{version}-windows-{arch}.msi"
 
-    if not bud.prompt_to_install("CMake"):
+    if not bud.all_yes and not bud.prompt_to_install("CMake"):
         return False
 
     print("Starting CMake installation...")

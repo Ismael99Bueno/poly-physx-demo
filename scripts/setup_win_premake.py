@@ -25,7 +25,8 @@ def __install_premake(dir: str) -> bool:
     )
     zip_path = f"{dir}/premake-{version}-windows.zip"
 
-    if not Buddy().prompt_to_install("Premake"):
+    bud = Buddy()
+    if not bud.all_yes and not bud.prompt_to_install("Premake"):
         return False
 
     print(f"Starting premake installation...")

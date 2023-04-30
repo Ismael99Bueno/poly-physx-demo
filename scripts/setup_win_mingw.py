@@ -73,7 +73,7 @@ def __install_mingw() -> bool:
 
     zip_path = f"{dir}/{zip_name}"
 
-    if not bud.prompt_to_install("MinGW"):
+    if not bud.all_yes and not bud.prompt_to_install("MinGW"):
         return False
 
     print("Starting MinGW installation...")
