@@ -16,7 +16,7 @@ namespace ppx_demo
     {
         PERF_PRETTY_FUNCTION()
         if (m_adding)
-            preview();
+            preview_entity();
     }
 
     void adder::setup()
@@ -24,12 +24,19 @@ namespace ppx_demo
         m_start_pos = demo_app::get().world_mouse();
         m_adding = true;
         // update_template_vertices();
-        setup_preview();
+        setup_entity_preview();
     }
 
     void adder::cancel() { m_adding = false; }
 
-    ppx::entity2D_ptr adder::add(const bool definitive)
+    void adder::add()
+    {
+        if (p_soft_body && p_current_templ.shape == CUSTOM)
+            add_soft_body();
+        else
+            add_entity();
+    }
+    ppx::entity2D_ptr adder::add_entity(const bool definitive)
     {
         if (!m_adding)
             return nullptr;
@@ -37,11 +44,51 @@ namespace ppx_demo
 
         const glm::vec2 vel = vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
-
         return demo_app::get().engine().add_entity(entity_templ.shape, m_start_pos,
                                                    entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                    atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                                    entity_templ.charge, entity_templ.kinematic);
+    }
+
+    void adder::add_soft_body()
+    {
+        m_adding = false;
+        demo_app &papp = demo_app::get();
+        geo::polygon poly = std::get<geo::polygon>(p_current_templ.entity_templ.shape);
+
+        const glm::vec2 vel = vel_upon_addition();
+        poly.rotate(atan2f(vel.y, vel.x));
+
+        const entity_template &entity_templ = p_current_templ.entity_templ;
+        const std::size_t per_iter = p_entities_between_vertices + 1,
+                          entity_count = poly.size() * per_iter;
+
+        std::vector<ppx::entity2D_ptr> added;
+        for (std::size_t i = 0; i < poly.size(); i++)
+        {
+            const glm::vec2 dir = poly[i + 1] - poly[i];
+            for (std::size_t j = 0; j < per_iter; j++)
+            {
+                const float factor = (float)j / (float)per_iter;
+                const glm::vec2 pos = poly[i] + dir * factor;
+                const auto e = papp.engine().add_entity(p_sb_radius, m_start_pos + pos,
+                                                        entity_templ.kinematic ? vel : glm::vec2(0.f),
+                                                        0.f, 0.f,
+                                                        entity_templ.mass / entity_count,
+                                                        entity_templ.charge / entity_count,
+                                                        entity_templ.kinematic);
+                added.push_back(e);
+            }
+        }
+        const std::size_t spring_count = entity_count * (entity_count - 1) / 2;
+        for (std::size_t i = 0; i < added.size(); i++)
+            for (std::size_t j = i + 1; j < added.size(); j++)
+            {
+                const auto e1 = added[i], e2 = added[j];
+                papp.engine().add_spring(e1, e2, p_sb_stiffness / spring_count,
+                                         p_sb_dampening / spring_count,
+                                         glm::distance(e1->pos(), e2->pos()));
+            }
     }
 
     void adder::save_template(const std::string &name)
@@ -106,6 +153,11 @@ namespace ppx_demo
         out.begin_section("current");
         p_current_templ.write(out);
         out.end_section();
+        out.write("soft_body", p_soft_body);
+        out.write("sb_stiffness", p_sb_stiffness);
+        out.write("sb_dampening", p_sb_dampening);
+        out.write("sb_radius", p_sb_radius);
+        out.write("between_vertices", p_entities_between_vertices);
 
         std::size_t index = 0;
         const std::string section = "template";
@@ -122,6 +174,11 @@ namespace ppx_demo
         in.begin_section("current");
         p_current_templ.read(in);
         in.end_section();
+        p_soft_body = (bool)in.readi16("soft_body");
+        p_sb_stiffness = in.readf32("sb_stiffness");
+        p_sb_dampening = in.readf32("sb_dampening");
+        p_sb_radius = in.readf32("sb_radius");
+        p_entities_between_vertices = in.readui32("between_vertices");
 
         std::size_t index = 0;
         const std::string section = "template";
@@ -182,7 +239,7 @@ namespace ppx_demo
         }
     }
 
-    void adder::setup_preview()
+    void adder::setup_entity_preview()
     {
         auto &shape = p_current_templ.entity_templ.shape;
         demo_app &papp = demo_app::get();
@@ -199,13 +256,13 @@ namespace ppx_demo
         m_preview->setPosition(pos.x, pos.y);
     }
 
-    void adder::preview()
+    void adder::preview_entity()
     {
-        draw_preview();
+        draw_entity_preview();
         demo_app &papp = demo_app::get();
         if (p_predict_path && papp.p_predictor.p_enabled)
         {
-            const auto e = add(false);
+            const auto e = add_entity(false);
             papp.p_predictor.predict_and_render(*e);
             papp.engine().remove_entity(*e);
         }
@@ -213,7 +270,7 @@ namespace ppx_demo
             draw_velocity_arrow();
     }
 
-    void adder::draw_preview()
+    void adder::draw_entity_preview()
     {
         const glm::vec2 vel = vel_upon_addition();
         m_preview->setRotation(atan2f(vel.y, vel.x) * TO_DEGREES);

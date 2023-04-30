@@ -164,6 +164,15 @@ namespace ppx_demo
 
     void add_tab::render_canvas() const
     {
+        ImGui::Checkbox("Soft body", &m_adder.p_soft_body);
+        if (m_adder.p_soft_body)
+        {
+            ImGui::SliderInt("Entities between vertices", (int *)&m_adder.p_entities_between_vertices, 0, 10);
+            ImGui::DragFloat("Stiffness", &m_adder.p_sb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Dampening", &m_adder.p_sb_dampening, 0.3f, 0.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Radius", &m_adder.p_sb_radius, 0.3f, 0.f, FLT_MAX, "%.1f");
+        }
+
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
@@ -171,7 +180,7 @@ namespace ppx_demo
         std::vector<glm::vec2> vertices = poly.vertices();
 
         const bool is_convex = poly.is_convex();
-        if (!is_convex)
+        if (!is_convex && !m_adder.p_soft_body)
         {
             ImGui::SameLine(ImGui::GetWindowWidth() - 575.f);
             ImGui::Text("The polygon is not convex!");
@@ -236,8 +245,8 @@ namespace ppx_demo
             draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 
         const sf::Color &entity_col = papp.entity_color();
-        const auto col = is_convex ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
-                                   : IM_COL32(255, 0, 0, 255);
+        const auto col = (is_convex || m_adder.p_soft_body) ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
+                                                            : IM_COL32(255, 0, 0, 255);
 
         std::vector<ImVec2> points(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
@@ -249,7 +258,7 @@ namespace ppx_demo
             points[i] = {p1.x, p1.y};
         }
 
-        if (is_convex)
+        if (is_convex && !m_adder.p_soft_body)
             draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {

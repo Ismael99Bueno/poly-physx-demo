@@ -39,7 +39,6 @@ namespace ppx_demo
         void render();
         void setup();
         void cancel();
-        ppx::entity2D_ptr add(bool definitive = true);
 
         void save_template(const std::string &name);
         void load_template(const std::string &name);
@@ -49,6 +48,8 @@ namespace ppx_demo
         void erase_template();
         void update_template_vertices();
 
+        void add();
+
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
 
@@ -56,7 +57,10 @@ namespace ppx_demo
         bool has_saved_entity() const;
 
         add_template p_current_templ;
-        bool p_predict_path = true;
+        bool p_predict_path = true, p_soft_body = false;
+        float p_sb_stiffness = 250.f, p_sb_dampening = 1.2f, p_sb_radius = 1.f;
+
+        std::uint32_t p_entities_between_vertices = 0;
 
     private:
         std::map<std::string, add_template> m_templates;
@@ -66,12 +70,15 @@ namespace ppx_demo
 
         std::unique_ptr<sf::Shape> m_preview;
 
+        ppx::entity2D_ptr add_entity(bool definitive = true);
+        void add_soft_body();
+
         glm::vec2 vel_upon_addition() const;
 
-        void setup_preview();
-        void preview();
+        void setup_entity_preview();
+        void preview_entity();
 
-        void draw_preview();
+        void draw_entity_preview();
         void draw_velocity_arrow() const;
     };
 }
