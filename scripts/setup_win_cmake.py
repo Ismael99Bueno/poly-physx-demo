@@ -36,7 +36,8 @@ def __resolve_cmake_installation() -> bool:
         print("Failed. Still unable to find CMake executable in path.")
 
     if bud.prompt(
-        f"CMake installation not found at {bud.cmake_path}. Is it located elsewhere?"
+        f"CMake installation not found at {bud.cmake_path}. Is it located elsewhere?",
+        default=False,
     ):
         cmake_path = input(
             "Enter CMake installation path (Use forward or double backward slashes): "
