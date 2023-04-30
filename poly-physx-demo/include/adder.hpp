@@ -25,7 +25,12 @@ namespace ppx_demo
             entity_template entity_templ;
             shape_type shape = RECT;
             float width = DEFAULT_SIZE, height = DEFAULT_SIZE,
-                  ngon_radius = 0.6f * DEFAULT_SIZE, circle_radius = 0.6f * DEFAULT_SIZE;
+                  ngon_radius = 0.6f * DEFAULT_SIZE,
+                  circle_radius = 0.6f * DEFAULT_SIZE,
+                  sb_stiffness = 250.f, sb_dampening = 1.2f, sb_radius = 1.f;
+            bool soft_body = false;
+            std::uint32_t entities_between_vertices = 0;
+
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
 
@@ -57,10 +62,7 @@ namespace ppx_demo
         bool has_saved_entity() const;
 
         add_template p_current_templ;
-        bool p_predict_path = true, p_soft_body = false;
-        float p_sb_stiffness = 250.f, p_sb_dampening = 1.2f, p_sb_radius = 1.f;
-
-        std::uint32_t p_entities_between_vertices = 0;
+        bool p_predict_path = true;
 
     private:
         std::map<std::string, add_template> m_templates;

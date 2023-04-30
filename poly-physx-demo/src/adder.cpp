@@ -31,7 +31,7 @@ namespace ppx_demo
 
     void adder::add()
     {
-        if (p_soft_body && p_current_templ.shape == CUSTOM)
+        if (p_current_templ.soft_body && p_current_templ.shape == CUSTOM)
             add_soft_body();
         else
             add_entity();
@@ -60,7 +60,7 @@ namespace ppx_demo
         poly.rotate(atan2f(vel.y, vel.x));
 
         const entity_template &entity_templ = p_current_templ.entity_templ;
-        const std::size_t per_iter = p_entities_between_vertices + 1,
+        const std::size_t per_iter = p_current_templ.entities_between_vertices + 1,
                           entity_count = poly.size() * per_iter;
 
         std::vector<ppx::entity2D_ptr> added;
@@ -71,7 +71,7 @@ namespace ppx_demo
             {
                 const float factor = (float)j / (float)per_iter;
                 const glm::vec2 pos = poly[i] + dir * factor;
-                const auto e = papp.engine().add_entity(p_sb_radius, m_start_pos + pos,
+                const auto e = papp.engine().add_entity(p_current_templ.sb_radius, m_start_pos + pos,
                                                         entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                         0.f, 0.f,
                                                         entity_templ.mass / entity_count,
@@ -84,9 +84,9 @@ namespace ppx_demo
         for (std::size_t i = 0; i < added.size(); i++)
             for (std::size_t j = i + 1; j < added.size(); j++)
             {
-                const auto e1 = added[i], e2 = added[j];
-                papp.engine().add_spring(e1, e2, p_sb_stiffness / spring_count,
-                                         p_sb_dampening / spring_count,
+                const auto &e1 = added[i], &e2 = added[j];
+                papp.engine().add_spring(e1, e2, p_current_templ.sb_stiffness / spring_count,
+                                         p_current_templ.sb_dampening / spring_count,
                                          glm::distance(e1->pos(), e2->pos()));
             }
     }
@@ -128,6 +128,11 @@ namespace ppx_demo
         out.write("r", (int)color.r);
         out.write("g", (int)color.g);
         out.write("b", (int)color.b);
+        out.write("soft_body", soft_body);
+        out.write("sb_stiffness", sb_stiffness);
+        out.write("sb_dampening", sb_dampening);
+        out.write("sb_radius", sb_radius);
+        out.write("between_vertices", entities_between_vertices);
         out.begin_section("entity_template");
         entity_templ.write(out);
         out.end_section();
@@ -143,6 +148,11 @@ namespace ppx_demo
         circle_radius = in.readf32("circle_radius");
         sides = in.readui32("sides");
         color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
+        soft_body = (bool)in.readi16("soft_body");
+        sb_stiffness = in.readf32("sb_stiffness");
+        sb_dampening = in.readf32("sb_dampening");
+        sb_radius = in.readf32("sb_radius");
+        entities_between_vertices = in.readui32("between_vertices");
         in.begin_section("entity_template");
         entity_templ.read(in);
         in.end_section();
@@ -153,11 +163,6 @@ namespace ppx_demo
         out.begin_section("current");
         p_current_templ.write(out);
         out.end_section();
-        out.write("soft_body", p_soft_body);
-        out.write("sb_stiffness", p_sb_stiffness);
-        out.write("sb_dampening", p_sb_dampening);
-        out.write("sb_radius", p_sb_radius);
-        out.write("between_vertices", p_entities_between_vertices);
 
         std::size_t index = 0;
         const std::string section = "template";
@@ -174,11 +179,6 @@ namespace ppx_demo
         in.begin_section("current");
         p_current_templ.read(in);
         in.end_section();
-        p_soft_body = (bool)in.readi16("soft_body");
-        p_sb_stiffness = in.readf32("sb_stiffness");
-        p_sb_dampening = in.readf32("sb_dampening");
-        p_sb_radius = in.readf32("sb_radius");
-        p_entities_between_vertices = in.readui32("between_vertices");
 
         std::size_t index = 0;
         const std::string section = "template";
