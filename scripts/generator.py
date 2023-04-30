@@ -48,7 +48,7 @@ class PPXGenerator(Generator):
         is_all = self._generator == "all"
         is_gmake = is_all or self._generator.startswith("gmake")
         is_vs = is_all or self._generator.startswith("vs")
-        print("Removing build, binary and project files..")
+        print("Removing build files for PPX...")
 
         bud = Buddy()
         for folder in [".", "vendor"]:
@@ -142,7 +142,7 @@ class SFMLGenerator(Generator):
             self.__clean(f"{bud.root_path}/vendor/SFML/build-{self.__build_name}")
 
     def __clean(self, build_sfml_path: str) -> None:
-        print("Removing build files for SFML...")
+        print("Removing SFML build...")
         try:
             shutil.rmtree(build_sfml_path)
             print(f"Removed {build_sfml_path}")
