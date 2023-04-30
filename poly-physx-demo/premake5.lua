@@ -6,15 +6,16 @@ defines {'ROOT_PATH="' .. rootpath .. '"'}
 language "C++"
 cppdialect "C++17"
 filter "system:macosx"
-buildoptions {
-   "-Wall",
-   "-Wextra",
-   "-Wpedantic",
-   "-Wconversion",
-   "-Wno-unused-parameter"
-}
+   buildoptions {
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Wconversion",
+      "-Wno-unused-parameter"
+   }
+
 filter "system:windows"
-defines "SFML_STATIC"
+   defines "SFML_STATIC"
 filter {}
 
 pchheader "pch.hpp"
@@ -29,8 +30,21 @@ files {
 }
 
 includedirs {
-   "../**/include",
-   "../vendor/glm"
+   "include",
+   "%{wks.location}/poly-physx/include",
+   "%{wks.location}/poly-physx-app/include",
+   "%{wks.location}/shapes-2D/include",
+   "%{wks.location}/rk-integrator/include",
+   "%{wks.location}/debug-tools/include",
+   "%{wks.location}/profile-tools/include",
+   "%{wks.location}/ini-parser/include",
+   "%{wks.location}/container-view/include",
+   "%{wks.location}/sfml-primitives/include",
+   "%{wks.location}/vendor/glm",
+   "%{wks.location}/vendor/imgui/include",
+   "%{wks.location}/vendor/imgui-sfml/include",
+   "%{wks.location}/vendor/implot/include",
+   "%{wks.location}/vendor/SFML/include"
 }
 
 links {
@@ -47,76 +61,76 @@ links {
 }
 
 filter "system:macosx"
-libdirs "../vendor/SFML/build-gmake/lib"
-links {
-   "sfml-graphics",
-   "sfml-window",
-   "sfml-system",
-   "OpenGL.framework"
-}
+   libdirs "%{wks.location}/vendor/SFML/build-gmake/lib"
+   links {
+      "sfml-graphics",
+      "sfml-window",
+      "sfml-system",
+      "OpenGL.framework"
+   }
 
 filter {
    "system:windows",
    "configurations:debug*",
    "action:vs*"
 }
-libdirs "../vendor/SFML/build-vs/lib/Debug"
-links {
-   "sfml-graphics-s-d",
-   "sfml-window-s-d",
-   "sfml-system-s-d"
-}
+   libdirs "%{wks.location}/vendor/SFML/build-vs/lib/Debug"
+   links {
+      "sfml-graphics-s-d",
+      "sfml-window-s-d",
+      "sfml-system-s-d"
+   }
 
 filter {
    "system:windows",
    "configurations:release*",
    "action:vs*"
 }
-libdirs "../vendor/SFML/build-vs/lib/Release"
-links {
-   "sfml-graphics-s",
-   "sfml-window-s",
-   "sfml-system-s"
-}
+   libdirs "%{wks.location}/vendor/SFML/build-vs/lib/Release"
+   links {
+      "sfml-graphics-s",
+      "sfml-window-s",
+      "sfml-system-s"
+   }
 
 filter {
    "system:windows",
    "action:gmake*"
 }
-libdirs "../vendor/SFML/build-gmake/lib"
-links {
-   "sfml-graphics-s",
-   "sfml-window-s",
-   "sfml-system-s"
-}
+   libdirs "%{wks.location}/vendor/SFML/build-gmake/lib"
+   links {
+      "sfml-graphics-s",
+      "sfml-window-s",
+      "sfml-system-s"
+   }
 
 filter {
    "system:windows",
    "platforms:x86_64",
    "action:vs*"
 }
-libdirs "../vendor/SFML/extlibs/libs-msvc/x64"
+   libdirs "%{wks.location}/vendor/SFML/extlibs/libs-msvc/x64"
 
 filter {
    "system:windows",
    "platforms:x86",
    "action:vs*"
 }
-libdirs "../vendor/SFML/extlibs/libs-msvc/x86"
+   libdirs "%{wks.location}/vendor/SFML/extlibs/libs-msvc/x86"
 
 filter {
    "system:windows",
    "platforms:x86_64",
    "action:gmake*"
 }
-libdirs "../vendor/SFML/extlibs/libs-mingw/x64"
+   libdirs "%{wks.location}/vendor/SFML/extlibs/libs-mingw/x64"
 
 filter {
    "system:windows",
    "platforms:x86",
    "action:gmake*"
 }
-libdirs "../vendor/SFML/extlibs/libs-mingw/x86"
+   libdirs "%{wks.location}/vendor/SFML/extlibs/libs-mingw/x86"
 
 filter "system:windows"
 links {
