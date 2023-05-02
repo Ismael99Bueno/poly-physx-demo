@@ -40,3 +40,6 @@
 [submodule "container-view"]
 	path = container-view
 	url = https://github.com/ismawno/container-view.git
+[submodule "yaml-cpp"]
+	path = vendor/yaml-cpp
+	url = https://github.com/ismawno/yaml-cpp.git
