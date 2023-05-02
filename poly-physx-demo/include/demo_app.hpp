@@ -69,13 +69,13 @@ namespace ppx_demo
         void on_event(sf::Event &event) override;
         void on_end() override;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         std::string m_session;
         sf::Clock m_clock;
 
-        const std::unordered_map<const char *, ini::saveable *> m_saveables = {
+        const std::unordered_map<const char *, ini::serializable *> m_saveables = {
             {"selector", &p_selector},
             {"copy_paste", &p_copy_paste},
             {"predictor", &p_predictor},

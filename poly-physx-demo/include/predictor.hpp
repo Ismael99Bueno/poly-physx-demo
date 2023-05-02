@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class predictor : public ini::saveable
+    class predictor : public ini::serializable
     {
     public:
         predictor() = default;
@@ -22,8 +22,8 @@ namespace ppx_demo
         void predict_and_render(const ppx::entity2D &e);
         bool is_predicting(const ppx::entity2D &e) const;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         float p_dt = 3e-2f;
         std::uint32_t p_steps = 100;

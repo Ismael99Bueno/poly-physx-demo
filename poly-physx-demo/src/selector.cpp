@@ -132,14 +132,14 @@ namespace ppx_demo
         demo_app::get().draw(vertices, 5u, sf::LineStrip);
     }
 
-    void selector::write(ini::output &out) const
+    void selector::serialize(ini::serializer &out) const
     {
         const std::string key = "selected";
         for (const auto &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
 
-    void selector::read(ini::input &in)
+    void selector::deserialize(ini::deserializer &in)
     {
         m_entities.clear();
         const std::string key = "selected";

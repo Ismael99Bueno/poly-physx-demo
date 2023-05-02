@@ -10,8 +10,8 @@ namespace ppx_demo
     {
     public:
         engine_panel();
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
     private:
         enum integ_method

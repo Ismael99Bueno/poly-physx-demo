@@ -4,13 +4,13 @@
 
 namespace ppx_demo
 {
-    static void write_set(const ppx::entity2D_set &set, ini::output &out)
+    static void write_set(const ppx::entity2D_set &set, ini::serializer &out)
     {
         const std::string key = "entity";
         for (const ppx::const_entity2D_ptr &e : set.entities())
             out.write(key + std::to_string(e.index()), e.index());
     }
-    static void read_set(ppx::entity2D_set &set, ini::input &in)
+    static void read_set(ppx::entity2D_set &set, ini::deserializer &in)
     {
         set.clear();
         const std::string key = "entity";
@@ -31,13 +31,13 @@ namespace ppx_demo
 
     float gravity::potential_energy(const ppx::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
 
-    void gravity::write(ini::output &out) const
+    void gravity::serialize(ini::serializer &out) const
     {
         out.write("mag", p_mag);
         out.write("enabled", p_enabled);
         write_set(*this, out);
     }
-    void gravity::read(ini::input &in)
+    void gravity::deserialize(ini::deserializer &in)
     {
         p_mag = in.readf32("mag");
         p_enabled = (bool)in.readi16("enabled");
@@ -49,14 +49,14 @@ namespace ppx_demo
         return std::make_pair(-p_lin_mag * e.vel(), -p_ang_mag * e.angvel());
     }
 
-    void drag::write(ini::output &out) const
+    void drag::serialize(ini::serializer &out) const
     {
         out.write("lin_mag", p_lin_mag);
         out.write("ang_mag", p_ang_mag);
         out.write("enabled", p_enabled);
         write_set(*this, out);
     }
-    void drag::read(ini::input &in)
+    void drag::deserialize(ini::deserializer &in)
     {
         p_lin_mag = in.readf32("lin_mag");
         p_ang_mag = in.readf32("ang_mag");
@@ -78,13 +78,13 @@ namespace ppx_demo
         return cte / glm::distance(e1.pos(), e2.pos());
     }
 
-    void gravitational::write(ini::output &out) const
+    void gravitational::serialize(ini::serializer &out) const
     {
         out.write("mag", p_mag);
         out.write("enabled", p_enabled);
         write_set(*this, out);
     }
-    void gravitational::read(ini::input &in)
+    void gravitational::deserialize(ini::deserializer &in)
     {
         p_mag = in.readf32("mag");
         p_enabled = (bool)in.readi16("enabled");
@@ -116,14 +116,14 @@ namespace ppx_demo
         return -cte * logf(dist);
     }
 
-    void electrical::write(ini::output &out) const
+    void electrical::serialize(ini::serializer &out) const
     {
         out.write("mag", p_mag);
         out.write("exp", p_exp);
         out.write("enabled", p_enabled);
         write_set(*this, out);
     }
-    void electrical::read(ini::input &in)
+    void electrical::deserialize(ini::deserializer &in)
     {
         p_mag = in.readf32("mag");
         p_exp = in.readui32("exp");
@@ -146,14 +146,14 @@ namespace ppx_demo
         return -cte * expf(p_exp * dist) / p_exp;
     }
 
-    void exponential::write(ini::output &out) const
+    void exponential::serialize(ini::serializer &out) const
     {
         out.write("mag", p_mag);
         out.write("exp", p_exp);
         out.write("enabled", p_enabled);
         write_set(*this, out);
     }
-    void exponential::read(ini::input &in)
+    void exponential::deserialize(ini::deserializer &in)
     {
         p_mag = in.readf32("mag");
         p_exp = in.readf32("exp");

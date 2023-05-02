@@ -12,7 +12,7 @@ namespace ppx_demo
             preview();
     }
 
-    void copy_paste::group::write(ini::output &out) const
+    void copy_paste::group::serialize(ini::serializer &out) const
     {
         out.write("name", name);
         out.write("refposx", ref_pos.x);
@@ -24,7 +24,7 @@ namespace ppx_demo
         {
             out.begin_section(section + std::to_string(index++));
             out.write("key_id", id);
-            tmpl.write(out);
+            tmpl.serialize(out);
             out.end_section();
         }
 
@@ -33,7 +33,7 @@ namespace ppx_demo
         for (const spring_template &tmpl : springs)
         {
             out.begin_section(section + std::to_string(index++));
-            tmpl.write(out);
+            tmpl.serialize(out);
             out.end_section();
         }
 
@@ -42,11 +42,11 @@ namespace ppx_demo
         for (const rigid_bar_template &tmpl : rbars)
         {
             out.begin_section(section + std::to_string(index++));
-            tmpl.write(out);
+            tmpl.serialize(out);
             out.end_section();
         }
     }
-    void copy_paste::group::read(ini::input &in)
+    void copy_paste::group::deserialize(ini::deserializer &in)
     {
         entities.clear();
         springs.clear();
@@ -66,7 +66,7 @@ namespace ppx_demo
                 break;
             }
             const std::size_t id = in.readui64("key_id");
-            entities[id].read(in);
+            entities[id].deserialize(in);
             in.end_section();
         }
 
@@ -80,7 +80,7 @@ namespace ppx_demo
                 in.end_section();
                 break;
             }
-            springs.emplace_back().read(in);
+            springs.emplace_back().deserialize(in);
             in.end_section();
         }
 
@@ -94,23 +94,23 @@ namespace ppx_demo
                 in.end_section();
                 break;
             }
-            rbars.emplace_back().read(in);
+            rbars.emplace_back().deserialize(in);
             in.end_section();
         }
     }
 
-    void copy_paste::write(ini::output &out) const
+    void copy_paste::serialize(ini::serializer &out) const
     {
         const std::string section = "group";
         std::size_t index = 0;
         for (const auto &[name, group] : m_groups)
         {
             out.begin_section(section + std::to_string(index++));
-            group.write(out);
+            group.serialize(out);
             out.end_section();
         }
     }
-    void copy_paste::read(ini::input &in)
+    void copy_paste::deserialize(ini::deserializer &in)
     {
         const std::string section = "group";
         std::size_t index = 0;
@@ -124,7 +124,7 @@ namespace ppx_demo
             }
             const std::string name = in.readstr("name");
             if (m_groups.find(name) == m_groups.end()) // Groups persist over saves
-                m_groups[name].read(in);
+                m_groups[name].deserialize(in);
             in.end_section();
         }
     }

@@ -55,7 +55,7 @@ namespace ppx_demo
     bool follower::empty() const { return m_entities.empty(); }
     void follower::clear() { m_entities.clear(); }
 
-    void follower::write(ini::output &out) const
+    void follower::serialize(ini::serializer &out) const
     {
         out.write("prevcomx", m_prev_com.x);
         out.write("prevcomy", m_prev_com.y);
@@ -63,7 +63,7 @@ namespace ppx_demo
         for (const ppx::const_entity2D_ptr &e : m_entities)
             out.write(key + std::to_string(e.index()), e.index());
     }
-    void follower::read(ini::input &in)
+    void follower::deserialize(ini::deserializer &in)
     {
         m_prev_com = {in.readf32("prevcomx"), in.readf32("prevcomy")};
         const std::string key = "entity";

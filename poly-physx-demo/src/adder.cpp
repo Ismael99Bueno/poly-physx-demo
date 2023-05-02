@@ -116,7 +116,7 @@ namespace ppx_demo
     void adder::load_template() { load_template(p_current_templ.name); }
     void adder::erase_template() { erase_template(p_current_templ.name); }
 
-    void adder::add_template::write(ini::output &out) const
+    void adder::add_template::serialize(ini::serializer &out) const
     {
         out.write("name", name);
         out.write("shape", shape);
@@ -134,11 +134,11 @@ namespace ppx_demo
         out.write("sb_radius", sb_radius);
         out.write("between_vertices", entities_between_vertices);
         out.begin_section("entity_template");
-        entity_templ.write(out);
+        entity_templ.serialize(out);
         out.end_section();
     }
 
-    void adder::add_template::read(ini::input &in)
+    void adder::add_template::deserialize(ini::deserializer &in)
     {
         name = in.readstr("name");
         shape = (shape_type)in.readi32("shape");
@@ -154,14 +154,14 @@ namespace ppx_demo
         sb_radius = in.readf32("sb_radius");
         entities_between_vertices = in.readui32("between_vertices");
         in.begin_section("entity_template");
-        entity_templ.read(in);
+        entity_templ.deserialize(in);
         in.end_section();
     }
 
-    void adder::write(ini::output &out) const
+    void adder::serialize(ini::serializer &out) const
     {
         out.begin_section("current");
-        p_current_templ.write(out);
+        p_current_templ.serialize(out);
         out.end_section();
 
         std::size_t index = 0;
@@ -169,15 +169,15 @@ namespace ppx_demo
         for (const auto &[name, templ] : m_templates)
         {
             out.begin_section(section + std::to_string(index++));
-            templ.write(out);
+            templ.serialize(out);
             out.end_section();
         }
     }
 
-    void adder::read(ini::input &in)
+    void adder::deserialize(ini::deserializer &in)
     {
         in.begin_section("current");
-        p_current_templ.read(in);
+        p_current_templ.deserialize(in);
         in.end_section();
 
         std::size_t index = 0;
@@ -192,7 +192,7 @@ namespace ppx_demo
             }
             const std::string name = in.readstr("name");
             if (m_templates.find(name) == m_templates.end()) // Entities persist over saves
-                m_templates[name].read(in);
+                m_templates[name].deserialize(in);
             in.end_section();
         }
         demo_app::get().entity_color(p_current_templ.color);

@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class attacher : public ini::saveable
+    class attacher : public ini::serializable
     {
     public:
         enum attach_type
@@ -26,8 +26,8 @@ namespace ppx_demo
 
         void cancel();
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         bool has_first() const;
 

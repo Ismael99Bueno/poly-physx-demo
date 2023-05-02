@@ -123,7 +123,7 @@ namespace ppx_demo
         return false;
     }
 
-    void predictor::write(ini::output &out) const
+    void predictor::serialize(ini::serializer &out) const
     {
         out.write("enabled", p_enabled);
         out.write("timestep", p_dt);
@@ -137,7 +137,7 @@ namespace ppx_demo
             out.write(key + std::to_string(e.index()), e.index());
     }
 
-    void predictor::read(ini::input &in)
+    void predictor::deserialize(ini::deserializer &in)
     {
         p_enabled = (bool)in.readi16("enabled");
         p_dt = in.readf32("timestep");

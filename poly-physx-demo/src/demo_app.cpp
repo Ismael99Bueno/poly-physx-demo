@@ -33,27 +33,27 @@ namespace ppx_demo
 
     void demo_app::on_end() { write_save(LAST_SAVE); }
 
-    void demo_app::write(ini::output &out) const
+    void demo_app::serialize(ini::serializer &out) const
     {
-        app::write(out);
+        app::serialize(out);
         out.write("session", m_session);
 
-        for (const auto &[section, saveable] : m_saveables)
+        for (const auto &[section, serializable] : m_saveables)
         {
             out.begin_section(section);
-            saveable->write(out);
+            serializable->serialize(out);
             out.end_section();
         }
     }
-    void demo_app::read(ini::input &in)
+    void demo_app::deserialize(ini::deserializer &in)
     {
-        app::read(in);
+        app::deserialize(in);
         m_session = in.readstr("session");
 
-        for (const auto &[section, saveable] : m_saveables)
+        for (const auto &[section, serializable] : m_saveables)
         {
             in.begin_section(section);
-            saveable->read(in);
+            serializable->deserialize(in);
             in.end_section();
         }
     }
@@ -68,21 +68,21 @@ namespace ppx_demo
 
     void demo_app::write(const std::string &filepath) const
     {
-        ini::output out(filepath.c_str());
+        ini::serializer out(filepath.c_str());
 
         out.begin_section("demo_app");
-        write(out);
+        serialize(out);
         out.end_section();
         out.close();
     }
     bool demo_app::read(const std::string &filepath)
     {
-        ini::input in(filepath.c_str());
+        ini::deserializer in(filepath.c_str());
 
         if (!in.is_open())
             return false;
         in.begin_section("demo_app");
-        read(in);
+        deserialize(in);
         in.end_section();
         in.close();
         validate_session(); // This may be redundant

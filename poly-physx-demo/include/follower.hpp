@@ -5,7 +5,7 @@
 
 namespace ppx_demo
 {
-    class follower : public ini::saveable
+    class follower : public ini::serializable
     {
     public:
         follower() = default;
@@ -19,8 +19,8 @@ namespace ppx_demo
         bool empty() const;
         void clear();
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
     private:
         std::vector<ppx::const_entity2D_ptr> m_entities;

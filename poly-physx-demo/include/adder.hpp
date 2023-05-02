@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class adder : public ini::saveable
+    class adder : public ini::serializable
     {
     public:
         enum shape_type
@@ -19,7 +19,7 @@ namespace ppx_demo
         };
 
     private:
-        struct add_template : private ini::saveable
+        struct add_template : private ini::serializable
         {
             std::string name;
             entity_template entity_templ;
@@ -34,8 +34,8 @@ namespace ppx_demo
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
 
-            void write(ini::output &out) const override;
-            void read(ini::input &in) override;
+            void serialize(ini::serializer &out) const override;
+            void deserialize(ini::deserializer &in) override;
         };
 
     public:
@@ -55,8 +55,8 @@ namespace ppx_demo
 
         void add();
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         const std::map<std::string, add_template> &templates() const;
         bool has_saved_entity() const;

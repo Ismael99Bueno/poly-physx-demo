@@ -5,16 +5,16 @@
 namespace ppx_demo
 {
     perf_panel::perf_panel() : ppx::layer("perf_panel") {}
-    void perf_panel::write(ini::output &out) const
+    void perf_panel::serialize(ini::serializer &out) const
     {
-        layer::write(out);
+        layer::serialize(out);
         out.write("time_unit", m_unit);
         out.write("framerate", m_fps);
     }
 
-    void perf_panel::read(ini::input &in)
+    void perf_panel::deserialize(ini::deserializer &in)
     {
-        layer::read(in);
+        layer::deserialize(in);
         m_unit = (time_unit)in.readi32("time_unit");
         m_fps = in.readi32("framerate");
     }

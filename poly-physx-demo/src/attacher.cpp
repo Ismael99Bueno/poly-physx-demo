@@ -109,7 +109,7 @@ namespace ppx_demo
 
     void attacher::cancel() { m_e1 = nullptr; }
 
-    void attacher::write(ini::output &out) const
+    void attacher::serialize(ini::serializer &out) const
     {
         out.write("sp_stiffness", p_sp_stiffness);
         out.write("sp_dampening", p_sp_dampening);
@@ -120,7 +120,7 @@ namespace ppx_demo
         out.write("attach", p_attach);
     }
 
-    void attacher::read(ini::input &in)
+    void attacher::deserialize(ini::deserializer &in)
     {
         p_sp_stiffness = in.readf32("sp_stiffness");
         p_sp_dampening = in.readf32("sp_dampening");

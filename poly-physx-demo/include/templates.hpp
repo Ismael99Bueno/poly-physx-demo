@@ -9,7 +9,7 @@
 
 namespace ppx_demo
 {
-    struct entity_template : ini::saveable
+    struct entity_template : ini::serializable
     {
         glm::vec2 pos, vel;
         std::size_t index = 0, id = 0;
@@ -18,34 +18,34 @@ namespace ppx_demo
         bool kinematic = true;
         ppx::entity2D::shape_type type = ppx::entity2D::POLYGON;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         static entity_template from_entity(const ppx::entity2D &e);
     };
 
-    struct spring_template : ini::saveable
+    struct spring_template : ini::serializable
     {
         float stiffness = 1.f, dampening = 0.f, length;
         std::size_t id1, id2;
         glm::vec2 joint1, joint2;
         bool has_joints;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         static spring_template from_spring(const ppx::spring2D &sp);
     };
 
-    struct rigid_bar_template : ini::saveable
+    struct rigid_bar_template : ini::serializable
     {
         float stiffness = 500.f, dampening = 30.f, length;
         std::size_t id1, id2;
         glm::vec2 joint1, joint2;
         bool has_joints;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         static rigid_bar_template from_bar(const ppx::rigid_bar2D &rb);
     };
