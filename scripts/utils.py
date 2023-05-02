@@ -3,8 +3,6 @@ import os
 from pathlib import Path
 from exceptions import PathNotFoundError
 import platform
-import time
-import sys
 
 
 class Buddy:
@@ -69,16 +67,24 @@ class Buddy:
     def cmake_path(self, cmake_path: str) -> None:
         self.__cmake_path = cmake_path
 
+    @property
+    def all_yes(self) -> bool:
+        return self.__all_yes
+
+    @all_yes.setter
+    def all_yes(self, all_yes: bool) -> None:
+        self.__all_yes = all_yes
+
     def add_to_path_with_binaries(self, path: str) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
         os.environ["PATH"] += f"{os.pathsep}{path}/bin"
 
-    def prompt(self, message: str) -> bool:
+    def prompt(self, message: str, default: bool = True) -> bool:
         while True:
-            answer = input(f"{message} [Y]/N ")
-            if answer == "n" or answer == "N":
+            answer = input(f"{message} [Y]/N " if default else f"{message} Y/[N] ")
+            if answer == "n" or answer == "N" or (not default and answer == ""):
                 return False
-            elif answer == "y" or answer == "Y" or answer == "":
+            elif answer == "y" or answer == "Y" or (default and answer == ""):
                 return True
 
     def prompt_to_install(self, to_be_installed: str) -> bool:
@@ -103,6 +109,7 @@ class Buddy:
         }
         self.__cmake_path = "C:/Program Files/CMake"
         self.__mingw_path = f"C:/mingw{'32' if self.os_architecture == 'x86' else '64'}"
+        self.__all_yes = False
 
         return self
 

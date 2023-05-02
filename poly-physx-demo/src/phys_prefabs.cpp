@@ -1,9 +1,6 @@
+#include "pch.hpp"
 #include "phys_prefabs.hpp"
 #include "demo_app.hpp"
-#include <limits>
-#include <cmath>
-#include <glm/geometric.hpp>
-#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {

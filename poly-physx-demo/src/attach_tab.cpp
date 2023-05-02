@@ -1,39 +1,38 @@
+#include "pch.hpp"
 #include "attach_tab.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include <glm/geometric.hpp>
+#include "implot.h"
 
 namespace ppx_demo
 {
+    attach_tab::attach_tab(attacher &attch) : m_attacher(attch) {}
     void attach_tab::render() const
     {
         static const char *attach_types[2] = {"Spring", "Rigid bar"};
 
         demo_app &papp = demo_app::get();
-        attacher &attch = papp.p_attacher;
 
         ImGui::PushItemWidth(150);
-        ImGui::ListBox("Attach type", (int *)&attch.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
+        ImGui::ListBox("Attach type", (int *)&m_attacher.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
 
-        switch (attch.p_attach)
+        switch (m_attacher.p_attach)
         {
         case attacher::SPRING:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
+            ImGui::DragFloat("Stiffness", &m_attacher.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the spring will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
+            ImGui::DragFloat("Dampening", &m_attacher.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the spring will resist to movement.");
 
-            if (!attch.p_auto_length)
-                ImGui::DragFloat("Length", &attch.p_sp_length, 0.3f, 0.f, FLT_MAX);
+            if (!m_attacher.p_auto_length)
+                ImGui::DragFloat("Length", &m_attacher.p_sp_length, 0.3f, 0.f, FLT_MAX);
             else
-                ImGui::Text("Length: %f", attch.p_sp_length);
-            ImGui::Checkbox("Auto adjust length", &attch.p_auto_length);
+                ImGui::Text("Length: %f", m_attacher.p_sp_length);
+            ImGui::Checkbox("Auto adjust length", &m_attacher.p_auto_length);
 
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
@@ -45,11 +44,11 @@ namespace ppx_demo
         }
         case attacher::RIGID_BAR:
         {
-            ImGui::DragFloat("Stiffness", &attch.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Stiffness", &m_attacher.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
 
-            ImGui::DragFloat("Dampening", &attch.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
+            ImGui::DragFloat("Dampening", &m_attacher.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
@@ -63,7 +62,7 @@ namespace ppx_demo
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
-        switch (attch.p_attach)
+        switch (m_attacher.p_attach)
         {
         case attacher::SPRING:
             render_spring_color_pickers();
@@ -170,7 +169,6 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
-        attacher &atch = papp.p_attacher;
         ImGui::Text("Selected springs: %zu", slct.springs().size());
 
         std::vector<ppx::spring2D *> springs(slct.springs().size());
@@ -217,12 +215,13 @@ namespace ppx_demo
         {
             for (ppx::spring2D *sp : springs)
             {
-                const auto rb = sp->has_joints() ? std::make_shared<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                                      sp->joint1(), sp->joint2(),
-                                                                                      atch.p_rb_stiffness, atch.p_rb_dampening)
-                                                 : std::make_shared<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                                      atch.p_rb_stiffness, atch.p_rb_dampening);
-                papp.engine().add_constraint(rb);
+                if (sp->has_joints())
+                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                   sp->joint1(), sp->joint2(),
+                                                                   m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
+                else
+                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                   m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
             }
             remove_springs();
             slct.update_selected_springs_rbars();
@@ -235,7 +234,6 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
-        attacher &atch = papp.p_attacher;
         ImGui::Text("Selected rigid bars: %zu", slct.rbars().size());
 
         std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars(slct.rbars().size());
@@ -269,10 +267,10 @@ namespace ppx_demo
             {
                 if (rb->has_joints())
                     papp.engine().add_spring(rb->e1(), rb->e2(), rb->joint1(), rb->joint2(),
-                                             atch.p_sp_stiffness, atch.p_sp_dampening, atch.p_sp_length);
+                                             m_attacher.p_sp_stiffness, m_attacher.p_sp_dampening, m_attacher.p_sp_length);
                 else
-                    papp.engine().add_spring(rb->e1(), rb->e2(), atch.p_sp_stiffness,
-                                             atch.p_sp_dampening, atch.p_sp_length);
+                    papp.engine().add_spring(rb->e1(), rb->e2(), m_attacher.p_sp_stiffness,
+                                             m_attacher.p_sp_dampening, m_attacher.p_sp_length);
                 papp.engine().remove_constraint(rb);
             }
             slct.update_selected_springs_rbars();

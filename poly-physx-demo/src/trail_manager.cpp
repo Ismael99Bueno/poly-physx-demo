@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "trail_manager.hpp"
 #include "prm/thick_line.hpp"
 #include "demo_app.hpp"
@@ -11,18 +12,17 @@ namespace ppx_demo
             if (p_enabled && p_auto_include)
                 include(e);
         };
-        const auto on_removal = [this](ppx::entity2D &e)
+        const auto on_removal = [this](const std::size_t index)
         {
-            for (std::size_t i = 0; i < m_trails.size(); i++)
-                if (*m_trails[i].first == e)
-                {
-                    m_trails.erase(m_trails.begin() + (long)i);
-                    break;
-                }
+            for (auto it = m_trails.begin(); it != m_trails.end();)
+                if (!it->first.try_validate())
+                    it = m_trails.erase(it);
+                else
+                    ++it;
         };
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_entity_addition(on_addition);
-        papp.engine().callbacks().on_early_entity_removal(on_removal);
+        papp.engine().events().on_entity_addition += on_addition;
+        papp.engine().events().on_late_entity_removal += on_removal;
         m_trails.reserve(p_steps);
     }
 
@@ -62,15 +62,15 @@ namespace ppx_demo
                 const auto &[last_pos, last_color] = trail.vertices().back();
                 prm::thick_line tl(last_pos, e->pos() * WORLD_TO_PIXEL, p_line_thickness, last_color, true);
 
-                papp.window().draw(tl);
-                papp.window().draw(trail);
+                papp.draw(tl);
+                papp.draw(trail);
             }
     }
 
     void trail_manager::include(const ppx::const_entity2D_ptr &e)
     {
         if (!contains(*e))
-            m_trails.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
+            m_trails.emplace_back(e, demo_app::get()[e.index()].getFillColor());
     }
     void trail_manager::exclude(const ppx::entity2D &e)
     {

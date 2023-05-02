@@ -1,17 +1,16 @@
+#include "pch.hpp"
 #include "engine_panel.hpp"
 #include "rk/tableaus.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 #include "globals.hpp"
 #include "prm/flat_line_strip.hpp"
 #include "demo_app.hpp"
-#include <cmath>
 
 namespace ppx_demo
 {
+    engine_panel::engine_panel() : ppx::layer("engine_panel") {}
     void engine_panel::write(ini::output &out) const
     {
-        out.write("enabled", p_enabled);
+        layer::write(out);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
         out.write("period", m_period);
@@ -21,7 +20,7 @@ namespace ppx_demo
 
     void engine_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi16("enabled");
+        layer::read(in);
         m_method = (integ_method)in.readi32("method");
         m_visualize_qt = (bool)in.readi16("visualize_qt");
         m_period = in.readui32("period");
@@ -47,11 +46,10 @@ namespace ppx_demo
 
     void engine_panel::on_render()
     {
-        if (!p_enabled)
+        if (!p_visible)
             return;
-
         demo_app &papp = demo_app::get();
-        if (ImGui::Begin("Engine", &p_enabled))
+        if (ImGui::Begin("Engine", &p_visible))
         {
             ImGui::Text("Entities: %zu", papp.engine().size());
             if (ImGui::CollapsingHeader("Integration"))
@@ -102,21 +100,25 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
 
-        float dt = papp.timestep();
         int integ_per_frame = (int)papp.integrations_per_frame();
-        bool align_dt = papp.aligned_timestep();
-        if (ImGui::Checkbox("Align timestamp with framerate", &align_dt))
-            papp.aligned_timestep(align_dt);
+        bool sync = papp.sync_timestep();
+        if (ImGui::Checkbox("Sync with framerate", &sync))
+            papp.sync_timestep(sync);
 
+        float dt = papp.timestep();
+        int hz = (int)(1.f / dt);
         ImGui::PushItemWidth(150);
-        if (!align_dt)
+        if (!sync)
         {
             const rk::integrator &integ = papp.engine().integrator();
-            if (ImGui::SliderFloat("Timestep", &dt, integ.min_dt(), integ.max_dt(), "%.5f", ImGuiSliderFlags_Logarithmic))
-                papp.timestep(dt);
+            const int mm = (int)(1.f / integ.max_dt()),
+                      mx = (int)(1.f / integ.min_dt());
+
+            if (ImGui::SliderInt("Hz", &hz, mm, mx))
+                papp.timestep(1.f / (float)hz);
         }
         else
-            ImGui::Text("Timestep: %f", dt);
+            ImGui::Text("Timestep: %f (%d hz)", dt, hz);
 
         if (ImGui::SliderInt("Integrations per frame", &integ_per_frame, 1, 100))
             papp.integrations_per_frame((std::uint32_t)integ_per_frame);
@@ -282,7 +284,7 @@ namespace ppx_demo
                                       glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
                                       mm * WORLD_TO_PIXEL,
                                       glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
-            demo_app::get().window().draw(fls);
+            demo_app::get().draw(fls);
         }
     }
 }

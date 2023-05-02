@@ -9,10 +9,12 @@ namespace ppx_demo
     class attach_tab
     {
     public:
-        attach_tab() = default;
+        attach_tab(attacher &attch);
         void render() const;
 
     private:
+        attacher &m_attacher;
+
         void render_springs_list() const;
         void render_rigid_bars_list() const;
         void render_selected_springs() const;

@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "templates.hpp"
 
 namespace ppx_demo
@@ -15,14 +16,18 @@ namespace ppx_demo
         out.write("mass", mass);
         out.write("charge", charge);
         out.write("kinematic", kinematic);
+        out.write("shape_type", type);
 
         const std::string key = "vertex";
         std::size_t index = 0;
-        for (const glm::vec2 &v : vertices)
-        {
-            out.write(key + std::to_string(index) + "x", v.x);
-            out.write(key + std::to_string(index++) + "y", v.y);
-        }
+        if (const auto *poly = std::get_if<geo::polygon>(&shape))
+            for (const glm::vec2 &v : poly->vertices())
+            {
+                out.write(key + std::to_string(index) + "x", v.x);
+                out.write(key + std::to_string(index++) + "y", v.y);
+            }
+        else
+            out.write("radius", std::get<geo::circle>(shape).radius());
     }
     void entity_template::read(ini::input &in)
     {
@@ -35,21 +40,29 @@ namespace ppx_demo
         mass = in.readf32("mass");
         charge = in.readf32("charge");
         kinematic = (bool)in.readi16("kinematic");
+        type = (ppx::entity2D::shape_type)in.readi32("shape_type");
 
-        vertices.clear();
-        std::size_t index = 0;
-        const std::string key = "vertex";
-        while (true)
+        if (type == ppx::entity2D::POLYGON)
         {
-            const std::string kx = key + std::to_string(index) + "x",
-                              ky = key + std::to_string(index++) + "y";
-            DBG_ASSERT((in.contains_key(kx) && in.contains_key(ky)) ||
-                           (!in.contains_key(kx) && !in.contains_key(ky)),
-                       "Vector key only contains a component of the vector! Weird.\n")
-            if (!in.contains_key(kx) || !in.contains_key(ky)) // Just for ick reasons
-                break;
-            vertices.emplace_back(in.readf32(kx), in.readf32(ky));
+            std::vector<glm::vec2> vertices;
+            vertices.reserve(6);
+            std::size_t index = 0;
+            const std::string key = "vertex";
+            while (true)
+            {
+                const std::string kx = key + std::to_string(index) + "x",
+                                  ky = key + std::to_string(index++) + "y";
+                DBG_ASSERT((in.contains_key(kx) && in.contains_key(ky)) ||
+                               (!in.contains_key(kx) && !in.contains_key(ky)),
+                           "Vector key only contains a component of the vector! Weird.\n")
+                if (!in.contains_key(kx) || !in.contains_key(ky)) // Just for ick reasons
+                    break;
+                vertices.emplace_back(in.readf32(kx), in.readf32(ky));
+            }
+            shape = vertices;
         }
+        else
+            shape = in.readf32("radius");
     }
 
     entity_template entity_template::from_entity(const ppx::entity2D &e)
@@ -63,8 +76,18 @@ namespace ppx_demo
         tmpl.angvel = e.angvel();
         tmpl.mass = e.mass();
         tmpl.charge = e.charge();
-        tmpl.vertices = e.shape().vertices();
         tmpl.kinematic = e.kinematic();
+
+        if (const geo::polygon *poly = e.shape_if<geo::polygon>())
+        {
+            tmpl.type = ppx::entity2D::POLYGON;
+            tmpl.shape = poly->vertices();
+        }
+        else
+        {
+            tmpl.type = ppx::entity2D::CIRCLE;
+            tmpl.shape = e.shape<geo::circle>().radius();
+        }
         return tmpl;
     }
 

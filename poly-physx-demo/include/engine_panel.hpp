@@ -2,17 +2,16 @@
 #define ENGINE_PANEL_HPP
 
 #include "ppx/quad_tree2D.hpp"
-#include "ppx/layer.hpp"
+#include "ppx-app/layer.hpp"
 
 namespace ppx_demo
 {
-    class engine_panel : public ppx::layer, public ini::saveable
+    class engine_panel : public ppx::layer
     {
     public:
+        engine_panel();
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
-
-        bool p_enabled = true;
 
     private:
         enum integ_method

@@ -45,17 +45,22 @@ class PPXGenerator(Generator):
         )
 
     def clean(self) -> None:
-        print("Removing build, binary and project files..")
+        is_all = self._generator == "all"
+        is_gmake = is_all or self._generator.startswith("gmake")
+        is_vs = is_all or self._generator.startswith("vs")
+        print("Removing build files for PPX...")
 
         bud = Buddy()
-        PPXGenerator.__remove(f"{bud.root_path}/*/bin")
-        PPXGenerator.__remove(f"{bud.root_path}/vendor/*/bin")
-        PPXGenerator.__remove(f"{bud.root_path}/**/build")
-        PPXGenerator.__remove(f"{bud.root_path}/**/Makefile", os.remove)
-        PPXGenerator.__remove(f"{bud.root_path}/**/*.vcxproj*", os.remove)
-        PPXGenerator.__remove(f"{bud.root_path}/**/*.sln", os.remove)
+        for folder in [".", "vendor"]:
+            if is_gmake:
+                PPXGenerator.__remove(f"{bud.root_path}/{folder}/*/Makefile", os.remove)
+            if is_vs:
+                PPXGenerator.__remove(
+                    f"{bud.root_path}/{folder}/*/*.vcxproj*", os.remove
+                )
+                PPXGenerator.__remove(f"{bud.root_path}/{folder}/*/*.sln", os.remove)
         PPXGenerator.__remove(f"{bud.root_path}/*.sln", os.remove)
-        if os.path.exists(f"{bud.root_path}/Makefile"):
+        if is_gmake and os.path.exists(f"{bud.root_path}/Makefile"):
             os.remove(f"{bud.root_path}/Makefile")
 
         print("Done.\n")
@@ -75,14 +80,20 @@ class SFMLGenerator(Generator):
     def build(self) -> None:
         bud = Buddy()
 
-        self.__clean(f"{bud.root_path}/vendor/SFML/build-{self.__build_name}")
         print("Generating build files for SFML...")
+        build_path = f"{bud.root_path}/vendor/SFML/build-{self.__build_name}"
+
+        if os.path.exists(build_path):
+            print(
+                f"Skipping, build path {build_path} already exists. Run --clean option to re-build\n"
+            )
+            return
 
         sfml_path = f"{bud.root_path}/vendor/SFML"
         if not os.path.exists(sfml_path):
             raise PathNotFoundError(sfml_path)
-        build_sfml_path = f"{bud.root_path}/vendor/SFML/build-{self.__build_name}"
-        os.mkdir(build_sfml_path)
+
+        os.mkdir(build_path)
 
         if bud.is_windows and self._generator.startswith("gmake"):
             bud.add_to_path_with_binaries(bud.mingw_path)
@@ -102,7 +113,7 @@ class SFMLGenerator(Generator):
                 "-S",
                 sfml_path,
                 "-B",
-                build_sfml_path,
+                build_path,
                 "-DCMAKE_BUILD_TYPE=Release",
                 f"-DCMAKE_OSX_ARCHITECTURES={bud.os_architecture}",
                 f"-DCMAKE_OSX_DEPLOYMENT_TARGET={bud.os_version.split('.')[0]}",
@@ -112,23 +123,26 @@ class SFMLGenerator(Generator):
             check=True,
         )
         subprocess.run(
-            ["cmake", "--build", build_sfml_path, "--config", "Release"],
+            ["cmake", "--build", build_path, "--config", "Release"],
             check=True,
         )
         if is_visual_studio:
             subprocess.run(
-                ["cmake", "--build", build_sfml_path, "--config", "Debug"],
+                ["cmake", "--build", build_path, "--config", "Debug"],
                 check=True,
             )
         print("Done.\n")
 
     def clean(self) -> None:
         bud = Buddy()
-        self.__clean(f"{bud.root_path}/vendor/SFML/build-vs")
-        self.__clean(f"{bud.root_path}/vendor/SFML/build-gmake")
+        if self._generator == "all":
+            self.__clean(f"{bud.root_path}/vendor/SFML/build-vs")
+            self.__clean(f"{bud.root_path}/vendor/SFML/build-gmake")
+        else:
+            self.__clean(f"{bud.root_path}/vendor/SFML/build-{self.__build_name}")
 
     def __clean(self, build_sfml_path: str) -> None:
-        print("Removing build files for SFML...")
+        print("Removing SFML build...")
         try:
             shutil.rmtree(build_sfml_path)
             print(f"Removed {build_sfml_path}")

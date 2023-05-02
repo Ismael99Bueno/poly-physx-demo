@@ -28,9 +28,6 @@
 [submodule "sfml-primitives"]
 	path = sfml-primitives
 	url = https://github.com/ismawno/sfml-primitives.git
-[submodule "vector-view"]
-	path = vector-view
-	url = https://github.com/ismawno/vector-view.git
 [submodule "poly-physx"]
 	path = poly-physx
 	url = https://github.com/ismawno/poly-physx.git
@@ -40,3 +37,6 @@
 [submodule "glm"]
 	path = vendor/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "container-view"]
+	path = container-view
+	url = https://github.com/ismawno/container-view.git

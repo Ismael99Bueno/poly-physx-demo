@@ -1,23 +1,14 @@
+#include "pch.hpp"
 #include "phys_panel.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
-#include "implot.h"
 #include "globals.hpp"
 #include "demo_app.hpp"
-#include <glm/gtx/norm.hpp>
 
 namespace ppx_demo
 {
-    phys_panel::phys_panel() : m_gravity(std::make_shared<gravity>()),
-                               m_drag(std::make_shared<drag>()),
-                               m_repulsive(std::make_shared<electrical>()),
-                               m_attractive(std::make_shared<electrical>()),
-                               m_gravitational(std::make_shared<gravitational>()),
-                               m_exponential(std::make_shared<exponential>()) { m_gravity->p_enabled = true; }
-
+    phys_panel::phys_panel() : ppx::layer("phys_panel") {}
     void phys_panel::write(ini::output &out) const
     {
-        out.write("enabled", p_enabled);
+        layer::write(out);
         out.write("xlimx", m_xlim.x);
         out.write("xlimy", m_xlim.y);
         out.write("ylimx", m_ylim.x);
@@ -32,8 +23,7 @@ namespace ppx_demo
     }
     void phys_panel::read(ini::input &in)
     {
-        p_enabled = (bool)in.readi16("enabled");
-
+        layer::read(in);
         m_xlim = {in.readf32("xlimx"), in.readf32("xlimy")};
         m_ylim = {in.readf32("ylimx"), in.readf32("ylimy")};
 
@@ -49,16 +39,27 @@ namespace ppx_demo
     void phys_panel::on_attach(ppx::app *papp)
     {
         ppx::engine2D &eng = papp->engine();
-        eng.add_force(m_gravity);
-        eng.add_force(m_drag);
-        eng.add_interaction(m_gravitational);
-        eng.add_interaction(m_repulsive);
-        eng.add_interaction(m_attractive);
-        eng.add_interaction(m_exponential);
+        m_gravity = eng.add_force<gravity>();
+        m_drag = eng.add_force<drag>();
+        m_gravitational = eng.add_interaction<gravitational>();
+        m_repulsive = eng.add_interaction<electrical>();
+        m_attractive = eng.add_interaction<electrical>();
+        m_exponential = eng.add_interaction<exponential>();
+
+        m_gravity->p_enabled = true;
 
         m_attractive->p_exp = 1;
         m_attractive->p_mag = -20.f;
         update_potential_data();
+
+        m_saveables =
+            {
+                {"gravity", m_gravity},
+                {"drag", m_drag},
+                {"repulsive", m_repulsive},
+                {"attractive", m_attractive},
+                {"gravitational", m_gravitational},
+                {"exponential", m_exponential}};
 
         const auto auto_include = [this](const ppx::entity2D_ptr &e)
         {
@@ -77,15 +78,14 @@ namespace ppx_demo
                 }
             }
         };
-        eng.callbacks().on_entity_addition(auto_include);
+        eng.events().on_entity_addition += auto_include;
     }
 
     void phys_panel::on_render()
     {
-        if (!p_enabled)
+        if (!p_visible)
             return;
-
-        if (ImGui::Begin("Physics", &p_enabled))
+        if (ImGui::Begin("Physics", &p_visible))
         {
             if (ImGui::CollapsingHeader("Energy"))
                 render_energy();

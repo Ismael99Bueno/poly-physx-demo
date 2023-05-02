@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "follower.hpp"
 #include "demo_app.hpp"
 
@@ -5,19 +6,18 @@ namespace ppx_demo
 {
     void follower::start()
     {
-        const auto on_removal = [this](ppx::entity2D &e)
+        const auto on_removal = [this](const std::size_t index)
         {
-            for (std::size_t i = 0; i < m_entities.size(); i++)
-                if (*m_entities[i] == e)
-                {
-                    m_entities.erase(m_entities.begin() + (long)i);
-                    break;
-                }
+            for (auto it = m_entities.begin(); it != m_entities.end();)
+                if (!it->try_validate())
+                    it = m_entities.erase(it);
+                else
+                    ++it;
         };
         demo_app &papp = demo_app::get();
         const auto &center = papp.window().getView().getCenter();
         m_prev_com = glm::vec2(center.x, center.y);
-        papp.engine().callbacks().on_early_entity_removal(on_removal);
+        papp.engine().events().on_late_entity_removal += on_removal;
     }
 
     void follower::update()
@@ -33,7 +33,7 @@ namespace ppx_demo
     void follower::follow(const ppx::const_entity2D_ptr &e)
     {
         if (!is_following(*e))
-            m_entities.emplace_back(e);
+            m_entities.push_back(e);
     }
     void follower::unfollow(const ppx::entity2D &e)
     {
@@ -70,7 +70,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         for (std::size_t i = 0; i < papp.engine().size(); i++)
         {
-            const ppx::entity2D_ptr &e = papp.engine()[i];
+            const ppx::entity2D_ptr e = papp.engine()[i];
             if (in.contains_key(key + std::to_string(e.index())))
                 follow(e);
         }

@@ -1,8 +1,8 @@
+#include "pch.hpp"
 #include "outline_manager.hpp"
 #include "ppx/entity2D_ptr.hpp"
 #include "debug/debug.hpp"
 #include "demo_app.hpp"
-#include <cmath>
 
 namespace ppx_demo
 {
@@ -13,7 +13,6 @@ namespace ppx_demo
 
     void outline_manager::start()
     {
-
         const auto on_addition = [this](const ppx::entity2D_ptr &e)
         { m_outline_colors.emplace_back(0, sf::Color::Black); };
 
@@ -24,28 +23,30 @@ namespace ppx_demo
         };
 
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_entity_addition(on_addition);
-        papp.engine().callbacks().on_late_entity_removal(on_removal);
+        papp.engine().events().on_entity_addition += on_addition;
+        papp.engine().events().on_late_entity_removal += on_removal;
     }
 
     void outline_manager::update()
     {
-        paint_outlines(demo_app::get().shapes());
+        paint_outlines();
         reset_priorities();
     }
-    void outline_manager::paint_outlines(utils::vector_view<sf::ConvexShape> shapes) const
+    void outline_manager::paint_outlines() const
     {
-        for (std::size_t i = 0; i < shapes.unwrap().size(); i++)
+        demo_app &papp = demo_app::get();
+        for (std::size_t i = 0; i < m_outline_colors.size(); i++)
         {
             const auto &[priority, color] = m_outline_colors[i];
-            shapes[i].setOutlineColor(color);
+            sf::Shape &shape = papp[i];
+            shape.setOutlineColor(color);
             if (priority)
             {
                 const float ampl = 3.f, freq = 3.5f;
-                shapes[i].setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
+                shape.setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
             else
-                shapes[i].setOutlineThickness(0.f);
+                shape.setOutlineThickness(0.f);
         }
     }
 

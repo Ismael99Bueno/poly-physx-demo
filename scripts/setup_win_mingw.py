@@ -32,7 +32,8 @@ def __resolve_mingw_installation() -> bool:
         print("Failed. Still unable to find g++ and make executables in path.")
 
     if bud.prompt(
-        f"MinGW installation not found at {bud.mingw_path}. Is it located elsewhere?"
+        f"MinGW installation not found at {bud.mingw_path}. Is it located elsewhere?",
+        default=False,
     ):
         mingw_path = input(
             "Enter MinGW installation path (Use forward or double backward slashes): "
@@ -72,7 +73,7 @@ def __install_mingw() -> bool:
 
     zip_path = f"{dir}/{zip_name}"
 
-    if not bud.prompt_to_install("MinGW"):
+    if not bud.all_yes and not bud.prompt_to_install("MinGW"):
         return False
 
     print("Starting MinGW installation...")

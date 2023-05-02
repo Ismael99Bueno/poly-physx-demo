@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "predictor.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
@@ -11,19 +12,18 @@ namespace ppx_demo
             if (p_enabled && p_auto_predict)
                 predict(e);
         };
-        const auto on_removal = [this](ppx::entity2D &e)
+        const auto on_removal = [this](const std::size_t index)
         {
-            for (std::size_t i = 0; i < m_paths.size(); i++)
-                if (*m_paths[i].first == e)
-                {
-                    m_paths.erase(m_paths.begin() + (long)i);
-                    break;
-                }
+            for (auto it = m_paths.begin(); it != m_paths.end();)
+                if (!it->first.try_validate())
+                    it = m_paths.erase(it);
+                else
+                    ++it;
         };
 
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_entity_addition(on_addition);
-        papp.engine().callbacks().on_early_entity_removal(on_removal);
+        papp.engine().events().on_entity_addition += on_addition;
+        papp.engine().events().on_late_entity_removal += on_removal;
         m_paths.reserve(p_steps);
     }
 
@@ -70,13 +70,13 @@ namespace ppx_demo
             return;
         PERF_PRETTY_FUNCTION()
         for (const auto &[e, path] : m_paths)
-            demo_app::get().window().draw(path);
+            demo_app::get().draw(path);
     }
 
     void predictor::predict(const ppx::const_entity2D_ptr &e)
     {
         if (!is_predicting(*e))
-            m_paths.emplace_back(e, demo_app::get().shapes()[e.index()].getFillColor());
+            m_paths.emplace_back(e, demo_app::get()[e.index()].getFillColor());
     }
     void predictor::stop_predicting(const ppx::entity2D &e)
     {
@@ -93,7 +93,7 @@ namespace ppx_demo
         PERF_FUNCTION()
         demo_app &papp = demo_app::get();
         ppx::engine2D &eng = papp.engine();
-        prm::thick_line_strip path(papp.shapes()[e.index()].getFillColor(), p_line_thickness);
+        prm::thick_line_strip path(papp[e.index()].getFillColor(), p_line_thickness);
         path.append(e.pos() * WORLD_TO_PIXEL);
 
         const bool collisions = eng.collider().enabled();
@@ -108,7 +108,7 @@ namespace ppx_demo
             path.alpha(1.f - (float)i / (float)(p_steps - 1));
             path.append(e.pos() * WORLD_TO_PIXEL);
         }
-        papp.window().draw(path);
+        papp.draw(path);
         if (!p_with_collisions)
             eng.collider().enabled(collisions);
         eng.revert();

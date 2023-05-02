@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "copy_paste.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
@@ -170,7 +171,7 @@ namespace ppx_demo
             const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
                        has_second = group.entities.find(sp.e2().id()) != group.entities.end();
             if (has_first && has_second)
-                group.springs.emplace_back(spring_template::from_spring(sp));
+                group.springs.push_back(spring_template::from_spring(sp));
         }
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
@@ -180,7 +181,7 @@ namespace ppx_demo
             const bool has_first = group.entities.find(rb->e1().id()) != group.entities.end(),
                        has_second = group.entities.find(rb->e2().id()) != group.entities.end();
             if (has_first && has_second)
-                group.rbars.emplace_back(rigid_bar_template::from_bar(*rb));
+                group.rbars.push_back(rigid_bar_template::from_bar(*rb));
         }
     }
 
@@ -192,10 +193,9 @@ namespace ppx_demo
         std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
         for (const auto &[id, tmpl] : m_copy.entities)
         {
-            const geo::polygon poly(tmpl.vertices);
-            added_entities[id] = papp.engine().add_entity(poly.centroid() + offset,
+            added_entities[id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,
                                                           glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                          tmpl.charge, poly.vertices(), tmpl.kinematic);
+                                                          tmpl.charge, tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {
@@ -212,10 +212,11 @@ namespace ppx_demo
             const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
                                     &e2 = added_entities[rbt.id2];
 
-            const auto rb = !rbt.has_joints ? std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening)
-                                            : std::make_shared<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
-            rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
-            papp.engine().add_constraint(rb);
+            // rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
+            if (!rbt.has_joints)
+                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening);
+            else
+                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
         }
     }
 
@@ -226,14 +227,23 @@ namespace ppx_demo
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         for (auto &[id, tmpl] : m_copy.entities)
         {
-            geo::polygon poly(tmpl.vertices);
-            poly.pos(poly.centroid() + offset);
-
             sf::Color col = papp.entity_color();
             col.a = 120;
-
-            sf::ConvexShape shape;
-            papp.draw_entity(poly.vertices(), shape, col);
+            if (auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
+            {
+                poly->pos(tmpl.pos + offset);
+                sf::ConvexShape shape = papp.convex_shape_from(*poly);
+                shape.setFillColor(col);
+                papp.draw(shape);
+            }
+            else
+            {
+                geo::circle &c = std::get<geo::circle>(tmpl.shape);
+                c.pos(tmpl.pos + offset);
+                sf::CircleShape shape = papp.circle_shape_from(c);
+                shape.setFillColor(col);
+                papp.draw(shape);
+            }
         }
 
         for (const spring_template &spt : m_copy.springs)

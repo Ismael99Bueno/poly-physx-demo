@@ -36,7 +36,8 @@ def __resolve_cmake_installation() -> bool:
         print("Failed. Still unable to find CMake executable in path.")
 
     if bud.prompt(
-        f"CMake installation not found at {bud.cmake_path}. Is it located elsewhere?"
+        f"CMake installation not found at {bud.cmake_path}. Is it located elsewhere?",
+        default=False,
     ):
         cmake_path = input(
             "Enter CMake installation path (Use forward or double backward slashes): "
@@ -57,7 +58,7 @@ def __install_cmake() -> bool:
     installer_url = f"https://github.com/Kitware/CMake/releases/download/v{version}/cmake-{version}-windows-{arch}.msi"
     installer_path = f"{dir}/cmake-{version}-windows-{arch}.msi"
 
-    if not bud.prompt_to_install("CMake"):
+    if not bud.all_yes and not bud.prompt_to_install("CMake"):
         return False
 
     print("Starting CMake installation...")

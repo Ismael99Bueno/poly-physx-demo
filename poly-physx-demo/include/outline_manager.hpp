@@ -19,7 +19,7 @@ namespace ppx_demo
         std::vector<std::pair<std::uint32_t, sf::Color>> m_outline_colors;
         sf::Clock m_clock;
 
-        void paint_outlines(utils::vector_view<sf::ConvexShape> shapes) const;
+        void paint_outlines() const;
         void reset_priorities();
     };
 }

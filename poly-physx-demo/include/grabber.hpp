@@ -31,7 +31,7 @@ namespace ppx_demo
         float m_angle;
 
         void move_grabbed_entity() const;
-        void draw_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const;
+        void draw_padded_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const;
     };
 }
 

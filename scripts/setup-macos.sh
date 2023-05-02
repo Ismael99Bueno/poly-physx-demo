@@ -127,14 +127,6 @@ fi
 echo "make installed
 "
 
-echo "Do you want to go ahead and generate all the project build files? Default generator for MacOS is gmake2 [Y]/N"
-read -r ANSWER
-    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
-    then
-        echo "Run generate_build_files.py to generate the project's build files. Use the -h flag to display the options available"
-        exit
-    fi
-
 SOURCE=${BASH_SOURCE[0]}
 while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
@@ -144,3 +136,7 @@ done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
 python3 "$DIR/generate_build_files.py"
+echo "Run generate_build_files.py with python to have further detain on how the project can be built. Use the -h flag to display the options available
+"
+
+echo "Setup completed successfully!"

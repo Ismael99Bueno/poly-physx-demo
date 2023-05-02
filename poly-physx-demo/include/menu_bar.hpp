@@ -1,7 +1,7 @@
 #ifndef MENU_BAR_HPP
 #define MENU_BAR_HPP
 
-#include "ppx/layer.hpp"
+#include "ppx-app/layer.hpp"
 #include <optional>
 
 namespace ppx_demo
@@ -9,7 +9,7 @@ namespace ppx_demo
     class menu_bar : public ppx::layer
     {
     public:
-        menu_bar() = default;
+        menu_bar();
 
     private:
         void on_render() override;

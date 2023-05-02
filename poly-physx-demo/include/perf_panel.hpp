@@ -2,16 +2,17 @@
 #define PERF_PANEL_HPP
 
 #include "perf/perf.hpp"
-#include "ppx/layer.hpp"
+#include "ppx-app/layer.hpp"
 #include "ini/saveable.hpp"
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
 {
-    class perf_panel : public ppx::layer, public ini::saveable
+    class perf_panel : public ppx::layer
     {
     public:
+        perf_panel();
         enum time_unit
         {
             SECONDS = 0,
@@ -19,8 +20,6 @@ namespace ppx_demo
             MICROSECONDS = 2,
             NANOSECONDS = 3,
         };
-
-        bool p_enabled = true;
 
         void write(ini::output &out) const override;
         void read(ini::input &in) override;

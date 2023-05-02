@@ -1,8 +1,9 @@
+#include "pch.hpp"
 #include "selector.hpp"
 #include "debug/debug.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
-#include <cmath>
+#include "geo/intersection.hpp"
 
 namespace ppx_demo
 {
@@ -15,14 +16,16 @@ namespace ppx_demo
 
     void selector::start()
     {
-        const auto validate_entity = [this](ppx::entity2D &e)
+        const auto validate_entity = [this](const std::size_t index)
         {
-            for (auto it = m_entities.begin(); it != m_entities.end(); ++it)
-                if (**it == e)
-                {
-                    m_entities.erase(it);
-                    break;
-                }
+            const auto entities = m_entities;
+            m_entities.clear();
+
+            for (ppx::entity2D_ptr e : entities)
+            {
+                if (e.try_validate())
+                    m_entities.insert(e);
+            }
         };
         const auto validate_spring = [this](ppx::spring2D &sp)
         {
@@ -50,9 +53,9 @@ namespace ppx_demo
             }
         };
         demo_app &papp = demo_app::get();
-        papp.engine().callbacks().on_early_entity_removal(validate_entity);
-        papp.engine().callbacks().on_spring_removal(validate_spring);
-        papp.engine().callbacks().on_constraint_removal(validate_rb);
+        papp.engine().events().on_late_entity_removal += validate_entity;
+        papp.engine().events().on_spring_removal += validate_spring;
+        papp.engine().events().on_constraint_removal += validate_rb;
     }
 
     void selector::render() const
@@ -104,7 +107,7 @@ namespace ppx_demo
     bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
         const geo::aabb2D aabb = select_box();
-        return (m_selecting && aabb.overlaps(e->aabb())) ||
+        return (m_selecting && geo::intersect(aabb, e->shape().bounding_box())) ||
                m_entities.find(e) != m_entities.end();
     }
 
@@ -126,7 +129,7 @@ namespace ppx_demo
         vertices[2].position = {p3.x, p3.y};
         vertices[3].position = {p4.x, p4.y};
         vertices[4].position = vertices[0].position;
-        demo_app::get().window().draw(vertices, 5, sf::LineStrip);
+        demo_app::get().draw(vertices, 5u, sf::LineStrip);
     }
 
     void selector::write(ini::output &out) const

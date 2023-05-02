@@ -1,7 +1,7 @@
 #ifndef PHYS_PANEL_HPP
 #define PHYS_PANEL_HPP
 
-#include "ppx/app.hpp"
+#include "ppx-app/app.hpp"
 #include "phys_prefabs.hpp"
 #include "selector.hpp"
 #include "outline_manager.hpp"
@@ -10,15 +10,12 @@
 
 namespace ppx_demo
 {
-    class phys_panel : public ppx::layer, public ini::saveable
+    class phys_panel : public ppx::layer
     {
     public:
         phys_panel();
-
         void write(ini::output &out) const override;
         void read(ini::input &in) override;
-
-        bool p_enabled = true;
 
     private:
         void on_attach(ppx::app *papp) override;
@@ -30,14 +27,7 @@ namespace ppx_demo
         std::shared_ptr<gravitational> m_gravitational;
         std::shared_ptr<exponential> m_exponential;
 
-        const std::unordered_map<const char *, std::shared_ptr<ini::saveable>> m_saveables =
-            {
-                {"gravity", m_gravity},
-                {"drag", m_drag},
-                {"repulsive", m_repulsive},
-                {"attractive", m_attractive},
-                {"gravitational", m_gravitational},
-                {"exponential", m_exponential}};
+        std::unordered_map<const char *, std::shared_ptr<ini::saveable>> m_saveables;
 
         glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
         std::array<glm::vec2, PLOT_POINTS> m_potential_data;

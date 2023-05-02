@@ -1,9 +1,8 @@
+#include "pch.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 #include "prm/flat_line_strip.hpp"
 #include "prm/flat_line.hpp"
-#include "implot.h"
-#include <filesystem>
 
 namespace ppx_demo
 {
@@ -16,13 +15,12 @@ namespace ppx_demo
 
     void demo_app::on_start()
     {
-        push_layer(&p_phys_panel);
-        push_layer(&p_perf_panel);
-        push_layer(&p_engine_panel);
-        push_layer(&p_actions_panel);
-        push_layer(&p_menu_bar);
+        p_phys_panel = push_layer<phys_panel>();
+        p_perf_panel = push_layer<perf_panel>();
+        p_engine_panel = push_layer<engine_panel>();
+        p_actions_panel = push_layer<actions_panel>();
+        p_menu_bar = push_layer<menu_bar>();
 
-        p_grabber.start();
         p_selector.start();
         p_outline_manager.start();
         p_predictor.start();
@@ -115,8 +113,6 @@ namespace ppx_demo
     void demo_app::on_update()
     {
         PERF_FUNCTION()
-        p_grabber.update();
-        p_attacher.update(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.update();
         p_trails.update();
         p_follower.update();
@@ -138,11 +134,8 @@ namespace ppx_demo
     {
         PERF_FUNCTION()
         // draw_interaction_lines();
-        p_grabber.render();
         p_selector.render();
-        p_adder.render();
         p_copy_paste.render();
-        p_attacher.render(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
         p_predictor.render();
         p_trails.render();
 #ifdef DEBUG
@@ -157,7 +150,7 @@ namespace ppx_demo
         p_outline_manager.update();
     }
 
-    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::ConvexShape &shape)
+    void demo_app::on_entity_draw(const ppx::entity2D_ptr &e, sf::Shape &shape)
     {
         if (p_selector.is_selecting(e))
             p_outline_manager.load_outline(e.index(), sf::Color(150, 90, 70), 3);
@@ -167,57 +160,13 @@ namespace ppx_demo
     {
         switch (event.type)
         {
-        case sf::Event::MouseButtonPressed:
-            p_copy_paste.delete_copy(); // TODO: Que se quite con clic derecho
-            switch (p_actions_panel.action())
-            {
-            case actions_panel::ADD:
-                p_adder.setup();
-                break;
-            case actions_panel::GRAB:
-                p_grabber.try_grab_entity();
-                break;
-            case actions_panel::ATTACH:
-                if (p_attacher.has_first())
-                    p_attacher.try_attach_second(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                else
-                    p_attacher.try_attach_first(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                break;
-            case actions_panel::SELECT:
-                p_selector.begin_select();
-                break;
-            default:
-                break;
-            }
-            if (event.mouseButton.button == sf::Mouse::Right)
-                cancel_add_attach();
-            break;
-
-        case sf::Event::MouseButtonReleased:
-        {
-            switch (p_actions_panel.action())
-            {
-            case actions_panel::ADD:
-                p_adder.add();
-                break;
-            case actions_panel::GRAB:
-                p_grabber.null();
-                break;
-            case actions_panel::SELECT:
-                p_selector.end_select(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift));
-                break;
-            default:
-                break;
-            }
-            break;
-        }
         case sf::Event::KeyPressed:
             if (ImGui::GetIO().WantCaptureKeyboard)
                 break;
             switch (event.key.code)
             {
-            case sf::Keyboard::BackSpace:
-                cancel_add_attach();
+            case sf::Keyboard::Backspace:
+                p_copy_paste.delete_copy();
                 break;
             case sf::Keyboard::C:
                 p_copy_paste.copy();
@@ -257,14 +206,14 @@ namespace ppx_demo
                     for (const auto &e2 : inter->entities())
                         if (e1 != e2)
                         {
-                            sf::Color c1 = shapes()[e1.index()].getFillColor(),
-                                      c2 = shapes()[e2.index()].getFillColor();
+                            sf::Color c1 = (*this)[e1.index()].getFillColor(),
+                                      c2 = (*this)[e2.index()].getFillColor();
                             c1.a = 120;
                             c2.a = 120;
                             prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
                                               e2->pos() * WORLD_TO_PIXEL,
                                               c1, c2);
-                            window().draw(fl);
+                            draw(fl);
                         }
     }
 
@@ -274,13 +223,7 @@ namespace ppx_demo
         for (ppx::const_entity2D_ptr e : selected)
             if (e.try_validate())
                 engine().remove_entity(*e);
-        cancel_add_attach();
-    }
-
-    void demo_app::cancel_add_attach()
-    {
-        p_attacher.cancel();
-        p_adder.cancel();
+        p_actions_panel->cancel_add_attach();
     }
 
     void demo_app::add_borders()
@@ -292,10 +235,10 @@ namespace ppx_demo
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();
-        const ppx::entity2D_ptr &e1 = eng.add_entity({-w - 0.5f * thck, 0.f}),
-                                e2 = eng.add_entity({w + 0.5f * thck, 0.f}),
-                                e3 = eng.add_entity({0.f, -h - 0.5f * thck}),
-                                e4 = eng.add_entity({0.f, h + 0.5f * thck});
+        const ppx::entity2D_ptr &e1 = eng.add_entity(glm::vec2(-w - 0.5f * thck, 0.f)),
+                                e2 = eng.add_entity(glm::vec2(w + 0.5f * thck, 0.f)),
+                                e3 = eng.add_entity(glm::vec2(0.f, -h - 0.5f * thck)),
+                                e4 = eng.add_entity(glm::vec2(0.f, h + 0.5f * thck));
 
         e1->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
         e2->shape(geo::polygon::rect(thck, 2.f * (h + thck)));
@@ -306,7 +249,9 @@ namespace ppx_demo
         e2->kinematic(false);
         e3->kinematic(false);
         e4->kinematic(false);
+
         entity_color(prev_color);
+        update_convex_shapes();
     }
 
     const std::string &demo_app::session() const { return m_session; }
