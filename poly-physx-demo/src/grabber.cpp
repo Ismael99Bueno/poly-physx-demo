@@ -65,7 +65,7 @@ namespace ppx_demo
         demo_app::get().draw(sl);
     }
 
-    void grabber::write(ini::output &out) const
+    void grabber::serialize(ini::serializer &out) const
     {
         out.write("stiffness", p_stiffness);
         out.write("dampening", p_dampening);
@@ -73,7 +73,7 @@ namespace ppx_demo
         out.write("g", (int)p_color.g);
         out.write("b", (int)p_color.b);
     }
-    void grabber::read(ini::input &in)
+    void grabber::deserialize(ini::deserializer &in)
     {
         p_stiffness = in.readf32("stiffness");
         p_dampening = in.readf32("dampening");

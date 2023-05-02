@@ -8,7 +8,7 @@
 
 namespace ppx_demo
 {
-    class copy_paste : public ini::saveable
+    class copy_paste : public ini::serializable
     {
     public:
         copy_paste() = default;
@@ -22,11 +22,11 @@ namespace ppx_demo
         void load_group(const std::string &name);
         void erase_group(const std::string &name);
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
     private:
-        struct group : private ini::saveable
+        struct group : private ini::serializable
         {
             std::string name;
             glm::vec2 ref_pos{0.f};
@@ -34,8 +34,8 @@ namespace ppx_demo
             std::vector<spring_template> springs;
             std::vector<rigid_bar_template> rbars;
 
-            void write(ini::output &out) const override;
-            void read(ini::input &in) override;
+            void serialize(ini::serializer &out) const override;
+            void deserialize(ini::deserializer &in) override;
         };
 
     public:

@@ -6,31 +6,31 @@
 namespace ppx_demo
 {
     phys_panel::phys_panel() : ppx::layer("phys_panel") {}
-    void phys_panel::write(ini::output &out) const
+    void phys_panel::serialize(ini::serializer &out) const
     {
-        layer::write(out);
+        layer::serialize(out);
         out.write("xlimx", m_xlim.x);
         out.write("xlimy", m_xlim.y);
         out.write("ylimx", m_ylim.x);
         out.write("ylimy", m_ylim.y);
 
-        for (const auto &[section, saveable] : m_saveables)
+        for (const auto &[section, serializable] : m_saveables)
         {
             out.begin_section(section);
-            saveable->write(out);
+            serializable->serialize(out);
             out.end_section();
         }
     }
-    void phys_panel::read(ini::input &in)
+    void phys_panel::deserialize(ini::deserializer &in)
     {
-        layer::read(in);
+        layer::deserialize(in);
         m_xlim = {in.readf32("xlimx"), in.readf32("xlimy")};
         m_ylim = {in.readf32("ylimx"), in.readf32("ylimy")};
 
-        for (const auto &[section, saveable] : m_saveables)
+        for (const auto &[section, serializable] : m_saveables)
         {
             in.begin_section(section);
-            saveable->read(in);
+            serializable->deserialize(in);
             in.end_section();
         }
         update_potential_data();
@@ -63,14 +63,14 @@ namespace ppx_demo
 
         const auto auto_include = [this](const ppx::entity2D_ptr &e)
         {
-            for (auto &[name, saveable] : m_saveables) // I know this is horrible
+            for (auto &[name, serializable] : m_saveables) // I know this is horrible
             {
-                const auto toggled = std::dynamic_pointer_cast<const toggleable>(saveable);
+                const auto toggled = std::dynamic_pointer_cast<const toggleable>(serializable);
 
                 if (toggled && toggled->p_enabled)
                 {
-                    const auto force = std::dynamic_pointer_cast<ppx::force2D>(saveable);
-                    const auto inter = std::dynamic_pointer_cast<ppx::interaction2D>(saveable);
+                    const auto force = std::dynamic_pointer_cast<ppx::force2D>(serializable);
+                    const auto inter = std::dynamic_pointer_cast<ppx::interaction2D>(serializable);
                     if (force)
                         force->include(e);
                     else if (inter)

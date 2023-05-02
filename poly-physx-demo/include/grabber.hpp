@@ -6,7 +6,7 @@
 
 namespace ppx_demo
 {
-    class grabber : public ini::saveable
+    class grabber : public ini::serializable
     {
     public:
         grabber() = default;
@@ -19,8 +19,8 @@ namespace ppx_demo
 
         void null();
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         float p_stiffness = 10.f, p_dampening = 1.f;
         sf::Color p_color = sf::Color(250, 214, 165);

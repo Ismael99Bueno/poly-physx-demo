@@ -172,30 +172,30 @@ namespace ppx_demo
         }
     }
 
-    void actions_panel::write(ini::output &out) const
+    void actions_panel::serialize(ini::serializer &out) const
     {
-        layer::write(out);
+        layer::serialize(out);
         out.begin_section("adder");
-        m_adder.write(out);
+        m_adder.serialize(out);
         out.end_section();
         out.begin_section("grabber");
-        m_grabber.write(out);
+        m_grabber.serialize(out);
         out.end_section();
         out.begin_section("attacher");
-        m_attacher.write(out);
+        m_attacher.serialize(out);
         out.end_section();
     }
-    void actions_panel::read(ini::input &in)
+    void actions_panel::deserialize(ini::deserializer &in)
     {
-        layer::read(in);
+        layer::deserialize(in);
         in.begin_section("adder");
-        m_adder.read(in);
+        m_adder.deserialize(in);
         in.end_section();
         in.begin_section("grabber");
-        m_grabber.read(in);
+        m_grabber.deserialize(in);
         in.end_section();
         in.begin_section("attacher");
-        m_attacher.read(in);
+        m_attacher.deserialize(in);
         in.end_section();
     }
 

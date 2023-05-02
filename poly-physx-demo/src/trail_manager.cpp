@@ -89,7 +89,7 @@ namespace ppx_demo
         return false;
     }
 
-    void trail_manager::write(ini::output &out) const
+    void trail_manager::serialize(ini::serializer &out) const
     {
         out.write("steps", p_steps);
         out.write("length", p_length);
@@ -101,7 +101,7 @@ namespace ppx_demo
         for (const auto &[e, trail] : m_trails)
             out.write(key + std::to_string(e.index()), e.index());
     }
-    void trail_manager::read(ini::input &in)
+    void trail_manager::deserialize(ini::deserializer &in)
     {
         p_steps = in.readui32("steps");
         p_length = in.readui32("length");

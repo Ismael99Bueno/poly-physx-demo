@@ -8,9 +8,9 @@
 namespace ppx_demo
 {
     engine_panel::engine_panel() : ppx::layer("engine_panel") {}
-    void engine_panel::write(ini::output &out) const
+    void engine_panel::serialize(ini::serializer &out) const
     {
-        layer::write(out);
+        layer::serialize(out);
         out.write("method", m_method);
         out.write("visualize_qt", m_visualize_qt);
         out.write("period", m_period);
@@ -18,9 +18,9 @@ namespace ppx_demo
         out.write("max_entities", m_max_entities);
     }
 
-    void engine_panel::read(ini::input &in)
+    void engine_panel::deserialize(ini::deserializer &in)
     {
-        layer::read(in);
+        layer::deserialize(in);
         m_method = (integ_method)in.readi32("method");
         m_visualize_qt = (bool)in.readi16("visualize_qt");
         m_period = in.readui32("period");

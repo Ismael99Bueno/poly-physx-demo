@@ -6,7 +6,7 @@
 
 namespace ppx_demo
 {
-    class trail_manager : public ini::saveable
+    class trail_manager : public ini::serializable
     {
     public:
         trail_manager() = default;
@@ -19,8 +19,8 @@ namespace ppx_demo
         void exclude(const ppx::entity2D &e);
         bool contains(const ppx::entity2D &e) const;
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         std::uint32_t p_steps = 150, p_length = 5;
         float p_line_thickness = 6.f;

@@ -14,8 +14,8 @@ namespace ppx_demo
     {
     public:
         phys_panel();
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
     private:
         void on_attach(ppx::app *papp) override;
@@ -27,7 +27,7 @@ namespace ppx_demo
         std::shared_ptr<gravitational> m_gravitational;
         std::shared_ptr<exponential> m_exponential;
 
-        std::unordered_map<const char *, std::shared_ptr<ini::saveable>> m_saveables;
+        std::unordered_map<const char *, std::shared_ptr<ini::serializable>> m_saveables;
 
         glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
         std::array<glm::vec2, PLOT_POINTS> m_potential_data;

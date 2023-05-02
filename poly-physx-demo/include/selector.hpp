@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class selector : public ini::saveable
+    class selector : public ini::serializable
     {
     public:
         selector(std::size_t allocations = 100);
@@ -24,8 +24,8 @@ namespace ppx_demo
         void select(const ppx::entity2D_ptr &e);
         void deselect(const ppx::entity2D_ptr &e);
 
-        void write(ini::output &out) const override;
-        void read(ini::input &in) override;
+        void serialize(ini::serializer &out) const override;
+        void deserialize(ini::deserializer &in) override;
 
         void update_selected_springs_rbars();
 

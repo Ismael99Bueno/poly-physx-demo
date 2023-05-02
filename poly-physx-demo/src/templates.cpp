@@ -3,7 +3,7 @@
 
 namespace ppx_demo
 {
-    void entity_template::write(ini::output &out) const
+    void entity_template::serialize(ini::serializer &out) const
     {
         out.write("px", pos.x);
         out.write("py", pos.y);
@@ -29,7 +29,7 @@ namespace ppx_demo
         else
             out.write("radius", std::get<geo::circle>(shape).radius());
     }
-    void entity_template::read(ini::input &in)
+    void entity_template::deserialize(ini::deserializer &in)
     {
         pos = {in.readf32("px"), in.readf32("py")};
         vel = {in.readf32("vx"), in.readf32("vy")};
@@ -91,7 +91,7 @@ namespace ppx_demo
         return tmpl;
     }
 
-    void spring_template::write(ini::output &out) const
+    void spring_template::serialize(ini::serializer &out) const
     {
         out.write("stiffness", stiffness);
         out.write("dampening", dampening);
@@ -104,7 +104,7 @@ namespace ppx_demo
         out.write("joint2y", joint2.y);
         out.write("has_joints", has_joints);
     }
-    void spring_template::read(ini::input &in)
+    void spring_template::deserialize(ini::deserializer &in)
     {
         stiffness = in.readf32("stiffness");
         dampening = in.readf32("dampening");
@@ -130,7 +130,7 @@ namespace ppx_demo
         return tmpl;
     }
 
-    void rigid_bar_template::write(ini::output &out) const
+    void rigid_bar_template::serialize(ini::serializer &out) const
     {
         out.write("stiffness", stiffness);
         out.write("dampening", dampening);
@@ -143,7 +143,7 @@ namespace ppx_demo
         out.write("joint2y", joint2.y);
         out.write("has_joints", has_joints);
     }
-    void rigid_bar_template::read(ini::input &in)
+    void rigid_bar_template::deserialize(ini::deserializer &in)
     {
         stiffness = in.readf32("stiffness");
         dampening = in.readf32("dampening");
