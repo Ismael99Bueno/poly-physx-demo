@@ -142,7 +142,7 @@ namespace YAML
     }
     bool convert<ppx_demo::attacher>::decode(const Node &node, ppx_demo::attacher &attch)
     {
-        if (!node.IsMap() || node.size() != 3)
+        if (!node.IsMap() || node.size() != 7)
             return false;
         attch.p_sp_stiffness = node["Spring stiffness"].as<float>();
         attch.p_sp_dampening = node["Spring dampening"].as<float>();

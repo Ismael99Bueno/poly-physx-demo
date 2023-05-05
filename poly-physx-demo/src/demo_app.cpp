@@ -33,31 +33,6 @@ namespace ppx_demo
 
     void demo_app::on_end() { write_save(LAST_SAVE); }
 
-    // void demo_app::serialize(ini::serializer &out) const
-    // {
-    //     app::serialize(out);
-    //     out.write("session", m_session);
-
-    //     for (const auto &[section, serializable] : m_saveables)
-    //     {
-    //         out.begin_section(section);
-    //         serializable->serialize(out);
-    //         out.end_section();
-    //     }
-    // }
-    // void demo_app::deserialize(ini::deserializer &in)
-    // {
-    //     app::deserialize(in);
-    //     m_session = in.readstr("session");
-
-    //     for (const auto &[section, serializable] : m_saveables)
-    //     {
-    //         in.begin_section(section);
-    //         serializable->deserialize(in);
-    //         in.end_section();
-    //     }
-    // }
-
     bool demo_app::validate_session()
     {
         const bool exists = std::filesystem::exists(SAVES_DIR + m_session);
@@ -69,6 +44,7 @@ namespace ppx_demo
     void demo_app::write(const std::string &filepath) const
     {
         YAML::Emitter out;
+        out << YAML::BeginMap;
         out << YAML::Key << "PPX Demo" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "Session" << YAML::Value << m_session;
         out << YAML::Key << "PPX Base app" << YAML::Value << *this;
@@ -76,7 +52,7 @@ namespace ppx_demo
         out << YAML::Key << "Copy paste" << YAML::Value << p_copy_paste;
         out << YAML::Key << "Predictor" << YAML::Value << p_predictor;
         out << YAML::Key << "Trails" << YAML::Value << p_trails;
-        out << YAML::Key << "Follower" << YAML::Value << p_follower;
+        out << YAML::Key << "Follower" << YAML::Value << p_follower << YAML::EndMap;
         out << YAML::EndMap;
 
         std::ofstream file(filepath);
@@ -84,9 +60,13 @@ namespace ppx_demo
     }
     bool demo_app::read(const std::string &filepath)
     {
+        if (!std::filesystem::exists(filepath))
+            return false;
+
         YAML::Node node = YAML::LoadFile(filepath);
         if (!node["PPX Demo"])
             return false;
+
         const YAML::Node &demo = node["PPX Demo"];
         demo["PPX Base app"].as<ppx::app>(*((ppx::app *)this));
 
@@ -96,6 +76,7 @@ namespace ppx_demo
         p_predictor = demo["Predictor"].as<predictor>();
         p_trails = demo["Trails"].as<trail_manager>();
         p_follower = demo["Follower"].as<follower>();
+        validate_session();
         return true;
     }
 

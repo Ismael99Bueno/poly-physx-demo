@@ -35,6 +35,15 @@ namespace ppx_demo
         copy(m_copy);
         m_has_copy = true;
     }
+
+    static bool contains_id(const std::vector<entity_template> &vec, const std::size_t id)
+    {
+        for (const auto &e : vec)
+            if (e.id == id)
+                return true;
+        return false;
+    }
+
     void copy_paste::copy(group &group)
     {
         demo_app &papp = demo_app::get();
@@ -45,25 +54,23 @@ namespace ppx_demo
 
         for (const auto &e : slct.entities())
         {
-            group.entities[e.id()] = entity_template::from_entity(*e);
+            group.entities.push_back(entity_template::from_entity(*e));
             group.ref_pos += e->pos();
         }
         group.ref_pos /= slct.entities().size();
+
         for (const ppx::spring2D &sp : papp.engine().springs())
-        {
-            const bool has_first = group.entities.find(sp.e1().id()) != group.entities.end(),
-                       has_second = group.entities.find(sp.e2().id()) != group.entities.end();
-            if (has_first && has_second)
+            if (contains_id(group.entities, sp.e1().id()) &&
+                contains_id(group.entities, sp.e2().id()))
                 group.springs.push_back(spring_template::from_spring(sp));
-        }
+
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)
                 continue;
-            const bool has_first = group.entities.find(rb->e1().id()) != group.entities.end(),
-                       has_second = group.entities.find(rb->e2().id()) != group.entities.end();
-            if (has_first && has_second)
+            if (contains_id(group.entities, rb->e1().id()) &&
+                contains_id(group.entities, rb->e2().id()))
                 group.rbars.push_back(rigid_bar_template::from_bar(*rb));
         }
     }
@@ -74,11 +81,11 @@ namespace ppx_demo
 
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
-        for (const auto &[id, tmpl] : m_copy.entities)
+        for (const entity_template &tmpl : m_copy.entities)
         {
-            added_entities[id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,
-                                                          glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                          tmpl.charge, tmpl.kinematic);
+            added_entities[tmpl.id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,
+                                                               glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
+                                                               tmpl.charge, tmpl.kinematic);
         }
         for (spring_template &spt : m_copy.springs)
         {
@@ -108,7 +115,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
-        for (auto &[id, tmpl] : m_copy.entities)
+        for (entity_template &tmpl : m_copy.entities)
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
@@ -166,7 +173,10 @@ namespace ppx_demo
     YAML::Emitter &operator<<(YAML::Emitter &out, const copy_paste &cp)
     {
         out << YAML::BeginMap;
-        out << YAML::Key << "Groups" << YAML::Value << cp.groups();
+        out << YAML::Key << "Groups" << YAML::Value << YAML::BeginSeq;
+        for (const auto &[name, g] : cp.groups())
+            out << g;
+        out << YAML::EndSeq;
         out << YAML::EndMap;
         return out;
     }
@@ -176,10 +186,7 @@ namespace ppx_demo
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << g.name;
         out << YAML::Key << "Reference" << YAML::Value << g.ref_pos;
-        out << YAML::Key << "Entities" << YAML::Value << YAML::BeginMap;
-        for (const auto &[id, e] : g.entities)
-            out << YAML::Key << id << YAML::Value << e;
-        out << YAML::EndMap;
+        out << YAML::Key << "Entities" << YAML::Value << g.entities;
         out << YAML::Key << "Springs" << YAML::Value << g.springs;
         out << YAML::Key << "Rigid bars" << YAML::Value << g.rbars;
         out << YAML::EndMap;
@@ -200,10 +207,12 @@ namespace YAML
         if (!node.IsMap() || node.size() != 1)
             return false;
 
-        const Node &groups = node["Groups"];
-        for (auto it = groups.begin(); it != groups.end(); ++it)
-            if (cp.m_groups.find(it->first.as<std::string>()) == cp.m_groups.end())
-                cp.m_groups[it->first.as<std::string>()] = it->second.as<ppx_demo::copy_paste::group>();
+        for (const Node &group : node["Groups"])
+        {
+            auto g = group.as<ppx_demo::copy_paste::group>();
+            if (cp.m_groups.find(g.name) == cp.m_groups.end())
+                cp.m_groups[g.name] = g;
+        }
 
         return true;
     }
@@ -213,8 +222,7 @@ namespace YAML
         Node node;
         node["Name"] = g.name;
         node["Reference"] = g.ref_pos;
-        for (const auto &[id, e] : g.entities)
-            node["Entities"][id] = e;
+        node["Entities"] = g.entities;
         node["Springs"] = g.springs;
         node["Rigid bars"] = g.rbars;
         return node;
@@ -230,9 +238,8 @@ namespace YAML
 
         g.name = node["Name"].as<std::string>();
         g.ref_pos = node["Reference"].as<glm::vec2>();
-        const Node &entities = node["Entities"];
-        for (auto it = entities.begin(); it != entities.end(); ++it)
-            g.entities[it->first.as<std::size_t>()] = it->second.as<ppx_demo::entity_template>();
+        for (const Node &n : node["Entities"])
+            g.entities.push_back(n.as<ppx_demo::entity_template>());
 
         for (const Node &n : node["Springs"])
             g.springs.push_back(n.as<ppx_demo::spring_template>());

@@ -27,7 +27,7 @@ namespace ppx_demo
         {
             std::string name;
             glm::vec2 ref_pos{0.f};
-            std::unordered_map<std::size_t, entity_template> entities;
+            std::vector<entity_template> entities;
             std::vector<spring_template> springs;
             std::vector<rigid_bar_template> rbars;
         };
