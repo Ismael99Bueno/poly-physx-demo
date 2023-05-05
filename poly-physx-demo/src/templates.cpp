@@ -3,67 +3,6 @@
 
 namespace ppx_demo
 {
-    void entity_template::serialize(ini::serializer &out) const
-    {
-        out.write("px", pos.x);
-        out.write("py", pos.y);
-        out.write("vx", vel.x);
-        out.write("vy", vel.y);
-        out.write("index", index);
-        out.write("id", id);
-        out.write("angpos", angpos);
-        out.write("angvel", angvel);
-        out.write("mass", mass);
-        out.write("charge", charge);
-        out.write("kinematic", kinematic);
-        out.write("shape_type", type);
-
-        const std::string key = "vertex";
-        std::size_t index = 0;
-        if (const auto *poly = std::get_if<geo::polygon>(&shape))
-            for (const glm::vec2 &v : poly->vertices())
-            {
-                out.write(key + std::to_string(index) + "x", v.x);
-                out.write(key + std::to_string(index++) + "y", v.y);
-            }
-        else
-            out.write("radius", std::get<geo::circle>(shape).radius());
-    }
-    void entity_template::deserialize(ini::deserializer &in)
-    {
-        pos = {in.readf32("px"), in.readf32("py")};
-        vel = {in.readf32("vx"), in.readf32("vy")};
-        index = in.readui64("index");
-        id = in.readui64("id");
-        angpos = in.readf32("angpos");
-        angvel = in.readf32("angvel");
-        mass = in.readf32("mass");
-        charge = in.readf32("charge");
-        kinematic = (bool)in.readi16("kinematic");
-        type = (ppx::entity2D::shape_type)in.readi32("shape_type");
-
-        if (type == ppx::entity2D::POLYGON)
-        {
-            std::vector<glm::vec2> vertices;
-            vertices.reserve(6);
-            std::size_t index = 0;
-            const std::string key = "vertex";
-            while (true)
-            {
-                const std::string kx = key + std::to_string(index) + "x",
-                                  ky = key + std::to_string(index++) + "y";
-                DBG_ASSERT((in.contains_key(kx) && in.contains_key(ky)) ||
-                               (!in.contains_key(kx) && !in.contains_key(ky)),
-                           "Vector key only contains a component of the vector! Weird.\n")
-                if (!in.contains_key(kx) || !in.contains_key(ky)) // Just for ick reasons
-                    break;
-                vertices.emplace_back(in.readf32(kx), in.readf32(ky));
-            }
-            shape = vertices;
-        }
-        else
-            shape = in.readf32("radius");
-    }
 
     entity_template entity_template::from_entity(const ppx::entity2D &e)
     {
@@ -91,31 +30,6 @@ namespace ppx_demo
         return tmpl;
     }
 
-    void spring_template::serialize(ini::serializer &out) const
-    {
-        out.write("stiffness", stiffness);
-        out.write("dampening", dampening);
-        out.write("length", length);
-        out.write("id1", id1);
-        out.write("id2", id2);
-        out.write("joint1x", joint1.x);
-        out.write("joint1y", joint1.y);
-        out.write("joint2x", joint2.x);
-        out.write("joint2y", joint2.y);
-        out.write("has_joints", has_joints);
-    }
-    void spring_template::deserialize(ini::deserializer &in)
-    {
-        stiffness = in.readf32("stiffness");
-        dampening = in.readf32("dampening");
-        length = in.readf32("length");
-        id1 = in.readui64("id1");
-        id2 = in.readui64("id2");
-        joint1 = {in.readf32("joint1x"), in.readf32("joint1y")};
-        joint2 = {in.readf32("joint2x"), in.readf32("joint2y")};
-        has_joints = (bool)in.readi16("has_joints");
-    }
-
     spring_template spring_template::from_spring(const ppx::spring2D &sp)
     {
         spring_template tmpl;
@@ -130,31 +44,6 @@ namespace ppx_demo
         return tmpl;
     }
 
-    void rigid_bar_template::serialize(ini::serializer &out) const
-    {
-        out.write("stiffness", stiffness);
-        out.write("dampening", dampening);
-        out.write("length", length);
-        out.write("id1", id1);
-        out.write("id2", id2);
-        out.write("joint1x", joint1.x);
-        out.write("joint1y", joint1.y);
-        out.write("joint2x", joint2.x);
-        out.write("joint2y", joint2.y);
-        out.write("has_joints", has_joints);
-    }
-    void rigid_bar_template::deserialize(ini::deserializer &in)
-    {
-        stiffness = in.readf32("stiffness");
-        dampening = in.readf32("dampening");
-        length = in.readf32("length");
-        id1 = in.readui64("id1");
-        id2 = in.readui64("id2");
-        joint1 = {in.readf32("joint1x"), in.readf32("joint1y")};
-        joint2 = {in.readf32("joint2x"), in.readf32("joint2y")};
-        has_joints = (bool)in.readi16("has_joints");
-    }
-
     rigid_bar_template rigid_bar_template::from_bar(const ppx::rigid_bar2D &rb)
     {
         rigid_bar_template tmpl;
@@ -167,5 +56,156 @@ namespace ppx_demo
         tmpl.joint2 = rb.joint2();
         tmpl.has_joints = rb.has_joints();
         return tmpl;
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const entity_template &tmpl)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "ID" << YAML::Value << tmpl.id;
+        out << YAML::Key << "Index" << YAML::Value << tmpl.index;
+        out << YAML::Key << "Position" << YAML::Value << tmpl.pos;
+        out << YAML::Key << "Angular position" << YAML::Value << tmpl.angpos;
+        out << YAML::Key << "Angular velocity" << YAML::Value << tmpl.angvel;
+        out << YAML::Key << "Mass" << YAML::Value << tmpl.mass;
+        out << YAML::Key << "Charge" << YAML::Value << tmpl.charge;
+        out << YAML::Key << "Shape" << YAML::Value;
+        if (const auto &poly = std::get_if<geo::polygon>(&tmpl.shape))
+            out << *poly;
+        else
+            out << std::get<geo::circle>(tmpl.shape);
+        out << YAML::Key << "Kinematic" << YAML::Value << tmpl.kinematic;
+        out << YAML::EndMap;
+        return out;
+    }
+    YAML::Emitter &operator<<(YAML::Emitter &out, const spring_template &tmpl)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
+        out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
+        out << YAML::Key << "Length" << YAML::Value << tmpl.length;
+        if (tmpl.has_joints)
+        {
+            out << YAML::Key << "Joint1" << YAML::Value << tmpl.joint1;
+            out << YAML::Key << "Joint2" << YAML::Value << tmpl.joint2;
+        }
+        out << YAML::EndMap;
+        return out;
+    }
+    YAML::Emitter &operator<<(YAML::Emitter &out, const rigid_bar_template &tmpl)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
+        out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
+        out << YAML::Key << "Length" << YAML::Value << tmpl.length;
+        if (tmpl.has_joints)
+        {
+            out << YAML::Key << "Joint1" << YAML::Value << tmpl.joint1;
+            out << YAML::Key << "Joint2" << YAML::Value << tmpl.joint2;
+        }
+        out << YAML::EndMap;
+        return out;
+    }
+
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::entity_template>::encode(const ppx_demo::entity_template &tmpl)
+    {
+        Node node;
+        node["ID"] = tmpl.id;
+        node["Index"] = tmpl.index;
+        node["Position"] = tmpl.pos;
+        node["Angular position"] = tmpl.angpos;
+        node["Angular velocity"] = tmpl.angvel;
+        node["Mass"] = tmpl.mass;
+        node["Charge"] = tmpl.charge;
+        if (const auto &poly = std::get_if<geo::polygon>(&tmpl.shape))
+            node["Shape"] = *poly;
+        else
+            node["Shape"] = std::get<geo::circle>(tmpl.shape);
+        node["Kinematic"] = tmpl.kinematic;
+        return node;
+    }
+    bool convert<ppx_demo::entity_template>::decode(const Node &node, ppx_demo::entity_template &tmpl)
+    {
+        if (!node.IsMap() || node.size() != 9)
+            return false;
+
+        tmpl.id = node["ID"].as<std::size_t>();
+        tmpl.index = node["Index"].as<std::size_t>();
+        tmpl.pos = node["Position"].as<glm::vec2>();
+        tmpl.angpos = node["Angular position"].as<float>();
+        tmpl.angvel = node["Angular velocity"].as<float>();
+        tmpl.mass = node["Mass"].as<float>();
+        tmpl.charge = node["Charge"].as<float>();
+        if (node["Shape"]["Vertices"])
+            tmpl.shape = node["Shape"].as<geo::polygon>();
+        else
+            tmpl.shape = node["Shape"].as<geo::circle>();
+        tmpl.kinematic = node["Kinematic"].as<bool>();
+        return true;
+    }
+
+    Node convert<ppx_demo::spring_template>::encode(const ppx_demo::spring_template &tmpl)
+    {
+        Node node;
+        node["Stiffness"] = tmpl.stiffness;
+        node["Dampening"] = tmpl.dampening;
+        node["Length"] = tmpl.length;
+        if (tmpl.has_joints)
+        {
+            node["Joint1"] = tmpl.joint1;
+            node["Joint2"] = tmpl.joint2;
+        }
+        return node;
+    }
+    bool convert<ppx_demo::spring_template>::decode(const Node &node, ppx_demo::spring_template &tmpl)
+    {
+        if (!node.IsMap() || (node.size() != 3 && node.size() != 5))
+            return false;
+        tmpl.stiffness = node["Stiffness"].as<float>();
+        tmpl.dampening = node["Dampening"].as<float>();
+        tmpl.length = node["Length"].as<float>();
+        if (node["joint1"])
+        {
+            tmpl.joint1 = node["joint1"].as<glm::vec2>();
+            tmpl.joint2 = node["joint2"].as<glm::vec2>();
+            tmpl.has_joints = true;
+        }
+        else
+            tmpl.has_joints = false;
+        return true;
+    }
+
+    Node convert<ppx_demo::rigid_bar_template>::encode(const ppx_demo::rigid_bar_template &tmpl)
+    {
+        Node node;
+        node["Stiffness"] = tmpl.stiffness;
+        node["Dampening"] = tmpl.dampening;
+        node["Length"] = tmpl.length;
+        if (tmpl.has_joints)
+        {
+            node["Joint1"] = tmpl.joint1;
+            node["Joint2"] = tmpl.joint2;
+        }
+        return node;
+    }
+    bool convert<ppx_demo::rigid_bar_template>::decode(const Node &node, ppx_demo::rigid_bar_template &tmpl)
+    {
+        if (!node.IsMap() || (node.size() != 3 && node.size() != 5))
+            return false;
+        tmpl.stiffness = node["Stiffness"].as<float>();
+        tmpl.dampening = node["Dampening"].as<float>();
+        tmpl.length = node["Length"].as<float>();
+        if (node["joint1"])
+        {
+            tmpl.joint1 = node["joint1"].as<glm::vec2>();
+            tmpl.joint2 = node["joint2"].as<glm::vec2>();
+            tmpl.has_joints = true;
+        }
+        else
+            tmpl.has_joints = false;
+        return true;
     }
 }

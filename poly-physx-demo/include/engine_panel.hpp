@@ -10,8 +10,10 @@ namespace ppx_demo
     {
     public:
         engine_panel();
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
 
     private:
         enum integ_method

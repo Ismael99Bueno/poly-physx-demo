@@ -109,27 +109,48 @@ namespace ppx_demo
 
     void attacher::cancel() { m_e1 = nullptr; }
 
-    void attacher::serialize(ini::serializer &out) const
-    {
-        out.write("sp_stiffness", p_sp_stiffness);
-        out.write("sp_dampening", p_sp_dampening);
-        out.write("sp_length", p_sp_length);
-        out.write("rb_stiffness", p_rb_stiffness);
-        out.write("rb_dampening", p_rb_dampening);
-        out.write("auto_length", p_auto_length);
-        out.write("attach", p_attach);
-    }
-
-    void attacher::deserialize(ini::deserializer &in)
-    {
-        p_sp_stiffness = in.readf32("sp_stiffness");
-        p_sp_dampening = in.readf32("sp_dampening");
-        p_sp_length = in.readf32("sp_length");
-        p_rb_stiffness = in.readf32("rb_stiffness");
-        p_rb_dampening = in.readf32("rb_dampening");
-        p_auto_length = (bool)in.readi16("auto_length");
-        p_attach = (attach_type)in.readi32("attach");
-    }
-
     bool attacher::has_first() const { return (bool)m_e1; }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const attacher &attch)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Spring stiffness" << YAML::Value << attch.p_sp_stiffness;
+        out << YAML::Key << "Spring dampening" << YAML::Value << attch.p_sp_dampening;
+        out << YAML::Key << "Spring length" << YAML::Value << attch.p_sp_length;
+        out << YAML::Key << "Rigid bar stiffness" << YAML::Value << attch.p_rb_stiffness;
+        out << YAML::Key << "Rigid bar dampening" << YAML::Value << attch.p_rb_dampening;
+        out << YAML::Key << "Auto length" << YAML::Value << attch.p_auto_length;
+        out << YAML::Key << "Attach type" << YAML::Value << (int)attch.p_attach;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::attacher>::encode(const ppx_demo::attacher &attch)
+    {
+        Node node;
+        node["Spring stiffness"] = attch.p_sp_stiffness;
+        node["Spring dampening"] = attch.p_sp_dampening;
+        node["Spring length"] = attch.p_sp_length;
+        node["Rigid bar stiffness"] = attch.p_rb_stiffness;
+        node["Rigid bar dampening"] = attch.p_rb_dampening;
+        node["Auto length"] = attch.p_auto_length;
+        node["Attach type"] = (int)attch.p_attach;
+        return node;
+    }
+    bool convert<ppx_demo::attacher>::decode(const Node &node, ppx_demo::attacher &attch)
+    {
+        if (!node.IsMap() || node.size() != 3)
+            return false;
+        attch.p_sp_stiffness = node["Spring stiffness"].as<float>();
+        attch.p_sp_dampening = node["Spring dampening"].as<float>();
+        attch.p_sp_length = node["Spring length"].as<float>();
+        attch.p_rb_stiffness = node["Rigid bar stiffness"].as<float>();
+        attch.p_rb_dampening = node["Rigid bar dampening"].as<float>();
+        attch.p_auto_length = node["Auto length"].as<bool>();
+        attch.p_attach = (ppx_demo::attacher::attach_type)node["Attach type"].as<int>();
+        return true;
+    }
 }

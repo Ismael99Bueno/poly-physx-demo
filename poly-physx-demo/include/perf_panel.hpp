@@ -3,7 +3,6 @@
 
 #include "perf/perf.hpp"
 #include "ppx-app/layer.hpp"
-#include "ini/serializable.hpp"
 #include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -21,8 +20,9 @@ namespace ppx_demo
             NANOSECONDS = 3,
         };
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
 
     private:
         void on_render() override;

@@ -132,28 +132,6 @@ namespace ppx_demo
         demo_app::get().draw(vertices, 5u, sf::LineStrip);
     }
 
-    void selector::serialize(ini::serializer &out) const
-    {
-        const std::string key = "selected";
-        for (const auto &e : m_entities)
-            out.write(key + std::to_string(e.index()), e.index());
-    }
-
-    void selector::deserialize(ini::deserializer &in)
-    {
-        m_entities.clear();
-        const std::string key = "selected";
-
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                m_entities.insert(e);
-        }
-        update_selected_springs_rbars();
-    }
-
     const std::unordered_set<ppx::entity2D_ptr> &selector::entities() const { return m_entities; }
     const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::springs() const { return m_springs; }
     const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::rbars() const { return m_rbars; }
@@ -165,5 +143,38 @@ namespace ppx_demo
                                      std::min(mpos.y, m_mpos_start.y)),
                            glm::vec2(std::max(mpos.x, m_mpos_start.x),
                                      std::max(mpos.y, m_mpos_start.y)));
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const selector &slct)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Selected entities" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto &e : slct.entities())
+            out << e.index();
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::selector>::encode(const ppx_demo::selector &slct)
+    {
+        Node node;
+        for (const auto &e : slct.entities())
+            node["Selected entities"].push_back(e.index());
+        node["Selected entities"].SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+    bool convert<ppx_demo::selector>::decode(const Node &node, ppx_demo::selector &slct)
+    {
+        if (!node.IsMap() || node.size() != 1)
+            return false;
+        slct.m_entities.clear();
+        for (const Node &n : node["Selected entities"])
+            slct.m_entities.insert(ppx_demo::demo_app::get().engine()[n.as<std::size_t>()]);
+        slct.update_selected_springs_rbars();
+        return true;
     }
 }

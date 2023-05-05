@@ -14,8 +14,10 @@ namespace ppx_demo
     {
     public:
         phys_panel();
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
 
     private:
         void on_attach(ppx::app *papp) override;
@@ -27,7 +29,7 @@ namespace ppx_demo
         std::shared_ptr<gravitational> m_gravitational;
         std::shared_ptr<exponential> m_exponential;
 
-        std::unordered_map<const char *, std::shared_ptr<ini::serializable>> m_saveables;
+        std::vector<std::shared_ptr<toggleable>> m_toggleables;
 
         glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
         std::array<glm::vec2, PLOT_POINTS> m_potential_data;

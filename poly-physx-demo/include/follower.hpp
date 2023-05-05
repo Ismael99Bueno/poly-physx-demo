@@ -5,7 +5,7 @@
 
 namespace ppx_demo
 {
-    class follower : public ini::serializable
+    class follower
     {
     public:
         follower() = default;
@@ -19,14 +19,26 @@ namespace ppx_demo
         bool empty() const;
         void clear();
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
     private:
         std::vector<ppx::const_entity2D_ptr> m_entities;
         glm::vec2 m_prev_com{0.f};
 
         glm::vec2 center_of_mass() const;
+
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const follower &);
+        friend struct YAML::convert<follower>;
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const follower &flw);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::follower>
+    {
+        static Node encode(const ppx_demo::follower &flw);
+        static bool decode(const Node &node, ppx_demo::follower &flw);
     };
 }
 

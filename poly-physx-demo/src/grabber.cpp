@@ -65,20 +65,36 @@ namespace ppx_demo
         demo_app::get().draw(sl);
     }
 
-    void grabber::serialize(ini::serializer &out) const
-    {
-        out.write("stiffness", p_stiffness);
-        out.write("dampening", p_dampening);
-        out.write("r", (int)p_color.r);
-        out.write("g", (int)p_color.g);
-        out.write("b", (int)p_color.b);
-    }
-    void grabber::deserialize(ini::deserializer &in)
-    {
-        p_stiffness = in.readf32("stiffness");
-        p_dampening = in.readf32("dampening");
-        p_color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
-    }
-
     void grabber::null() { m_grabbed = nullptr; }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const grabber &grb)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Stiffness" << YAML::Value << grb.p_stiffness;
+        out << YAML::Key << "Dampening" << YAML::Value << grb.p_dampening;
+        out << YAML::Key << "Color" << YAML::Value << grb.p_color;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::grabber>::encode(const ppx_demo::grabber &grb)
+    {
+        Node node;
+        node["Stiffness"] = grb.p_stiffness;
+        node["Dampening"] = grb.p_dampening;
+        node["Color"] = grb.p_color;
+        return node;
+    }
+    bool convert<ppx_demo::grabber>::decode(const Node &node, ppx_demo::grabber &grb)
+    {
+        if (!node.IsMap() || node.size() != 3)
+            return false;
+        grb.p_stiffness = node["Stiffness"].as<float>();
+        grb.p_dampening = node["Dampening"].as<float>();
+        grb.p_color = node["Color"].as<sf::Color>();
+        return true;
+    }
 }

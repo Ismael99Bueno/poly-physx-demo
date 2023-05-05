@@ -6,7 +6,7 @@
 
 namespace ppx_demo
 {
-    class trail_manager : public ini::serializable
+    class trail_manager
     {
     public:
         trail_manager() = default;
@@ -19,15 +19,26 @@ namespace ppx_demo
         void exclude(const ppx::entity2D &e);
         bool contains(const ppx::entity2D &e) const;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         std::uint32_t p_steps = 150, p_length = 5;
         float p_line_thickness = 6.f;
         bool p_enabled = false, p_auto_include = true;
 
     private:
         std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_trails;
+
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const trail_manager &);
+        friend struct YAML::convert<trail_manager>;
+    };
+    YAML::Emitter &operator<<(YAML::Emitter &out, const trail_manager &tm);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::trail_manager>
+    {
+        static Node encode(const ppx_demo::trail_manager &tm);
+        static bool decode(const Node &node, ppx_demo::trail_manager &tm);
     };
 }
 

@@ -1,24 +1,11 @@
 #include "pch.hpp"
 #include "perf_panel.hpp"
+#include "implot.h"
 #include "demo_app.hpp"
 
 namespace ppx_demo
 {
     perf_panel::perf_panel() : ppx::layer("perf_panel") {}
-    void perf_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.write("time_unit", m_unit);
-        out.write("framerate", m_fps);
-    }
-
-    void perf_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        m_unit = (time_unit)in.readi32("time_unit");
-        m_fps = in.readi32("framerate");
-    }
-
     void perf_panel::on_render()
     {
 #ifdef PERF
@@ -278,4 +265,27 @@ namespace ppx_demo
         ImGui::Text("Build the project with #define PERF\nto show more information.");
     }
 #endif
+
+    void perf_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "Time unit" << YAML::Value << (int)m_unit;
+        out << YAML::Key << "Framerate" << YAML::Value << m_fps;
+    }
+    YAML::Node perf_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["Time unit"] = (int)m_unit;
+        node["Framerate"] = m_fps;
+        return node;
+    }
+    bool perf_panel::decode(const YAML::Node &node)
+    {
+        if (!layer::decode(node))
+            return false;
+
+        m_unit = (time_unit)node["Time unit"].as<int>();
+        m_fps = node["Framerate"].as<int>();
+        return true;
+    }
 }

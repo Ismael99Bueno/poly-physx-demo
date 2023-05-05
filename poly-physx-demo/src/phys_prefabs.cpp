@@ -4,26 +4,6 @@
 
 namespace ppx_demo
 {
-    static void write_set(const ppx::entity2D_set &set, ini::serializer &out)
-    {
-        const std::string key = "entity";
-        for (const ppx::const_entity2D_ptr &e : set.entities())
-            out.write(key + std::to_string(e.index()), e.index());
-    }
-    static void read_set(ppx::entity2D_set &set, ini::deserializer &in)
-    {
-        set.clear();
-        const std::string key = "entity";
-
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::const_entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                set.include(e);
-        }
-    }
-
     std::pair<glm::vec2, float> gravity::force(const ppx::entity2D &e) const
     {
         return std::make_pair(glm::vec2(0.f, e.mass() * p_mag), 0.f);
@@ -31,37 +11,9 @@ namespace ppx_demo
 
     float gravity::potential_energy(const ppx::entity2D &e) const { return -e.mass() * p_mag * e.pos().y; }
 
-    void gravity::serialize(ini::serializer &out) const
-    {
-        out.write("mag", p_mag);
-        out.write("enabled", p_enabled);
-        write_set(*this, out);
-    }
-    void gravity::deserialize(ini::deserializer &in)
-    {
-        p_mag = in.readf32("mag");
-        p_enabled = (bool)in.readi16("enabled");
-        read_set(*this, in);
-    }
-
     std::pair<glm::vec2, float> drag::force(const ppx::entity2D &e) const
     {
         return std::make_pair(-p_lin_mag * e.vel(), -p_ang_mag * e.angvel());
-    }
-
-    void drag::serialize(ini::serializer &out) const
-    {
-        out.write("lin_mag", p_lin_mag);
-        out.write("ang_mag", p_ang_mag);
-        out.write("enabled", p_enabled);
-        write_set(*this, out);
-    }
-    void drag::deserialize(ini::deserializer &in)
-    {
-        p_lin_mag = in.readf32("lin_mag");
-        p_ang_mag = in.readf32("ang_mag");
-        p_enabled = (bool)in.readi16("enabled");
-        read_set(*this, in);
     }
 
     std::pair<glm::vec2, float> gravitational::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
@@ -76,19 +28,6 @@ namespace ppx_demo
     {
         const float cte = -p_mag * e1.mass() * e2.mass();
         return cte / glm::distance(e1.pos(), e2.pos());
-    }
-
-    void gravitational::serialize(ini::serializer &out) const
-    {
-        out.write("mag", p_mag);
-        out.write("enabled", p_enabled);
-        write_set(*this, out);
-    }
-    void gravitational::deserialize(ini::deserializer &in)
-    {
-        p_mag = in.readf32("mag");
-        p_enabled = (bool)in.readi16("enabled");
-        read_set(*this, in);
     }
 
     std::pair<glm::vec2, float> electrical::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
@@ -116,21 +55,6 @@ namespace ppx_demo
         return -cte * logf(dist);
     }
 
-    void electrical::serialize(ini::serializer &out) const
-    {
-        out.write("mag", p_mag);
-        out.write("exp", p_exp);
-        out.write("enabled", p_enabled);
-        write_set(*this, out);
-    }
-    void electrical::deserialize(ini::deserializer &in)
-    {
-        p_mag = in.readf32("mag");
-        p_exp = in.readui32("exp");
-        p_enabled = (bool)in.readi16("enabled");
-        read_set(*this, in);
-    }
-
     std::pair<glm::vec2, float> exponential::force(const ppx::entity2D &e1, const ppx::entity2D &e2) const
     {
         const float cte = p_mag * e1.charge() * e2.charge(),
@@ -146,18 +70,122 @@ namespace ppx_demo
         return -cte * expf(p_exp * dist) / p_exp;
     }
 
-    void exponential::serialize(ini::serializer &out) const
+    void gravity::write(YAML::Emitter &out) const
     {
-        out.write("mag", p_mag);
-        out.write("exp", p_exp);
-        out.write("enabled", p_enabled);
-        write_set(*this, out);
+        ppx::entity2D_set::write(out);
+        out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
+        out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
     }
-    void exponential::deserialize(ini::deserializer &in)
+    YAML::Node gravity::encode() const
     {
-        p_mag = in.readf32("mag");
-        p_exp = in.readf32("exp");
-        p_enabled = (bool)in.readi16("enabled");
-        read_set(*this, in);
+        YAML::Node node = ppx::entity2D_set::encode();
+        node["Enabled"] = p_enabled;
+        node["Magnitude"] = p_mag;
+        return node;
+    }
+    bool gravity::decode(const YAML::Node &node)
+    {
+        if (!ppx::entity2D_set::decode(node))
+            return false;
+
+        p_enabled = node["Enabled"].as<bool>();
+        p_mag = node["Magnitude"].as<float>();
+        return true;
+    }
+    void drag::write(YAML::Emitter &out) const
+    {
+        ppx::entity2D_set::write(out);
+        out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
+        out << YAML::Key << "Linear magnitude" << YAML::Value << p_lin_mag;
+        out << YAML::Key << "Angular magnitude" << YAML::Value << p_ang_mag;
+    }
+    YAML::Node drag::encode() const
+    {
+        YAML::Node node = ppx::entity2D_set::encode();
+        node["Enabled"] = p_enabled;
+        node["Linear magnitude"] = p_lin_mag;
+        node["Angular magnitude"] = p_ang_mag;
+        return node;
+    }
+    bool drag::decode(const YAML::Node &node)
+    {
+        if (!ppx::entity2D_set::decode(node))
+            return false;
+
+        p_enabled = node["Enabled"].as<bool>();
+        p_lin_mag = node["Linear magnitude"].as<float>();
+        p_ang_mag = node["Angular magnitude"].as<float>();
+        return true;
+    }
+    void gravitational::write(YAML::Emitter &out) const
+    {
+        ppx::entity2D_set::write(out);
+        out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
+        out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
+    }
+    YAML::Node gravitational::encode() const
+    {
+        YAML::Node node = ppx::entity2D_set::encode();
+        node["Enabled"] = p_enabled;
+        node["Magnitude"] = p_mag;
+        return node;
+    }
+    bool gravitational::decode(const YAML::Node &node)
+    {
+        if (!ppx::entity2D_set::decode(node))
+            return false;
+
+        p_enabled = node["Enabled"].as<bool>();
+        p_mag = node["Magnitude"].as<float>();
+        return true;
+    }
+    void electrical::write(YAML::Emitter &out) const
+    {
+        ppx::entity2D_set::write(out);
+        out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
+        out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
+        out << YAML::Key << "Exponent" << YAML::Value << p_exp;
+    }
+    YAML::Node electrical::encode() const
+    {
+        YAML::Node node = ppx::entity2D_set::encode();
+        node["Enabled"] = p_enabled;
+        node["Magnitude"] = p_mag;
+        node["Exponent"] = p_exp;
+        return node;
+    }
+    bool electrical::decode(const YAML::Node &node)
+    {
+        if (!ppx::entity2D_set::decode(node))
+            return false;
+
+        p_enabled = node["Enabled"].as<bool>();
+        p_mag = node["Magnitude"].as<float>();
+        p_exp = node["Exponent"].as<std::uint32_t>();
+        return true;
+    }
+    void exponential::write(YAML::Emitter &out) const
+    {
+        ppx::entity2D_set::write(out);
+        out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
+        out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
+        out << YAML::Key << "Exponent" << YAML::Value << p_exp;
+    }
+    YAML::Node exponential::encode() const
+    {
+        YAML::Node node = ppx::entity2D_set::encode();
+        node["Enabled"] = p_enabled;
+        node["Magnitude"] = p_mag;
+        return node;
+    }
+    bool exponential::decode(const YAML::Node &node)
+    {
+        if (!ppx::entity2D_set::decode(node))
+            return false;
+
+        p_enabled = node["Enabled"].as<bool>();
+        p_mag = node["Magnitude"].as<float>();
+        p_exp = node["Exponent"].as<float>();
+        return true;
     }
 }

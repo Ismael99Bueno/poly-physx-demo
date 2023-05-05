@@ -20,5 +20,6 @@
 #include <random>
 #include <string>
 #include <limits>
+#include <yaml-cpp/yaml.h>
 
 #endif

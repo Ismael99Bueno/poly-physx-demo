@@ -116,88 +116,6 @@ namespace ppx_demo
     void adder::load_template() { load_template(p_current_templ.name); }
     void adder::erase_template() { erase_template(p_current_templ.name); }
 
-    void adder::add_template::serialize(ini::serializer &out) const
-    {
-        out.write("name", name);
-        out.write("shape", shape);
-        out.write("width", width);
-        out.write("height", height);
-        out.write("ngon_radius", ngon_radius);
-        out.write("circle_radius", circle_radius);
-        out.write("sides", sides);
-        out.write("r", (int)color.r);
-        out.write("g", (int)color.g);
-        out.write("b", (int)color.b);
-        out.write("soft_body", soft_body);
-        out.write("sb_stiffness", sb_stiffness);
-        out.write("sb_dampening", sb_dampening);
-        out.write("sb_radius", sb_radius);
-        out.write("between_vertices", entities_between_vertices);
-        out.begin_section("entity_template");
-        entity_templ.serialize(out);
-        out.end_section();
-    }
-
-    void adder::add_template::deserialize(ini::deserializer &in)
-    {
-        name = in.readstr("name");
-        shape = (shape_type)in.readi32("shape");
-        width = in.readf32("width");
-        height = in.readf32("height");
-        ngon_radius = in.readf32("ngon_radius");
-        circle_radius = in.readf32("circle_radius");
-        sides = in.readui32("sides");
-        color = {(sf::Uint8)in.readui32("r"), (sf::Uint8)in.readui32("g"), (sf::Uint8)in.readui32("b")};
-        soft_body = (bool)in.readi16("soft_body");
-        sb_stiffness = in.readf32("sb_stiffness");
-        sb_dampening = in.readf32("sb_dampening");
-        sb_radius = in.readf32("sb_radius");
-        entities_between_vertices = in.readui32("between_vertices");
-        in.begin_section("entity_template");
-        entity_templ.deserialize(in);
-        in.end_section();
-    }
-
-    void adder::serialize(ini::serializer &out) const
-    {
-        out.begin_section("current");
-        p_current_templ.serialize(out);
-        out.end_section();
-
-        std::size_t index = 0;
-        const std::string section = "template";
-        for (const auto &[name, templ] : m_templates)
-        {
-            out.begin_section(section + std::to_string(index++));
-            templ.serialize(out);
-            out.end_section();
-        }
-    }
-
-    void adder::deserialize(ini::deserializer &in)
-    {
-        in.begin_section("current");
-        p_current_templ.deserialize(in);
-        in.end_section();
-
-        std::size_t index = 0;
-        const std::string section = "template";
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            const std::string name = in.readstr("name");
-            if (m_templates.find(name) == m_templates.end()) // Entities persist over saves
-                m_templates[name].deserialize(in);
-            in.end_section();
-        }
-        demo_app::get().entity_color(p_current_templ.color);
-    }
-
     const std::map<std::string, adder::add_template> &adder::templates() const
     {
         return m_templates;
@@ -301,4 +219,103 @@ namespace ppx_demo
         papp.draw(fls);
         papp.draw(fl);
     }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder &addr)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Current template" << YAML::Value << addr.p_current_templ;
+        out << YAML::Key << "Templates" << YAML::Value << addr.m_templates;
+        out << YAML::EndMap;
+        return out;
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder::add_template &add_tmpl)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Name" << YAML::Value << add_tmpl.name;
+        out << YAML::Key << "Entity template" << YAML::Value << add_tmpl.entity_templ;
+        out << YAML::Key << "Shape type" << YAML::Value << (int)add_tmpl.shape;
+        out << YAML::Key << "Width" << YAML::Value << add_tmpl.width;
+        out << YAML::Key << "Height" << YAML::Value << add_tmpl.height;
+        out << YAML::Key << "NGon radius" << YAML::Value << add_tmpl.ngon_radius;
+        out << YAML::Key << "NGon sides" << YAML::Value << add_tmpl.sides;
+        out << YAML::Key << "Circle radius" << YAML::Value << add_tmpl.circle_radius;
+        out << YAML::Key << "Color" << YAML::Value << add_tmpl.color;
+
+        out << YAML::Key << "Soft body" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Soft body" << YAML::Value << add_tmpl.soft_body;
+        out << YAML::Key << "Stiffness" << YAML::Value << add_tmpl.sb_stiffness;
+        out << YAML::Key << "Dampening" << YAML::Value << add_tmpl.sb_dampening;
+        out << YAML::Key << "Radius" << YAML::Value << add_tmpl.sb_radius;
+        out << YAML::Key << "Entities between vertices" << YAML::Value << add_tmpl.entities_between_vertices;
+        out << YAML::EndMap;
+
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::adder>::encode(const ppx_demo::adder &addr)
+    {
+        Node node;
+        node["Current template"] = addr.p_current_templ;
+        node["Templates"] = addr.m_templates;
+        return node;
+    }
+    bool convert<ppx_demo::adder>::decode(const Node &node, ppx_demo::adder &addr)
+    {
+        if (!node.IsMap() || node.size() != 2)
+            return false;
+        addr.p_current_templ = node["Current template"].as<ppx_demo::adder::add_template>();
+        const Node &templates = node["Templates"];
+        for (auto it = templates.begin(); it != templates.end(); ++it)
+            if (addr.m_templates.find(it->first.as<std::string>()) == addr.m_templates.end())
+                addr.m_templates[it->first.as<std::string>()] = it->second.as<ppx_demo::adder::add_template>();
+        return true;
+    }
+
+    Node convert<ppx_demo::adder::add_template>::encode(const ppx_demo::adder::add_template &add_tmpl)
+    {
+        Node node;
+        node["Name"] = add_tmpl.name;
+        node["Entity template"] = add_tmpl.entity_templ;
+        node["Shape type"] = (int)add_tmpl.shape;
+        node["Width"] = add_tmpl.width;
+        node["Height"] = add_tmpl.height;
+        node["NGon radius"] = add_tmpl.ngon_radius;
+        node["NGon sides"] = add_tmpl.sides;
+        node["Circle radius"] = add_tmpl.circle_radius;
+        node["Color"] = add_tmpl.color;
+
+        node["Soft body"]["Soft body"] = add_tmpl.soft_body;
+        node["Soft body"]["Stiffness"] = add_tmpl.sb_stiffness;
+        node["Soft body"]["Dampening"] = add_tmpl.sb_dampening;
+        node["Soft body"]["Radius"] = add_tmpl.sb_radius;
+        node["Soft body"]["Entities between vertices"] = add_tmpl.entities_between_vertices;
+        return node;
+    }
+    bool convert<ppx_demo::adder::add_template>::decode(const Node &node, ppx_demo::adder::add_template &add_tmpl)
+    {
+        if (!node.IsMap() || node.size() != 10)
+            return false;
+        add_tmpl.name = node["Name"].as<std::string>();
+        add_tmpl.entity_templ = node["Entity template"].as<ppx_demo::entity_template>();
+        add_tmpl.shape = (ppx_demo::adder::shape_type)node["Shape type"].as<int>();
+        add_tmpl.width = node["Width"].as<float>();
+        add_tmpl.height = node["Height"].as<float>();
+        add_tmpl.ngon_radius = node["NGon radius"].as<float>();
+        add_tmpl.sides = node["NGon sides"].as<std::uint32_t>();
+        add_tmpl.circle_radius = node["Circle radius"].as<float>();
+        add_tmpl.color = node["Color"].as<sf::Color>();
+
+        add_tmpl.soft_body = node["Soft body"]["Soft body"].as<bool>();
+        add_tmpl.sb_stiffness = node["Soft body"]["Stiffness"].as<float>();
+        add_tmpl.sb_dampening = node["Soft body"]["Dampening"].as<float>();
+        add_tmpl.sb_radius = node["Soft body"]["Radius"].as<float>();
+        add_tmpl.entities_between_vertices = node["Soft body"]["Entities between vertices"].as<std::uint32_t>();
+        return true;
+    }
+
 }

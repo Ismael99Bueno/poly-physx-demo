@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class attacher : public ini::serializable
+    class attacher
     {
     public:
         enum attach_type
@@ -25,9 +25,6 @@ namespace ppx_demo
         void try_attach_second(bool snap_e2_to_center);
 
         void cancel();
-
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
 
         bool has_first() const;
 
@@ -48,6 +45,18 @@ namespace ppx_demo
 
         void rotate_joint();
         void draw_unattached_joint(bool snap_e2_to_center) const;
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const attacher &attch);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::attacher>
+    {
+        static Node encode(const ppx_demo::attacher &attch);
+        static bool decode(const Node &node, ppx_demo::attacher &attch);
     };
 }
 

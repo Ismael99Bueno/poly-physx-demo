@@ -24,6 +24,10 @@ namespace ppx_demo
         actions_panel();
         void cancel_add_attach();
 
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
+
     private:
         void on_start() override;
         void on_update() override;
@@ -40,14 +44,21 @@ namespace ppx_demo
         entities_tab m_entities_tab;
         actions m_action = ADD;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         actions action() const;
         void update_current_action();
         void render_current_action();
         void render_tabs() const;
     };
 }
+
+// namespace YAML
+// {
+//     template <>
+//     struct convert<ppx_demo::actions_panel>
+//     {
+//         static Node encode(const ppx_demo::actions_panel &actions);
+//         static bool decode(const Node &node, ppx_demo::actions_panel &actions);
+//     };
+// }
 
 #endif

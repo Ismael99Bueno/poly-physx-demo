@@ -12,123 +12,6 @@ namespace ppx_demo
             preview();
     }
 
-    void copy_paste::group::serialize(ini::serializer &out) const
-    {
-        out.write("name", name);
-        out.write("refposx", ref_pos.x);
-        out.write("refposy", ref_pos.y);
-
-        std::string section = "entity";
-        std::size_t index = 0;
-        for (const auto &[id, tmpl] : entities)
-        {
-            out.begin_section(section + std::to_string(index++));
-            out.write("key_id", id);
-            tmpl.serialize(out);
-            out.end_section();
-        }
-
-        section = "spring";
-        index = 0;
-        for (const spring_template &tmpl : springs)
-        {
-            out.begin_section(section + std::to_string(index++));
-            tmpl.serialize(out);
-            out.end_section();
-        }
-
-        section = "rbar";
-        index = 0;
-        for (const rigid_bar_template &tmpl : rbars)
-        {
-            out.begin_section(section + std::to_string(index++));
-            tmpl.serialize(out);
-            out.end_section();
-        }
-    }
-    void copy_paste::group::deserialize(ini::deserializer &in)
-    {
-        entities.clear();
-        springs.clear();
-        rbars.clear();
-
-        name = in.readstr("name");
-        ref_pos = {in.readf32("refposx"), in.readf32("refposy")};
-
-        std::string section = "entity";
-        std::size_t index = 0;
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            const std::size_t id = in.readui64("key_id");
-            entities[id].deserialize(in);
-            in.end_section();
-        }
-
-        section = "spring";
-        index = 0;
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            springs.emplace_back().deserialize(in);
-            in.end_section();
-        }
-
-        section = "rbar";
-        index = 0;
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            rbars.emplace_back().deserialize(in);
-            in.end_section();
-        }
-    }
-
-    void copy_paste::serialize(ini::serializer &out) const
-    {
-        const std::string section = "group";
-        std::size_t index = 0;
-        for (const auto &[name, group] : m_groups)
-        {
-            out.begin_section(section + std::to_string(index++));
-            group.serialize(out);
-            out.end_section();
-        }
-    }
-    void copy_paste::deserialize(ini::deserializer &in)
-    {
-        const std::string section = "group";
-        std::size_t index = 0;
-        while (true)
-        {
-            in.begin_section(section + std::to_string(index++));
-            if (!in.contains_section())
-            {
-                in.end_section();
-                break;
-            }
-            const std::string name = in.readstr("name");
-            if (m_groups.find(name) == m_groups.end()) // Groups persist over saves
-                m_groups[name].deserialize(in);
-            in.end_section();
-        }
-    }
-
     void copy_paste::save_group(const std::string &name)
     {
         m_groups[name] = group();
@@ -279,4 +162,83 @@ namespace ppx_demo
 
     const std::map<std::string, copy_paste::group> &copy_paste::groups() const { return m_groups; }
     const copy_paste::group &copy_paste::current_group() const { return m_copy; }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const copy_paste &cp)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Groups" << YAML::Value << cp.groups();
+        out << YAML::EndMap;
+        return out;
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const copy_paste::group &g)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Name" << YAML::Value << g.name;
+        out << YAML::Key << "Reference" << YAML::Value << g.ref_pos;
+        out << YAML::Key << "Entities" << YAML::Value << YAML::BeginMap;
+        for (const auto &[id, e] : g.entities)
+            out << YAML::Key << id << YAML::Value << e;
+        out << YAML::EndMap;
+        out << YAML::Key << "Springs" << YAML::Value << g.springs;
+        out << YAML::Key << "Rigid bars" << YAML::Value << g.rbars;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::copy_paste>::encode(const ppx_demo::copy_paste &cp)
+    {
+        Node node;
+        node["Groups"] = cp.groups();
+        return node;
+    }
+    bool convert<ppx_demo::copy_paste>::decode(const Node &node, ppx_demo::copy_paste &cp)
+    {
+        if (!node.IsMap() || node.size() != 1)
+            return false;
+
+        const Node &groups = node["Groups"];
+        for (auto it = groups.begin(); it != groups.end(); ++it)
+            if (cp.m_groups.find(it->first.as<std::string>()) == cp.m_groups.end())
+                cp.m_groups[it->first.as<std::string>()] = it->second.as<ppx_demo::copy_paste::group>();
+
+        return true;
+    }
+
+    Node convert<ppx_demo::copy_paste::group>::encode(const ppx_demo::copy_paste::group &g)
+    {
+        Node node;
+        node["Name"] = g.name;
+        node["Reference"] = g.ref_pos;
+        for (const auto &[id, e] : g.entities)
+            node["Entities"][id] = e;
+        node["Springs"] = g.springs;
+        node["Rigid bars"] = g.rbars;
+        return node;
+    }
+    bool convert<ppx_demo::copy_paste::group>::decode(const Node &node, ppx_demo::copy_paste::group &g)
+    {
+        if (!node.IsMap() || node.size() != 5)
+            return false;
+
+        g.entities.clear();
+        g.springs.clear();
+        g.rbars.clear();
+
+        g.name = node["Name"].as<std::string>();
+        g.ref_pos = node["Reference"].as<glm::vec2>();
+        const Node &entities = node["Entities"];
+        for (auto it = entities.begin(); it != entities.end(); ++it)
+            g.entities[it->first.as<std::size_t>()] = it->second.as<ppx_demo::entity_template>();
+
+        for (const Node &n : node["Springs"])
+            g.springs.push_back(n.as<ppx_demo::spring_template>());
+        for (const Node &n : node["Rigid bars"])
+            g.rbars.push_back(n.as<ppx_demo::rigid_bar_template>());
+        return true;
+    }
+
 }

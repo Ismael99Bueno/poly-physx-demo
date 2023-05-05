@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class adder : public ini::serializable
+    class adder
     {
     public:
         enum shape_type
@@ -19,7 +19,7 @@ namespace ppx_demo
         };
 
     private:
-        struct add_template : private ini::serializable
+        struct add_template
         {
             std::string name;
             entity_template entity_templ;
@@ -33,9 +33,6 @@ namespace ppx_demo
 
             std::uint32_t sides = 3;
             sf::Color color = DEFAULT_ENTITY_COLOR;
-
-            void serialize(ini::serializer &out) const override;
-            void deserialize(ini::deserializer &in) override;
         };
 
     public:
@@ -54,9 +51,6 @@ namespace ppx_demo
         void update_template_vertices();
 
         void add();
-
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
 
         const std::map<std::string, add_template> &templates() const;
         bool has_saved_entity() const;
@@ -82,6 +76,31 @@ namespace ppx_demo
 
         void draw_entity_preview();
         void draw_velocity_arrow() const;
+
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const adder &);
+        friend struct YAML::convert<adder>;
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const add_template &);
+        friend struct YAML::convert<add_template>;
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder &addr);
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder::add_template &add_tmpl);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::adder>
+    {
+        static Node encode(const ppx_demo::adder &addr);
+        static bool decode(const Node &node, ppx_demo::adder &addr);
+    };
+
+    template <>
+    struct convert<ppx_demo::adder::add_template>
+    {
+        static Node encode(const ppx_demo::adder::add_template &add_tmpl);
+        static bool decode(const Node &node, ppx_demo::adder::add_template &add_tmpl);
     };
 }
 

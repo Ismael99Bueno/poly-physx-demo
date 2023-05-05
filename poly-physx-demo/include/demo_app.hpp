@@ -69,18 +69,8 @@ namespace ppx_demo
         void on_event(sf::Event &event) override;
         void on_end() override;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         std::string m_session;
         sf::Clock m_clock;
-
-        const std::unordered_map<const char *, ini::serializable *> m_saveables = {
-            {"selector", &p_selector},
-            {"copy_paste", &p_copy_paste},
-            {"predictor", &p_predictor},
-            {"trails", &p_trails},
-            {"follower", &p_follower}};
 
         void draw_interaction_lines();
         demo_app(const demo_app &papp) = delete;

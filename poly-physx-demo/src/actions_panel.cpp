@@ -172,33 +172,6 @@ namespace ppx_demo
         }
     }
 
-    void actions_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.begin_section("adder");
-        m_adder.serialize(out);
-        out.end_section();
-        out.begin_section("grabber");
-        m_grabber.serialize(out);
-        out.end_section();
-        out.begin_section("attacher");
-        m_attacher.serialize(out);
-        out.end_section();
-    }
-    void actions_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        in.begin_section("adder");
-        m_adder.deserialize(in);
-        in.end_section();
-        in.begin_section("grabber");
-        m_grabber.deserialize(in);
-        in.end_section();
-        in.begin_section("attacher");
-        m_attacher.deserialize(in);
-        in.end_section();
-    }
-
     void actions_panel::cancel_add_attach()
     {
         m_attacher.cancel();
@@ -211,4 +184,41 @@ namespace ppx_demo
             return NONE;
         return m_action;
     }
+
+    void actions_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "Adder" << YAML::Value << m_adder;
+        out << YAML::Key << "Grabber" << YAML::Value << m_grabber;
+        out << YAML::Key << "Attacher" << YAML::Value << m_attacher;
+    }
+    YAML::Node actions_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["Adder"] = m_adder;
+        node["Grabber"] = m_grabber;
+        node["Attacher"] = m_attacher;
+        return node;
+    }
+    bool actions_panel::decode(const YAML::Node &node)
+    {
+        if (!layer::decode(node))
+            return false;
+        node["Adder"].as<adder>(m_adder);
+        node["Grabber"].as<grabber>(m_grabber);
+        node["Attacher"].as<attacher>(m_attacher);
+        return true;
+    }
 }
+
+// namespace YAML
+// {
+//     Node convert<ppx_demo::actions_panel>::encode(const ppx_demo::actions_panel &actions)
+//     {
+//         return actions.encode();
+//     }
+//     bool convert<ppx_demo::actions_panel>::decode(const Node &node, ppx_demo::actions_panel &actions)
+//     {
+//         return actions.decode(node);
+//     }
+// }

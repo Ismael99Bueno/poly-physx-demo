@@ -9,7 +9,7 @@
 
 namespace ppx_demo
 {
-    struct entity_template : ini::serializable
+    struct entity_template
     {
         glm::vec2 pos, vel;
         std::size_t index = 0, id = 0;
@@ -18,36 +18,55 @@ namespace ppx_demo
         bool kinematic = true;
         ppx::entity2D::shape_type type = ppx::entity2D::POLYGON;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         static entity_template from_entity(const ppx::entity2D &e);
     };
 
-    struct spring_template : ini::serializable
+    struct spring_template
     {
         float stiffness = 1.f, dampening = 0.f, length;
         std::size_t id1, id2;
         glm::vec2 joint1, joint2;
         bool has_joints;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         static spring_template from_spring(const ppx::spring2D &sp);
     };
 
-    struct rigid_bar_template : ini::serializable
+    struct rigid_bar_template
     {
         float stiffness = 500.f, dampening = 30.f, length;
         std::size_t id1, id2;
         glm::vec2 joint1, joint2;
         bool has_joints;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         static rigid_bar_template from_bar(const ppx::rigid_bar2D &rb);
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const entity_template &tmpl);
+    YAML::Emitter &operator<<(YAML::Emitter &out, const spring_template &tmpl);
+    YAML::Emitter &operator<<(YAML::Emitter &out, const rigid_bar_template &tmpl);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::entity_template>
+    {
+        static Node encode(const ppx_demo::entity_template &tmpl);
+        static bool decode(const Node &node, ppx_demo::entity_template &tmpl);
+    };
+
+    template <>
+    struct convert<ppx_demo::spring_template>
+    {
+        static Node encode(const ppx_demo::spring_template &tmpl);
+        static bool decode(const Node &node, ppx_demo::spring_template &tmpl);
+    };
+
+    template <>
+    struct convert<ppx_demo::rigid_bar_template>
+    {
+        static Node encode(const ppx_demo::rigid_bar_template &tmpl);
+        static bool decode(const Node &node, ppx_demo::rigid_bar_template &tmpl);
     };
 }
 

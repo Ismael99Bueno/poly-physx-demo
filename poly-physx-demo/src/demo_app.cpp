@@ -33,30 +33,30 @@ namespace ppx_demo
 
     void demo_app::on_end() { write_save(LAST_SAVE); }
 
-    void demo_app::serialize(ini::serializer &out) const
-    {
-        app::serialize(out);
-        out.write("session", m_session);
+    // void demo_app::serialize(ini::serializer &out) const
+    // {
+    //     app::serialize(out);
+    //     out.write("session", m_session);
 
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            out.begin_section(section);
-            serializable->serialize(out);
-            out.end_section();
-        }
-    }
-    void demo_app::deserialize(ini::deserializer &in)
-    {
-        app::deserialize(in);
-        m_session = in.readstr("session");
+    //     for (const auto &[section, serializable] : m_saveables)
+    //     {
+    //         out.begin_section(section);
+    //         serializable->serialize(out);
+    //         out.end_section();
+    //     }
+    // }
+    // void demo_app::deserialize(ini::deserializer &in)
+    // {
+    //     app::deserialize(in);
+    //     m_session = in.readstr("session");
 
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            in.begin_section(section);
-            serializable->deserialize(in);
-            in.end_section();
-        }
-    }
+    //     for (const auto &[section, serializable] : m_saveables)
+    //     {
+    //         in.begin_section(section);
+    //         serializable->deserialize(in);
+    //         in.end_section();
+    //     }
+    // }
 
     bool demo_app::validate_session()
     {
@@ -68,24 +68,34 @@ namespace ppx_demo
 
     void demo_app::write(const std::string &filepath) const
     {
-        ini::serializer out(filepath.c_str());
+        YAML::Emitter out;
+        out << YAML::Key << "PPX Demo" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Session" << YAML::Value << m_session;
+        out << YAML::Key << "PPX Base app" << YAML::Value << *this;
+        out << YAML::Key << "Selector" << YAML::Value << p_selector;
+        out << YAML::Key << "Copy paste" << YAML::Value << p_copy_paste;
+        out << YAML::Key << "Predictor" << YAML::Value << p_predictor;
+        out << YAML::Key << "Trails" << YAML::Value << p_trails;
+        out << YAML::Key << "Follower" << YAML::Value << p_follower;
+        out << YAML::EndMap;
 
-        out.begin_section("demo_app");
-        serialize(out);
-        out.end_section();
-        out.close();
+        std::ofstream file(filepath);
+        file << out.c_str();
     }
     bool demo_app::read(const std::string &filepath)
     {
-        ini::deserializer in(filepath.c_str());
-
-        if (!in.is_open())
+        YAML::Node node = YAML::LoadFile(filepath);
+        if (!node["PPX Demo"])
             return false;
-        in.begin_section("demo_app");
-        deserialize(in);
-        in.end_section();
-        in.close();
-        validate_session(); // This may be redundant
+        const YAML::Node &demo = node["PPX Demo"];
+        demo["PPX Base app"].as<ppx::app>(*((ppx::app *)this));
+
+        m_session = demo["Session"].as<std::string>();
+        p_selector = demo["Selector"].as<selector>();
+        p_copy_paste = demo["Copy paste"].as<copy_paste>();
+        p_predictor = demo["Predictor"].as<predictor>();
+        p_trails = demo["Trails"].as<trail_manager>();
+        p_follower = demo["Follower"].as<follower>();
         return true;
     }
 
@@ -251,7 +261,7 @@ namespace ppx_demo
         e4->kinematic(false);
 
         entity_color(prev_color);
-        update_convex_shapes();
+        update_shapes();
     }
 
     const std::string &demo_app::session() const { return m_session; }

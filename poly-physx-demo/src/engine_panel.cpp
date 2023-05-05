@@ -8,32 +8,32 @@
 namespace ppx_demo
 {
     engine_panel::engine_panel() : ppx::layer("engine_panel") {}
-    void engine_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.write("method", m_method);
-        out.write("visualize_qt", m_visualize_qt);
-        out.write("period", m_period);
-        out.write("max_depth", m_max_depth);
-        out.write("max_entities", m_max_entities);
-    }
+    // void engine_panel::serialize(ini::serializer &out) const
+    // {
+    //     layer::serialize(out);
+    //     out.write("method", m_method);
+    //     out.write("visualize_qt", m_visualize_qt);
+    //     out.write("period", m_period);
+    //     out.write("max_depth", m_max_depth);
+    //     out.write("max_entities", m_max_entities);
+    // }
 
-    void engine_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        m_method = (integ_method)in.readi32("method");
-        m_visualize_qt = (bool)in.readi16("visualize_qt");
-        m_period = in.readui32("period");
-        m_max_depth = in.readui32("max_depth");
-        m_max_entities = (std::size_t)in.readui64("max_entities");
+    // void engine_panel::deserialize(ini::deserializer &in)
+    // {
+    //     layer::deserialize(in);
+    //     m_method = (integ_method)in.readi32("method");
+    //     m_visualize_qt = (bool)in.readi16("visualize_qt");
+    //     m_period = in.readui32("period");
+    //     m_max_depth = in.readui32("max_depth");
+    //     m_max_entities = (std::size_t)in.readui64("max_entities");
 
-        ppx::collider2D &collider = demo_app::get().engine().collider();
-        collider.quad_tree().max_entities(m_max_entities);
-        ppx::quad_tree2D::max_depth(m_max_depth);
-        collider.quad_tree_build_period(m_period);
-        collider.rebuild_quad_tree();
-        update_method();
-    }
+    //     ppx::collider2D &collider = demo_app::get().engine().collider();
+    //     collider.quad_tree().max_entities(m_max_entities);
+    //     ppx::quad_tree2D::max_depth(m_max_depth);
+    //     collider.quad_tree_build_period(m_period);
+    //     collider.rebuild_quad_tree();
+    //     update_method();
+    // }
 
     void engine_panel::on_start()
     {
@@ -286,5 +286,33 @@ namespace ppx_demo
                                       glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
             demo_app::get().draw(fls);
         }
+    }
+
+    void engine_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "Method" << YAML::Value << (int)m_method;
+        out << YAML::Key << "Visualize quad tree" << YAML::Value << m_visualize_qt;
+        out << YAML::Key << "Max entities" << YAML::Value << m_max_entities;
+        out << YAML::Key << "Max depth" << YAML::Value << m_max_depth;
+    }
+    YAML::Node engine_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["Method"] = (int)m_method;
+        node["Visualize quad tree"] = m_visualize_qt;
+        node["Max entities"] = m_max_entities;
+        node["Max depth"] = m_max_depth;
+        return node;
+    }
+    bool engine_panel::decode(const YAML::Node &node)
+    {
+        if (!layer::decode(node))
+            return false;
+        m_method = (integ_method)node["Method"].as<int>();
+        m_visualize_qt = node["Visualize quad tree"].as<bool>();
+        m_max_entities = node["Max entities"].as<std::size_t>();
+        m_max_depth = node["Max depth"].as<std::uint32_t>();
+        return true;
     }
 }
