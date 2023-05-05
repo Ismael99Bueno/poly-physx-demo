@@ -39,11 +39,11 @@ Run the [setup-macos.sh](https://github.com/ismawno/poly-physx-demo/blob/dev/scr
 
 ### Windows
 
-Run the [setup-win.bat](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-win.bat) script. This will automatically install the necessary software. If authorized, it will also generate the project build files using the default generator for this platform, Visual Studio.
+Run the [setup-win-vs.bat](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-win-vs.bat) or the [setup-win-mingw.bat](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/setup-win-mingw.bat) script, depending on your desired generator. This will automatically install the necessary software and generate the project build files for such generator.
 
 ### Generating Build Files
 
-After completing the setup, if you did not authorize the generation of the project build files, manually execute the [generate_build_files.py](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/generate_build_files.py) script. This script will compile the [SFML](https://github.com/SFML/SFML) library and generate the project build files depending on the generator. The script is executed the same way for both operating systems, with the default generator changing depending on the platform. For Windows, if gmake is chosen as the generator, the MinGW compiler will be used, and the script will automatically install the software if not found.
+It is also possible to anually execute the [generate_build_files.py](https://github.com/ismawno/poly-physx-demo/blob/dev/scripts/generate_build_files.py) script. This script is responsible for compiling the [SFML](https://github.com/SFML/SFML) library and generate the project build files for the specified generator. The script is executed the same way for both operating systems, with the default generator changing depending on the platform. For Windows, if gmake is chosen as the generator, the MinGW compiler will be used, and the script will automatically install the software if not found. Run `python generate_build_files.py -h` to see a list of available commands.
 
 ### Compilation
 
