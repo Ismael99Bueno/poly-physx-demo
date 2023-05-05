@@ -44,6 +44,7 @@ namespace ppx_demo
     void demo_app::write(const std::string &filepath) const
     {
         YAML::Emitter out;
+        out.SetFloatPrecision(std::numeric_limits<float>::max_digits10);
         out << YAML::BeginMap;
         out << YAML::Key << "PPX Demo" << YAML::Value << YAML::BeginMap;
         out << YAML::Key << "Session" << YAML::Value << m_session;

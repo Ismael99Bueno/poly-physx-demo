@@ -51,14 +51,4 @@ namespace ppx_demo
     };
 }
 
-// namespace YAML
-// {
-//     template <>
-//     struct convert<ppx_demo::actions_panel>
-//     {
-//         static Node encode(const ppx_demo::actions_panel &actions);
-//         static bool decode(const Node &node, ppx_demo::actions_panel &actions);
-//     };
-// }
-
 #endif

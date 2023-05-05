@@ -210,15 +210,3 @@ namespace ppx_demo
         return true;
     }
 }
-
-// namespace YAML
-// {
-//     Node convert<ppx_demo::actions_panel>::encode(const ppx_demo::actions_panel &actions)
-//     {
-//         return actions.encode();
-//     }
-//     bool convert<ppx_demo::actions_panel>::decode(const Node &node, ppx_demo::actions_panel &actions)
-//     {
-//         return actions.decode(node);
-//     }
-// }
