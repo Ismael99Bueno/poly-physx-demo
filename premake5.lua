@@ -10,7 +10,8 @@ startproject "poly-physx-demo"
 defines {
    "HAS_GLM",
    "HAS_YAML_CPP",
-   "HAS_IMPLOT"
+   "HAS_IMPLOT",
+   "YAML_CPP_STATIC_DEFINE"
 }
 
 function script_path()
