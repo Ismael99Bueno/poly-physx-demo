@@ -25,8 +25,8 @@ namespace ppx_demo
     {
         float stiffness = 1.f, dampening = 0.f, length;
         std::size_t id1, id2;
-        glm::vec2 joint1, joint2;
-        bool has_joints;
+        glm::vec2 anchor1, anchor2;
+        bool has_anchors;
 
         static spring_template from_spring(const ppx::spring2D &sp);
     };
@@ -35,8 +35,8 @@ namespace ppx_demo
     {
         float stiffness = 500.f, dampening = 30.f, length;
         std::size_t id1, id2;
-        glm::vec2 joint1, joint2;
-        bool has_joints;
+        glm::vec2 anchor1, anchor2;
+        bool has_anchors;
 
         static rigid_bar_template from_bar(const ppx::rigid_bar2D &rb);
     };

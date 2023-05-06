@@ -24,11 +24,11 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_grabbed;
-        glm::vec2 m_joint{0.f};
+        glm::vec2 m_anchor{0.f};
         float m_angle;
 
         void move_grabbed_entity() const;
-        void draw_padded_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_joint) const;
+        void draw_padded_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_anchor) const;
     };
 
     YAML::Emitter &operator<<(YAML::Emitter &out, const grabber &grb);

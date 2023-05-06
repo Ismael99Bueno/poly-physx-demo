@@ -215,9 +215,9 @@ namespace ppx_demo
         {
             for (ppx::spring2D *sp : springs)
             {
-                if (sp->has_joints())
+                if (sp->has_anchors())
                     papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                   sp->joint1(), sp->joint2(),
+                                                                   sp->anchor1(), sp->anchor2(),
                                                                    m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
                 else
                     papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
@@ -265,8 +265,8 @@ namespace ppx_demo
         {
             for (auto &rb : rbars)
             {
-                if (rb->has_joints())
-                    papp.engine().add_spring(rb->e1(), rb->e2(), rb->joint1(), rb->joint2(),
+                if (rb->has_anchors())
+                    papp.engine().add_spring(rb->e1(), rb->e2(), rb->anchor1(), rb->anchor2(),
                                              m_attacher.p_sp_stiffness, m_attacher.p_sp_dampening, m_attacher.p_sp_length);
                 else
                     papp.engine().add_spring(rb->e1(), rb->e2(), m_attacher.p_sp_stiffness,

@@ -38,9 +38,9 @@ namespace ppx_demo
         tmpl.length = sp.length();
         tmpl.id1 = sp.e1().id();
         tmpl.id2 = sp.e2().id();
-        tmpl.joint1 = sp.joint1();
-        tmpl.joint2 = sp.joint2();
-        tmpl.has_joints = sp.has_joints();
+        tmpl.anchor1 = sp.anchor1();
+        tmpl.anchor2 = sp.anchor2();
+        tmpl.has_anchors = sp.has_anchors();
         return tmpl;
     }
 
@@ -52,9 +52,9 @@ namespace ppx_demo
         tmpl.length = rb.length();
         tmpl.id1 = rb.e1().id();
         tmpl.id2 = rb.e2().id();
-        tmpl.joint1 = rb.joint1();
-        tmpl.joint2 = rb.joint2();
-        tmpl.has_joints = rb.has_joints();
+        tmpl.anchor1 = rb.anchor1();
+        tmpl.anchor2 = rb.anchor2();
+        tmpl.has_anchors = rb.has_anchors();
         return tmpl;
     }
 
@@ -83,10 +83,10 @@ namespace ppx_demo
         out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
         out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
         out << YAML::Key << "Length" << YAML::Value << tmpl.length;
-        if (tmpl.has_joints)
+        if (tmpl.has_anchors)
         {
-            out << YAML::Key << "Joint1" << YAML::Value << tmpl.joint1;
-            out << YAML::Key << "Joint2" << YAML::Value << tmpl.joint2;
+            out << YAML::Key << "Joint1" << YAML::Value << tmpl.anchor1;
+            out << YAML::Key << "Joint2" << YAML::Value << tmpl.anchor2;
         }
         out << YAML::EndMap;
         return out;
@@ -97,10 +97,10 @@ namespace ppx_demo
         out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
         out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
         out << YAML::Key << "Length" << YAML::Value << tmpl.length;
-        if (tmpl.has_joints)
+        if (tmpl.has_anchors)
         {
-            out << YAML::Key << "Joint1" << YAML::Value << tmpl.joint1;
-            out << YAML::Key << "Joint2" << YAML::Value << tmpl.joint2;
+            out << YAML::Key << "Joint1" << YAML::Value << tmpl.anchor1;
+            out << YAML::Key << "Joint2" << YAML::Value << tmpl.anchor2;
         }
         out << YAML::EndMap;
         return out;
@@ -153,10 +153,10 @@ namespace YAML
         node["Stiffness"] = tmpl.stiffness;
         node["Dampening"] = tmpl.dampening;
         node["Length"] = tmpl.length;
-        if (tmpl.has_joints)
+        if (tmpl.has_anchors)
         {
-            node["Joint1"] = tmpl.joint1;
-            node["Joint2"] = tmpl.joint2;
+            node["Joint1"] = tmpl.anchor1;
+            node["Joint2"] = tmpl.anchor2;
         }
         return node;
     }
@@ -167,14 +167,14 @@ namespace YAML
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
-        if (node["joint1"])
+        if (node["anchor1"])
         {
-            tmpl.joint1 = node["joint1"].as<glm::vec2>();
-            tmpl.joint2 = node["joint2"].as<glm::vec2>();
-            tmpl.has_joints = true;
+            tmpl.anchor1 = node["anchor1"].as<glm::vec2>();
+            tmpl.anchor2 = node["anchor2"].as<glm::vec2>();
+            tmpl.has_anchors = true;
         }
         else
-            tmpl.has_joints = false;
+            tmpl.has_anchors = false;
         return true;
     }
 
@@ -184,10 +184,10 @@ namespace YAML
         node["Stiffness"] = tmpl.stiffness;
         node["Dampening"] = tmpl.dampening;
         node["Length"] = tmpl.length;
-        if (tmpl.has_joints)
+        if (tmpl.has_anchors)
         {
-            node["Joint1"] = tmpl.joint1;
-            node["Joint2"] = tmpl.joint2;
+            node["Joint1"] = tmpl.anchor1;
+            node["Joint2"] = tmpl.anchor2;
         }
         return node;
     }
@@ -198,14 +198,14 @@ namespace YAML
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
-        if (node["joint1"])
+        if (node["anchor1"])
         {
-            tmpl.joint1 = node["joint1"].as<glm::vec2>();
-            tmpl.joint2 = node["joint2"].as<glm::vec2>();
-            tmpl.has_joints = true;
+            tmpl.anchor1 = node["anchor1"].as<glm::vec2>();
+            tmpl.anchor2 = node["anchor2"].as<glm::vec2>();
+            tmpl.has_anchors = true;
         }
         else
-            tmpl.has_joints = false;
+            tmpl.has_anchors = false;
         return true;
     }
 }

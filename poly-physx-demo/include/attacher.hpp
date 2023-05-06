@@ -38,13 +38,13 @@ namespace ppx_demo
 
     private:
         ppx::entity2D_ptr m_e1;
-        glm::vec2 m_joint1{0.f};
+        glm::vec2 m_anchor1{0.f};
 
         float m_last_angle;
         bool m_snap_e1_to_center;
 
-        void rotate_joint();
-        void draw_unattached_joint(bool snap_e2_to_center) const;
+        void rotate_anchor();
+        void draw_unattached_anchor(bool snap_e2_to_center) const;
     };
 
     YAML::Emitter &operator<<(YAML::Emitter &out, const attacher &attch);

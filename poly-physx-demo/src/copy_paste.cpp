@@ -96,8 +96,8 @@ namespace ppx_demo
             const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
                                     &e2 = added_entities.at(spt.id2);
 
-            if (spt.has_joints)
-                papp.engine().add_spring(e1, e2, spt.joint1, spt.joint2, spt.stiffness, spt.dampening, spt.length);
+            if (spt.has_anchors)
+                papp.engine().add_spring(e1, e2, spt.anchor1, spt.anchor2, spt.stiffness, spt.dampening, spt.length);
             else
                 papp.engine().add_spring(e1, e2, spt.stiffness, spt.dampening, spt.length);
         }
@@ -107,10 +107,10 @@ namespace ppx_demo
                                     &e2 = added_entities[rbt.id2];
 
             // rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
-            if (!rbt.has_joints)
+            if (!rbt.has_anchors)
                 papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening);
             else
-                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.joint1, rbt.joint2, rbt.stiffness, rbt.dampening);
+                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.anchor1, rbt.anchor2, rbt.stiffness, rbt.dampening);
         }
     }
 
@@ -148,8 +148,8 @@ namespace ppx_demo
             sf::Color col = papp.springs_color();
             col.a = 120;
 
-            papp.draw_spring((e1.pos + spt.joint1 + offset) * WORLD_TO_PIXEL,
-                             (e2.pos + spt.joint2 + offset) * WORLD_TO_PIXEL,
+            papp.draw_spring((e1.pos + spt.anchor1 + offset) * WORLD_TO_PIXEL,
+                             (e2.pos + spt.anchor2 + offset) * WORLD_TO_PIXEL,
                              col);
         }
         for (const rigid_bar_template &rbt : m_copy.rbars)
@@ -159,8 +159,8 @@ namespace ppx_demo
 
             sf::Color col = papp.rigid_bars_color();
             col.a = 120;
-            papp.draw_rigid_bar((e1.pos + rbt.joint1 + offset) * WORLD_TO_PIXEL,
-                                (e2.pos + rbt.joint2 + offset) * WORLD_TO_PIXEL,
+            papp.draw_rigid_bar((e1.pos + rbt.anchor1 + offset) * WORLD_TO_PIXEL,
+                                (e2.pos + rbt.anchor2 + offset) * WORLD_TO_PIXEL,
                                 col);
         }
     }

@@ -13,18 +13,18 @@ namespace ppx_demo
         if (!m_e1)
             return;
         if (!m_snap_e1_to_center)
-            rotate_joint();
+            rotate_anchor();
 
         demo_app &papp = demo_app::get();
         if (p_auto_length)
         {
-            float length = glm::distance(papp.world_mouse(), m_e1->pos() + m_joint1);
+            float length = glm::distance(papp.world_mouse(), m_e1->pos() + m_anchor1);
             if (snap_e2_to_center)
             {
                 const glm::vec2 mpos = papp.world_mouse();
                 const auto e2 = papp.engine()[mpos];
                 if (e2)
-                    length = glm::distance(e2->pos(), m_e1->pos() + m_joint1);
+                    length = glm::distance(e2->pos(), m_e1->pos() + m_anchor1);
             }
             p_sp_length = length;
         }
@@ -33,7 +33,7 @@ namespace ppx_demo
     {
         PERF_PRETTY_FUNCTION()
         if (m_e1)
-            draw_unattached_joint(snap_e2_to_center);
+            draw_unattached_anchor(snap_e2_to_center);
     }
 
     void attacher::try_attach_first(const bool snap_e1_to_center)
@@ -45,7 +45,7 @@ namespace ppx_demo
         if (!e1)
             return;
         m_e1 = e1;
-        m_joint1 = snap_e1_to_center ? glm::vec2(0.f) : (mpos - e1->pos());
+        m_anchor1 = snap_e1_to_center ? glm::vec2(0.f) : (mpos - e1->pos());
         if (!snap_e1_to_center)
             m_last_angle = e1->angpos();
         m_snap_e1_to_center = snap_e1_to_center;
@@ -59,50 +59,50 @@ namespace ppx_demo
         const auto e2 = papp.engine()[mpos];
         if (!e2 || e2 == m_e1)
             return;
-        const glm::vec2 joint2 = snap_e2_to_center ? glm::vec2(0.f) : (mpos - e2->pos());
+        const glm::vec2 anchor2 = snap_e2_to_center ? glm::vec2(0.f) : (mpos - e2->pos());
 
-        const bool no_joints = m_snap_e1_to_center && snap_e2_to_center;
+        const bool no_anchors = m_snap_e1_to_center && snap_e2_to_center;
         switch (p_attach)
         {
         case SPRING:
         {
-            if (no_joints)
+            if (no_anchors)
                 papp.engine().add_spring(m_e1, e2, p_sp_stiffness, p_sp_dampening, p_sp_length);
             else
-                papp.engine().add_spring(m_e1, e2, m_joint1, joint2, p_sp_stiffness, p_sp_dampening, p_sp_length);
+                papp.engine().add_spring(m_e1, e2, m_anchor1, anchor2, p_sp_stiffness, p_sp_dampening, p_sp_length);
             break;
         }
         case RIGID_BAR:
         {
-            if (no_joints)
+            if (no_anchors)
                 papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening);
             else
-                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, m_joint1, joint2, p_rb_stiffness, p_rb_dampening);
+                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, m_anchor1, anchor2, p_rb_stiffness, p_rb_dampening);
             break;
         }
         }
         m_e1 = nullptr;
     }
 
-    void attacher::rotate_joint()
+    void attacher::rotate_anchor()
     {
-        m_joint1 = glm::rotate(m_joint1, m_e1->angpos() - m_last_angle);
+        m_anchor1 = glm::rotate(m_anchor1, m_e1->angpos() - m_last_angle);
         m_last_angle = m_e1->angpos();
     }
-    void attacher::draw_unattached_joint(const bool snap_e2_to_center) const
+    void attacher::draw_unattached_anchor(const bool snap_e2_to_center) const
     {
         demo_app &papp = demo_app::get();
 
         const glm::vec2 mpos = papp.world_mouse();
         const auto e2 = papp.engine()[mpos];
-        const glm::vec2 joint2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
+        const glm::vec2 anchor2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
         switch (p_attach)
         {
         case SPRING:
-            papp.draw_spring((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
+            papp.draw_spring((m_e1->pos() + m_anchor1) * WORLD_TO_PIXEL, anchor2);
             break;
         case RIGID_BAR:
-            papp.draw_rigid_bar((m_e1->pos() + m_joint1) * WORLD_TO_PIXEL, joint2);
+            papp.draw_rigid_bar((m_e1->pos() + m_anchor1) * WORLD_TO_PIXEL, anchor2);
             break;
         }
     }
