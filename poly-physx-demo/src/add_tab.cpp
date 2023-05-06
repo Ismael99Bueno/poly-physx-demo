@@ -217,7 +217,7 @@ namespace ppx_demo
 
         std::size_t to_edit = vertices.size() - 1;
         const float thres_distance = 2.f;
-        float min_distance = std::numeric_limits<float>::max();
+        float min_distance = FLT_MAX;
 
         for (std::size_t i = 0; i < vertices.size(); i++)
         {

@@ -15,8 +15,6 @@
 #include "predictor.hpp"
 #include "trail_manager.hpp"
 #include "follower.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 
 namespace ppx_demo
 {

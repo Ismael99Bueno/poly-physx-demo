@@ -3,8 +3,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
-#include "imgui.h"
-#include "imgui-SFML.h"
+#include <imgui.h>
+#include <imgui-SFML.h>
 #include "implot.h"
 #include <optional>
 #include <utility>
@@ -21,5 +21,6 @@
 #include <string>
 #include <limits>
 #include <yaml-cpp/yaml.h>
+#include "ppx-app/pch.hpp"
 
 #endif
