@@ -2,7 +2,6 @@
 #include "attach_tab.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "implot.h"
 
 namespace ppx_demo
 {

@@ -24,10 +24,6 @@ namespace ppx_demo
         actions_panel();
         void cancel_add_attach();
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
-
     private:
         void on_start() override;
         void on_update() override;
@@ -48,6 +44,10 @@ namespace ppx_demo
         void update_current_action();
         void render_current_action();
         void render_tabs() const;
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

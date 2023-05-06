@@ -20,10 +20,6 @@ namespace ppx_demo
             NANOSECONDS = 3,
         };
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
-
     private:
         void on_render() override;
 
@@ -44,6 +40,10 @@ namespace ppx_demo
         void render_simple();
         void render_simple_time();
 #endif
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

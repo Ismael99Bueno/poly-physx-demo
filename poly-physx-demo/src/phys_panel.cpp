@@ -2,7 +2,6 @@
 #include "phys_panel.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
-#include "implot.h"
 
 namespace ppx_demo
 {

@@ -11,10 +11,6 @@ namespace ppx_demo
     public:
         engine_panel();
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
-
     private:
         enum integ_method
         {
@@ -49,6 +45,10 @@ namespace ppx_demo
         void render_trail_settings() const;
 
         void draw_quad_tree(const ppx::quad_tree2D &qt);
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

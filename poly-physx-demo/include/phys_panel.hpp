@@ -15,10 +15,6 @@ namespace ppx_demo
     public:
         phys_panel();
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
-
     private:
         void on_attach(ppx::app *papp) override;
         void on_render() override;
@@ -43,6 +39,10 @@ namespace ppx_demo
 
         void update_potential_data();
         void compare_and_update_xlimits(const glm::vec2 &xlim);
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 
