@@ -238,7 +238,7 @@ namespace ppx_demo
             e.dispatch();
         }
         ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
-        if (ImGui::DragFloat("Angular position", &angpos, 0.2f))
+        if (ImGui::DragFloat("Angular position", &angpos, 0.05f))
         {
             e.angpos(angpos);
             e.dispatch();

@@ -172,7 +172,7 @@ namespace ppx_demo
             ImGui::SliderInt("Entities between vertices", (int *)&current.entities_between_vertices, 0, 10);
             ImGui::DragFloat("Stiffness", &current.sb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
             ImGui::DragFloat("Dampening", &current.sb_dampening, 0.3f, 0.f, FLT_MAX, "%.1f");
-            ImGui::DragFloat("Radius", &current.sb_radius, 0.3f, 0.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Radius", &current.sb_radius, 0.3f, 1.f, FLT_MAX, "%.1f");
         }
 
         static glm::vec2 scrolling(0.f);

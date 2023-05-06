@@ -36,12 +36,16 @@ namespace ppx_demo
         m_has_copy = true;
     }
 
+    static auto by_id(const std::vector<entity_template> &vec, const std::size_t id)
+    {
+        for (auto it = vec.begin(); it != vec.end(); ++it)
+            if (it->id == id)
+                return it;
+        return vec.end();
+    }
     static bool contains_id(const std::vector<entity_template> &vec, const std::size_t id)
     {
-        for (const auto &e : vec)
-            if (e.id == id)
-                return true;
-        return false;
+        return by_id(vec, id) != vec.end();
     }
 
     void copy_paste::copy(group &group)
@@ -138,8 +142,8 @@ namespace ppx_demo
 
         for (const spring_template &spt : m_copy.springs)
         {
-            const entity_template &e1 = m_copy.entities.at(spt.id1),
-                                  &e2 = m_copy.entities.at(spt.id2);
+            const entity_template &e1 = *by_id(m_copy.entities, spt.id1),
+                                  &e2 = *by_id(m_copy.entities, spt.id2);
 
             sf::Color col = papp.springs_color();
             col.a = 120;
@@ -150,8 +154,8 @@ namespace ppx_demo
         }
         for (const rigid_bar_template &rbt : m_copy.rbars)
         {
-            const entity_template &e1 = m_copy.entities.at(rbt.id1),
-                                  &e2 = m_copy.entities.at(rbt.id2);
+            const entity_template &e1 = *by_id(m_copy.entities, rbt.id1),
+                                  &e2 = *by_id(m_copy.entities, rbt.id2);
 
             sf::Color col = papp.rigid_bars_color();
             col.a = 120;
