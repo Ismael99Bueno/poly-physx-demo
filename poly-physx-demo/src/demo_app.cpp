@@ -176,6 +176,9 @@ namespace ppx_demo
                 break;
             }
             break;
+        case sf::Event::MouseButtonPressed:
+            p_copy_paste.delete_copy();
+            break;
         default:
             break;
         }
