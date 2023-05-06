@@ -18,7 +18,7 @@ filter "system:windows"
    defines "SFML_STATIC"
 filter {}
 
-pchheader "pch.hpp"
+pchheader "ppxdpch.hpp"
 pchsource "src/pch.cpp"
 
 targetdir("bin/" .. outputdir)
