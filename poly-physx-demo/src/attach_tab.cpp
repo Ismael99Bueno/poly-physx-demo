@@ -6,6 +6,15 @@
 namespace ppx_demo
 {
     attach_tab::attach_tab(attacher &attch) : m_attacher(attch) {}
+
+    template <typename... Args>
+    static void dfloat_with_tooltip(const char *tooltip, Args &&...args)
+    {
+        ImGui::DragFloat(std::forward<Args>(args)...);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("%s", tooltip);
+    }
+
     void attach_tab::render() const
     {
         static const char *attach_types[2] = {"Spring", "Rigid bar"};
@@ -15,17 +24,15 @@ namespace ppx_demo
         ImGui::PushItemWidth(150);
         ImGui::ListBox("Attach type", (int *)&m_attacher.p_attach, attach_types, IM_ARRAYSIZE(attach_types));
 
+        const char *ttip = "How stiff the spring will be.";
         switch (m_attacher.p_attach)
         {
         case attacher::SPRING:
         {
-            ImGui::DragFloat("Stiffness", &m_attacher.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-                ImGui::SetTooltip("How stiff the spring will be.");
+            dfloat_with_tooltip(ttip, "Stiffness", &m_attacher.p_sp_stiffness, 0.3f, 0.f, FLT_MAX);
 
-            ImGui::DragFloat("Dampening", &m_attacher.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-                ImGui::SetTooltip("How much the spring will resist to movement.");
+            ttip = "How much the spring will resist to movement.";
+            dfloat_with_tooltip(ttip, "Dampening", &m_attacher.p_sp_dampening, 0.3f, 0.f, FLT_MAX);
 
             if (!m_attacher.p_auto_length)
                 ImGui::DragFloat("Length", &m_attacher.p_sp_length, 0.3f, 0.f, FLT_MAX);
@@ -43,14 +50,11 @@ namespace ppx_demo
         }
         case attacher::RIGID_BAR:
         {
-            ImGui::DragFloat("Stiffness", &m_attacher.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-                ImGui::SetTooltip("How stiff the recovery spring of the bar will be.");
+            ttip = "How stiff the recovery spring of the bar will be.";
+            dfloat_with_tooltip(ttip, "Stiffness", &m_attacher.p_rb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
 
-            ImGui::DragFloat("Dampening", &m_attacher.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
-            if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-                ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
-
+            ttip = "How much the recovery spring of the bar will resist to movement.";
+            dfloat_with_tooltip(ttip, "Dampening", &m_attacher.p_rb_dampening, 0.3f, 0.f, FLT_MAX, "%.2f");
             render_rigid_bars_list();
             if (!papp.p_selector.rbar_pairs().empty())
                 render_selected_rbars();
@@ -73,13 +77,46 @@ namespace ppx_demo
         ImGui::PopItemWidth();
     }
 
+    template <typename T>
+    static bool render_list(const char *name, const float stress, const sf::Color &c, T &elm)
+    {
+        const bool expanded = ImGui::TreeNode(&elm, "%s '%s' - '%s'", name, glob::generate_name(elm.e1().id()), glob::generate_name(elm.e2().id()));
+        bool to_remove = false;
+
+        if (expanded || ImGui::IsItemHovered())
+        {
+            outline_manager &outlmng = demo_app::get().p_outline_manager;
+            outlmng.load_outline(elm.e1().index(), c, 4);
+            outlmng.load_outline(elm.e2().index(), c, 4);
+        }
+
+        if (expanded)
+        {
+            float stf = elm.stiffness(), dmp = elm.dampening(), len = elm.length();
+            ImGui::Text("Stress - %f", stress);
+            if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
+                elm.stiffness(stf);
+            if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
+                elm.dampening(dmp);
+            if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
+                elm.length(len);
+            ImGui::TreePop();
+        }
+        else
+            ImGui::SameLine();
+
+        ImGui::PushID(&elm);
+        to_remove = ImGui::Button("Remove");
+        ImGui::PopID();
+
+        return to_remove;
+    }
+
     void attach_tab::render_springs_list() const
     {
         demo_app &papp = demo_app::get();
 
         auto springs = papp.engine().springs();
-        outline_manager &outlmng = papp.p_outline_manager;
-
         const std::size_t spring_count = springs.unwrap().size();
         std::size_t to_remove = spring_count;
 
@@ -87,32 +124,8 @@ namespace ppx_demo
             for (std::size_t i = 0; i < spring_count; i++)
             {
                 ppx::spring2D &sp = springs[i];
-                const bool expanded = ImGui::TreeNode((void *)(intptr_t)i, "Spring '%s' - '%s'", glob::generate_name(sp.e1().id()), glob::generate_name(sp.e2().id()));
-                if (expanded || ImGui::IsItemHovered())
-                {
-                    outlmng.load_outline(sp.e1().index(), papp.springs_color(), 4);
-                    outlmng.load_outline(sp.e2().index(), papp.springs_color(), 4);
-                }
-
-                if (expanded)
-                {
-                    float stf = sp.stiffness(), dmp = sp.dampening(), len = sp.length();
-                    ImGui::Text("Stress - %f", glm::length(std::get<glm::vec2>(sp.force())));
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
-                        sp.stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
-                        sp.dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
-                        sp.length(len);
-                    ImGui::TreePop();
-                }
-                else
-                    ImGui::SameLine();
-
-                ImGui::PushID((int)i);
-                if (ImGui::Button("Remove"))
+                if (render_list("Spring", glm::length(std::get<glm::vec2>(sp.force())), papp.springs_color(), sp))
                     to_remove = i;
-                ImGui::PopID();
             }
         papp.engine().remove_spring(to_remove);
     }
@@ -122,43 +135,14 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         auto &ctrs = papp.engine().compeller().constraints();
-        outline_manager &outlmng = papp.p_outline_manager;
-
         std::shared_ptr<ppx::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)
             {
                 const auto rb = std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctrs[i]);
-                if (!rb)
-                    continue;
-
-                const bool expanded = ImGui::TreeNode((void *)(intptr_t)(-i - 1), "Rigid bar '%s' - '%s'", glob::generate_name(rb->e1().id()), glob::generate_name(rb->e2().id()));
-                if (expanded || ImGui::IsItemHovered())
-                {
-                    outlmng.load_outline(rb->e1().index(), papp.rigid_bars_color(), 4);
-                    outlmng.load_outline(rb->e2().index(), papp.rigid_bars_color(), 4);
-                }
-
-                if (expanded)
-                {
-                    float stf = rb->stiffness(), dmp = rb->dampening(), len = rb->length();
-                    ImGui::Text("Stress - %f", rb->value());
-                    if (ImGui::DragFloat("Stiffness", &stf, 0.3f, 0.f, FLT_MAX))
-                        rb->stiffness(stf);
-                    if (ImGui::DragFloat("Dampening", &dmp, 0.3f, 0.f, FLT_MAX))
-                        rb->dampening(dmp);
-                    if (ImGui::DragFloat("Length", &len, 0.3f, 0.f, FLT_MAX))
-                        rb->length(len);
-                    ImGui::TreePop();
-                }
-                else
-                    ImGui::SameLine();
-
-                ImGui::PushID(-(int)(i + 1));
-                if (ImGui::Button("Remove"))
-                    to_remove = ctrs[i];
-                ImGui::PopID();
+                if (render_list("Rigid bar", rb->value(), papp.rigid_bars_color(), *rb))
+                    to_remove = rb;
             }
         if (to_remove)
             papp.engine().compeller().remove_constraint(to_remove);
@@ -176,17 +160,51 @@ namespace ppx_demo
     }
 
     static std::vector<std::shared_ptr<ppx::rigid_bar2D>> from_ids(const std::size_t id1, const std::size_t id2,
-                                                                   const std::vector<std::shared_ptr<ppx::constraint_interface2D>> &vec)
+                                                                   const std::vector<std::shared_ptr<ppx::rigid_bar2D>> &vec)
     {
         std::vector<std::shared_ptr<ppx::rigid_bar2D>> res;
         res.reserve(10);
-        for (const auto &ctr : vec)
-        {
-            const auto rb = std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctr); // Safe as ppx demo only contains one constraint
+        for (const auto &rb : vec)
             if (rb->e1().id() == id1 && rb->e2().id() == id2)
                 res.push_back(rb);
-        }
+
         return res;
+    }
+
+    template <typename C, typename S>
+    std::tuple<float, float, float, std::size_t> compute_averages(const std::vector<std::pair<std::size_t,
+                                                                                              std::size_t>> &pairs,
+                                                                  std::vector<S> &selected, const C &container)
+    {
+        float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
+        std::size_t amount = 0;
+        for (const auto &[id1, id2] : pairs)
+        {
+            const std::vector<S> matches = from_ids(id1, id2, container);
+            for (const S &elm : matches)
+            {
+                avg_stiffness += elm->stiffness();
+                avg_dampening += elm->dampening();
+                avg_length += elm->length();
+                amount++;
+            }
+            selected.insert(selected.end(), matches.begin(), matches.end());
+        }
+        return {avg_stiffness, avg_dampening, avg_length, amount};
+    }
+
+    template <typename C>
+    static void dragfloat_stf_dmp_len(const C &container, float *stf, float *dmp, float *len)
+    {
+        if (ImGui::DragFloat("Stiffness##Selected", stf, 0.3f, 0.f, FLT_MAX))
+            for (const auto &elm : container)
+                elm->stiffness(*stf);
+        if (ImGui::DragFloat("Dampening##Selected", dmp, 0.3f, 0.f, FLT_MAX))
+            for (const auto &elm : container)
+                elm->dampening(*dmp);
+        if (ImGui::DragFloat("Length##Selected", len, 0.3f, 0.f, FLT_MAX))
+            for (const auto &elm : container)
+                elm->length(*len);
     }
 
     void attach_tab::render_selected_springs() const
@@ -194,40 +212,15 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
 
-        std::vector<ppx::spring2D *> springs;
-        springs.reserve(slct.spring_pairs().size());
+        std::vector<ppx::spring2D *> selected_sps;
+        selected_sps.reserve(slct.spring_pairs().size());
 
-        float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
-
-        std::size_t amount = 0;
-        for (const auto &[id1, id2] : slct.spring_pairs())
-        {
-            const auto sps = from_ids(id1, id2, papp.engine().springs());
-            for (ppx::spring2D *sp : sps)
-            {
-                avg_stiffness += sp->stiffness();
-                avg_dampening += sp->dampening();
-                avg_length += sp->length();
-                springs.push_back(sp);
-                amount++;
-            }
-        }
-        avg_stiffness /= amount;
-        avg_dampening /= amount;
-        avg_length /= amount;
+        auto [avg_stiffness, avg_dampening, avg_length, amount] = compute_averages(slct.spring_pairs(), selected_sps, papp.engine().springs());
         ImGui::Text("Selected springs: %zu", amount);
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
-            for (ppx::spring2D *sp : springs)
-                sp->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
-            for (ppx::spring2D *sp : springs)
-                sp->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
-            for (ppx::spring2D *sp : springs)
-                sp->length(avg_length);
+        dragfloat_stf_dmp_len(selected_sps, &avg_stiffness, &avg_dampening, &avg_length);
         if (ImGui::Button("Auto adjust length##Selected"))
-            for (ppx::spring2D *sp : springs)
+            for (ppx::spring2D *sp : selected_sps)
                 sp->length(glm::distance(sp->e1()->pos(), sp->e2()->pos()));
 
         const auto remove_springs = [&slct, &papp]()
@@ -245,7 +238,7 @@ namespace ppx_demo
 
         if (ImGui::Button("Transform to rigid bars"))
         {
-            for (ppx::spring2D *sp : springs)
+            for (ppx::spring2D *sp : selected_sps)
             {
                 if (sp->has_anchors())
                     papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
@@ -267,40 +260,19 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
 
-        std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars;
-        rbars.reserve(slct.rbar_pairs().size());
-        float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
+        std::vector<std::shared_ptr<ppx::rigid_bar2D>> selected_rbars, rbars;
+        for (const auto &ctr : papp.engine().compeller().constraints())
+            rbars.push_back(std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctr));
 
-        std::size_t amount = 0;
-        for (const auto &[id1, id2] : slct.rbar_pairs())
-        {
-            const auto rbs = from_ids(id1, id2, papp.engine().compeller().constraints());
-            for (const auto &rb : rbs)
-            {
-                avg_stiffness += rb->stiffness();
-                avg_dampening += rb->dampening();
-                avg_length += rb->length();
-                rbars.push_back(rb);
-                amount++;
-            }
-        }
-        avg_stiffness /= amount;
-        avg_dampening /= amount;
-        avg_length /= amount;
+        selected_rbars.reserve(slct.rbar_pairs().size());
+        auto [avg_stiffness, avg_dampening, avg_length, amount] = compute_averages(slct.rbar_pairs(), selected_rbars, rbars);
+
         ImGui::Text("Selected rigid bars: %zu", amount);
 
-        if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
-            for (auto &rb : rbars)
-                rb->stiffness(avg_stiffness);
-        if (ImGui::DragFloat("Dampening##Selected", &avg_dampening, 0.3f, 0.f, FLT_MAX))
-            for (auto &rb : rbars)
-                rb->dampening(avg_dampening);
-        if (ImGui::DragFloat("Length##Selected", &avg_length, 0.3f, 0.f, FLT_MAX))
-            for (auto &rb : rbars)
-                rb->length(avg_length);
+        dragfloat_stf_dmp_len(selected_rbars, &avg_stiffness, &avg_dampening, &avg_length);
         if (ImGui::Button("Transform to springs"))
         {
-            for (auto &rb : rbars)
+            for (auto &rb : selected_rbars)
             {
                 if (rb->has_anchors())
                     papp.engine().add_spring(rb->e1(), rb->e2(), rb->anchor1(), rb->anchor2(),
@@ -313,7 +285,7 @@ namespace ppx_demo
             slct.update_selected_springs_rbars();
         }
         if (ImGui::Button("Remove##Selected"))
-            for (auto &rb : rbars)
+            for (auto &rb : selected_rbars)
                 papp.engine().compeller().remove_constraint(rb);
     }
 
