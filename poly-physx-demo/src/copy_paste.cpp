@@ -108,9 +108,9 @@ namespace ppx_demo
 
             // rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
             if (!rbt.has_anchors)
-                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening);
+                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening);
             else
-                papp.engine().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.anchor1, rbt.anchor2, rbt.stiffness, rbt.dampening);
+                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.anchor1, rbt.anchor2, rbt.stiffness, rbt.dampening);
         }
     }
 

@@ -37,7 +37,7 @@ namespace ppx_demo
                 ImGui::SetTooltip("The length at which the spring will neither pull nor push.");
 
             render_springs_list();
-            if (!papp.p_selector.springs().empty())
+            if (!papp.p_selector.spring_pairs().empty())
                 render_selected_springs();
             break;
         }
@@ -52,7 +52,7 @@ namespace ppx_demo
                 ImGui::SetTooltip("How much the recovery spring of the bar will resist to movement.");
 
             render_rigid_bars_list();
-            if (!papp.p_selector.rbars().empty())
+            if (!papp.p_selector.rbar_pairs().empty())
                 render_selected_rbars();
             break;
         }
@@ -161,30 +161,61 @@ namespace ppx_demo
                 ImGui::PopID();
             }
         if (to_remove)
-            papp.engine().remove_constraint(to_remove);
+            papp.engine().compeller().remove_constraint(to_remove);
+    }
+
+    static std::vector<ppx::spring2D *> from_ids(const std::size_t id1, const std::size_t id2,
+                                                 cvw::vector<ppx::spring2D> vec)
+    {
+        std::vector<ppx::spring2D *> res;
+        res.reserve(10);
+        for (ppx::spring2D &sp : vec)
+            if (sp.e1().id() == id1 && sp.e2().id() == id2)
+                res.push_back(&sp);
+        return res;
+    }
+
+    static std::vector<std::shared_ptr<ppx::rigid_bar2D>> from_ids(const std::size_t id1, const std::size_t id2,
+                                                                   const std::vector<std::shared_ptr<ppx::constraint_interface2D>> &vec)
+    {
+        std::vector<std::shared_ptr<ppx::rigid_bar2D>> res;
+        res.reserve(10);
+        for (const auto &ctr : vec)
+        {
+            const auto rb = std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctr); // Safe as ppx demo only contains one constraint
+            if (rb->e1().id() == id1 && rb->e2().id() == id2)
+                res.push_back(rb);
+        }
+        return res;
     }
 
     void attach_tab::render_selected_springs() const
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
-        ImGui::Text("Selected springs: %zu", slct.springs().size());
 
-        std::vector<ppx::spring2D *> springs(slct.springs().size());
+        std::vector<ppx::spring2D *> springs;
+        springs.reserve(slct.spring_pairs().size());
+
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
-        std::size_t index = 0;
-        for (const auto &[e1, e2] : slct.springs())
+        std::size_t amount = 0;
+        for (const auto &[id1, id2] : slct.spring_pairs())
         {
-            ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
-            avg_stiffness += sp->stiffness();
-            avg_dampening += sp->dampening();
-            avg_length += sp->length();
-            springs[index++] = sp;
+            const auto sps = from_ids(id1, id2, papp.engine().springs());
+            for (ppx::spring2D *sp : sps)
+            {
+                avg_stiffness += sp->stiffness();
+                avg_dampening += sp->dampening();
+                avg_length += sp->length();
+                springs.push_back(sp);
+                amount++;
+            }
         }
-        avg_stiffness /= slct.springs().size();
-        avg_dampening /= slct.springs().size();
-        avg_length /= slct.springs().size();
+        avg_stiffness /= amount;
+        avg_dampening /= amount;
+        avg_length /= amount;
+        ImGui::Text("Selected springs: %zu", amount);
 
         if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (ppx::spring2D *sp : springs)
@@ -201,12 +232,14 @@ namespace ppx_demo
 
         const auto remove_springs = [&slct, &papp]()
         {
-            const auto selected_springs = slct.springs(); // To not modify container mid iteration
-            for (const auto &[e1, e2] : selected_springs)
+            const auto selected_springs = slct.spring_pairs(); // To not modify container mid iteration
+            for (const auto &[id1, id2] : selected_springs)
             {
-                // This is necessary bc remove_spring invalidates stack array pointers
-                const ppx::spring2D *sp = papp.engine().spring_from_entities(*e1, *e2);
-                papp.engine().remove_spring(*sp);
+                std::vector<ppx::spring2D> sps;
+                for (ppx::spring2D *sp : from_ids(id1, id2, papp.engine().springs()))
+                    sps.push_back(*sp);
+                for (const ppx::spring2D &sp : sps)
+                    papp.engine().remove_spring(sp);
             }
         };
 
@@ -215,12 +248,12 @@ namespace ppx_demo
             for (ppx::spring2D *sp : springs)
             {
                 if (sp->has_anchors())
-                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                   sp->anchor1(), sp->anchor2(),
-                                                                   m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
+                    papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                               sp->anchor1(), sp->anchor2(),
+                                                                               m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
                 else
-                    papp.engine().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
-                                                                   m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
+                    papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(sp->e1(), sp->e2(),
+                                                                               m_attacher.p_rb_stiffness, m_attacher.p_rb_dampening);
             }
             remove_springs();
             slct.update_selected_springs_rbars();
@@ -233,23 +266,28 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
-        ImGui::Text("Selected rigid bars: %zu", slct.rbars().size());
 
-        std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars(slct.rbars().size());
+        std::vector<std::shared_ptr<ppx::rigid_bar2D>> rbars;
+        rbars.reserve(slct.rbar_pairs().size());
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
 
-        std::size_t index = 0;
-        for (const auto &[e1, e2] : slct.rbars())
+        std::size_t amount = 0;
+        for (const auto &[id1, id2] : slct.rbar_pairs())
         {
-            const auto rb = papp.engine().rbar_from_entities(*e1, *e2);
-            avg_stiffness += rb->stiffness();
-            avg_dampening += rb->dampening();
-            avg_length += rb->length();
-            rbars[index++] = rb;
+            const auto rbs = from_ids(id1, id2, papp.engine().compeller().constraints());
+            for (const auto &rb : rbs)
+            {
+                avg_stiffness += rb->stiffness();
+                avg_dampening += rb->dampening();
+                avg_length += rb->length();
+                rbars.push_back(rb);
+                amount++;
+            }
         }
-        avg_stiffness /= slct.rbars().size();
-        avg_dampening /= slct.rbars().size();
-        avg_length /= slct.rbars().size();
+        avg_stiffness /= amount;
+        avg_dampening /= amount;
+        avg_length /= amount;
+        ImGui::Text("Selected rigid bars: %zu", amount);
 
         if (ImGui::DragFloat("Stiffness##Selected", &avg_stiffness, 0.3f, 0.f, FLT_MAX))
             for (auto &rb : rbars)
@@ -270,13 +308,13 @@ namespace ppx_demo
                 else
                     papp.engine().add_spring(rb->e1(), rb->e2(), m_attacher.p_sp_stiffness,
                                              m_attacher.p_sp_dampening, m_attacher.p_sp_length);
-                papp.engine().remove_constraint(rb);
+                papp.engine().compeller().remove_constraint(rb);
             }
             slct.update_selected_springs_rbars();
         }
         if (ImGui::Button("Remove##Selected"))
             for (auto &rb : rbars)
-                papp.engine().remove_constraint(rb);
+                papp.engine().compeller().remove_constraint(rb);
     }
 
     void attach_tab::render_spring_color_pickers() const

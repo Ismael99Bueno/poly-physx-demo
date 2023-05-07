@@ -75,9 +75,9 @@ namespace ppx_demo
         case RIGID_BAR:
         {
             if (no_anchors)
-                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening);
+                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(m_e1, e2, p_rb_stiffness, p_rb_dampening);
             else
-                papp.engine().add_constraint<ppx::rigid_bar2D>(m_e1, e2, m_anchor1, anchor2, p_rb_stiffness, p_rb_dampening);
+                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(m_e1, e2, m_anchor1, anchor2, p_rb_stiffness, p_rb_dampening);
             break;
         }
         }

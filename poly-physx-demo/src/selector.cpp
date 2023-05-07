@@ -31,7 +31,7 @@ namespace ppx_demo
         {
             for (auto it = m_springs.begin(); it != m_springs.end(); ++it)
             {
-                if (it->first == sp.e1() && it->second == sp.e2())
+                if (it->first == sp.e1().id() && it->second == sp.e2().id())
                 {
                     m_springs.erase(it);
                     break;
@@ -45,7 +45,7 @@ namespace ppx_demo
                 return;
             for (auto it = m_rbars.begin(); it != m_rbars.end(); ++it)
             {
-                if (it->first == rb->e1() && it->second == rb->e2())
+                if (it->first == rb->e1().id() && it->second == rb->e2().id())
                 {
                     m_rbars.erase(it);
                     break;
@@ -82,6 +82,14 @@ namespace ppx_demo
         m_selecting = false;
     }
 
+    static bool contains_pair(const std::vector<std::pair<std::size_t, std::size_t>> &pairs,
+                              const std::size_t id1, const std::size_t id2)
+    {
+        for (const auto &[i1, i2] : pairs)
+            if (i1 == id1 && i2 == id2)
+                return true;
+        return false;
+    }
     void selector::update_selected_springs_rbars()
     {
         demo_app &papp = demo_app::get();
@@ -90,8 +98,8 @@ namespace ppx_demo
         for (const ppx::spring2D &sp : papp.engine().springs())
             for (const ppx::entity2D_ptr &e1 : m_entities)
                 for (const ppx::entity2D_ptr &e2 : m_entities)
-                    if (sp.e1() == e1 && sp.e2() == e2)
-                        m_springs.emplace_back(e1, e2);
+                    if (sp.e1() == e1 && sp.e2() == e2 && !contains_pair(m_springs, e1.id(), e2.id()))
+                        m_springs.emplace_back(e1.id(), e2.id());
         m_rbars.clear();
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
@@ -99,8 +107,8 @@ namespace ppx_demo
             if (rb)
                 for (const ppx::entity2D_ptr &e1 : m_entities)
                     for (const ppx::entity2D_ptr &e2 : m_entities)
-                        if (rb->e1() == e1 && rb->e2() == e2)
-                            m_rbars.emplace_back(e1, e2);
+                        if (rb->e1() == e1 && rb->e2() == e2 && !contains_pair(m_rbars, e1.id(), e2.id()))
+                            m_rbars.emplace_back(e1.id(), e2.id());
         }
     }
 
@@ -133,8 +141,8 @@ namespace ppx_demo
     }
 
     const std::unordered_set<ppx::entity2D_ptr> &selector::entities() const { return m_entities; }
-    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::springs() const { return m_springs; }
-    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::rbars() const { return m_rbars; }
+    const std::vector<std::pair<std::size_t, std::size_t>> &selector::spring_pairs() const { return m_springs; }
+    const std::vector<std::pair<std::size_t, std::size_t>> &selector::rbar_pairs() const { return m_rbars; }
 
     geo::aabb2D selector::select_box() const
     {
