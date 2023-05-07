@@ -148,7 +148,7 @@ namespace ppx_demo
             papp.engine().compeller().remove_constraint(to_remove);
     }
 
-    static std::vector<ppx::spring2D *> from_ids(const std::size_t id1, const std::size_t id2,
+    static std::vector<ppx::spring2D *> from_ids(const ppx::uuid id1, const ppx::uuid id2,
                                                  cvw::vector<ppx::spring2D> vec)
     {
         std::vector<ppx::spring2D *> res;
@@ -159,7 +159,7 @@ namespace ppx_demo
         return res;
     }
 
-    static std::vector<std::shared_ptr<ppx::rigid_bar2D>> from_ids(const std::size_t id1, const std::size_t id2,
+    static std::vector<std::shared_ptr<ppx::rigid_bar2D>> from_ids(const ppx::uuid id1, const ppx::uuid id2,
                                                                    const std::vector<std::shared_ptr<ppx::rigid_bar2D>> &vec)
     {
         std::vector<std::shared_ptr<ppx::rigid_bar2D>> res;
@@ -172,8 +172,8 @@ namespace ppx_demo
     }
 
     template <typename C, typename S>
-    std::tuple<float, float, float, std::size_t> compute_averages(const std::vector<std::pair<std::size_t,
-                                                                                              std::size_t>> &pairs,
+    std::tuple<float, float, float, std::size_t> compute_averages(const std::vector<std::pair<ppx::uuid,
+                                                                                              ppx::uuid>> &pairs,
                                                                   std::vector<S> &selected, const C &container)
     {
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;

@@ -26,7 +26,7 @@
 
 namespace glob
 {
-    const char *generate_name(std::size_t id);
+    const char *generate_name(std::uint64_t id);
 }
 
 #endif

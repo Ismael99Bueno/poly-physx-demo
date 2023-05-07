@@ -77,7 +77,7 @@ namespace ppx_demo
     {
         const bool expanded = ImGui::BeginTabItem(name);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip(tooltip);
+            ImGui::SetTooltip("%s", tooltip);
         if (expanded)
         {
             tab.render();

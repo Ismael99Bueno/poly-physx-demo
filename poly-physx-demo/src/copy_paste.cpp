@@ -36,14 +36,14 @@ namespace ppx_demo
         m_has_copy = true;
     }
 
-    static auto by_id(const std::vector<entity_template> &vec, const std::size_t id)
+    static auto by_id(const std::vector<entity_template> &vec, const ppx::uuid id)
     {
         for (auto it = vec.begin(); it != vec.end(); ++it)
             if (it->id == id)
                 return it;
         return vec.end();
     }
-    static bool contains_id(const std::vector<entity_template> &vec, const std::size_t id)
+    static bool contains_id(const std::vector<entity_template> &vec, const ppx::uuid id)
     {
         return by_id(vec, id) != vec.end();
     }
@@ -84,7 +84,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
-        std::unordered_map<std::size_t, ppx::entity2D_ptr> added_entities;
+        std::unordered_map<ppx::uuid, ppx::entity2D_ptr> added_entities;
         for (const entity_template &tmpl : m_copy.entities)
         {
             added_entities[tmpl.id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,

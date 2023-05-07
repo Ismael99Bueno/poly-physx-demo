@@ -163,7 +163,7 @@ namespace ppx_demo
                 if (!render_entity_node(e, -1))
                     ImGui::SameLine();
 
-                ImGui::PushID(-(int)e.id());
+                ImGui::PushID(&e);
                 if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
                 {
                     if (slct.is_selected(e_ptr))
@@ -173,7 +173,7 @@ namespace ppx_demo
                 }
                 ImGui::PopID();
                 ImGui::SameLine();
-                ImGui::PushID(-(int)e.id());
+                ImGui::PushID(&e);
                 if (ImGui::Button("Remove"))
                     to_remove = &e;
                 ImGui::PopID();
@@ -209,7 +209,7 @@ namespace ppx_demo
 
     bool entities_tab::render_entity_node(ppx::entity2D &e, std::int8_t sign) const
     {
-        const bool expanded = ImGui::TreeNode((void *)(intptr_t)((std::int64_t)e.id() * sign), "Entity '%s'", glob::generate_name(e.id()));
+        const bool expanded = ImGui::TreeNode(&e, "Entity '%s'", glob::generate_name(e.id()));
         if (expanded || ImGui::IsItemHovered())
             demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
@@ -226,7 +226,7 @@ namespace ppx_demo
               vel[2] = {e.vel().x, e.vel().y},
               angpos = e.angpos(), angvel = e.angvel(),
               mass = e.mass(), charge = e.charge();
-        ImGui::Text("ID: %zu", e.id());
+        ImGui::Text("ID: %llu", (std::uint64_t)e.id());
         if (ImGui::DragFloat2("Position", pos, 0.2f))
         {
             e.pos(glm::vec2(pos[0], pos[1]));

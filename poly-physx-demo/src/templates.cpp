@@ -61,7 +61,7 @@ namespace ppx_demo
     YAML::Emitter &operator<<(YAML::Emitter &out, const entity_template &tmpl)
     {
         out << YAML::BeginMap;
-        out << YAML::Key << "ID" << YAML::Value << tmpl.id;
+        out << YAML::Key << "UUID" << YAML::Value << (std::uint64_t)tmpl.id;
         out << YAML::Key << "Index" << YAML::Value << tmpl.index;
         out << YAML::Key << "Position" << YAML::Value << tmpl.pos;
         out << YAML::Key << "Angular position" << YAML::Value << tmpl.angpos;
@@ -80,6 +80,8 @@ namespace ppx_demo
     YAML::Emitter &operator<<(YAML::Emitter &out, const spring_template &tmpl)
     {
         out << YAML::BeginMap;
+        out << YAML::Key << "UUID1" << YAML::Value << (std::uint64_t)tmpl.id1;
+        out << YAML::Key << "UUID2" << YAML::Value << (std::uint64_t)tmpl.id2;
         out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
         out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
         out << YAML::Key << "Length" << YAML::Value << tmpl.length;
@@ -94,6 +96,8 @@ namespace ppx_demo
     YAML::Emitter &operator<<(YAML::Emitter &out, const rigid_bar_template &tmpl)
     {
         out << YAML::BeginMap;
+        out << YAML::Key << "UUID1" << YAML::Value << (std::uint64_t)tmpl.id1;
+        out << YAML::Key << "UUID2" << YAML::Value << (std::uint64_t)tmpl.id2;
         out << YAML::Key << "Stiffness" << YAML::Value << tmpl.stiffness;
         out << YAML::Key << "Dampening" << YAML::Value << tmpl.dampening;
         out << YAML::Key << "Length" << YAML::Value << tmpl.length;
@@ -113,7 +117,7 @@ namespace YAML
     Node convert<ppx_demo::entity_template>::encode(const ppx_demo::entity_template &tmpl)
     {
         Node node;
-        node["ID"] = tmpl.id;
+        node["UUID"] = (std::uint64_t)tmpl.id;
         node["Index"] = tmpl.index;
         node["Position"] = tmpl.pos;
         node["Angular position"] = tmpl.angpos;
@@ -132,7 +136,7 @@ namespace YAML
         if (!node.IsMap() || node.size() != 9)
             return false;
 
-        tmpl.id = node["ID"].as<std::size_t>();
+        tmpl.id = node["UUID"].as<std::uint64_t>();
         tmpl.index = node["Index"].as<std::size_t>();
         tmpl.pos = node["Position"].as<glm::vec2>();
         tmpl.angpos = node["Angular position"].as<float>();
@@ -150,6 +154,8 @@ namespace YAML
     Node convert<ppx_demo::spring_template>::encode(const ppx_demo::spring_template &tmpl)
     {
         Node node;
+        node["UUID1"] = (std::uint64_t)tmpl.id1;
+        node["UUID2"] = (std::uint64_t)tmpl.id2;
         node["Stiffness"] = tmpl.stiffness;
         node["Dampening"] = tmpl.dampening;
         node["Length"] = tmpl.length;
@@ -164,6 +170,8 @@ namespace YAML
     {
         if (!node.IsMap() || (node.size() != 3 && node.size() != 5))
             return false;
+        tmpl.id1 = node["UUID1"].as<std::uint64_t>();
+        tmpl.id2 = node["UUID2"].as<std::uint64_t>();
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
@@ -181,6 +189,8 @@ namespace YAML
     Node convert<ppx_demo::rigid_bar_template>::encode(const ppx_demo::rigid_bar_template &tmpl)
     {
         Node node;
+        node["UUID1"] = (std::uint64_t)tmpl.id1;
+        node["UUID2"] = (std::uint64_t)tmpl.id2;
         node["Stiffness"] = tmpl.stiffness;
         node["Dampening"] = tmpl.dampening;
         node["Length"] = tmpl.length;
@@ -195,6 +205,8 @@ namespace YAML
     {
         if (!node.IsMap() || (node.size() != 3 && node.size() != 5))
             return false;
+        tmpl.id1 = node["UUID1"].as<std::uint64_t>();
+        tmpl.id2 = node["UUID2"].as<std::uint64_t>();
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
