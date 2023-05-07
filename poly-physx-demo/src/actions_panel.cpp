@@ -72,33 +72,26 @@ namespace ppx_demo
         }
     }
 
+    template <typename T>
+    static void render_tab(const char *name, const char *tooltip, T &tab)
+    {
+        const bool expanded = ImGui::BeginTabItem(name);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip(tooltip);
+        if (expanded)
+        {
+            tab.render();
+            ImGui::EndTabItem();
+        }
+    }
+
     void actions_panel::render_tabs() const
     {
         ImGui::BeginTabBar("Actions tab bar");
-
-        bool expanded = ImGui::BeginTabItem("Add");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("Add entities");
-        if (expanded)
-        {
-            m_add_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Grab"))
-        {
-            m_grab_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Attach"))
-        {
-            m_attach_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Entities"))
-        {
-            m_entities_tab.render();
-            ImGui::EndTabItem();
-        }
+        render_tab("Add", "Add entities", m_add_tab);
+        render_tab("Grab", "Grab entities", m_grab_tab);
+        render_tab("Attach", "Attach entities", m_attach_tab);
+        render_tab("Entities", "Entities overview", m_entities_tab);
         ImGui::EndTabBar();
     }
 

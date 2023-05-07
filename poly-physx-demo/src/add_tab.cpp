@@ -65,41 +65,47 @@ namespace ppx_demo
         }
     }
 
+    static void draw_rect(const float w, const float h)
+    {
+        const glm::vec2 size = glm::vec2(w, h) * WORLD_TO_PIXEL,
+                        pos = glm::vec2(350.f, -30.f) - 0.5f * size;
+        ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), demo_app::get().entity_color());
+    }
+
+    static void draw_ngon(const float radius, const std::uint32_t sides)
+    {
+        const sf::Color &color = demo_app::get().entity_color();
+        const ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+        draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)sides);
+    }
+
     void add_tab::render_shape_list() const
     {
-        demo_app &papp = demo_app::get();
         adder::shape_type &shape = m_adder.p_current_templ.shape;
 
         const char *shapes[4] = {"Rectangle", "NGon", "Circle", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
             m_adder.update_template_vertices();
 
-        const sf::Color &color = papp.entity_color();
         switch (shape)
         {
         case adder::RECT:
         {
-            const float w = std::min(m_adder.p_current_templ.width, 18.f),
-                        h = std::min(m_adder.p_current_templ.height, 18.f);
-            const glm::vec2 size = glm::vec2(w, h) * WORLD_TO_PIXEL,
-                            pos = glm::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
+            draw_rect(std::min(m_adder.p_current_templ.width, 18.f),
+                      std::min(m_adder.p_current_templ.height, 18.f));
             break;
         }
         case adder::NGON:
         {
             const float radius = std::min(m_adder.p_current_templ.ngon_radius, 9.f) * WORLD_TO_PIXEL;
-            const ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)m_adder.p_current_templ.sides);
+            draw_ngon(radius, m_adder.p_current_templ.sides);
             break;
         }
         case adder::CIRCLE:
         {
             const float radius = std::min(m_adder.p_current_templ.circle_radius, 9.f) * WORLD_TO_PIXEL;
-            const ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
+            draw_ngon(radius, 30);
             break;
         }
         default:
@@ -107,31 +113,37 @@ namespace ppx_demo
         }
     }
 
+    template <typename... Args>
+    static void dfloat_with_tooltip(const char *tooltip, Args &&...args)
+    {
+        ImGui::DragFloat(std::forward<Args>(args)...);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("%s", tooltip);
+    }
+
     void add_tab::render_entity_inputs() const
     {
         demo_app &papp = demo_app::get();
 
-        ImGui::DragFloat("Mass", &m_adder.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
+        const char *ttip = "The mass of an entity represents how hard it is to move it.";
+        dfloat_with_tooltip(ttip, "Mass", &m_adder.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
 
-        ImGui::DragFloat("Charge", &m_adder.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
+        ttip = "The charge of an entity represents how strongly\nit will react to electrical interactions.";
+        dfloat_with_tooltip(ttip, "Charge", &m_adder.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
+
+        ttip = "Together with the shape, it is directly proportional to the inertia that the entity will have.";
         switch (m_adder.p_current_templ.shape)
         {
         case adder::RECT:
-            ImGui::DragFloat("Width", &m_adder.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
-            // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            //     ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
-            ImGui::DragFloat("Height", &m_adder.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Width", &m_adder.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Height", &m_adder.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::NGON:
             ImGui::SliderInt("Sides", (int *)&m_adder.p_current_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &m_adder.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Radius", &m_adder.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CIRCLE:
-            ImGui::DragFloat("Radius", &m_adder.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Radius", &m_adder.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CUSTOM:
             render_canvas();
