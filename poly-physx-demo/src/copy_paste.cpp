@@ -125,7 +125,7 @@ namespace ppx_demo
             col.a = 120;
             if (auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
             {
-                poly->pos(tmpl.pos + offset);
+                poly->centroid(tmpl.pos + offset);
                 sf::ConvexShape shape = papp.convex_shape_from(*poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
@@ -133,7 +133,7 @@ namespace ppx_demo
             else
             {
                 geo::circle &c = std::get<geo::circle>(tmpl.shape);
-                c.pos(tmpl.pos + offset);
+                c.centroid(tmpl.pos + offset);
                 sf::CircleShape shape = papp.circle_shape_from(c);
                 shape.setFillColor(col);
                 papp.draw(shape);
