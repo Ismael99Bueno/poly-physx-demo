@@ -28,7 +28,7 @@ namespace ppx_demo
         {
             for (const auto &toggled : m_toggleables) // I know this is horrible
                 if (toggled->p_enabled)
-                    std::dynamic_pointer_cast<ppx::entity2D_set>(toggled)->include(e);
+                    std::dynamic_pointer_cast<ppx::behaviour2D>(toggled)->include(e);
         };
         eng.events().on_entity_addition += auto_include;
     }
@@ -221,7 +221,7 @@ namespace ppx_demo
             update_potential_data();
     }
 
-    void phys_panel::render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled)
+    void phys_panel::render_enabled_checkbox(ppx::behaviour2D &set, bool *enabled)
     {
         demo_app &papp = demo_app::get();
 
@@ -269,7 +269,7 @@ namespace ppx_demo
         out << YAML::Key << "YLim" << YAML::Value << m_ylim;
         for (const auto &toggled : m_toggleables)
         {
-            const auto set = std::dynamic_pointer_cast<ppx::entity2D_set>(toggled);
+            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
             out << YAML::Key << set->name() << YAML::Value << *set;
         }
     }
@@ -280,7 +280,7 @@ namespace ppx_demo
         node["YLim"] = m_ylim;
         for (const auto &toggled : m_toggleables)
         {
-            const auto set = std::dynamic_pointer_cast<ppx::entity2D_set>(toggled);
+            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
             node[set->name()] = *set;
         }
         return node;
@@ -293,8 +293,8 @@ namespace ppx_demo
         m_ylim = node["YLim"].as<glm::vec2>();
         for (const auto &toggled : m_toggleables)
         {
-            const auto set = std::dynamic_pointer_cast<ppx::entity2D_set>(toggled);
-            node[set->name()].as<ppx::entity2D_set>(*set);
+            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
+            node[set->name()].as<ppx::behaviour2D>(*set);
         }
         return true;
     }

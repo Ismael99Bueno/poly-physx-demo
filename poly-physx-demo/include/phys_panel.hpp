@@ -35,7 +35,7 @@ namespace ppx_demo
         void render_energy_plot() const;
         void render_potential_plot();
         void render_forces_and_inters();
-        void render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled);
+        void render_enabled_checkbox(ppx::behaviour2D &set, bool *enabled);
 
         void update_potential_data();
         void compare_and_update_xlimits(const glm::vec2 &xlim);

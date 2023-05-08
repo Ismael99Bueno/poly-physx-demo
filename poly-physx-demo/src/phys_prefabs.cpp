@@ -72,20 +72,20 @@ namespace ppx_demo
 
     void gravity::write(YAML::Emitter &out) const
     {
-        ppx::entity2D_set::write(out);
+        ppx::behaviour2D::write(out);
         out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
         out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
     }
     YAML::Node gravity::encode() const
     {
-        YAML::Node node = ppx::entity2D_set::encode();
+        YAML::Node node = ppx::behaviour2D::encode();
         node["Enabled"] = p_enabled;
         node["Magnitude"] = p_mag;
         return node;
     }
     bool gravity::decode(const YAML::Node &node)
     {
-        if (!ppx::entity2D_set::decode(node))
+        if (!ppx::behaviour2D::decode(node))
             return false;
 
         p_enabled = node["Enabled"].as<bool>();
@@ -94,14 +94,14 @@ namespace ppx_demo
     }
     void drag::write(YAML::Emitter &out) const
     {
-        ppx::entity2D_set::write(out);
+        ppx::behaviour2D::write(out);
         out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
         out << YAML::Key << "Linear magnitude" << YAML::Value << p_lin_mag;
         out << YAML::Key << "Angular magnitude" << YAML::Value << p_ang_mag;
     }
     YAML::Node drag::encode() const
     {
-        YAML::Node node = ppx::entity2D_set::encode();
+        YAML::Node node = ppx::behaviour2D::encode();
         node["Enabled"] = p_enabled;
         node["Linear magnitude"] = p_lin_mag;
         node["Angular magnitude"] = p_ang_mag;
@@ -109,7 +109,7 @@ namespace ppx_demo
     }
     bool drag::decode(const YAML::Node &node)
     {
-        if (!ppx::entity2D_set::decode(node))
+        if (!ppx::behaviour2D::decode(node))
             return false;
 
         p_enabled = node["Enabled"].as<bool>();
@@ -119,20 +119,20 @@ namespace ppx_demo
     }
     void gravitational::write(YAML::Emitter &out) const
     {
-        ppx::entity2D_set::write(out);
+        ppx::behaviour2D::write(out);
         out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
         out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
     }
     YAML::Node gravitational::encode() const
     {
-        YAML::Node node = ppx::entity2D_set::encode();
+        YAML::Node node = ppx::behaviour2D::encode();
         node["Enabled"] = p_enabled;
         node["Magnitude"] = p_mag;
         return node;
     }
     bool gravitational::decode(const YAML::Node &node)
     {
-        if (!ppx::entity2D_set::decode(node))
+        if (!ppx::behaviour2D::decode(node))
             return false;
 
         p_enabled = node["Enabled"].as<bool>();
@@ -141,14 +141,14 @@ namespace ppx_demo
     }
     void electrical::write(YAML::Emitter &out) const
     {
-        ppx::entity2D_set::write(out);
+        ppx::behaviour2D::write(out);
         out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
         out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
         out << YAML::Key << "Exponent" << YAML::Value << p_exp;
     }
     YAML::Node electrical::encode() const
     {
-        YAML::Node node = ppx::entity2D_set::encode();
+        YAML::Node node = ppx::behaviour2D::encode();
         node["Enabled"] = p_enabled;
         node["Magnitude"] = p_mag;
         node["Exponent"] = p_exp;
@@ -156,7 +156,7 @@ namespace ppx_demo
     }
     bool electrical::decode(const YAML::Node &node)
     {
-        if (!ppx::entity2D_set::decode(node))
+        if (!ppx::behaviour2D::decode(node))
             return false;
 
         p_enabled = node["Enabled"].as<bool>();
@@ -166,21 +166,21 @@ namespace ppx_demo
     }
     void exponential::write(YAML::Emitter &out) const
     {
-        ppx::entity2D_set::write(out);
+        ppx::behaviour2D::write(out);
         out << YAML::Key << "Enabled" << YAML::Value << p_enabled;
         out << YAML::Key << "Magnitude" << YAML::Value << p_mag;
         out << YAML::Key << "Exponent" << YAML::Value << p_exp;
     }
     YAML::Node exponential::encode() const
     {
-        YAML::Node node = ppx::entity2D_set::encode();
+        YAML::Node node = ppx::behaviour2D::encode();
         node["Enabled"] = p_enabled;
         node["Magnitude"] = p_mag;
         return node;
     }
     bool exponential::decode(const YAML::Node &node)
     {
-        if (!ppx::entity2D_set::decode(node))
+        if (!ppx::behaviour2D::decode(node))
             return false;
 
         p_enabled = node["Enabled"].as<bool>();
