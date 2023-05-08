@@ -190,28 +190,6 @@ namespace ppx_demo
         return app;
     }
 
-    void demo_app::draw_interaction_lines()
-    {
-        PERF_FUNCTION()
-        const ppx::engine2D &eng = engine();
-        const ppx::const_entity2D_ptr &e1 = eng[world_mouse()];
-        if (e1)
-            for (const auto &inter : eng.interactions())
-                if (inter->contains(*e1))
-                    for (const auto &e2 : inter->entities())
-                        if (e1 != e2)
-                        {
-                            sf::Color c1 = (*this)[e1.index()].getFillColor(),
-                                      c2 = (*this)[e2.index()].getFillColor();
-                            c1.a = 120;
-                            c2.a = 120;
-                            prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
-                                              e2->pos() * WORLD_TO_PIXEL,
-                                              c1, c2);
-                            draw(fl);
-                        }
-    }
-
     void demo_app::remove_selected() // TODO: Que remove selected se llame solo con backspace una vez se cancele tb con clic der
     {
         const auto selected = p_selector.entities();

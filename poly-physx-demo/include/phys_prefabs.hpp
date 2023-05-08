@@ -44,7 +44,7 @@ namespace ppx_demo
     {
     public:
         using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
         float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(YAML::Emitter &out) const override;
@@ -58,7 +58,7 @@ namespace ppx_demo
     {
     public:
         using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
         float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(YAML::Emitter &out) const override;
@@ -73,7 +73,7 @@ namespace ppx_demo
     {
     public:
         using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
         float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
         void write(YAML::Emitter &out) const override;

@@ -70,7 +70,6 @@ namespace ppx_demo
         std::string m_session;
         sf::Clock m_clock;
 
-        void draw_interaction_lines();
         demo_app(const demo_app &papp) = delete;
     };
 }

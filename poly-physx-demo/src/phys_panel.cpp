@@ -10,12 +10,12 @@ namespace ppx_demo
     void phys_panel::on_attach(ppx::app *papp)
     {
         ppx::engine2D &eng = papp->engine();
-        m_gravity = eng.add_force<gravity>("Gravity");
-        m_drag = eng.add_force<drag>("Drag");
-        m_gravitational = eng.add_interaction<gravitational>("Gravitational");
-        m_repulsive = eng.add_interaction<electrical>("Repulsive");
-        m_attractive = eng.add_interaction<electrical>("Attractive");
-        m_exponential = eng.add_interaction<exponential>("Exponential");
+        m_gravity = eng.add_behaviour<gravity>("Gravity");
+        m_drag = eng.add_behaviour<drag>("Drag");
+        m_gravitational = eng.add_behaviour<gravitational>("Gravitational");
+        m_repulsive = eng.add_behaviour<electrical>("Repulsive");
+        m_attractive = eng.add_behaviour<electrical>("Attractive");
+        m_exponential = eng.add_behaviour<exponential>("Exponential");
 
         m_gravity->p_enabled = true;
 
@@ -221,7 +221,7 @@ namespace ppx_demo
             update_potential_data();
     }
 
-    void phys_panel::render_enabled_checkbox(ppx::behaviour2D &set, bool *enabled)
+    void phys_panel::render_enabled_checkbox(ppx::behaviour2D &bhv, bool *enabled)
     {
         demo_app &papp = demo_app::get();
 
@@ -230,9 +230,9 @@ namespace ppx_demo
         {
             if (*enabled)
                 for (std::size_t i = 0; i < papp.engine().size(); i++)
-                    set.include(papp.engine()[i]);
+                    bhv.include(papp.engine()[i]);
             else
-                set.clear();
+                bhv.clear();
             update_potential_data();
         }
         ImGui::PopID();
@@ -267,22 +267,12 @@ namespace ppx_demo
         layer::write(out);
         out << YAML::Key << "XLim" << YAML::Value << m_xlim;
         out << YAML::Key << "YLim" << YAML::Value << m_ylim;
-        for (const auto &toggled : m_toggleables)
-        {
-            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
-            out << YAML::Key << set->name() << YAML::Value << *set;
-        }
     }
     YAML::Node phys_panel::encode() const
     {
         YAML::Node node = layer::encode();
         node["XLim"] = m_xlim;
         node["YLim"] = m_ylim;
-        for (const auto &toggled : m_toggleables)
-        {
-            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
-            node[set->name()] = *set;
-        }
         return node;
     }
     bool phys_panel::decode(const YAML::Node &node)
@@ -291,11 +281,6 @@ namespace ppx_demo
             return false;
         m_xlim = node["XLim"].as<glm::vec2>();
         m_ylim = node["YLim"].as<glm::vec2>();
-        for (const auto &toggled : m_toggleables)
-        {
-            const auto set = std::dynamic_pointer_cast<ppx::behaviour2D>(toggled);
-            node[set->name()].as<ppx::behaviour2D>(*set);
-        }
         return true;
     }
 }
