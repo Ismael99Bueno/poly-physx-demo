@@ -41,7 +41,7 @@ namespace ppx_demo
         return exists;
     }
 
-    void demo_app::write(const std::string &filepath) const
+    void demo_app::serialize(const std::string &filepath) const
     {
         YAML::Emitter out;
         out.SetFloatPrecision(std::numeric_limits<float>::max_digits10);
@@ -59,7 +59,7 @@ namespace ppx_demo
         std::ofstream file(filepath);
         file << out.c_str();
     }
-    bool demo_app::read(const std::string &filepath)
+    bool demo_app::deserialize(const std::string &filepath)
     {
         if (!std::filesystem::exists(filepath))
             return false;
@@ -85,9 +85,9 @@ namespace ppx_demo
     {
         if (!std::filesystem::exists(SAVES_DIR))
             std::filesystem::create_directory(SAVES_DIR);
-        write(SAVES_DIR + filename);
+        serialize(SAVES_DIR + filename);
     }
-    bool demo_app::read_save(const std::string &filename) { return read(SAVES_DIR + filename); }
+    bool demo_app::read_save(const std::string &filename) { return deserialize(SAVES_DIR + filename); }
 
     void demo_app::write_save() const
     {
@@ -100,7 +100,7 @@ namespace ppx_demo
         return read_save(m_session);
     }
 
-    bool demo_app::read_example(const std::string &filepath) { return read(EXAMPLES_DIR + filepath); }
+    bool demo_app::read_example(const std::string &filepath) { return deserialize(EXAMPLES_DIR + filepath); }
 
     void demo_app::on_update()
     {

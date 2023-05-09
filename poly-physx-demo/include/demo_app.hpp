@@ -23,8 +23,8 @@ namespace ppx_demo
     public:
         static demo_app &get();
 
-        void write(const std::string &filepath) const;
-        bool read(const std::string &filepath);
+        void serialize(const std::string &filepath) const;
+        bool deserialize(const std::string &filepath);
 
         void write_save(const std::string &filename) const;
         bool read_save(const std::string &filename);
