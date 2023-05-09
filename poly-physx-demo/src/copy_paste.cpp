@@ -86,11 +86,16 @@ namespace ppx_demo
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<ppx::uuid, ppx::entity2D_ptr> added_entities;
         for (const entity_template &tmpl : m_copy.entities)
-        {
-            added_entities[tmpl.id] = papp.engine().add_entity(tmpl.shape, tmpl.pos + offset,
-                                                               glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                               tmpl.charge, tmpl.kinematic);
-        }
+            if (const auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
+                added_entities[tmpl.id] = papp.engine().add_entity(poly->locals(), tmpl.pos + offset,
+                                                                   glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
+                                                                   tmpl.charge, tmpl.kinematic);
+            else
+                added_entities[tmpl.id] = papp.engine().add_entity(std::get<geo::circle>(tmpl.shape).radius(),
+                                                                   tmpl.pos + offset,
+                                                                   glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
+                                                                   tmpl.charge, tmpl.kinematic);
+
         for (spring_template &spt : m_copy.springs)
         {
             const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),

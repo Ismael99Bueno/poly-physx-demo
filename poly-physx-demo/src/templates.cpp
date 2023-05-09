@@ -20,7 +20,7 @@ namespace ppx_demo
         if (const geo::polygon *poly = e.shape_if<geo::polygon>())
         {
             tmpl.type = ppx::entity2D::POLYGON;
-            tmpl.shape = poly->vertices();
+            tmpl.shape = poly->globals();
         }
         else
         {

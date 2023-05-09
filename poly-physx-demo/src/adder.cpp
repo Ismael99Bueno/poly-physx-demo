@@ -44,7 +44,12 @@ namespace ppx_demo
 
         const glm::vec2 vel = vel_upon_addition();
         const entity_template &entity_templ = p_current_templ.entity_templ;
-        return demo_app::get().engine().add_entity(entity_templ.shape, m_start_pos,
+        if (const auto *poly = std::get_if<geo::polygon>(&entity_templ.shape))
+            return demo_app::get().engine().add_entity(poly->locals(), m_start_pos,
+                                                       entity_templ.kinematic ? vel : glm::vec2(0.f),
+                                                       atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
+                                                       entity_templ.charge, entity_templ.kinematic);
+        return demo_app::get().engine().add_entity(std::get<geo::circle>(entity_templ.shape).radius(), m_start_pos,
                                                    entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                    atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
                                                    entity_templ.charge, entity_templ.kinematic);
@@ -66,7 +71,7 @@ namespace ppx_demo
         std::vector<ppx::entity2D_ptr> added;
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const glm::vec2 dir = poly[i + 1] - poly[i];
+            const glm::vec2 dir = poly.local(i + 1) - poly.local(i);
             for (std::size_t j = 0; j < per_iter; j++)
             {
                 const float factor = (float)j / (float)per_iter;

@@ -191,7 +191,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const geo::polygon &poly = std::get<geo::polygon>(m_adder.p_current_templ.entity_templ.shape);
-        std::vector<glm::vec2> vertices = poly.vertices();
+        std::vector<glm::vec2> vertices = poly.globals();
 
         const bool is_convex = poly.is_convex();
         if (!is_convex && !m_adder.p_current_templ.soft_body)
