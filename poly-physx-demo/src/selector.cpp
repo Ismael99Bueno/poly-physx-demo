@@ -23,7 +23,7 @@ namespace ppx_demo
 
             for (ppx::entity2D_ptr e : entities)
             {
-                if (e.try_validate())
+                if (e.validate())
                     m_entities.insert(e);
             }
         };

@@ -15,7 +15,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_trails.begin(); it != m_trails.end();)
-                if (!it->first.try_validate())
+                if (!it->first.validate())
                     it = m_trails.erase(it);
                 else
                     ++it;

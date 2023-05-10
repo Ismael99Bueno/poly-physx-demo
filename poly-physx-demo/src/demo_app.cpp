@@ -194,7 +194,7 @@ namespace ppx_demo
     {
         const auto selected = p_selector.entities();
         for (ppx::const_entity2D_ptr e : selected)
-            if (e.try_validate())
+            if (e.validate())
                 engine().remove_entity(*e);
         p_actions_panel->cancel_add_attach();
     }

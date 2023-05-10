@@ -15,7 +15,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_paths.begin(); it != m_paths.end();)
-                if (!it->first.try_validate())
+                if (!it->first.validate())
                     it = m_paths.erase(it);
                 else
                     ++it;

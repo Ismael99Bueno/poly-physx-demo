@@ -9,7 +9,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_entities.begin(); it != m_entities.end();)
-                if (!it->try_validate())
+                if (!it->validate())
                     it = m_entities.erase(it);
                 else
                     ++it;

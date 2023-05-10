@@ -11,7 +11,7 @@ namespace ppx_demo
     {
         const auto validate = [this](const std::size_t index)
         {
-            if (m_grabbed && !m_grabbed.try_validate())
+            if (m_grabbed && !m_grabbed.validate())
                 m_grabbed = nullptr;
         };
         demo_app::get().engine().events().on_late_entity_removal += validate;
