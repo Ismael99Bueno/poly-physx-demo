@@ -71,11 +71,11 @@ namespace ppx_demo
         std::vector<ppx::entity2D_ptr> added;
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const glm::vec2 dir = poly.local(i + 1) - poly.local(i);
+            const glm::vec2 dir = poly.locals(i + 1) - poly.locals(i);
             for (std::size_t j = 0; j < per_iter; j++)
             {
                 const float factor = (float)j / (float)per_iter;
-                const glm::vec2 pos = poly[i] + dir * factor;
+                const glm::vec2 pos = poly.globals(i) + dir * factor;
                 const auto e = papp.engine().add_entity(p_current_templ.sb_radius, m_start_pos + pos,
                                                         entity_templ.kinematic ? vel : glm::vec2(0.f),
                                                         0.f, 0.f,

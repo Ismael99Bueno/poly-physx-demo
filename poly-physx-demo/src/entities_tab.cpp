@@ -264,8 +264,8 @@ namespace ppx_demo
         {
             for (std::size_t i = 0; i < poly->size(); i++)
             {
-                const glm::vec2 rot = poly->global(i) - e.pos(),
-                                &loc = poly->local(i);
+                const glm::vec2 &rot = poly->globals()[i] - e.pos(),
+                                &loc = poly->locals()[i];
                 ImGui::Text("Vertex %zu - x: %f, y: %f (x: %f, y: %f)", i, rot.x, rot.y, loc.x, loc.y);
             }
             ImGui::TreePop();
