@@ -114,11 +114,8 @@ namespace ppx_demo
 
     bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
-        if (!m_selecting)
-            return false;
-        const geo::aabb2D aabb = select_box();
-        return geo::intersect(aabb, e->shape().bounding_box()) ||
-               m_entities.find(e) != m_entities.end();
+        return m_entities.find(e) != m_entities.end() ||
+               (m_selecting && geo::intersect(select_box(), e->shape().bounding_box()));
     }
 
     bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
