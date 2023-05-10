@@ -175,10 +175,10 @@ namespace YAML
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
-        if (node["anchor1"])
+        if (node["Anchor1"])
         {
-            tmpl.anchor1 = node["anchor1"].as<glm::vec2>();
-            tmpl.anchor2 = node["anchor2"].as<glm::vec2>();
+            tmpl.anchor1 = node["Anchor1"].as<glm::vec2>();
+            tmpl.anchor2 = node["Anchor2"].as<glm::vec2>();
             tmpl.has_anchors = true;
         }
         else
@@ -210,10 +210,10 @@ namespace YAML
         tmpl.stiffness = node["Stiffness"].as<float>();
         tmpl.dampening = node["Dampening"].as<float>();
         tmpl.length = node["Length"].as<float>();
-        if (node["anchor1"])
+        if (node["Anchor1"])
         {
-            tmpl.anchor1 = node["anchor1"].as<glm::vec2>();
-            tmpl.anchor2 = node["anchor2"].as<glm::vec2>();
+            tmpl.anchor1 = node["Anchor1"].as<glm::vec2>();
+            tmpl.anchor2 = node["Anchor2"].as<glm::vec2>();
             tmpl.has_anchors = true;
         }
         else

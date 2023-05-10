@@ -48,34 +48,34 @@ namespace ppx_demo
         return by_id(vec, id) != vec.end();
     }
 
-    void copy_paste::copy(group &group)
+    void copy_paste::copy(group &g)
     {
         demo_app &papp = demo_app::get();
         const selector &slct = papp.p_selector;
         DBG_ASSERT(!slct.entities().empty(), "Must have something selected to copy!\n")
 
-        group.ref_pos = glm::vec2(0.f);
+        g.ref_pos = glm::vec2(0.f);
 
         for (const auto &e : slct.entities())
         {
-            group.entities.push_back(entity_template::from_entity(*e));
-            group.ref_pos += e->pos();
+            g.entities.push_back(entity_template::from_entity(*e));
+            g.ref_pos += e->pos();
         }
-        group.ref_pos /= slct.entities().size();
+        g.ref_pos /= slct.entities().size();
 
         for (const ppx::spring2D &sp : papp.engine().springs())
-            if (contains_id(group.entities, sp.e1().id()) &&
-                contains_id(group.entities, sp.e2().id()))
-                group.springs.push_back(spring_template::from_spring(sp));
+            if (contains_id(g.entities, sp.e1().id()) &&
+                contains_id(g.entities, sp.e2().id()))
+                g.springs.push_back(spring_template::from_spring(sp));
 
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)
                 continue;
-            if (contains_id(group.entities, rb->e1().id()) &&
-                contains_id(group.entities, rb->e2().id()))
-                group.rbars.push_back(rigid_bar_template::from_bar(*rb));
+            if (contains_id(g.entities, rb->e1().id()) &&
+                contains_id(g.entities, rb->e2().id()))
+                g.rbars.push_back(rigid_bar_template::from_bar(*rb));
         }
     }
 
