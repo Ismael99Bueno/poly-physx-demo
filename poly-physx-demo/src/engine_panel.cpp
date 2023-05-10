@@ -185,6 +185,9 @@ namespace ppx_demo
                 papp.resize_quad_tree_to_window();
         }
 
+        ImGui::Checkbox("Draw bounding boxes", &m_draw_bboxes);
+        if (m_draw_bboxes)
+            draw_bounding_boxes();
         if (collider.coldet() == ppx::collider2D::QUAD_TREE)
             render_quad_tree_params();
         else
@@ -244,7 +247,7 @@ namespace ppx_demo
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::draw_quad_tree(const ppx::quad_tree2D &qt)
+    void engine_panel::draw_quad_tree(const ppx::quad_tree2D &qt) const
     {
         if (qt.partitioned())
             for (const auto &child : qt.children())
@@ -262,11 +265,28 @@ namespace ppx_demo
         }
     }
 
+    void engine_panel::draw_bounding_boxes() const
+    {
+        for (const ppx::entity2D &e : demo_app::get().engine().entities())
+        {
+            const geo::aabb2D &bb = e.shape().bounding_box();
+            const glm::vec2 &mm = bb.min(),
+                            &mx = bb.max();
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
+                                      mx * WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
+                                      mm * WORLD_TO_PIXEL,
+                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            demo_app::get().draw(fls);
+        }
+    }
+
     void engine_panel::write(YAML::Emitter &out) const
     {
         layer::write(out);
         out << YAML::Key << "Method" << YAML::Value << (int)m_method;
         out << YAML::Key << "Visualize quad tree" << YAML::Value << m_visualize_qt;
+        out << YAML::Key << "Draw bounding boxes" << YAML::Value << m_draw_bboxes;
         out << YAML::Key << "Max entities" << YAML::Value << m_max_entities;
         out << YAML::Key << "Max depth" << YAML::Value << m_max_depth;
     }
@@ -275,6 +295,7 @@ namespace ppx_demo
         YAML::Node node = layer::encode();
         node["Method"] = (int)m_method;
         node["Visualize quad tree"] = m_visualize_qt;
+        node["Draw bounding boxes"] = m_draw_bboxes;
         node["Max entities"] = m_max_entities;
         node["Max depth"] = m_max_depth;
         return node;
@@ -285,6 +306,7 @@ namespace ppx_demo
             return false;
         m_method = (integ_method)node["Method"].as<int>();
         m_visualize_qt = node["Visualize quad tree"].as<bool>();
+        m_draw_bboxes = node["Draw bounding boxes"].as<bool>();
         m_max_entities = node["Max entities"].as<std::size_t>();
         m_max_depth = node["Max depth"].as<std::uint32_t>();
         return true;
