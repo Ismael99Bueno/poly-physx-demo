@@ -1,11 +1,11 @@
 #include "ppxdpch.hpp"
-#include "attach_tab.hpp"
+#include "joints_tab.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 
 namespace ppx_demo
 {
-    attach_tab::attach_tab(attacher &attch) : m_attacher(attch) {}
+    joints_tab::joints_tab(attacher &attch) : m_attacher(attch) {}
 
     template <typename... Args>
     static void dfloat_with_tooltip(const char *tooltip, Args &&...args)
@@ -15,7 +15,7 @@ namespace ppx_demo
             ImGui::SetTooltip("%s", tooltip);
     }
 
-    void attach_tab::render() const
+    void joints_tab::render() const
     {
         static const char *attach_types[2] = {"Spring", "Rigid bar"};
 
@@ -112,7 +112,7 @@ namespace ppx_demo
         return to_remove;
     }
 
-    void attach_tab::render_springs_list() const
+    void joints_tab::render_springs_list() const
     {
         demo_app &papp = demo_app::get();
 
@@ -130,7 +130,7 @@ namespace ppx_demo
         papp.engine().remove_spring(to_remove);
     }
 
-    void attach_tab::render_rigid_bars_list() const
+    void joints_tab::render_rigid_bars_list() const
     {
         demo_app &papp = demo_app::get();
 
@@ -207,7 +207,7 @@ namespace ppx_demo
                 elm->length(*len);
     }
 
-    void attach_tab::render_selected_springs() const
+    void joints_tab::render_selected_springs() const
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
@@ -255,7 +255,7 @@ namespace ppx_demo
             remove_springs();
     }
 
-    void attach_tab::render_selected_rbars() const
+    void joints_tab::render_selected_rbars() const
     {
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
@@ -289,7 +289,7 @@ namespace ppx_demo
                 papp.engine().compeller().remove_constraint(rb);
     }
 
-    void attach_tab::render_spring_color_pickers() const
+    void joints_tab::render_spring_color_pickers() const
     {
         demo_app &papp = demo_app::get();
 
@@ -301,7 +301,7 @@ namespace ppx_demo
                                          (sf::Uint8)(att_color[2] * 255.f)));
     }
 
-    void attach_tab::render_rb_color_pickers() const
+    void joints_tab::render_rb_color_pickers() const
     {
         demo_app &papp = demo_app::get();
 

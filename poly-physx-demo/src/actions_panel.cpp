@@ -90,7 +90,7 @@ namespace ppx_demo
         ImGui::BeginTabBar("Actions tab bar");
         render_tab("Add", "Add entities", m_add_tab);
         render_tab("Grab", "Grab entities", m_grab_tab);
-        render_tab("Attach", "Attach entities", m_attach_tab);
+        render_tab("Joints", "Attach entities with joints", m_joints_tab);
         render_tab("Entities", "Entities overview", m_entities_tab);
         ImGui::EndTabBar();
     }
