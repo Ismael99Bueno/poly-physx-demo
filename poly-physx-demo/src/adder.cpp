@@ -67,7 +67,7 @@ namespace ppx_demo
         std::vector<ppx::entity2D_ptr> added;
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const glm::vec2 dir = poly.locals(i + 1) - poly.locals(i);
+            const glm::vec2 dir = poly.globals(i + 1) - poly.globals(i);
             for (std::size_t j = 0; j < per_iter; j++)
             {
                 const float factor = (float)j / (float)per_iter;
