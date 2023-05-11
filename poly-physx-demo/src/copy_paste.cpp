@@ -36,6 +36,13 @@ namespace ppx_demo
         m_has_copy = true;
     }
 
+    static bool contains_ids(const std::unordered_map<ppx::uuid, ppx::entity2D::specs> &entities,
+                             const ppx::joint2D &joint)
+    {
+        return entities.find(joint.e1().id()) != entities.end() &&
+               entities.find(joint.e2().id()) != entities.end();
+    }
+
     void copy_paste::copy(group &g)
     {
         demo_app &papp = demo_app::get();
@@ -52,8 +59,7 @@ namespace ppx_demo
         g.ref_pos /= slct.entities().size();
 
         for (const ppx::spring2D &sp : papp.engine().springs())
-            if (g.entities.find(sp.e1().id()) != g.entities.end() &&
-                g.entities.find(sp.e2().id()) != g.entities.end())
+            if (contains_ids(g.entities, sp))
                 g.springs.emplace_back(ppx::spring2D::specs::from_spring(sp),
                                        sp.e1().id(), sp.e2().id());
 
@@ -62,10 +68,21 @@ namespace ppx_demo
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)
                 continue;
-            if (g.entities.find(rb->e1().id()) != g.entities.end() &&
-                g.entities.find(rb->e2().id()) != g.entities.end())
+            if (contains_ids(g.entities, *rb))
                 g.rbars.emplace_back(ppx::rigid_bar2D::specs::from_rigid_bar(*rb),
                                      rb->e1().id(), rb->e2().id());
+        }
+    }
+
+    template <typename T, typename F>
+    static void add_joints(const std::unordered_map<ppx::uuid, ppx::entity2D_ptr> &added,
+                           std::vector<T> &idjoint, F add_fun)
+    {
+        for (auto &idjoint : idjoint)
+        {
+            idjoint.joint.e1 = added.at(idjoint.id1);
+            idjoint.joint.e2 = added.at(idjoint.id2);
+            add_fun(idjoint.joint);
         }
     }
 
@@ -83,25 +100,31 @@ namespace ppx_demo
             specs.angvel = 0.f;
             added_entities[id] = papp.engine().add_entity(specs);
         }
+        add_joints(added_entities, m_copy.springs, [&papp](const ppx::spring2D::specs &spc)
+                   { papp.engine().add_spring(spc); });
+        add_joints(added_entities, m_copy.rbars, [&papp](const ppx::rigid_bar2D::specs &spc)
+                   { papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(spc); });
+    }
 
-        for (auto &spt : m_copy.springs)
+    template <typename T, typename F>
+    static void preview_joints(const std::unordered_map<ppx::uuid, ppx::entity2D::specs> &entities,
+                               const std::vector<T> &idjoints, sf::Color col, const glm::vec2 &ref_pos, F draw_fun)
+    {
+        demo_app &papp = demo_app::get();
+        const glm::vec2 offset = papp.world_mouse() - ref_pos;
+        for (const auto &idjoint : idjoints)
         {
-            spt.joint.e1 = added_entities.at(spt.id1);
-            spt.joint.e2 = added_entities.at(spt.id2);
-            papp.engine().add_spring(spt.joint);
-        }
-        for (auto &rbt : m_copy.rbars)
-        {
-            rbt.joint.e1 = added_entities.at(rbt.id1);
-            rbt.joint.e2 = added_entities.at(rbt.id2);
-            papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(rbt.joint);
+            const ppx::entity2D::specs &e1 = entities.at(idjoint.id1),
+                                       &e2 = entities.at(idjoint.id2);
+            col.a = 120;
+            draw_fun((e1.pos + idjoint.joint.anchor1 + offset) * WORLD_TO_PIXEL,
+                     (e2.pos + idjoint.joint.anchor2 + offset) * WORLD_TO_PIXEL, col);
         }
     }
 
     void copy_paste::preview()
     {
         demo_app &papp = demo_app::get();
-
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         for (const auto &[id, specs] : m_copy.entities)
         {
@@ -122,30 +145,10 @@ namespace ppx_demo
                 papp.draw(shape);
             }
         }
-
-        for (const auto &spt : m_copy.springs)
-        {
-            const ppx::entity2D::specs &e1 = m_copy.entities.at(spt.id1),
-                                       &e2 = m_copy.entities.at(spt.id2);
-
-            sf::Color col = papp.springs_color();
-            col.a = 120;
-
-            papp.draw_spring((e1.pos + spt.joint.anchor1 + offset) * WORLD_TO_PIXEL,
-                             (e2.pos + spt.joint.anchor2 + offset) * WORLD_TO_PIXEL,
-                             col);
-        }
-        for (const auto &rbt : m_copy.rbars)
-        {
-            const ppx::entity2D::specs &e1 = m_copy.entities.at(rbt.id1),
-                                       &e2 = m_copy.entities.at(rbt.id2);
-
-            sf::Color col = papp.rigid_bars_color();
-            col.a = 120;
-            papp.draw_rigid_bar((e1.pos + rbt.joint.anchor1 + offset) * WORLD_TO_PIXEL,
-                                (e2.pos + rbt.joint.anchor2 + offset) * WORLD_TO_PIXEL,
-                                col);
-        }
+        preview_joints(m_copy.entities, m_copy.springs, papp.springs_color(), m_copy.ref_pos, [&papp](const glm::vec2 &p1, const glm::vec2 &p2, const sf::Color &c)
+                       { papp.draw_spring(p1, p2, c); });
+        preview_joints(m_copy.entities, m_copy.rbars, papp.rigid_bars_color(), m_copy.ref_pos, [&papp](const glm::vec2 &p1, const glm::vec2 &p2, const sf::Color &c)
+                       { papp.draw_rigid_bar(p1, p2, c); });
     }
 
     void copy_paste::delete_copy()

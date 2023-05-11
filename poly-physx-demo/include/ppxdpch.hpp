@@ -21,6 +21,7 @@
 #include <string>
 #include <limits>
 #include <yaml-cpp/yaml.h>
+#include <functional>
 #include "ppx-app/pch.hpp"
 
 #endif
