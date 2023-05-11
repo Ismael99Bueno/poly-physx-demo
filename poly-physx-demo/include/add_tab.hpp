@@ -1,7 +1,6 @@
 #ifndef ADD_TAB_HPP
 #define ADD_TAB_HPP
 
-#include "templates.hpp"
 #include "adder.hpp"
 
 namespace ppx_demo

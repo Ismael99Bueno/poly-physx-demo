@@ -36,18 +36,6 @@ namespace ppx_demo
         m_has_copy = true;
     }
 
-    static auto by_id(const std::vector<entity_template> &vec, const ppx::uuid id)
-    {
-        for (auto it = vec.begin(); it != vec.end(); ++it)
-            if (it->id == id)
-                return it;
-        return vec.end();
-    }
-    static bool contains_id(const std::vector<entity_template> &vec, const ppx::uuid id)
-    {
-        return by_id(vec, id) != vec.end();
-    }
-
     void copy_paste::copy(group &g)
     {
         demo_app &papp = demo_app::get();
@@ -58,24 +46,26 @@ namespace ppx_demo
 
         for (const auto &e : slct.entities())
         {
-            g.entities.push_back(entity_template::from_entity(*e));
+            g.entities[e.id()] = ppx::entity2D::specs::from_entity(*e);
             g.ref_pos += e->pos();
         }
         g.ref_pos /= slct.entities().size();
 
         for (const ppx::spring2D &sp : papp.engine().springs())
-            if (contains_id(g.entities, sp.e1().id()) &&
-                contains_id(g.entities, sp.e2().id()))
-                g.springs.push_back(spring_template::from_spring(sp));
+            if (g.entities.find(sp.e1().id()) != g.entities.end() &&
+                g.entities.find(sp.e2().id()) != g.entities.end())
+                g.springs.emplace_back(ppx::spring2D::specs::from_spring(sp),
+                                       sp.e1().id(), sp.e2().id());
 
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)
                 continue;
-            if (contains_id(g.entities, rb->e1().id()) &&
-                contains_id(g.entities, rb->e2().id()))
-                g.rbars.push_back(rigid_bar_template::from_bar(*rb));
+            if (g.entities.find(rb->e1().id()) != g.entities.end() &&
+                g.entities.find(rb->e2().id()) != g.entities.end())
+                g.rbars.emplace_back(ppx::rigid_bar2D::specs::from_rigid_bar(*rb),
+                                     rb->e1().id(), rb->e2().id());
         }
     }
 
@@ -85,37 +75,26 @@ namespace ppx_demo
 
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
         std::unordered_map<ppx::uuid, ppx::entity2D_ptr> added_entities;
-        for (const entity_template &tmpl : m_copy.entities)
-            if (const auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
-                added_entities[tmpl.id] = papp.engine().add_entity(poly->locals(), tmpl.pos + offset,
-                                                                   glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                                   tmpl.charge, tmpl.kinematic);
-            else
-                added_entities[tmpl.id] = papp.engine().add_entity(std::get<geo::circle>(tmpl.shape).radius(),
-                                                                   tmpl.pos + offset,
-                                                                   glm::vec2(0.f), 0.f, 0.f, tmpl.mass,
-                                                                   tmpl.charge, tmpl.kinematic);
-
-        for (spring_template &spt : m_copy.springs)
+        for (auto [id, specs] : m_copy.entities)
         {
-            const ppx::entity2D_ptr &e1 = added_entities.at(spt.id1),
-                                    &e2 = added_entities.at(spt.id2);
-
-            if (spt.has_anchors)
-                papp.engine().add_spring(e1, e2, spt.anchor1, spt.anchor2, spt.stiffness, spt.dampening, spt.length);
-            else
-                papp.engine().add_spring(e1, e2, spt.stiffness, spt.dampening, spt.length);
+            specs.pos += offset;
+            specs.vel = glm::vec2(0.f);
+            specs.angpos = 0.f;
+            specs.angvel = 0.f;
+            added_entities[id] = papp.engine().add_entity(specs);
         }
-        for (rigid_bar_template &rbt : m_copy.rbars)
-        {
-            const ppx::entity2D_ptr &e1 = added_entities[rbt.id1],
-                                    &e2 = added_entities[rbt.id2];
 
-            // rb->length(rbt.length); // Not sure if its worth it. Length gets automatically calculated as the distance between both entities
-            if (!rbt.has_anchors)
-                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.stiffness, rbt.dampening);
-            else
-                papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(e1, e2, rbt.anchor1, rbt.anchor2, rbt.stiffness, rbt.dampening);
+        for (auto &spt : m_copy.springs)
+        {
+            spt.joint.e1 = added_entities.at(spt.id1);
+            spt.joint.e2 = added_entities.at(spt.id2);
+            papp.engine().add_spring(spt.joint);
+        }
+        for (auto &rbt : m_copy.rbars)
+        {
+            rbt.joint.e1 = added_entities.at(rbt.id1);
+            rbt.joint.e2 = added_entities.at(rbt.id2);
+            papp.engine().compeller().add_constraint<ppx::rigid_bar2D>(rbt.joint);
         }
     }
 
@@ -124,48 +103,47 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         const glm::vec2 offset = papp.world_mouse() - m_copy.ref_pos;
-        for (entity_template &tmpl : m_copy.entities)
+        for (const auto &[id, specs] : m_copy.entities)
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
-            if (auto *poly = std::get_if<geo::polygon>(&tmpl.shape))
+            if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&specs.shape))
             {
-                poly->centroid(tmpl.pos + offset);
-                sf::ConvexShape shape = papp.convex_shape_from(*poly);
+                const geo::polygon poly(specs.pos + offset, *vertices);
+                sf::ConvexShape shape = papp.convex_shape_from(poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }
             else
             {
-                geo::circle &c = std::get<geo::circle>(tmpl.shape);
-                c.centroid(tmpl.pos + offset);
+                const geo::circle c(specs.pos + offset, std::get<float>(specs.shape));
                 sf::CircleShape shape = papp.circle_shape_from(c);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }
         }
 
-        for (const spring_template &spt : m_copy.springs)
+        for (const auto &spt : m_copy.springs)
         {
-            const entity_template &e1 = *by_id(m_copy.entities, spt.id1),
-                                  &e2 = *by_id(m_copy.entities, spt.id2);
+            const ppx::entity2D::specs &e1 = m_copy.entities.at(spt.id1),
+                                       &e2 = m_copy.entities.at(spt.id2);
 
             sf::Color col = papp.springs_color();
             col.a = 120;
 
-            papp.draw_spring((e1.pos + spt.anchor1 + offset) * WORLD_TO_PIXEL,
-                             (e2.pos + spt.anchor2 + offset) * WORLD_TO_PIXEL,
+            papp.draw_spring((e1.pos + spt.joint.anchor1 + offset) * WORLD_TO_PIXEL,
+                             (e2.pos + spt.joint.anchor2 + offset) * WORLD_TO_PIXEL,
                              col);
         }
-        for (const rigid_bar_template &rbt : m_copy.rbars)
+        for (const auto &rbt : m_copy.rbars)
         {
-            const entity_template &e1 = *by_id(m_copy.entities, rbt.id1),
-                                  &e2 = *by_id(m_copy.entities, rbt.id2);
+            const ppx::entity2D::specs &e1 = m_copy.entities.at(rbt.id1),
+                                       &e2 = m_copy.entities.at(rbt.id2);
 
             sf::Color col = papp.rigid_bars_color();
             col.a = 120;
-            papp.draw_rigid_bar((e1.pos + rbt.anchor1 + offset) * WORLD_TO_PIXEL,
-                                (e2.pos + rbt.anchor2 + offset) * WORLD_TO_PIXEL,
+            papp.draw_rigid_bar((e1.pos + rbt.joint.anchor1 + offset) * WORLD_TO_PIXEL,
+                                (e2.pos + rbt.joint.anchor2 + offset) * WORLD_TO_PIXEL,
                                 col);
         }
     }
@@ -190,14 +168,78 @@ namespace ppx_demo
         return out;
     }
 
+    template <typename T>
+    static void emit_idjoint(YAML::Emitter &out, const T &idjoint)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "ID1" << YAML::Value << (std::uint64_t)idjoint.id1;
+        out << YAML::Key << "ID2" << YAML::Value << (std::uint64_t)idjoint.id2;
+        if (idjoint.joint.has_anchors)
+        {
+            out << YAML::Key << "Anchor1" << YAML::Value << idjoint.joint.anchor1;
+            out << YAML::Key << "Anchor2" << YAML::Value << idjoint.joint.anchor2;
+        }
+        out << YAML::Key << "Length" << YAML::Value << idjoint.joint.length;
+        out << YAML::Key << "Stiffness" << YAML::Value << idjoint.joint.stiffness;
+        out << YAML::Key << "Dampening" << YAML::Value << idjoint.joint.dampening;
+        out << YAML::EndMap;
+    }
+
+    template <typename T>
+    YAML::Node encode(const T &idjoint)
+    {
+        YAML::Node node;
+        node["ID1"] = (std::uint64_t)idjoint.id1;
+        node["ID2"] = (std::uint64_t)idjoint.id2;
+        if (idjoint.joint.has_anchors)
+        {
+            node["Anchor1"] = idjoint.joint.anchor1;
+            node["Anchor2"] = idjoint.joint.anchor2;
+        }
+        node["Length"] = idjoint.joint.length;
+        node["Stiffness"] = idjoint.joint.stiffness;
+        node["Dampening"] = idjoint.joint.dampening;
+        return node;
+    }
+
+    template <typename T>
+    T decode(const YAML::Node &node)
+    {
+        T idjoint;
+        idjoint.id1 = node["ID1"].as<std::uint64_t>();
+        idjoint.id2 = node["ID2"].as<std::uint64_t>();
+        if (node["Anchor1"])
+        {
+            idjoint.joint.has_anchors = true;
+            idjoint.joint.anchor1 = node["Anchor1"].as<glm::vec2>();
+            idjoint.joint.anchor2 = node["Anchor2"].as<glm::vec2>();
+        }
+        idjoint.joint.has_anchors = false;
+        idjoint.joint.length = node["Length"].as<float>();
+        idjoint.joint.stiffness = node["Stiffness"].as<float>();
+        idjoint.joint.dampening = node["Dampening"].as<float>();
+        return idjoint;
+    }
+
     YAML::Emitter &operator<<(YAML::Emitter &out, const copy_paste::group &g)
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << g.name;
         out << YAML::Key << "Reference" << YAML::Value << g.ref_pos;
-        out << YAML::Key << "Entities" << YAML::Value << g.entities;
-        out << YAML::Key << "Springs" << YAML::Value << g.springs;
-        out << YAML::Key << "Rigid bars" << YAML::Value << g.rbars;
+        out << YAML::Key << "Entities" << YAML::Value << YAML::BeginMap;
+        for (const auto &[id, specs] : g.entities)
+            out << YAML::Key << id << YAML::Value << ppx::entity2D(specs);
+        out << YAML::EndMap;
+
+        out << YAML::Key << "Springs" << YAML::Value << YAML::BeginSeq;
+        for (const auto &spt : g.springs)
+            emit_idjoint(out, spt);
+        out << YAML::EndSeq;
+
+        out << YAML::Key << "Rigid bars" << YAML::Value << YAML::BeginSeq;
+        for (const auto &rbt : g.rbars)
+            emit_idjoint(out, rbt);
+        out << YAML::EndSeq;
         out << YAML::EndMap;
         return out;
     }
@@ -231,9 +273,12 @@ namespace YAML
         Node node;
         node["Name"] = g.name;
         node["Reference"] = g.ref_pos;
-        node["Entities"] = g.entities;
-        node["Springs"] = g.springs;
-        node["Rigid bars"] = g.rbars;
+        for (const auto &[id, specs] : g.entities)
+            node["Entities"][(std::uint64_t)id] = ppx::entity2D(specs);
+        for (const auto &spt : g.springs)
+            node["Springs"].push_back(ppx_demo::encode(spt));
+        for (const auto &rbt : g.rbars)
+            node["Rigid bars"].push_back(ppx_demo::encode(rbt));
         return node;
     }
     bool convert<ppx_demo::copy_paste::group>::decode(const Node &node, ppx_demo::copy_paste::group &g)
@@ -247,13 +292,13 @@ namespace YAML
 
         g.name = node["Name"].as<std::string>();
         g.ref_pos = node["Reference"].as<glm::vec2>();
-        for (const Node &n : node["Entities"])
-            g.entities.push_back(n.as<ppx_demo::entity_template>());
+        for (auto it = node["Entities"].begin(); it != node["Entities"].end(); ++it)
+            g.entities[it->first.as<std::uint64_t>()] = ppx::entity2D::specs::from_entity(it->second.as<ppx::entity2D>());
 
         for (const Node &n : node["Springs"])
-            g.springs.push_back(n.as<ppx_demo::spring_template>());
+            g.springs.push_back(ppx_demo::decode<ppx_demo::copy_paste::group::idsp>(n));
         for (const Node &n : node["Rigid bars"])
-            g.rbars.push_back(n.as<ppx_demo::rigid_bar_template>());
+            g.rbars.push_back(ppx_demo::decode<ppx_demo::copy_paste::group::idrb>(n));
         return true;
     }
 

@@ -31,7 +31,7 @@ namespace ppx_demo
 
     void adder::add()
     {
-        if (p_current_templ.soft_body && p_current_templ.shape == CUSTOM)
+        if (p_add_specs.soft_body && p_add_specs.shape == CUSTOM)
             add_soft_body();
         else
             add_entity();
@@ -42,30 +42,26 @@ namespace ppx_demo
             return nullptr;
         m_adding = !definitive;
 
+        ppx::entity2D::specs specs = p_add_specs.entity_spec;
         const glm::vec2 vel = vel_upon_addition();
-        const entity_template &entity_templ = p_current_templ.entity_templ;
-        if (const auto *poly = std::get_if<geo::polygon>(&entity_templ.shape))
-            return demo_app::get().engine().add_entity(poly->locals(), m_start_pos,
-                                                       entity_templ.kinematic ? vel : glm::vec2(0.f),
-                                                       atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                       entity_templ.charge, entity_templ.kinematic);
-        return demo_app::get().engine().add_entity(std::get<geo::circle>(entity_templ.shape).radius(), m_start_pos,
-                                                   entity_templ.kinematic ? vel : glm::vec2(0.f),
-                                                   atan2f(vel.y, vel.x), 0.f, entity_templ.mass,
-                                                   entity_templ.charge, entity_templ.kinematic);
+        specs.pos = m_start_pos;
+        specs.vel = specs.kinematic ? vel : glm::vec2(0.f);
+        specs.angvel = 0.f;
+        specs.angpos = atan2f(vel.y, vel.x);
+        return demo_app::get().engine().add_entity(specs);
     }
 
     void adder::add_soft_body()
     {
         m_adding = false;
         demo_app &papp = demo_app::get();
-        geo::polygon poly = std::get<geo::polygon>(p_current_templ.entity_templ.shape);
+        const auto &vertices = std::get<std::vector<glm::vec2>>(p_add_specs.entity_spec.shape);
 
         const glm::vec2 vel = vel_upon_addition();
-        poly.rotate(atan2f(vel.y, vel.x));
+        const geo::polygon poly({0.f, 0.f}, atan2f(vel.y, vel.x), vertices);
 
-        const entity_template &entity_templ = p_current_templ.entity_templ;
-        const std::size_t per_iter = p_current_templ.entities_between_vertices + 1,
+        const ppx::entity2D::specs &gen_specs = p_add_specs.entity_spec;
+        const std::size_t per_iter = p_add_specs.entities_between_vertices + 1,
                           entity_count = poly.size() * per_iter;
 
         std::vector<ppx::entity2D_ptr> added;
@@ -76,13 +72,11 @@ namespace ppx_demo
             {
                 const float factor = (float)j / (float)per_iter;
                 const glm::vec2 pos = poly.globals(i) + dir * factor;
-                const auto e = papp.engine().add_entity(p_current_templ.sb_radius, m_start_pos + pos,
-                                                        entity_templ.kinematic ? vel : glm::vec2(0.f),
-                                                        0.f, 0.f,
-                                                        entity_templ.mass / entity_count,
-                                                        entity_templ.charge / entity_count,
-                                                        entity_templ.kinematic);
-                added.push_back(e);
+
+                ppx::entity2D::specs spcs = {m_start_pos + pos, gen_specs.kinematic ? vel : glm::vec2(0.f),
+                                             0.f, 0.f, gen_specs.mass / entity_count, gen_specs.charge / entity_count,
+                                             p_add_specs.sb_radius, gen_specs.kinematic};
+                added.push_back(papp.engine().add_entity(spcs));
             }
         }
         const std::size_t spring_count = entity_count * (entity_count - 1) / 2;
@@ -90,43 +84,43 @@ namespace ppx_demo
             for (std::size_t j = i + 1; j < added.size(); j++)
             {
                 const auto &e1 = added[i], &e2 = added[j];
-                papp.engine().add_spring(e1, e2, p_current_templ.sb_stiffness / spring_count,
-                                         p_current_templ.sb_dampening / spring_count,
+                papp.engine().add_spring(e1, e2, p_add_specs.sb_stiffness / spring_count,
+                                         p_add_specs.sb_dampening / spring_count,
                                          glm::distance(e1->pos(), e2->pos()));
             }
     }
 
     void adder::save_template(const std::string &name)
     {
-        p_current_templ.name = name;
+        p_add_specs.name = name;
         save_template();
     }
     void adder::load_template(const std::string &name)
     {
-        p_current_templ = m_templates.at(name);
-        demo_app::get().entity_color(p_current_templ.color);
+        p_add_specs = m_templates.at(name);
+        demo_app::get().entity_color(p_add_specs.color);
     }
     void adder::erase_template(const std::string &name)
     {
-        if (p_current_templ.name == name)
-            p_current_templ.name.clear();
+        if (p_add_specs.name == name)
+            p_add_specs.name.clear();
         m_templates.erase(name);
     }
 
     void adder::save_template()
     {
-        p_current_templ.color = demo_app::get().entity_color();
-        m_templates[p_current_templ.name] = p_current_templ;
+        p_add_specs.color = demo_app::get().entity_color();
+        m_templates[p_add_specs.name] = p_add_specs;
     }
-    void adder::load_template() { load_template(p_current_templ.name); }
-    void adder::erase_template() { erase_template(p_current_templ.name); }
+    void adder::load_template() { load_template(p_add_specs.name); }
+    void adder::erase_template() { erase_template(p_add_specs.name); }
 
-    const std::map<std::string, adder::add_template> &adder::templates() const
+    const std::map<std::string, adder::add_specs> &adder::templates() const
     {
         return m_templates;
     }
 
-    bool adder::has_saved_entity() const { return !p_current_templ.name.empty(); }
+    bool adder::has_saved_entity() const { return !p_add_specs.name.empty(); }
 
     glm::vec2 adder::vel_upon_addition() const
     {
@@ -136,26 +130,22 @@ namespace ppx_demo
 
     void adder::update_template_vertices()
     {
-        auto &shape = p_current_templ.entity_templ.shape;
-        switch (p_current_templ.shape)
+        auto &shape = p_add_specs.entity_spec.shape;
+        switch (p_add_specs.shape)
         {
         case RECT:
-            shape = geo::polygon::rect(p_current_templ.width, p_current_templ.height);
-            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
+            shape = geo::polygon::rect(p_add_specs.width, p_add_specs.height);
             break;
         case NGON:
-            shape = geo::polygon::ngon(p_current_templ.ngon_radius, p_current_templ.sides);
-            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
+            shape = geo::polygon::ngon(p_add_specs.ngon_radius, p_add_specs.sides);
             break;
         case CIRCLE:
-            shape = p_current_templ.circle_radius;
-            p_current_templ.entity_templ.type = ppx::entity2D::CIRCLE;
+            shape = p_add_specs.circle_radius;
             break;
         case CUSTOM:
-            if (p_current_templ.entity_templ.type == ppx::entity2D::POLYGON)
+            if (shape.index() == 0)
                 return;
             shape = geo::polygon::box(5.f);
-            p_current_templ.entity_templ.type = ppx::entity2D::POLYGON;
             break;
         default:
             break;
@@ -164,13 +154,13 @@ namespace ppx_demo
 
     void adder::setup_entity_preview()
     {
-        auto &shape = p_current_templ.entity_templ.shape;
+        auto &shape = p_add_specs.entity_spec.shape;
         demo_app &papp = demo_app::get();
 
-        if (const auto *poly = std::get_if<geo::polygon>(&shape))
-            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from(*poly));
+        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape))
+            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(*vertices)));
         else
-            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from(std::get<geo::circle>(shape)));
+            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from(geo::circle(std::get<float>(shape))));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview->setFillColor(color);
@@ -228,17 +218,17 @@ namespace ppx_demo
     YAML::Emitter &operator<<(YAML::Emitter &out, const adder &addr)
     {
         out << YAML::BeginMap;
-        out << YAML::Key << "Current template" << YAML::Value << addr.p_current_templ;
+        out << YAML::Key << "Current template" << YAML::Value << addr.p_add_specs;
         out << YAML::Key << "Templates" << YAML::Value << addr.m_templates;
         out << YAML::EndMap;
         return out;
     }
 
-    YAML::Emitter &operator<<(YAML::Emitter &out, const adder::add_template &add_tmpl)
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder::add_specs &add_tmpl)
     {
         out << YAML::BeginMap;
         out << YAML::Key << "Name" << YAML::Value << add_tmpl.name;
-        out << YAML::Key << "Entity template" << YAML::Value << add_tmpl.entity_templ;
+        out << YAML::Key << "Entity specs" << YAML::Value << ppx::entity2D(add_tmpl.entity_spec);
         out << YAML::Key << "Shape type" << YAML::Value << (int)add_tmpl.shape;
         out << YAML::Key << "Width" << YAML::Value << add_tmpl.width;
         out << YAML::Key << "Height" << YAML::Value << add_tmpl.height;
@@ -265,7 +255,7 @@ namespace YAML
     Node convert<ppx_demo::adder>::encode(const ppx_demo::adder &addr)
     {
         Node node;
-        node["Current template"] = addr.p_current_templ;
+        node["Current template"] = addr.p_add_specs;
         node["Templates"] = addr.m_templates;
         return node;
     }
@@ -273,19 +263,19 @@ namespace YAML
     {
         if (!node.IsMap() || node.size() != 2)
             return false;
-        addr.p_current_templ = node["Current template"].as<ppx_demo::adder::add_template>();
+        addr.p_add_specs = node["Current template"].as<ppx_demo::adder::add_specs>();
         const Node &templates = node["Templates"];
         for (auto it = templates.begin(); it != templates.end(); ++it)
             if (addr.m_templates.find(it->first.as<std::string>()) == addr.m_templates.end())
-                addr.m_templates[it->first.as<std::string>()] = it->second.as<ppx_demo::adder::add_template>();
+                addr.m_templates[it->first.as<std::string>()] = it->second.as<ppx_demo::adder::add_specs>();
         return true;
     }
 
-    Node convert<ppx_demo::adder::add_template>::encode(const ppx_demo::adder::add_template &add_tmpl)
+    Node convert<ppx_demo::adder::add_specs>::encode(const ppx_demo::adder::add_specs &add_tmpl)
     {
         Node node;
         node["Name"] = add_tmpl.name;
-        node["Entity template"] = add_tmpl.entity_templ;
+        node["Entity specs"] = ppx::entity2D(add_tmpl.entity_spec);
         node["Shape type"] = (int)add_tmpl.shape;
         node["Width"] = add_tmpl.width;
         node["Height"] = add_tmpl.height;
@@ -301,12 +291,12 @@ namespace YAML
         node["Soft body"]["Entities between vertices"] = add_tmpl.entities_between_vertices;
         return node;
     }
-    bool convert<ppx_demo::adder::add_template>::decode(const Node &node, ppx_demo::adder::add_template &add_tmpl)
+    bool convert<ppx_demo::adder::add_specs>::decode(const Node &node, ppx_demo::adder::add_specs &add_tmpl)
     {
         if (!node.IsMap() || node.size() != 10)
             return false;
         add_tmpl.name = node["Name"].as<std::string>();
-        add_tmpl.entity_templ = node["Entity template"].as<ppx_demo::entity_template>();
+        add_tmpl.entity_spec = ppx::entity2D::specs::from_entity(node["Entity specs"].as<ppx::entity2D>());
         add_tmpl.shape = (ppx_demo::adder::shape_type)node["Shape type"].as<int>();
         add_tmpl.width = node["Width"].as<float>();
         add_tmpl.height = node["Height"].as<float>();

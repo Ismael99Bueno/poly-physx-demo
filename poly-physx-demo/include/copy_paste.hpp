@@ -1,7 +1,6 @@
 #ifndef COPY_PASTE_HPP
 #define COPY_PASTE_HPP
 
-#include "templates.hpp"
 #include "selector.hpp"
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
@@ -25,11 +24,21 @@ namespace ppx_demo
     private:
         struct group
         {
+            template <typename T>
+            struct idjoint
+            {
+                idjoint() = default;
+                idjoint(const T &j, ppx::uuid i1, ppx::uuid i2) : id1(i1), id2(i2), joint(j) {}
+                ppx::uuid id1, id2;
+                T joint;
+            };
+            using idsp = idjoint<ppx::spring2D::specs>;
+            using idrb = idjoint<ppx::rigid_bar2D::specs>;
             std::string name;
             glm::vec2 ref_pos{0.f};
-            std::vector<entity_template> entities;
-            std::vector<spring_template> springs;
-            std::vector<rigid_bar_template> rbars;
+            std::unordered_map<ppx::uuid, ppx::entity2D::specs> entities;
+            std::vector<idsp> springs;
+            std::vector<idrb> rbars;
         };
 
     public:
