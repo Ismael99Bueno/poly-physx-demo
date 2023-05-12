@@ -35,7 +35,7 @@ includedirs {
    "%{wks.location}/poly-physx-app/include",
    "%{wks.location}/shapes-2D/include",
    "%{wks.location}/rk-integrator/include",
-   "%{wks.location}/debug-tools/include",
+   "%{wks.location}/debug-log-tools/include",
    "%{wks.location}/profile-tools/include",
    "%{wks.location}/container-view/include",
    "%{wks.location}/sfml-primitives/include",
