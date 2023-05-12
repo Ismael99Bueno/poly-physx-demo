@@ -237,7 +237,6 @@ namespace ppx_demo
             e.vel(glm::vec2(vel[0], vel[1]));
             e.dispatch();
         }
-        ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
         if (ImGui::DragFloat("Angular position", &angpos, 0.05f))
         {
             e.angpos(angpos);
@@ -248,7 +247,6 @@ namespace ppx_demo
             e.angvel(angvel);
             e.dispatch();
         }
-        ImGui::Text("Torque - %f", e.torque());
         if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, FLT_MAX))
             e.mass(mass);
         if (ImGui::DragFloat("Charge", &charge, 0.2f, -FLT_MAX, FLT_MAX))
