@@ -1,7 +1,7 @@
 #include "ppxdpch.hpp"
 #include "outline_manager.hpp"
 #include "ppx/entity2D_ptr.hpp"
-#include "debug/debug.hpp"
+#include "dbg/log.hpp"
 #include "demo_app.hpp"
 
 namespace ppx_demo
