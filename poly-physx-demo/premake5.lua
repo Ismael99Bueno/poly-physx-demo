@@ -44,7 +44,8 @@ includedirs {
    "%{wks.location}/vendor/imgui-sfml/include",
    "%{wks.location}/vendor/implot/include",
    "%{wks.location}/vendor/yaml-cpp/include",
-   "%{wks.location}/vendor/SFML/include"
+   "%{wks.location}/vendor/SFML/include",
+   "%{wks.location}/vendor/spdlog/include"
 }
 
 links {
