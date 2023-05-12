@@ -40,3 +40,6 @@
 [submodule "debug-log-tools"]
 	path = debug-log-tools
 	url = https://github.com/ismawno/debug-log-tools.git
+[submodule "spdlog"]
+	path = vendor/spdlog
+	url = https://github.com/gabime/spdlog.git
