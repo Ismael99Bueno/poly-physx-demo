@@ -91,12 +91,12 @@ namespace ppx_demo
 
     void demo_app::write_save() const
     {
-        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to save.\n")
+        DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to save.")
         write_save(m_session);
     }
     bool demo_app::read_save()
     {
-        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to load.\n")
+        DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to load.")
         return read_save(m_session);
     }
 

@@ -20,7 +20,7 @@ namespace ppx_demo
     }
     void copy_paste::load_group(const std::string &name)
     {
-        DBG_ASSERT(m_groups.find(name) != m_groups.end(), "Group not found when loading %s!\n", name.c_str())
+        DBG_ASSERT_ERROR(m_groups.find(name) != m_groups.end(), "Group not found when loading %s!", name.c_str())
         m_copy = m_groups.at(name);
         m_has_copy = true;
     }
@@ -47,7 +47,7 @@ namespace ppx_demo
     {
         demo_app &papp = demo_app::get();
         const selector &slct = papp.p_selector;
-        DBG_ASSERT(!slct.entities().empty(), "Must have something selected to copy!\n")
+        DBG_ASSERT_ERROR(!slct.entities().empty(), "Must have something selected to copy!")
 
         g.ref_pos = glm::vec2(0.f);
 
