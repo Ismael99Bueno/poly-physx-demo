@@ -11,6 +11,7 @@ defines {
    "HAS_GLM",
    "HAS_YAML_CPP",
    "HAS_IMPLOT",
+   "HAS_DEBUG_LOG_TOOLS",
    "YAML_CPP_STATIC_DEFINE"
 }
 
