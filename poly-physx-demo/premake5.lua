@@ -39,6 +39,7 @@ includedirs {
    "%{wks.location}/profile-tools/include",
    "%{wks.location}/container-view/include",
    "%{wks.location}/sfml-primitives/include",
+   "%{wks.location}/allocators/include",
    "%{wks.location}/vendor/glm",
    "%{wks.location}/vendor/imgui/include",
    "%{wks.location}/vendor/imgui-sfml/include",
