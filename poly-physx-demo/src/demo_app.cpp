@@ -204,7 +204,7 @@ namespace ppx_demo
         const sf::Color prev_color = entity_color();
         entity_color(sf::Color(86, 113, 137));
 
-        const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+        const float w = 0.5f * PPX_WIDTH * PPX_PIXEL_TO_WORLD, h = 0.5f * PPX_HEIGHT * PPX_PIXEL_TO_WORLD;
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();

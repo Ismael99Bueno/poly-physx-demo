@@ -67,7 +67,7 @@ namespace ppx_demo
 
     static void draw_rect(const float w, const float h)
     {
-        const glm::vec2 size = glm::vec2(w, h) * WORLD_TO_PIXEL,
+        const glm::vec2 size = glm::vec2(w, h) * PPX_WORLD_TO_PIXEL,
                         pos = glm::vec2(350.f, -30.f) - 0.5f * size;
         ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), demo_app::get().entity_color());
     }
@@ -98,13 +98,13 @@ namespace ppx_demo
         }
         case adder::NGON:
         {
-            const float radius = std::min(m_adder.p_add_specs.ngon_radius, 9.f) * WORLD_TO_PIXEL;
+            const float radius = std::min(m_adder.p_add_specs.ngon_radius, 9.f) * PPX_WORLD_TO_PIXEL;
             draw_ngon(radius, m_adder.p_add_specs.sides);
             break;
         }
         case adder::CIRCLE:
         {
-            const float radius = std::min(m_adder.p_add_specs.circle_radius, 9.f) * WORLD_TO_PIXEL;
+            const float radius = std::min(m_adder.p_add_specs.circle_radius, 9.f) * PPX_WORLD_TO_PIXEL;
             draw_ngon(radius, 30);
             break;
         }
@@ -221,7 +221,7 @@ namespace ppx_demo
         ImGuiIO &io = ImGui::GetIO();
         const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
             pixel_mouse = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
-            world_mouse = pixel_mouse * PIXEL_TO_WORLD;
+            world_mouse = pixel_mouse * PPX_PIXEL_TO_WORLD;
 
         const glm::vec2 towards_poly = poly.closest_direction_from(world_mouse);
         const float max_dist = 5.f;
@@ -265,8 +265,8 @@ namespace ppx_demo
         std::vector<ImVec2> points(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const glm::vec2 p1 = origin + poly.globals(i) * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
-                            p2 = origin + poly.globals(i + 1) * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
+            const glm::vec2 p1 = origin + poly.globals(i) * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim,
+                            p2 = origin + poly.globals(i + 1) * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim;
             const float thickness = 3.f;
             draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
             points[i] = {p1.x, p1.y};
@@ -276,8 +276,8 @@ namespace ppx_demo
             draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
-            const glm::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
-                                                   : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
+            const glm::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * PPX_WORLD_TO_PIXEL) * scale_factor + canvas_hdim
+                                                   : origin + vertices[to_edit] * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim;
             const float radius = 8.f;
             draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }

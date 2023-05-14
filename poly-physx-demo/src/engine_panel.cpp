@@ -256,11 +256,11 @@ namespace ppx_demo
         {
             const glm::vec2 &mm = qt.aabb().min(),
                             &mx = qt.aabb().max();
-            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
-                                      mx * WORLD_TO_PIXEL,
-                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
-                                      mm * WORLD_TO_PIXEL,
-                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL,
+                                      mx * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL,
+                                      mm * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL});
             demo_app::get().draw(fls);
         }
     }
@@ -272,11 +272,11 @@ namespace ppx_demo
             const geo::aabb2D &bb = e.shape().bounding_box();
             const glm::vec2 &mm = bb.min(),
                             &mx = bb.max();
-            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
-                                      mx * WORLD_TO_PIXEL,
-                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
-                                      mm * WORLD_TO_PIXEL,
-                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL,
+                                      mx * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL,
+                                      mm * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL});
             demo_app::get().draw(fls);
         }
     }

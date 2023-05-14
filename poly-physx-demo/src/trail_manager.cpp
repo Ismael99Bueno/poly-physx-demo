@@ -39,7 +39,7 @@ namespace ppx_demo
             if (vertices.unwrap().size() >= p_steps)
                 trail.erase(0, vertices.unwrap().size() - p_steps + 1);
 
-            trail.append(e->pos() * WORLD_TO_PIXEL);
+            trail.append(e->pos() * PPX_WORLD_TO_PIXEL);
             for (std::size_t i = 0; i < vertices.unwrap().size(); i++)
             {
                 const float alpha = (float)i / (float)(p_steps - 1);
@@ -60,7 +60,7 @@ namespace ppx_demo
                 demo_app &papp = demo_app::get();
 
                 const auto &[last_pos, last_color] = trail.vertices().back();
-                prm::thick_line tl(last_pos, e->pos() * WORLD_TO_PIXEL, p_line_thickness, last_color, true);
+                prm::thick_line tl(last_pos, e->pos() * PPX_WORLD_TO_PIXEL, p_line_thickness, last_color, true);
 
                 papp.draw(tl);
                 papp.draw(trail);

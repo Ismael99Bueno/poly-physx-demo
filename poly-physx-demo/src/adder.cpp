@@ -165,7 +165,7 @@ namespace ppx_demo
         color.a = 120;
         m_preview->setFillColor(color);
 
-        const glm::vec2 pos = m_start_pos * WORLD_TO_PIXEL;
+        const glm::vec2 pos = m_start_pos * PPX_WORLD_TO_PIXEL;
         m_preview->setPosition(pos.x, pos.y);
     }
 
@@ -196,8 +196,8 @@ namespace ppx_demo
         const glm::vec2 vel = vel_upon_addition();
 
         const float max_arrow_length = 200.f;
-        const glm::vec2 start = m_start_pos * WORLD_TO_PIXEL,
-                        end = (glm::length(vel) < max_arrow_length ? (m_start_pos + vel) : (m_start_pos + glm::normalize(vel) * max_arrow_length)) * WORLD_TO_PIXEL,
+        const glm::vec2 start = m_start_pos * PPX_WORLD_TO_PIXEL,
+                        end = (glm::length(vel) < max_arrow_length ? (m_start_pos + vel) : (m_start_pos + glm::normalize(vel) * max_arrow_length)) * PPX_WORLD_TO_PIXEL,
                         segment = start - end;
 
         const float antlers_length = 0.2f * glm::length(segment),

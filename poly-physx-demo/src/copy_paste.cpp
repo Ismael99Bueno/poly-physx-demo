@@ -117,8 +117,8 @@ namespace ppx_demo
             const ppx::entity2D::specs &e1 = entities.at(idjoint.id1),
                                        &e2 = entities.at(idjoint.id2);
             col.a = 120;
-            draw_fun((e1.pos + idjoint.joint.anchor1 + offset) * WORLD_TO_PIXEL,
-                     (e2.pos + idjoint.joint.anchor2 + offset) * WORLD_TO_PIXEL, col);
+            draw_fun((e1.pos + idjoint.joint.anchor1 + offset) * PPX_WORLD_TO_PIXEL,
+                     (e2.pos + idjoint.joint.anchor2 + offset) * PPX_WORLD_TO_PIXEL, col);
         }
     }
 

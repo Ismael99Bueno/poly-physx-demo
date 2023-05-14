@@ -26,7 +26,7 @@ namespace ppx_demo
             return;
 
         const glm::vec2 com = center_of_mass();
-        demo_app::get().transform_camera((com - m_prev_com) * WORLD_TO_PIXEL);
+        demo_app::get().transform_camera((com - m_prev_com) * PPX_WORLD_TO_PIXEL);
         m_prev_com = com;
     }
 

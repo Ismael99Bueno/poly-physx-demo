@@ -59,7 +59,7 @@ namespace ppx_demo
 
     void grabber::draw_padded_spring(const glm::vec2 &pmpos, const glm::vec2 &rot_anchor) const
     {
-        prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_anchor) * WORLD_TO_PIXEL, p_color);
+        prm::spring_line sl(pmpos, (m_grabbed->pos() + rot_anchor) * PPX_WORLD_TO_PIXEL, p_color);
         sl.right_padding(30.f);
         sl.left_padding(15.f);
         demo_app::get().draw(sl);

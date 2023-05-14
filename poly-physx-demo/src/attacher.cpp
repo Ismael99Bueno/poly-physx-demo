@@ -95,14 +95,14 @@ namespace ppx_demo
 
         const glm::vec2 mpos = papp.world_mouse();
         const auto e2 = papp.engine()[mpos];
-        const glm::vec2 anchor2 = (snap_e2_to_center && e2) ? (e2->pos() * WORLD_TO_PIXEL) : papp.pixel_mouse();
+        const glm::vec2 anchor2 = (snap_e2_to_center && e2) ? (e2->pos() * PPX_WORLD_TO_PIXEL) : papp.pixel_mouse();
         switch (p_attach)
         {
         case SPRING:
-            papp.draw_spring((m_e1->pos() + m_anchor1) * WORLD_TO_PIXEL, anchor2);
+            papp.draw_spring((m_e1->pos() + m_anchor1) * PPX_WORLD_TO_PIXEL, anchor2);
             break;
         case RIGID_BAR:
-            papp.draw_rigid_bar((m_e1->pos() + m_anchor1) * WORLD_TO_PIXEL, anchor2);
+            papp.draw_rigid_bar((m_e1->pos() + m_anchor1) * PPX_WORLD_TO_PIXEL, anchor2);
             break;
         }
     }

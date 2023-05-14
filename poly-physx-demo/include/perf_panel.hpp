@@ -24,7 +24,7 @@ namespace ppx_demo
         void on_render() override;
 
         time_unit m_unit = MILLISECONDS;
-        int m_fps = DEFAULT_FPS != NO_FPS_LIMIT ? DEFAULT_FPS : 120;
+        int m_fps = PPX_DEFAULT_FPS != PPX_NO_FPS_LIMIT ? PPX_DEFAULT_FPS : 120;
 
         void render_unit_slider();
         void render_smooth_factor();

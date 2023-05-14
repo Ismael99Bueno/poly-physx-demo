@@ -129,8 +129,8 @@ namespace ppx_demo
         const glm::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         sf::Vertex vertices[5];
-        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
-                        p3 = glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
+        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL, p2 = mx * PPX_WORLD_TO_PIXEL,
+                        p3 = glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL, p4 = mm * PPX_WORLD_TO_PIXEL;
         vertices[0].position = {p1.x, p1.y};
         vertices[1].position = {p2.x, p2.y};
         vertices[2].position = {p3.x, p3.y};

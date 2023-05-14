@@ -32,7 +32,7 @@ namespace ppx_demo
             std::uint32_t entities_between_vertices = 0;
 
             std::uint32_t sides = 3;
-            sf::Color color = DEFAULT_ENTITY_COLOR;
+            sf::Color color = PPX_DEFAULT_ENTITY_COLOR;
         };
 
     public:

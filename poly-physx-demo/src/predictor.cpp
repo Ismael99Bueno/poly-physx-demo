@@ -38,7 +38,7 @@ namespace ppx_demo
         for (auto &[e, path] : m_paths)
         {
             path.clear();
-            path.append(e->pos() * WORLD_TO_PIXEL);
+            path.append(e->pos() * PPX_WORLD_TO_PIXEL);
             path.thickness(p_line_thickness);
         }
 
@@ -54,7 +54,7 @@ namespace ppx_demo
             for (auto &[e, path] : m_paths)
             {
                 const float alpha = 1.f - (float)i / (float)(p_steps - 1);
-                path.append(e->pos() * WORLD_TO_PIXEL);
+                path.append(e->pos() * PPX_WORLD_TO_PIXEL);
                 path.alpha(alpha);
             }
         }
@@ -94,7 +94,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         ppx::engine2D &eng = papp.engine();
         prm::thick_line_strip path(papp[e.index()].getFillColor(), p_line_thickness);
-        path.append(e.pos() * WORLD_TO_PIXEL);
+        path.append(e.pos() * PPX_WORLD_TO_PIXEL);
 
         const bool collisions = eng.collider().enabled();
         eng.checkpoint();
@@ -106,7 +106,7 @@ namespace ppx_demo
         {
             eng.raw_forward(p_dt);
             path.alpha(1.f - (float)i / (float)(p_steps - 1));
-            path.append(e.pos() * WORLD_TO_PIXEL);
+            path.append(e.pos() * PPX_WORLD_TO_PIXEL);
         }
         papp.draw(path);
         if (!p_with_collisions)
