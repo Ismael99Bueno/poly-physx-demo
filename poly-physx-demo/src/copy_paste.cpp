@@ -96,7 +96,6 @@ namespace ppx_demo
         {
             specs.pos += offset;
             specs.vel = glm::vec2(0.f);
-            specs.angpos = 0.f;
             specs.angvel = 0.f;
             added_entities[id] = papp.engine().add_entity(specs);
         }
@@ -132,7 +131,7 @@ namespace ppx_demo
             col.a = 120;
             if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&specs.shape))
             {
-                const geo::polygon poly(specs.pos + offset, *vertices);
+                const geo::polygon poly(specs.pos + offset, specs.angpos, *vertices);
                 sf::ConvexShape shape = papp.convex_shape_from(poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
