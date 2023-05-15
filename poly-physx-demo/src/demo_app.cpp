@@ -3,6 +3,7 @@
 #include "globals.hpp"
 #include "prm/flat_line_strip.hpp"
 #include "prm/flat_line.hpp"
+#include <fstream>
 
 namespace ppx_demo
 {
