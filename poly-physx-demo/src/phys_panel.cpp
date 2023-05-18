@@ -240,7 +240,7 @@ namespace ppx_demo
 
     void phys_panel::update_potential_data()
     {
-        const std::array<std::shared_ptr<const ppx::interaction2D>, 4> inters = {m_gravitational,
+        const std::array<ppx::ref<const ppx::interaction2D>, 4> inters = {m_gravitational,
                                                                                  m_repulsive,
                                                                                  m_attractive,
                                                                                  m_exponential};

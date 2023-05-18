@@ -38,7 +38,7 @@ namespace ppx_demo
                 }
             }
         };
-        const auto validate_rb = [this](const std::shared_ptr<ppx::constraint_interface2D> &ctr)
+        const auto validate_rb = [this](const ppx::ref<ppx::constraint_interface2D> &ctr)
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)

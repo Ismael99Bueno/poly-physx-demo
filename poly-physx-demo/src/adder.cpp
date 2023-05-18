@@ -158,9 +158,9 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape))
-            m_preview = std::make_unique<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(*vertices)));
+            m_preview = ppx::make_scope<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(*vertices)));
         else
-            m_preview = std::make_unique<sf::CircleShape>(papp.circle_shape_from(geo::circle(std::get<float>(shape))));
+            m_preview = ppx::make_scope<sf::CircleShape>(papp.circle_shape_from(geo::circle(std::get<float>(shape))));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview->setFillColor(color);

@@ -135,7 +135,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
 
         auto &ctrs = papp.engine().compeller().constraints();
-        std::shared_ptr<ppx::constraint_interface2D> to_remove = nullptr;
+        ppx::ref<ppx::constraint_interface2D> to_remove = nullptr;
 
         if (ImGui::CollapsingHeader("Rigid bars"))
             for (std::size_t i = 0; i < ctrs.size(); i++)
@@ -159,10 +159,10 @@ namespace ppx_demo
         return res;
     }
 
-    static std::vector<std::shared_ptr<ppx::rigid_bar2D>> from_ids(const ppx::uuid id1, const ppx::uuid id2,
-                                                                   const std::vector<std::shared_ptr<ppx::rigid_bar2D>> &vec)
+    static std::vector<ppx::ref<ppx::rigid_bar2D>> from_ids(const ppx::uuid id1, const ppx::uuid id2,
+                                                                   const std::vector<ppx::ref<ppx::rigid_bar2D>> &vec)
     {
-        std::vector<std::shared_ptr<ppx::rigid_bar2D>> res;
+        std::vector<ppx::ref<ppx::rigid_bar2D>> res;
         res.reserve(10);
         for (const auto &rb : vec)
             if (rb->e1().id() == id1 && rb->e2().id() == id2)
@@ -260,7 +260,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         selector &slct = papp.p_selector;
 
-        std::vector<std::shared_ptr<ppx::rigid_bar2D>> selected_rbars, rbars;
+        std::vector<ppx::ref<ppx::rigid_bar2D>> selected_rbars, rbars;
         for (const auto &ctr : papp.engine().compeller().constraints())
             rbars.push_back(std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctr));
 

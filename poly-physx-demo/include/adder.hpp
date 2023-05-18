@@ -64,7 +64,7 @@ namespace ppx_demo
         glm::vec2 m_start_pos{0.f};
         bool m_adding = false;
 
-        std::unique_ptr<sf::Shape> m_preview;
+        ppx::scope<sf::Shape> m_preview;
 
         ppx::entity2D_ptr add_entity(bool definitive = true);
         void add_soft_body();
