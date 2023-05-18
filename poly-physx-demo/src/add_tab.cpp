@@ -190,8 +190,8 @@ namespace ppx_demo
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        const geo::polygon poly(std::get<std::vector<glm::vec2>>(m_adder.p_add_specs.entity_spec.shape));
-        std::vector<glm::vec2> vertices = poly.globals();
+        const geo::polygon poly(std::get<ppx::blk_vector<glm::vec2>>(m_adder.p_add_specs.entity_spec.shape));
+        ppx::blk_vector<glm::vec2> vertices = poly.globals();
 
         const bool is_convex = poly.is_convex();
         if (!is_convex && !m_adder.p_add_specs.soft_body)

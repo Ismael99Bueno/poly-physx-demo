@@ -129,7 +129,7 @@ namespace ppx_demo
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
-            if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&specs.shape))
+            if (const auto *vertices = std::get_if<ppx::blk_vector<glm::vec2>>(&specs.shape))
             {
                 const geo::polygon poly(specs.pos + offset, specs.angpos, *vertices);
                 sf::ConvexShape shape = papp.convex_shape_from(poly);

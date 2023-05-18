@@ -55,7 +55,7 @@ namespace ppx_demo
     {
         m_adding = false;
         demo_app &papp = demo_app::get();
-        const auto &vertices = std::get<std::vector<glm::vec2>>(p_add_specs.entity_spec.shape);
+        const auto &vertices = std::get<ppx::blk_vector<glm::vec2>>(p_add_specs.entity_spec.shape);
 
         const glm::vec2 vel = vel_upon_addition();
         const geo::polygon poly({0.f, 0.f}, atan2f(vel.y, vel.x), vertices);
@@ -157,7 +157,7 @@ namespace ppx_demo
         auto &shape = p_add_specs.entity_spec.shape;
         demo_app &papp = demo_app::get();
 
-        if (const auto *vertices = std::get_if<std::vector<glm::vec2>>(&shape))
+        if (const auto *vertices = std::get_if<ppx::blk_vector<glm::vec2>>(&shape))
             m_preview = ppx::make_scope<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(*vertices)));
         else
             m_preview = ppx::make_scope<sf::CircleShape>(papp.circle_shape_from(geo::circle(std::get<float>(shape))));
