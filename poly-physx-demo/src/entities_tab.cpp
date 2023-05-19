@@ -304,5 +304,12 @@ namespace ppx_demo
             else
                 flwr.unfollow(e);
         }
+
+        if (ImGui::Button("Jump to"))
+        {
+            const auto &v = papp.window().getView();
+            const glm::vec2 center = glm::vec2(v.getCenter().x, v.getCenter().y);
+            papp.transform_camera(e.pos() * PPX_WORLD_TO_PIXEL - center);
+        }
     }
 }

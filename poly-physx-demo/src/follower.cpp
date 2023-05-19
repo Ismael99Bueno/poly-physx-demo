@@ -33,7 +33,10 @@ namespace ppx_demo
     void follower::follow(const ppx::const_entity2D_ptr &e)
     {
         if (!is_following(*e))
+        {
             m_entities.push_back(e);
+            m_prev_com = center_of_mass();
+        }
     }
     void follower::unfollow(const ppx::entity2D &e)
     {
