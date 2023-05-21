@@ -24,7 +24,8 @@ namespace ppx_demo
         bool p_enabled = false, p_auto_include = true;
 
     private:
-        std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_trails;
+        using entt_line_pair = std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>;
+        std::vector<entt_line_pair> m_trails;
 
         friend YAML::Emitter &operator<<(YAML::Emitter &, const trail_manager &);
         friend struct YAML::convert<trail_manager>;

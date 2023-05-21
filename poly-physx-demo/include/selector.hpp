@@ -26,13 +26,14 @@ namespace ppx_demo
 
         void update_selected_springs_rbars();
 
+        using id_pair = std::pair<ppx::uuid, ppx::uuid>;
         const std::unordered_set<ppx::entity2D_ptr> &entities() const;
-        const std::vector<std::pair<ppx::uuid, ppx::uuid>> &spring_pairs() const;
-        const std::vector<std::pair<ppx::uuid, ppx::uuid>> &rbar_pairs() const;
+        const std::vector<id_pair> &spring_pairs() const;
+        const std::vector<id_pair> &rbar_pairs() const;
 
     private:
         std::unordered_set<ppx::entity2D_ptr> m_entities;
-        std::vector<std::pair<ppx::uuid, ppx::uuid>> m_springs, m_rbars;
+        std::vector<id_pair> m_springs, m_rbars;
         glm::vec2 m_mpos_start{0.f};
         bool m_selecting = false;
 

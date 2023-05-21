@@ -82,7 +82,7 @@ namespace ppx_demo
         m_selecting = false;
     }
 
-    static bool contains_pair(const std::vector<std::pair<ppx::uuid, ppx::uuid>> &pairs,
+    static bool contains_pair(const std::vector<selector::id_pair> &pairs,
                               const ppx::uuid id1, const ppx::uuid id2)
     {
         for (const auto &[i1, i2] : pairs)
@@ -140,8 +140,8 @@ namespace ppx_demo
     }
 
     const std::unordered_set<ppx::entity2D_ptr> &selector::entities() const { return m_entities; }
-    const std::vector<std::pair<ppx::uuid, ppx::uuid>> &selector::spring_pairs() const { return m_springs; }
-    const std::vector<std::pair<ppx::uuid, ppx::uuid>> &selector::rbar_pairs() const { return m_rbars; }
+    const std::vector<selector::id_pair> &selector::spring_pairs() const { return m_springs; }
+    const std::vector<selector::id_pair> &selector::rbar_pairs() const { return m_rbars; }
 
     geo::aabb2D selector::select_box() const
     {

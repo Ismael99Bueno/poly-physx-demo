@@ -160,7 +160,7 @@ namespace ppx_demo
     }
 
     static std::vector<ppx::ref<ppx::rigid_bar2D>> from_ids(const ppx::uuid id1, const ppx::uuid id2,
-                                                                   const std::vector<ppx::ref<ppx::rigid_bar2D>> &vec)
+                                                            const std::vector<ppx::ref<ppx::rigid_bar2D>> &vec)
     {
         std::vector<ppx::ref<ppx::rigid_bar2D>> res;
         res.reserve(10);
@@ -172,8 +172,7 @@ namespace ppx_demo
     }
 
     template <typename C, typename S>
-    std::tuple<float, float, float, std::size_t> compute_averages(const std::vector<std::pair<ppx::uuid,
-                                                                                              ppx::uuid>> &pairs,
+    std::tuple<float, float, float, std::size_t> compute_averages(const std::vector<selector::id_pair> &pairs,
                                                                   std::vector<S> &selected, const C &container)
     {
         float avg_stiffness = 0.f, avg_dampening = 0.f, avg_length = 0.f;
