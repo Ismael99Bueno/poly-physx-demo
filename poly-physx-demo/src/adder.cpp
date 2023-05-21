@@ -55,7 +55,7 @@ namespace ppx_demo
     {
         m_adding = false;
         demo_app &papp = demo_app::get();
-        const auto &vertices = std::get<ppx::blk_vector<glm::vec2>>(p_add_specs.entity_spec.shape);
+        const auto &vertices = p_add_specs.entity_spec.vertices;
 
         const glm::vec2 vel = vel_upon_addition();
         const geo::polygon poly({0.f, 0.f}, atan2f(vel.y, vel.x), vertices);
@@ -73,9 +73,7 @@ namespace ppx_demo
                 const float factor = (float)j / (float)per_iter;
                 const glm::vec2 pos = poly.globals(i) + dir * factor;
 
-                ppx::entity2D::specs spcs = {m_start_pos + pos, gen_specs.kinematic ? vel : glm::vec2(0.f),
-                                             0.f, 0.f, gen_specs.mass / entity_count, gen_specs.charge / entity_count,
-                                             p_add_specs.sb_radius, gen_specs.kinematic};
+                ppx::entity2D::specs spcs = {m_start_pos + pos, gen_specs.kinematic ? vel : glm::vec2(0.f), 0.f, 0.f, gen_specs.mass / entity_count, gen_specs.charge / entity_count, {}, p_add_specs.sb_radius, gen_specs.kinematic};
                 added.push_back(papp.engine().add_entity(spcs));
             }
         }
@@ -130,22 +128,26 @@ namespace ppx_demo
 
     void adder::update_template_vertices()
     {
-        auto &shape = p_add_specs.entity_spec.shape;
+        auto &specs = p_add_specs.entity_spec;
         switch (p_add_specs.shape)
         {
         case RECT:
-            shape = geo::polygon::rect(p_add_specs.width, p_add_specs.height);
+            specs.vertices = geo::polygon::rect(p_add_specs.width, p_add_specs.height);
+            specs.shape = ppx::entity2D::POLYGON;
             break;
         case NGON:
-            shape = geo::polygon::ngon(p_add_specs.ngon_radius, p_add_specs.sides);
+            specs.vertices = geo::polygon::ngon(p_add_specs.ngon_radius, p_add_specs.sides);
+            specs.shape = ppx::entity2D::POLYGON;
             break;
         case CIRCLE:
-            shape = p_add_specs.circle_radius;
+            specs.radius = p_add_specs.circle_radius;
+            specs.shape = ppx::entity2D::CIRCLE;
             break;
         case CUSTOM:
-            if (shape.index() == 0)
+            if (specs.shape == ppx::entity2D::POLYGON)
                 return;
-            shape = geo::polygon::box(5.f);
+            specs.vertices = geo::polygon::box(5.f);
+            specs.shape = ppx::entity2D::POLYGON;
             break;
         default:
             break;
@@ -154,13 +156,13 @@ namespace ppx_demo
 
     void adder::setup_entity_preview()
     {
-        auto &shape = p_add_specs.entity_spec.shape;
+        const auto &specs = p_add_specs.entity_spec;
         demo_app &papp = demo_app::get();
 
-        if (const auto *vertices = std::get_if<ppx::blk_vector<glm::vec2>>(&shape))
-            m_preview = ppx::make_scope<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(*vertices)));
+        if (specs.shape == ppx::entity2D::POLYGON)
+            m_preview = ppx::make_scope<sf::ConvexShape>(papp.convex_shape_from(geo::polygon(specs.vertices)));
         else
-            m_preview = ppx::make_scope<sf::CircleShape>(papp.circle_shape_from(geo::circle(std::get<float>(shape))));
+            m_preview = ppx::make_scope<sf::CircleShape>(papp.circle_shape_from(geo::circle(specs.radius)));
         sf::Color color = demo_app::get().entity_color();
         color.a = 120;
         m_preview->setFillColor(color);

@@ -129,16 +129,16 @@ namespace ppx_demo
         {
             sf::Color col = papp.entity_color();
             col.a = 120;
-            if (const auto *vertices = std::get_if<ppx::blk_vector<glm::vec2>>(&specs.shape))
+            if (specs.shape == ppx::entity2D::POLYGON)
             {
-                const geo::polygon poly(specs.pos + offset, specs.angpos, *vertices);
+                const geo::polygon poly(specs.pos + offset, specs.angpos, specs.vertices);
                 sf::ConvexShape shape = papp.convex_shape_from(poly);
                 shape.setFillColor(col);
                 papp.draw(shape);
             }
             else
             {
-                const geo::circle c(specs.pos + offset, std::get<float>(specs.shape));
+                const geo::circle c(specs.pos + offset, specs.radius);
                 sf::CircleShape shape = papp.circle_shape_from(c);
                 shape.setFillColor(col);
                 papp.draw(shape);

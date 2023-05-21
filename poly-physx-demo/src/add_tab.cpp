@@ -190,7 +190,7 @@ namespace ppx_demo
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        const geo::polygon poly(std::get<ppx::blk_vector<glm::vec2>>(m_adder.p_add_specs.entity_spec.shape));
+        const geo::polygon poly(m_adder.p_add_specs.entity_spec.vertices);
         ppx::blk_vector<glm::vec2> vertices = poly.globals();
 
         const bool is_convex = poly.is_convex();
@@ -282,6 +282,6 @@ namespace ppx_demo
             draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
-        m_adder.p_add_specs.entity_spec.shape = vertices;
+        m_adder.p_add_specs.entity_spec.vertices = vertices;
     }
 }
