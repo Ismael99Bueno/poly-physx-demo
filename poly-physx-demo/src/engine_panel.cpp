@@ -177,10 +177,10 @@ namespace ppx_demo
         ppx::collider2D &collider = papp.engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
-        int coldet = collider.coldet();
+        int coldet = collider.detection();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
         {
-            collider.coldet((ppx::collider2D::coldet_method)coldet);
+            collider.detection((ppx::collider2D::detection_method)coldet);
             if (coldet == ppx::collider2D::QUAD_TREE)
                 papp.resize_quad_tree_to_window();
         }
@@ -188,7 +188,7 @@ namespace ppx_demo
         ImGui::Checkbox("Draw bounding boxes", &m_draw_bboxes);
         if (m_draw_bboxes)
             draw_bounding_boxes();
-        if (collider.coldet() == ppx::collider2D::QUAD_TREE)
+        if (collider.detection() == ppx::collider2D::QUAD_TREE)
             render_quad_tree_params();
         else
             m_visualize_qt = false;
