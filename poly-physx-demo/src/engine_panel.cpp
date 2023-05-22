@@ -178,11 +178,7 @@ namespace ppx_demo
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
         int coldet = collider.detection();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
-        {
             collider.detection((ppx::collider2D::detection_method)coldet);
-            if (coldet == ppx::collider2D::QUAD_TREE)
-                papp.resize_quad_tree_to_window();
-        }
 
         ImGui::Checkbox("Draw bounding boxes", &m_draw_bboxes);
         if (m_draw_bboxes)
