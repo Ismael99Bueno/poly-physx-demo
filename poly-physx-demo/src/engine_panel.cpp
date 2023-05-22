@@ -199,16 +199,12 @@ namespace ppx_demo
         ppx::collider2D &collider = demo_app::get().engine().collider();
 
         ImGui::Text("Quad Tree parameters");
+
         if (ImGui::SliderInt("Maximum entities", (int *)&m_max_entities, 2, 20))
-        {
             collider.quad_tree().max_entities(m_max_entities);
-            collider.rebuild_quad_tree();
-        }
         if (ImGui::SliderInt("Maximum depth", (int *)&m_max_depth, 2, 10))
-        {
             ppx::quad_tree2D::max_depth(m_max_depth);
-            collider.rebuild_quad_tree();
-        }
+
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 
