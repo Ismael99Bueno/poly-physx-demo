@@ -13,7 +13,6 @@ namespace ppx_demo
     {
         ppx::collider2D &collider = demo_app::get().engine().collider();
         m_max_entities = collider.quad_tree().max_entities();
-        m_period = collider.quad_tree_build_period();
         m_max_depth = ppx::quad_tree2D::max_depth();
         update_method();
     }
@@ -210,8 +209,6 @@ namespace ppx_demo
             ppx::quad_tree2D::max_depth(m_max_depth);
             collider.rebuild_quad_tree();
         }
-        if (ImGui::SliderInt("Refresh period", (int *)&m_period, 1, 150))
-            collider.quad_tree_build_period(m_period);
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 
