@@ -11,9 +11,6 @@ namespace ppx_demo
 
     void engine_panel::on_start()
     {
-        ppx::collider2D &collider = demo_app::get().engine().collider();
-        m_max_entities = collider.quad_tree().max_entities();
-        m_max_depth = ppx::quad_tree2D::max_depth();
         update_method();
     }
 
@@ -196,10 +193,17 @@ namespace ppx_demo
 
         ImGui::Text("Quad Tree parameters");
 
-        if (ImGui::SliderInt("Maximum entities", (int *)&m_max_entities, 2, 20))
-            collider.quad_tree().max_entities(m_max_entities);
-        if (ImGui::SliderInt("Maximum depth", (int *)&m_max_depth, 2, 10))
-            ppx::quad_tree2D::max_depth(m_max_depth);
+        int max_entities = (int)collider.quad_tree().max_entities();
+        if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
+            collider.quad_tree().max_entities((std::size_t)max_entities);
+
+        int max_depth = (int)ppx::quad_tree2D::max_depth();
+        if (ImGui::SliderInt("Maximum depth", &max_depth, 2, 20))
+            ppx::quad_tree2D::max_depth((std::uint32_t)max_depth);
+
+        float min_size = ppx::quad_tree2D::min_size();
+        if (ImGui::SliderFloat("Minimum size", &min_size, 4.f, 50.f, "%.1f"))
+            ppx::quad_tree2D::min_size(min_size);
 
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
@@ -276,8 +280,6 @@ namespace ppx_demo
         out << YAML::Key << "Method" << YAML::Value << (int)m_method;
         out << YAML::Key << "Visualize quad tree" << YAML::Value << m_visualize_qt;
         out << YAML::Key << "Draw bounding boxes" << YAML::Value << m_draw_bboxes;
-        out << YAML::Key << "Max entities" << YAML::Value << m_max_entities;
-        out << YAML::Key << "Max depth" << YAML::Value << m_max_depth;
     }
     YAML::Node engine_panel::encode() const
     {
@@ -285,8 +287,6 @@ namespace ppx_demo
         node["Method"] = (int)m_method;
         node["Visualize quad tree"] = m_visualize_qt;
         node["Draw bounding boxes"] = m_draw_bboxes;
-        node["Max entities"] = m_max_entities;
-        node["Max depth"] = m_max_depth;
         return node;
     }
     bool engine_panel::decode(const YAML::Node &node)
@@ -296,8 +296,7 @@ namespace ppx_demo
         m_method = (integ_method)node["Method"].as<int>();
         m_visualize_qt = node["Visualize quad tree"].as<bool>();
         m_draw_bboxes = node["Draw bounding boxes"].as<bool>();
-        m_max_entities = node["Max entities"].as<std::size_t>();
-        m_max_depth = node["Max depth"].as<std::uint32_t>();
+        update_method();
         return true;
     }
 }

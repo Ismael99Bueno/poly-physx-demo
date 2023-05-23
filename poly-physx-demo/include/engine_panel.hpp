@@ -29,8 +29,6 @@ namespace ppx_demo
 
         integ_method m_method = RK4;
         bool m_visualize_qt = false, m_draw_bboxes = false;
-        std::size_t m_max_entities = 5;
-        std::uint32_t m_max_depth = 4;
 
         void render_integration();
         void render_sliders();
