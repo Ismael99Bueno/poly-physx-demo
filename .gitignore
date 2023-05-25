@@ -34,3 +34,6 @@ imgui.ini
 profile-results/
 fonts/
 saves/
+
+# Local vulkan installation
+vendor/vulkan-sdk

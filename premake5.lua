@@ -18,17 +18,7 @@ defines {
    "YAML_CPP_STATIC_DEFINE"
 }
 
-function script_path()
-   local str = debug.getinfo(2, "S").source:sub(2)
-   return str:match("(.*/)")
-end
-
-rootpath = script_path()
-
 filter "system:macosx"
-   rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-gmake/lib"
-   linkoptions {rpath}
-
    platforms {
       "arm64",
       "x86_64"
@@ -76,6 +66,7 @@ include "poly-physx"
 include "vendor/imgui"
 include "vendor/imgui-sfml"
 include "vendor/implot"
+include "vendor/glfw"
 include "lynx"
 include "poly-physx-app"
 include "sfml-primitives"
