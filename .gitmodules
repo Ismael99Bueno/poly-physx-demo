@@ -46,3 +46,6 @@
 [submodule "allocators"]
 	path = allocators
 	url = https://github.com/ismawno/allocators.git
+[submodule "lynx"]
+	path = lynx
+	url = https://github.com/ismawno/lynx.git
