@@ -49,3 +49,6 @@
 [submodule "lynx"]
 	path = lynx
 	url = https://github.com/ismawno/lynx.git
+[submodule "glfw"]
+	path = vendor/glfw
+	url = https://github.com/ismawno/glfw.git
