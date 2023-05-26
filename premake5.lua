@@ -18,6 +18,13 @@ defines {
    "YAML_CPP_STATIC_DEFINE"
 }
 
+function script_path()
+   local str = debug.getinfo(2, "S").source:sub(2)
+   return str:match("(.*/)")
+end
+
+rootpath = script_path()
+
 filter "system:macosx"
    platforms {
       "arm64",

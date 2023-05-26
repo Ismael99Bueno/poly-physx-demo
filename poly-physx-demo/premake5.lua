@@ -2,13 +2,6 @@ project "poly-physx-demo"
 kind "ConsoleApp"
 staticruntime "off"
 
-function script_path()
-   local str = debug.getinfo(2, "S").source:sub(2)
-   return str:match("(.*/)")
-end
-
-rootpath = script_path()
-
 defines {'ROOT_PATH="' .. rootpath .. '"'}
 
 language "C++"
@@ -22,7 +15,7 @@ filter "system:macosx"
       "-Wno-unused-parameter"
    }
 
-   rpath = "-Wl,-rpath,%{wks.location}/vendor/SFML/build-gmake/lib"
+   rpath = "-Wl,-rpath,".. rootpath .."vendor/SFML/build-gmake/lib"
    linkoptions {rpath}
 
 filter "system:windows"

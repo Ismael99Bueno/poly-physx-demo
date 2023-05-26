@@ -73,7 +73,7 @@ namespace ppx_demo
                 const float factor = (float)j / (float)per_iter;
                 const glm::vec2 pos = poly.globals(i) + dir * factor;
 
-                ppx::entity2D::specs spcs = {m_start_pos + pos, gen_specs.kinematic ? vel : glm::vec2(0.f), 0.f, 0.f, gen_specs.mass / entity_count, gen_specs.charge / entity_count, {}, p_add_specs.sb_radius, gen_specs.kinematic};
+                ppx::entity2D::specs spcs = {m_start_pos + pos, gen_specs.kinematic ? vel : glm::vec2(0.f), 0.f, 0.f, gen_specs.mass / entity_count, gen_specs.charge / entity_count, {}, p_add_specs.sb_radius, gen_specs.kinematic, ppx::entity2D::CIRCLE};
                 added.push_back(papp.engine().add_entity(spcs));
             }
         }
