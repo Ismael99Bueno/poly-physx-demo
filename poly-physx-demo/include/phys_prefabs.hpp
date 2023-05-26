@@ -6,82 +6,82 @@
 
 namespace ppx_demo
 {
-    class toggleable
-    {
-    public:
-        virtual ~toggleable() = default;
-        bool p_enabled = false;
-    };
+class toggleable
+{
+  public:
+    virtual ~toggleable() = default;
+    bool p_enabled = false;
+};
 
-    class gravity : public ppx::force2D, public toggleable
-    {
-    public:
-        using ppx::force2D::force2D;
-        std::pair<glm::vec2, float> force(const ppx::entity2D &e) const override;
-        float potential_energy(const ppx::entity2D &e) const override;
+class gravity : public ppx::force2D, public toggleable
+{
+  public:
+    using ppx::force2D::force2D;
+    std::pair<glm::vec2, float> force(const ppx::entity2D &e) const override;
+    float potential_energy(const ppx::entity2D &e) const override;
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
+    void write(YAML::Emitter &out) const override;
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
-        float p_mag = -35.f;
-    };
+    float p_mag = -35.f;
+};
 
-    class drag : public ppx::force2D, public toggleable
-    {
-    public:
-        using ppx::force2D::force2D;
-        std::pair<glm::vec2, float> force(const ppx::entity2D &e) const override;
+class drag : public ppx::force2D, public toggleable
+{
+  public:
+    using ppx::force2D::force2D;
+    std::pair<glm::vec2, float> force(const ppx::entity2D &e) const override;
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
+    void write(YAML::Emitter &out) const override;
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
-        float p_lin_mag = 5.f, p_ang_mag = 1.f;
-    };
+    float p_lin_mag = 5.f, p_ang_mag = 1.f;
+};
 
-    class gravitational : public ppx::interaction2D, public toggleable
-    {
-    public:
-        using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
-        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+class gravitational : public ppx::interaction2D, public toggleable
+{
+  public:
+    using ppx::interaction2D::interaction2D;
+    std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+    float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
+    void write(YAML::Emitter &out) const override;
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
-        float p_mag = 150.f;
-    };
+    float p_mag = 150.f;
+};
 
-    class electrical : public ppx::interaction2D, public toggleable
-    {
-    public:
-        using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
-        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+class electrical : public ppx::interaction2D, public toggleable
+{
+  public:
+    using ppx::interaction2D::interaction2D;
+    std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+    float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
+    void write(YAML::Emitter &out) const override;
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
-        float p_mag = 200.f;
-        std::uint32_t p_exp = 2;
-    };
+    float p_mag = 200.f;
+    std::uint32_t p_exp = 2;
+};
 
-    class exponential : public ppx::interaction2D, public toggleable
-    {
-    public:
-        using ppx::interaction2D::interaction2D;
-        std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
-        float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+class exponential : public ppx::interaction2D, public toggleable
+{
+  public:
+    using ppx::interaction2D::interaction2D;
+    std::pair<glm::vec2, float> force_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
+    float potential_energy_pair(const ppx::entity2D &e1, const ppx::entity2D &e2) const override;
 
-        void write(YAML::Emitter &out) const override;
-        YAML::Node encode() const override;
-        bool decode(const YAML::Node &node) override;
+    void write(YAML::Emitter &out) const override;
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
-        float p_mag = 20.f, p_exp = 1.f;
-    };
-}
+    float p_mag = 20.f, p_exp = 1.f;
+};
+} // namespace ppx_demo
 
 #endif

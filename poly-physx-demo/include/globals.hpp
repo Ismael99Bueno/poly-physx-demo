@@ -17,16 +17,16 @@
 #define DEFAULT_SAVE "default.yaml"
 #define LAST_SAVE "last.yaml"
 
-#define SUBSTITUTE(buff, from, to)        \
-    for (char *c = buff; *c != '\0'; c++) \
-        if (*c == from)                   \
+#define SUBSTITUTE(buff, from, to)                                                                                     \
+    for (char *c = buff; *c != '\0'; c++)                                                                              \
+        if (*c == from)                                                                                                \
             *c = to;
 
 #include <cstddef>
 
 namespace glob
 {
-    const char *generate_name(std::uint64_t id);
+const char *generate_name(std::uint64_t id);
 }
 
 #endif

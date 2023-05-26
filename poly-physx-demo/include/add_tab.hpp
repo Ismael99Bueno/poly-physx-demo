@@ -5,21 +5,21 @@
 
 namespace ppx_demo
 {
-    class add_tab
-    {
-    public:
-        add_tab(adder &addr);
-        void render() const;
+class add_tab
+{
+  public:
+    add_tab(adder &addr);
+    void render() const;
 
-    private:
-        adder &m_adder;
+  private:
+    adder &m_adder;
 
-        void render_menu_bar() const;
-        void render_shape_list() const;
-        void render_entity_inputs() const;
-        void render_color_picker() const;
-        void render_canvas() const;
-    };
-}
+    void render_menu_bar() const;
+    void render_shape_list() const;
+    void render_entity_inputs() const;
+    void render_color_picker() const;
+    void render_canvas() const;
+};
+} // namespace ppx_demo
 
 #endif

@@ -5,15 +5,15 @@
 
 namespace ppx_demo
 {
-    class grab_tab
-    {
-    public:
-        grab_tab(grabber &grb);
-        void render() const;
+class grab_tab
+{
+  public:
+    grab_tab(grabber &grb);
+    void render() const;
 
-    private:
-        grabber &m_grabber;
-    };
-}
+  private:
+    grabber &m_grabber;
+};
+} // namespace ppx_demo
 
 #endif

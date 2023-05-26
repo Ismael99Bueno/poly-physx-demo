@@ -1,30 +1,30 @@
 #ifndef PCH_HPP
 #define PCH_HPP
 
-#include <SFML/Graphics.hpp>
-#include <unordered_map>
-#include <imgui.h>
-#include <imgui-SFML.h>
 #include "implot.h"
-#include <optional>
-#include <utility>
-#include <unordered_set>
-#include <vector>
-#include <variant>
-#include <glm/gtx/norm.hpp>
-#include <glm/geometric.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+#include <SFML/Graphics.hpp>
 #include <algorithm>
-#include <filesystem>
 #include <cmath>
+#include <filesystem>
+#include <glm/geometric.hpp>
+#include <glm/gtx/norm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <imgui-SFML.h>
+#include <imgui.h>
+#include <limits>
+#include <optional>
 #include <random>
 #include <string>
-#include <limits>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <variant>
+#include <vector>
 #ifdef HAS_YAML_CPP
 #include <yaml-cpp/yaml.h>
 #endif
-#include <functional>
 #include "ppx-app/pch.hpp"
+#include <functional>
 #ifdef HAS_DEBUG_LOG_TOOLS
 #include "dbg/log.hpp"
 #endif
