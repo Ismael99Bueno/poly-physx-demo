@@ -75,6 +75,12 @@ class Buddy:
     def all_yes(self, all_yes: bool) -> None:
         self.__all_yes = all_yes
 
+    def add_to_premake_path(self, path: str) -> None:
+        if "PREMAKE_PATH" in os.environ:
+            os.environ["PREMAKE_PATH"] += f";{path}"
+        else:
+            os.environ["PREMAKE_PATH"] = path
+
     def add_to_path_with_binaries(self, path: str) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
         os.environ["PATH"] += f"{os.pathsep}{path}/bin"

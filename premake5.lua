@@ -1,3 +1,5 @@
+require "export-compile-commands"
+
 workspace "poly-physx-demo"
 configurations {
    "release",
