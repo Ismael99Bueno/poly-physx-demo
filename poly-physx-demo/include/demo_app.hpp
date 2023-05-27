@@ -1,20 +1,20 @@
 #ifndef DEMO_APP_HPP
 #define DEMO_APP_HPP
 
+#include "ppx-app/app.hpp"
+#include "selector.hpp"
 #include "actions_panel.hpp"
-#include "adder.hpp"
-#include "attacher.hpp"
-#include "copy_paste.hpp"
 #include "engine_panel.hpp"
-#include "follower.hpp"
-#include "menu_bar.hpp"
-#include "outline_manager.hpp"
 #include "perf_panel.hpp"
 #include "phys_panel.hpp"
-#include "ppx-app/app.hpp"
+#include "menu_bar.hpp"
+#include "adder.hpp"
+#include "attacher.hpp"
+#include "outline_manager.hpp"
+#include "copy_paste.hpp"
 #include "predictor.hpp"
-#include "selector.hpp"
 #include "trail_manager.hpp"
+#include "follower.hpp"
 
 namespace ppx_demo
 {

@@ -1,8 +1,8 @@
 #ifndef TRAIL_MANAGER_HPP
 #define TRAIL_MANAGER_HPP
 
-#include "ppx/entity2D_ptr.hpp"
 #include "prm/thick_line_strip.hpp"
+#include "ppx/entity2D_ptr.hpp"
 
 namespace ppx_demo
 {

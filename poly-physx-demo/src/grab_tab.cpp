@@ -1,6 +1,6 @@
+#include "ppxdpch.hpp"
 #include "grab_tab.hpp"
 #include "demo_app.hpp"
-#include "ppxdpch.hpp"
 
 namespace ppx_demo
 {

@@ -2,8 +2,8 @@
 #define COPY_PASTE_HPP
 
 #include "selector.hpp"
-#include <SFML/Graphics.hpp>
 #include <unordered_map>
+#include <SFML/Graphics.hpp>
 
 namespace ppx_demo
 {

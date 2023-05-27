@@ -1,7 +1,7 @@
+#include "ppxdpch.hpp"
 #include "entities_tab.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "ppxdpch.hpp"
 
 namespace ppx_demo
 {

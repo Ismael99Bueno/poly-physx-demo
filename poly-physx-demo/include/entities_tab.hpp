@@ -1,9 +1,9 @@
 #ifndef ENTITIES_TAB_HPP
 #define ENTITIES_TAB_HPP
 
-#include "outline_manager.hpp"
 #include "ppx/entity2D.hpp"
 #include "selector.hpp"
+#include "outline_manager.hpp"
 
 namespace ppx_demo
 {

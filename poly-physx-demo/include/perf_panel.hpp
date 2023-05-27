@@ -1,8 +1,8 @@
 #ifndef PERF_PANEL_HPP
 #define PERF_PANEL_HPP
 
-#include "ppx-app/app.hpp"
 #include "ppx-app/layer.hpp"
+#include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo

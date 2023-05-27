@@ -1,9 +1,9 @@
-#include "selector.hpp"
 #include "ppxdpch.hpp"
+#include "selector.hpp"
 
+#include "globals.hpp"
 #include "demo_app.hpp"
 #include "geo/intersection.hpp"
-#include "globals.hpp"
 
 namespace ppx_demo
 {

@@ -1,6 +1,6 @@
+#include "ppxdpch.hpp"
 #include "perf_panel.hpp"
 #include "demo_app.hpp"
-#include "ppxdpch.hpp"
 
 namespace ppx_demo
 {

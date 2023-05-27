@@ -1,12 +1,12 @@
 #ifndef ACTIONS_PANEL_HPP
 #define ACTIONS_PANEL_HPP
 
-#include "add_tab.hpp"
-#include "adder.hpp"
-#include "entities_tab.hpp"
 #include "grab_tab.hpp"
+#include "entities_tab.hpp"
 #include "joints_tab.hpp"
+#include "add_tab.hpp"
 #include "ppx-app/app.hpp"
+#include "adder.hpp"
 
 namespace ppx_demo
 {

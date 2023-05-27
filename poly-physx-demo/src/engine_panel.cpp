@@ -1,9 +1,9 @@
-#include "engine_panel.hpp"
-#include "demo_app.hpp"
-#include "globals.hpp"
 #include "ppxdpch.hpp"
-#include "prm/flat_line_strip.hpp"
+#include "engine_panel.hpp"
 #include "rk/tableaus.hpp"
+#include "globals.hpp"
+#include "prm/flat_line_strip.hpp"
+#include "demo_app.hpp"
 
 namespace ppx_demo
 {

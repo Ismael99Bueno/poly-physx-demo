@@ -1,7 +1,7 @@
-#include "phys_panel.hpp"
-#include "demo_app.hpp"
-#include "globals.hpp"
 #include "ppxdpch.hpp"
+#include "phys_panel.hpp"
+#include "globals.hpp"
+#include "demo_app.hpp"
 
 namespace ppx_demo
 {

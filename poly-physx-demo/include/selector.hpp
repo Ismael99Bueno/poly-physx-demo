@@ -2,8 +2,8 @@
 #define SELECTOR_HPP
 
 #include "ppx/engine2D.hpp"
-#include <SFML/Graphics.hpp>
 #include <unordered_set>
+#include <SFML/Graphics.hpp>
 
 namespace ppx_demo
 {

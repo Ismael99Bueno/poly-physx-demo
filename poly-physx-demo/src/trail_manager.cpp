@@ -1,7 +1,7 @@
-#include "trail_manager.hpp"
-#include "demo_app.hpp"
 #include "ppxdpch.hpp"
+#include "trail_manager.hpp"
 #include "prm/thick_line.hpp"
+#include "demo_app.hpp"
 
 namespace ppx_demo
 {

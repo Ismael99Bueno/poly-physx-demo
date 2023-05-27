@@ -1,8 +1,8 @@
+#include "ppxdpch.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
-#include "ppxdpch.hpp"
-#include "prm/flat_line.hpp"
 #include "prm/flat_line_strip.hpp"
+#include "prm/flat_line.hpp"
 #include <fstream>
 
 namespace ppx_demo

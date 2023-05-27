@@ -1,8 +1,8 @@
 #ifndef ENGINE_PANEL_HPP
 #define ENGINE_PANEL_HPP
 
-#include "ppx-app/layer.hpp"
 #include "ppx/quad_tree2D.hpp"
+#include "ppx-app/layer.hpp"
 
 namespace ppx_demo
 {

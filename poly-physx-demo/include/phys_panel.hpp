@@ -1,10 +1,10 @@
 #ifndef PHYS_PANEL_HPP
 #define PHYS_PANEL_HPP
 
-#include "outline_manager.hpp"
-#include "phys_prefabs.hpp"
 #include "ppx-app/app.hpp"
+#include "phys_prefabs.hpp"
 #include "selector.hpp"
+#include "outline_manager.hpp"
 
 #define PLOT_POINTS 500
 

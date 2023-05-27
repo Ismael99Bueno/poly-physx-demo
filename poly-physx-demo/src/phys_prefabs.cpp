@@ -1,6 +1,6 @@
+#include "ppxdpch.hpp"
 #include "phys_prefabs.hpp"
 #include "demo_app.hpp"
-#include "ppxdpch.hpp"
 
 namespace ppx_demo
 {
