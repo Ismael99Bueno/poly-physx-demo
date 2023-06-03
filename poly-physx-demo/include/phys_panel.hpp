@@ -19,13 +19,11 @@ class phys_panel : public ppx::layer
     void on_attach(ppx::app *papp) override;
     void on_render() override;
 
-    ppx::ref<gravity> m_gravity;
-    ppx::ref<drag> m_drag;
-    ppx::ref<electrical> m_repulsive, m_attractive;
-    ppx::ref<gravitational> m_gravitational;
-    ppx::ref<exponential> m_exponential;
-
-    std::vector<ppx::ref<toggleable>> m_toggleables;
+    gravity *m_gravity = nullptr;
+    drag *m_drag = nullptr;
+    electrical *m_repulsive = nullptr, *m_attractive = nullptr;
+    gravitational *m_gravitational = nullptr;
+    exponential *m_exponential = nullptr;
 
     glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
     std::array<glm::vec2, PLOT_POINTS> m_potential_data;

@@ -25,11 +25,15 @@ void phys_panel::on_attach(ppx::app *papp)
     m_attractive->p_mag = -20.f;
     update_potential_data();
 
-    m_toggleables = {m_gravity, m_drag, m_gravitational, m_repulsive, m_attractive, m_exponential};
-    const auto auto_include = [this](const ppx::entity2D_ptr &e) {
-        for (const auto &toggled : m_toggleables) // I know this is horrible
+    const std::array<toggleable *, 6> toggleables = {m_gravity,   m_drag,       m_gravitational,
+                                                     m_repulsive, m_attractive, m_exponential};
+    const auto auto_include = [toggleables](const ppx::entity2D_ptr &e) {
+        for (auto toggled : toggleables) // I know this is horrible
             if (toggled->p_enabled)
-                std::dynamic_pointer_cast<ppx::behaviour2D>(toggled)->include(e);
+            {
+                ppx::behaviour2D *bhv = dynamic_cast<ppx::behaviour2D *>(toggled);
+                bhv->include(e);
+            }
     };
     eng.events().on_entity_addition += auto_include;
 }
@@ -245,8 +249,8 @@ void phys_panel::render_enabled_checkbox(ppx::behaviour2D &bhv, bool *enabled)
 
 void phys_panel::update_potential_data()
 {
-    const std::array<ppx::ref<const ppx::interaction2D>, 4> inters = {m_gravitational, m_repulsive, m_attractive,
-                                                                      m_exponential};
+    const std::array<const ppx::interaction2D *, 4> inters = {m_gravitational, m_repulsive, m_attractive,
+                                                              m_exponential};
     const float dx = (m_xlim.y - m_xlim.x) / (PLOT_POINTS - 1.f);
     for (std::size_t i = 0; i < PLOT_POINTS; i++)
         m_potential_data[i] = {m_xlim.x + i * dx, 0.f};
@@ -257,7 +261,7 @@ void phys_panel::update_potential_data()
     for (const auto &inter : inters)
     {
         const float refval = inter->potential(unit, refpos);
-        const auto toggled = std::dynamic_pointer_cast<const toggleable>(inter);
+        const auto toggled = (const toggleable *)inter;
 
         if (toggled && toggled->p_enabled)
             for (std::size_t i = 0; i < PLOT_POINTS; i++)

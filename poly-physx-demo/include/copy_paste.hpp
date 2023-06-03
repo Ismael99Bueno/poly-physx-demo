@@ -2,6 +2,7 @@
 #define COPY_PASTE_HPP
 
 #include "selector.hpp"
+#include "ppx/rigid_bar2D.hpp"
 #include <unordered_map>
 #include <SFML/Graphics.hpp>
 
