@@ -15,8 +15,6 @@
 #include "predictor.hpp"
 #include "trail_manager.hpp"
 #include "follower.hpp"
-#include "imgui.h"
-#include "imgui-SFML.h"
 
 namespace ppx_demo
 {
@@ -25,8 +23,8 @@ namespace ppx_demo
     public:
         static demo_app &get();
 
-        void write(const std::string &filepath) const;
-        bool read(const std::string &filepath);
+        void serialize(const std::string &filepath) const;
+        bool deserialize(const std::string &filepath);
 
         void write_save(const std::string &filename) const;
         bool read_save(const std::string &filename);
@@ -52,11 +50,11 @@ namespace ppx_demo
         trail_manager p_trails;
         follower p_follower;
 
-        std::shared_ptr<actions_panel> p_actions_panel;
-        std::shared_ptr<engine_panel> p_engine_panel;
-        std::shared_ptr<perf_panel> p_perf_panel;
-        std::shared_ptr<phys_panel> p_phys_panel;
-        std::shared_ptr<menu_bar> p_menu_bar;
+        ppx::ref<actions_panel> p_actions_panel;
+        ppx::ref<engine_panel> p_engine_panel;
+        ppx::ref<perf_panel> p_perf_panel;
+        ppx::ref<phys_panel> p_phys_panel;
+        ppx::ref<menu_bar> p_menu_bar;
 
     private:
         demo_app();
@@ -69,20 +67,9 @@ namespace ppx_demo
         void on_event(sf::Event &event) override;
         void on_end() override;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         std::string m_session;
         sf::Clock m_clock;
 
-        const std::unordered_map<const char *, ini::serializable *> m_saveables = {
-            {"selector", &p_selector},
-            {"copy_paste", &p_copy_paste},
-            {"predictor", &p_predictor},
-            {"trails", &p_trails},
-            {"follower", &p_follower}};
-
-        void draw_interaction_lines();
         demo_app(const demo_app &papp) = delete;
     };
 }

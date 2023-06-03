@@ -1,8 +1,9 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
 #include "prm/flat_line_strip.hpp"
 #include "prm/flat_line.hpp"
+#include <fstream>
 
 namespace ppx_demo
 {
@@ -33,31 +34,6 @@ namespace ppx_demo
 
     void demo_app::on_end() { write_save(LAST_SAVE); }
 
-    void demo_app::serialize(ini::serializer &out) const
-    {
-        app::serialize(out);
-        out.write("session", m_session);
-
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            out.begin_section(section);
-            serializable->serialize(out);
-            out.end_section();
-        }
-    }
-    void demo_app::deserialize(ini::deserializer &in)
-    {
-        app::deserialize(in);
-        m_session = in.readstr("session");
-
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            in.begin_section(section);
-            serializable->deserialize(in);
-            in.end_section();
-        }
-    }
-
     bool demo_app::validate_session()
     {
         const bool exists = std::filesystem::exists(SAVES_DIR + m_session);
@@ -66,26 +42,43 @@ namespace ppx_demo
         return exists;
     }
 
-    void demo_app::write(const std::string &filepath) const
+    void demo_app::serialize(const std::string &filepath) const
     {
-        ini::serializer out(filepath.c_str());
+        YAML::Emitter out;
+        out.SetFloatPrecision(std::numeric_limits<float>::max_digits10);
+        out << YAML::BeginMap;
+        out << YAML::Key << "PPX Demo" << YAML::Value << YAML::BeginMap;
+        out << YAML::Key << "Session" << YAML::Value << m_session;
+        out << YAML::Key << "PPX Base app" << YAML::Value << *this;
+        out << YAML::Key << "Selector" << YAML::Value << p_selector;
+        out << YAML::Key << "Copy paste" << YAML::Value << p_copy_paste;
+        out << YAML::Key << "Predictor" << YAML::Value << p_predictor;
+        out << YAML::Key << "Trails" << YAML::Value << p_trails;
+        out << YAML::Key << "Follower" << YAML::Value << p_follower << YAML::EndMap;
+        out << YAML::EndMap;
 
-        out.begin_section("demo_app");
-        serialize(out);
-        out.end_section();
-        out.close();
+        std::ofstream file(filepath);
+        file << out.c_str();
     }
-    bool demo_app::read(const std::string &filepath)
+    bool demo_app::deserialize(const std::string &filepath)
     {
-        ini::deserializer in(filepath.c_str());
-
-        if (!in.is_open())
+        if (!std::filesystem::exists(filepath))
             return false;
-        in.begin_section("demo_app");
-        deserialize(in);
-        in.end_section();
-        in.close();
-        validate_session(); // This may be redundant
+
+        YAML::Node node = YAML::LoadFile(filepath);
+        if (!node["PPX Demo"])
+            return false;
+
+        const YAML::Node &demo = node["PPX Demo"];
+        demo["PPX Base app"].as<ppx::app>(*((ppx::app *)this));
+
+        m_session = demo["Session"].as<std::string>();
+        p_selector = demo["Selector"].as<selector>();
+        p_copy_paste = demo["Copy paste"].as<copy_paste>();
+        p_predictor = demo["Predictor"].as<predictor>();
+        p_trails = demo["Trails"].as<trail_manager>();
+        p_follower = demo["Follower"].as<follower>();
+        validate_session();
         return true;
     }
 
@@ -93,22 +86,22 @@ namespace ppx_demo
     {
         if (!std::filesystem::exists(SAVES_DIR))
             std::filesystem::create_directory(SAVES_DIR);
-        write(SAVES_DIR + filename);
+        serialize(SAVES_DIR + filename);
     }
-    bool demo_app::read_save(const std::string &filename) { return read(SAVES_DIR + filename); }
+    bool demo_app::read_save(const std::string &filename) { return deserialize(SAVES_DIR + filename); }
 
     void demo_app::write_save() const
     {
-        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to save.\n")
+        DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to save.")
         write_save(m_session);
     }
     bool demo_app::read_save()
     {
-        DBG_ASSERT(has_session(), "No current session active. Must specify a specific session name to load.\n")
+        DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to load.")
         return read_save(m_session);
     }
 
-    bool demo_app::read_example(const std::string &filepath) { return read(EXAMPLES_DIR + filepath); }
+    bool demo_app::read_example(const std::string &filepath) { return deserialize(EXAMPLES_DIR + filepath); }
 
     void demo_app::on_update()
     {
@@ -184,6 +177,9 @@ namespace ppx_demo
                 break;
             }
             break;
+        case sf::Event::MouseButtonPressed:
+            p_copy_paste.delete_copy();
+            break;
         default:
             break;
         }
@@ -195,33 +191,11 @@ namespace ppx_demo
         return app;
     }
 
-    void demo_app::draw_interaction_lines()
-    {
-        PERF_FUNCTION()
-        const ppx::engine2D &eng = engine();
-        const ppx::const_entity2D_ptr &e1 = eng[world_mouse()];
-        if (e1)
-            for (const auto &inter : eng.interactions())
-                if (inter->contains(*e1))
-                    for (const auto &e2 : inter->entities())
-                        if (e1 != e2)
-                        {
-                            sf::Color c1 = (*this)[e1.index()].getFillColor(),
-                                      c2 = (*this)[e2.index()].getFillColor();
-                            c1.a = 120;
-                            c2.a = 120;
-                            prm::flat_line fl(e1->pos() * WORLD_TO_PIXEL,
-                                              e2->pos() * WORLD_TO_PIXEL,
-                                              c1, c2);
-                            draw(fl);
-                        }
-    }
-
     void demo_app::remove_selected() // TODO: Que remove selected se llame solo con backspace una vez se cancele tb con clic der
     {
         const auto selected = p_selector.entities();
         for (ppx::const_entity2D_ptr e : selected)
-            if (e.try_validate())
+            if (e.validate())
                 engine().remove_entity(*e);
         p_actions_panel->cancel_add_attach();
     }
@@ -231,7 +205,7 @@ namespace ppx_demo
         const sf::Color prev_color = entity_color();
         entity_color(sf::Color(86, 113, 137));
 
-        const float w = 0.5f * WIDTH * PIXEL_TO_WORLD, h = 0.5f * HEIGHT * PIXEL_TO_WORLD;
+        const float w = 0.5f * PPX_WIDTH * PPX_PIXEL_TO_WORLD, h = 0.5f * PPX_HEIGHT * PPX_PIXEL_TO_WORLD;
         const float thck = 20.f;
 
         ppx::engine2D &eng = engine();
@@ -251,7 +225,7 @@ namespace ppx_demo
         e4->kinematic(false);
 
         entity_color(prev_color);
-        update_convex_shapes();
+        update_shapes();
     }
 
     const std::string &demo_app::session() const { return m_session; }

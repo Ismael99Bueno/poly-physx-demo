@@ -18,7 +18,7 @@ filter "system:windows"
    defines "SFML_STATIC"
 filter {}
 
-pchheader "pch.hpp"
+pchheader "ppxdpch.hpp"
 pchsource "src/pch.cpp"
 
 targetdir("bin/" .. outputdir)
@@ -35,21 +35,23 @@ includedirs {
    "%{wks.location}/poly-physx-app/include",
    "%{wks.location}/shapes-2D/include",
    "%{wks.location}/rk-integrator/include",
-   "%{wks.location}/debug-tools/include",
+   "%{wks.location}/debug-log-tools/include",
    "%{wks.location}/profile-tools/include",
-   "%{wks.location}/ini-parser/include",
    "%{wks.location}/container-view/include",
    "%{wks.location}/sfml-primitives/include",
+   "%{wks.location}/allocators/include",
    "%{wks.location}/vendor/glm",
    "%{wks.location}/vendor/imgui/include",
    "%{wks.location}/vendor/imgui-sfml/include",
    "%{wks.location}/vendor/implot/include",
-   "%{wks.location}/vendor/SFML/include"
+   "%{wks.location}/vendor/yaml-cpp/include",
+   "%{wks.location}/vendor/SFML/include",
+   "%{wks.location}/vendor/spdlog/include"
 }
 
 links {
    "profile-tools",
-   "ini-parser",
+   "yaml-cpp",
    "rk-integrator",
    "shapes-2D",
    "poly-physx",

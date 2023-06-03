@@ -7,7 +7,7 @@
 
 namespace ppx_demo
 {
-    class predictor : public ini::serializable
+    class predictor
     {
     public:
         predictor() = default;
@@ -22,9 +22,6 @@ namespace ppx_demo
         void predict_and_render(const ppx::entity2D &e);
         bool is_predicting(const ppx::entity2D &e) const;
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
         float p_dt = 3e-2f;
         std::uint32_t p_steps = 100;
         float p_line_thickness = 6.f;
@@ -33,7 +30,23 @@ namespace ppx_demo
              p_auto_predict = false;
 
     private:
-        std::vector<std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>> m_paths;
+        using entt_line_pair = std::pair<ppx::const_entity2D_ptr, prm::thick_line_strip>;
+        std::vector<entt_line_pair> m_paths;
+
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const predictor &);
+        friend struct YAML::convert<predictor>;
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const predictor &pred);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::predictor>
+    {
+        static Node encode(const ppx_demo::predictor &pred);
+        static bool decode(const Node &node, ppx_demo::predictor &pred);
     };
 }
 

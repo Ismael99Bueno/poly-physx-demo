@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "actions_panel.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
@@ -72,33 +72,26 @@ namespace ppx_demo
         }
     }
 
+    template <typename T>
+    static void render_tab(const char *name, const char *tooltip, T &tab)
+    {
+        const bool expanded = ImGui::BeginTabItem(name);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("%s", tooltip);
+        if (expanded)
+        {
+            tab.render();
+            ImGui::EndTabItem();
+        }
+    }
+
     void actions_panel::render_tabs() const
     {
         ImGui::BeginTabBar("Actions tab bar");
-
-        bool expanded = ImGui::BeginTabItem("Add");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("Add entities");
-        if (expanded)
-        {
-            m_add_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Grab"))
-        {
-            m_grab_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Attach"))
-        {
-            m_attach_tab.render();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Entities"))
-        {
-            m_entities_tab.render();
-            ImGui::EndTabItem();
-        }
+        render_tab("Add", "Add entities", m_add_tab);
+        render_tab("Grab", "Grab entities", m_grab_tab);
+        render_tab("Joints", "Attach entities with joints", m_joints_tab);
+        render_tab("Entities", "Entities overview", m_entities_tab);
         ImGui::EndTabBar();
     }
 
@@ -172,33 +165,6 @@ namespace ppx_demo
         }
     }
 
-    void actions_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.begin_section("adder");
-        m_adder.serialize(out);
-        out.end_section();
-        out.begin_section("grabber");
-        m_grabber.serialize(out);
-        out.end_section();
-        out.begin_section("attacher");
-        m_attacher.serialize(out);
-        out.end_section();
-    }
-    void actions_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        in.begin_section("adder");
-        m_adder.deserialize(in);
-        in.end_section();
-        in.begin_section("grabber");
-        m_grabber.deserialize(in);
-        in.end_section();
-        in.begin_section("attacher");
-        m_attacher.deserialize(in);
-        in.end_section();
-    }
-
     void actions_panel::cancel_add_attach()
     {
         m_attacher.cancel();
@@ -210,5 +176,30 @@ namespace ppx_demo
         if (ImGui::GetIO().WantCaptureMouse)
             return NONE;
         return m_action;
+    }
+
+    void actions_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "Adder" << YAML::Value << m_adder;
+        out << YAML::Key << "Grabber" << YAML::Value << m_grabber;
+        out << YAML::Key << "Attacher" << YAML::Value << m_attacher;
+    }
+    YAML::Node actions_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["Adder"] = m_adder;
+        node["Grabber"] = m_grabber;
+        node["Attacher"] = m_attacher;
+        return node;
+    }
+    bool actions_panel::decode(const YAML::Node &node)
+    {
+        if (!layer::decode(node))
+            return false;
+        node["Adder"].as<adder>(m_adder);
+        node["Grabber"].as<grabber>(m_grabber);
+        node["Attacher"].as<attacher>(m_attacher);
+        return true;
     }
 }

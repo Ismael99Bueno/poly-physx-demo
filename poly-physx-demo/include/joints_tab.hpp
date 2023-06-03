@@ -1,15 +1,15 @@
-#ifndef ATTACH_TAB_HPP
-#define ATTACH_TAB_HPP
+#ifndef joints_tab_HPP
+#define joints_tab_HPP
 
 #include "attacher.hpp"
 #include "outline_manager.hpp"
 
 namespace ppx_demo
 {
-    class attach_tab
+    class joints_tab
     {
     public:
-        attach_tab(attacher &attch);
+        joints_tab(attacher &attch);
         void render() const;
 
     private:

@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "phys_panel.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
@@ -6,45 +6,16 @@
 namespace ppx_demo
 {
     phys_panel::phys_panel() : ppx::layer("phys_panel") {}
-    void phys_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.write("xlimx", m_xlim.x);
-        out.write("xlimy", m_xlim.y);
-        out.write("ylimx", m_ylim.x);
-        out.write("ylimy", m_ylim.y);
-
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            out.begin_section(section);
-            serializable->serialize(out);
-            out.end_section();
-        }
-    }
-    void phys_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        m_xlim = {in.readf32("xlimx"), in.readf32("xlimy")};
-        m_ylim = {in.readf32("ylimx"), in.readf32("ylimy")};
-
-        for (const auto &[section, serializable] : m_saveables)
-        {
-            in.begin_section(section);
-            serializable->deserialize(in);
-            in.end_section();
-        }
-        update_potential_data();
-    }
 
     void phys_panel::on_attach(ppx::app *papp)
     {
         ppx::engine2D &eng = papp->engine();
-        m_gravity = eng.add_force<gravity>();
-        m_drag = eng.add_force<drag>();
-        m_gravitational = eng.add_interaction<gravitational>();
-        m_repulsive = eng.add_interaction<electrical>();
-        m_attractive = eng.add_interaction<electrical>();
-        m_exponential = eng.add_interaction<exponential>();
+        m_gravity = eng.add_behaviour<gravity>("Gravity");
+        m_drag = eng.add_behaviour<drag>("Drag");
+        m_gravitational = eng.add_behaviour<gravitational>("Gravitational");
+        m_repulsive = eng.add_behaviour<electrical>("Repulsive");
+        m_attractive = eng.add_behaviour<electrical>("Attractive");
+        m_exponential = eng.add_behaviour<exponential>("Exponential");
 
         m_gravity->p_enabled = true;
 
@@ -52,31 +23,12 @@ namespace ppx_demo
         m_attractive->p_mag = -20.f;
         update_potential_data();
 
-        m_saveables =
-            {
-                {"gravity", m_gravity},
-                {"drag", m_drag},
-                {"repulsive", m_repulsive},
-                {"attractive", m_attractive},
-                {"gravitational", m_gravitational},
-                {"exponential", m_exponential}};
-
+        m_toggleables = {m_gravity, m_drag, m_gravitational, m_repulsive, m_attractive, m_exponential};
         const auto auto_include = [this](const ppx::entity2D_ptr &e)
         {
-            for (auto &[name, serializable] : m_saveables) // I know this is horrible
-            {
-                const auto toggled = std::dynamic_pointer_cast<const toggleable>(serializable);
-
-                if (toggled && toggled->p_enabled)
-                {
-                    const auto force = std::dynamic_pointer_cast<ppx::force2D>(serializable);
-                    const auto inter = std::dynamic_pointer_cast<ppx::interaction2D>(serializable);
-                    if (force)
-                        force->include(e);
-                    else if (inter)
-                        inter->include(e);
-                }
-            }
+            for (const auto &toggled : m_toggleables) // I know this is horrible
+                if (toggled->p_enabled)
+                    std::dynamic_pointer_cast<ppx::behaviour2D>(toggled)->include(e);
         };
         eng.events().on_entity_addition += auto_include;
     }
@@ -269,7 +221,7 @@ namespace ppx_demo
             update_potential_data();
     }
 
-    void phys_panel::render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled)
+    void phys_panel::render_enabled_checkbox(ppx::behaviour2D &bhv, bool *enabled)
     {
         demo_app &papp = demo_app::get();
 
@@ -278,9 +230,9 @@ namespace ppx_demo
         {
             if (*enabled)
                 for (std::size_t i = 0; i < papp.engine().size(); i++)
-                    set.include(papp.engine()[i]);
+                    bhv.include(papp.engine()[i]);
             else
-                set.clear();
+                bhv.clear();
             update_potential_data();
         }
         ImGui::PopID();
@@ -288,7 +240,7 @@ namespace ppx_demo
 
     void phys_panel::update_potential_data()
     {
-        const std::array<std::shared_ptr<const ppx::interaction2D>, 4> inters = {m_gravitational,
+        const std::array<ppx::ref<const ppx::interaction2D>, 4> inters = {m_gravitational,
                                                                                  m_repulsive,
                                                                                  m_attractive,
                                                                                  m_exponential};
@@ -308,5 +260,27 @@ namespace ppx_demo
                 for (std::size_t i = 0; i < PLOT_POINTS; i++)
                     m_potential_data[i].y += inter->potential(unit, {m_potential_data[i].x, 0.f}) - refval;
         }
+    }
+
+    void phys_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "XLim" << YAML::Value << m_xlim;
+        out << YAML::Key << "YLim" << YAML::Value << m_ylim;
+    }
+    YAML::Node phys_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["XLim"] = m_xlim;
+        node["YLim"] = m_ylim;
+        return node;
+    }
+    bool phys_panel::decode(const YAML::Node &node)
+    {
+        if (!ppx::layer::decode(node))
+            return false;
+        m_xlim = node["XLim"].as<glm::vec2>();
+        m_ylim = node["YLim"].as<glm::vec2>();
+        return true;
     }
 }

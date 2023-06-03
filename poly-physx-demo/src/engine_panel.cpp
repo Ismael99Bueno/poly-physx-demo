@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "engine_panel.hpp"
 #include "rk/tableaus.hpp"
 #include "globals.hpp"
@@ -8,39 +8,9 @@
 namespace ppx_demo
 {
     engine_panel::engine_panel() : ppx::layer("engine_panel") {}
-    void engine_panel::serialize(ini::serializer &out) const
-    {
-        layer::serialize(out);
-        out.write("method", m_method);
-        out.write("visualize_qt", m_visualize_qt);
-        out.write("period", m_period);
-        out.write("max_depth", m_max_depth);
-        out.write("max_entities", m_max_entities);
-    }
-
-    void engine_panel::deserialize(ini::deserializer &in)
-    {
-        layer::deserialize(in);
-        m_method = (integ_method)in.readi32("method");
-        m_visualize_qt = (bool)in.readi16("visualize_qt");
-        m_period = in.readui32("period");
-        m_max_depth = in.readui32("max_depth");
-        m_max_entities = (std::size_t)in.readui64("max_entities");
-
-        ppx::collider2D &collider = demo_app::get().engine().collider();
-        collider.quad_tree().max_entities(m_max_entities);
-        ppx::quad_tree2D::max_depth(m_max_depth);
-        collider.quad_tree_build_period(m_period);
-        collider.rebuild_quad_tree();
-        update_method();
-    }
 
     void engine_panel::on_start()
     {
-        ppx::collider2D &collider = demo_app::get().engine().collider();
-        m_max_entities = collider.quad_tree().max_entities();
-        m_period = collider.quad_tree_build_period();
-        m_max_depth = ppx::quad_tree2D::max_depth();
         update_method();
     }
 
@@ -203,15 +173,14 @@ namespace ppx_demo
         ppx::collider2D &collider = papp.engine().collider();
 
         static const char *coldets[] = {"Brute force", "Sort and sweep", "Quad tree"};
-        int coldet = collider.coldet();
+        int coldet = collider.detection();
         if (ImGui::ListBox("Collision detection method", &coldet, coldets, IM_ARRAYSIZE(coldets)))
-        {
-            collider.coldet((ppx::collider2D::coldet_method)coldet);
-            if (coldet == ppx::collider2D::QUAD_TREE)
-                papp.resize_quad_tree_to_window();
-        }
+            collider.detection((ppx::collider2D::detection_method)coldet);
 
-        if (collider.coldet() == ppx::collider2D::QUAD_TREE)
+        ImGui::Checkbox("Draw bounding boxes", &m_draw_bboxes);
+        if (m_draw_bboxes)
+            draw_bounding_boxes();
+        if (collider.detection() == ppx::collider2D::QUAD_TREE)
             render_quad_tree_params();
         else
             m_visualize_qt = false;
@@ -223,18 +192,19 @@ namespace ppx_demo
         ppx::collider2D &collider = demo_app::get().engine().collider();
 
         ImGui::Text("Quad Tree parameters");
-        if (ImGui::SliderInt("Maximum entities", (int *)&m_max_entities, 2, 20))
-        {
-            collider.quad_tree().max_entities(m_max_entities);
-            collider.rebuild_quad_tree();
-        }
-        if (ImGui::SliderInt("Maximum depth", (int *)&m_max_depth, 2, 10))
-        {
-            ppx::quad_tree2D::max_depth(m_max_depth);
-            // collider.rebuild_quad_tree();
-        }
-        if (ImGui::SliderInt("Refresh period", (int *)&m_period, 1, 150))
-            collider.quad_tree_build_period(m_period);
+
+        int max_entities = (int)collider.quad_tree().max_entities();
+        if (ImGui::SliderInt("Maximum entities", &max_entities, 2, 20))
+            collider.quad_tree().max_entities((std::size_t)max_entities);
+
+        int max_depth = (int)ppx::quad_tree2D::max_depth();
+        if (ImGui::SliderInt("Maximum depth", &max_depth, 2, 20))
+            ppx::quad_tree2D::max_depth((std::uint32_t)max_depth);
+
+        float min_size = ppx::quad_tree2D::min_size();
+        if (ImGui::SliderFloat("Minimum size", &min_size, 4.f, 50.f, "%.1f"))
+            ppx::quad_tree2D::min_size(min_size);
+
         ImGui::Checkbox("Visualize", &m_visualize_qt);
     }
 
@@ -270,7 +240,7 @@ namespace ppx_demo
         ImGui::PopItemWidth();
     }
 
-    void engine_panel::draw_quad_tree(const ppx::quad_tree2D &qt)
+    void engine_panel::draw_quad_tree(const ppx::quad_tree2D &qt) const
     {
         if (qt.partitioned())
             for (const auto &child : qt.children())
@@ -279,12 +249,54 @@ namespace ppx_demo
         {
             const glm::vec2 &mm = qt.aabb().min(),
                             &mx = qt.aabb().max();
-            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL,
-                                      mx * WORLD_TO_PIXEL,
-                                      glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL,
-                                      mm * WORLD_TO_PIXEL,
-                                      glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL});
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL,
+                                      mx * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL,
+                                      mm * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL});
             demo_app::get().draw(fls);
         }
+    }
+
+    void engine_panel::draw_bounding_boxes() const
+    {
+        for (const ppx::entity2D &e : demo_app::get().engine().entities())
+        {
+            const geo::aabb2D &bb = e.shape().bounding_box();
+            const glm::vec2 &mm = bb.min(),
+                            &mx = bb.max();
+            prm::flat_line_strip fls({glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL,
+                                      mx * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL,
+                                      mm * PPX_WORLD_TO_PIXEL,
+                                      glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL});
+            demo_app::get().draw(fls);
+        }
+    }
+
+    void engine_panel::write(YAML::Emitter &out) const
+    {
+        layer::write(out);
+        out << YAML::Key << "Method" << YAML::Value << (int)m_method;
+        out << YAML::Key << "Visualize quad tree" << YAML::Value << m_visualize_qt;
+        out << YAML::Key << "Draw bounding boxes" << YAML::Value << m_draw_bboxes;
+    }
+    YAML::Node engine_panel::encode() const
+    {
+        YAML::Node node = layer::encode();
+        node["Method"] = (int)m_method;
+        node["Visualize quad tree"] = m_visualize_qt;
+        node["Draw bounding boxes"] = m_draw_bboxes;
+        return node;
+    }
+    bool engine_panel::decode(const YAML::Node &node)
+    {
+        if (!layer::decode(node))
+            return false;
+        m_method = (integ_method)node["Method"].as<int>();
+        m_visualize_qt = node["Visualize quad tree"].as<bool>();
+        m_draw_bboxes = node["Draw bounding boxes"].as<bool>();
+        update_method();
+        return true;
     }
 }

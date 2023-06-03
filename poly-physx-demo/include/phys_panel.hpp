@@ -14,20 +14,18 @@ namespace ppx_demo
     {
     public:
         phys_panel();
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
 
     private:
         void on_attach(ppx::app *papp) override;
         void on_render() override;
 
-        std::shared_ptr<gravity> m_gravity;
-        std::shared_ptr<drag> m_drag;
-        std::shared_ptr<electrical> m_repulsive, m_attractive;
-        std::shared_ptr<gravitational> m_gravitational;
-        std::shared_ptr<exponential> m_exponential;
+        ppx::ref<gravity> m_gravity;
+        ppx::ref<drag> m_drag;
+        ppx::ref<electrical> m_repulsive, m_attractive;
+        ppx::ref<gravitational> m_gravitational;
+        ppx::ref<exponential> m_exponential;
 
-        std::unordered_map<const char *, std::shared_ptr<ini::serializable>> m_saveables;
+        std::vector<ppx::ref<toggleable>> m_toggleables;
 
         glm::vec2 m_xlim = {-20.f, 20.f}, m_ylim = {-200.f, 200.f};
         std::array<glm::vec2, PLOT_POINTS> m_potential_data;
@@ -37,10 +35,14 @@ namespace ppx_demo
         void render_energy_plot() const;
         void render_potential_plot();
         void render_forces_and_inters();
-        void render_enabled_checkbox(ppx::entity2D_set &set, bool *enabled);
+        void render_enabled_checkbox(ppx::behaviour2D &bhv, bool *enabled);
 
         void update_potential_data();
         void compare_and_update_xlimits(const glm::vec2 &xlim);
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

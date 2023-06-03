@@ -3,7 +3,7 @@
 
 #include "grab_tab.hpp"
 #include "entities_tab.hpp"
-#include "attach_tab.hpp"
+#include "joints_tab.hpp"
 #include "add_tab.hpp"
 #include "ppx-app/app.hpp"
 #include "adder.hpp"
@@ -36,17 +36,18 @@ namespace ppx_demo
 
         add_tab m_add_tab{m_adder};
         grab_tab m_grab_tab{m_grabber};
-        attach_tab m_attach_tab{m_attacher};
+        joints_tab m_joints_tab{m_attacher};
         entities_tab m_entities_tab;
         actions m_action = ADD;
-
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
 
         actions action() const;
         void update_current_action();
         void render_current_action();
         void render_tabs() const;
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

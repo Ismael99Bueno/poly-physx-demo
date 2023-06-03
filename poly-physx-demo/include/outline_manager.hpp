@@ -16,7 +16,8 @@ namespace ppx_demo
         void load_outline(std::size_t index, const sf::Color &color, std::uint32_t priority);
 
     private:
-        std::vector<std::pair<std::uint32_t, sf::Color>> m_outline_colors;
+        using id_col_pair = std::pair<std::uint32_t, sf::Color>;
+        std::vector<id_col_pair> m_outline_colors;
         sf::Clock m_clock;
 
         void paint_outlines() const;

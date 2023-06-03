@@ -1,9 +1,9 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "globals.hpp"
 
 namespace glob
 {
-    const char *generate_name(const std::size_t id)
+    const char *generate_name(const std::uint64_t id)
     {
         static std::unordered_map<std::size_t, std::string> names;
         if (names.find(id) != names.end())

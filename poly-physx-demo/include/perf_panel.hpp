@@ -1,9 +1,8 @@
 #ifndef PERF_PANEL_HPP
 #define PERF_PANEL_HPP
 
-#include "perf/perf.hpp"
+
 #include "ppx-app/layer.hpp"
-#include "ini/serializable.hpp"
 #include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
@@ -21,14 +20,11 @@ namespace ppx_demo
             NANOSECONDS = 3,
         };
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
     private:
         void on_render() override;
 
         time_unit m_unit = MILLISECONDS;
-        int m_fps = DEFAULT_FPS != NO_FPS_LIMIT ? DEFAULT_FPS : 120;
+        int m_fps = PPX_DEFAULT_FPS != PPX_NO_FPS_LIMIT ? PPX_DEFAULT_FPS : 120;
 
         void render_unit_slider();
         void render_smooth_factor();
@@ -44,6 +40,10 @@ namespace ppx_demo
         void render_simple();
         void render_simple_time();
 #endif
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

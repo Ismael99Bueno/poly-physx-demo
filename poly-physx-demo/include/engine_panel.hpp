@@ -10,8 +10,6 @@ namespace ppx_demo
     {
     public:
         engine_panel();
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
 
     private:
         enum integ_method
@@ -30,9 +28,7 @@ namespace ppx_demo
         void on_render() override;
 
         integ_method m_method = RK4;
-        bool m_visualize_qt = false;
-        std::size_t m_max_entities = 5;
-        std::uint32_t m_period = 35, m_max_depth = 4;
+        bool m_visualize_qt = false, m_draw_bboxes = false;
 
         void render_integration();
         void render_sliders();
@@ -46,7 +42,12 @@ namespace ppx_demo
         void render_path_prediction_settings() const;
         void render_trail_settings() const;
 
-        void draw_quad_tree(const ppx::quad_tree2D &qt);
+        void draw_quad_tree(const ppx::quad_tree2D &qt) const;
+        void draw_bounding_boxes() const;
+
+        void write(YAML::Emitter &out) const override;
+        YAML::Node encode() const override;
+        bool decode(const YAML::Node &node) override;
     };
 }
 

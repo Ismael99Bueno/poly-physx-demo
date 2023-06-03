@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "predictor.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
@@ -15,7 +15,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_paths.begin(); it != m_paths.end();)
-                if (!it->first.try_validate())
+                if (!it->first.validate())
                     it = m_paths.erase(it);
                 else
                     ++it;
@@ -38,7 +38,7 @@ namespace ppx_demo
         for (auto &[e, path] : m_paths)
         {
             path.clear();
-            path.append(e->pos() * WORLD_TO_PIXEL);
+            path.append(e->pos() * PPX_WORLD_TO_PIXEL);
             path.thickness(p_line_thickness);
         }
 
@@ -54,7 +54,7 @@ namespace ppx_demo
             for (auto &[e, path] : m_paths)
             {
                 const float alpha = 1.f - (float)i / (float)(p_steps - 1);
-                path.append(e->pos() * WORLD_TO_PIXEL);
+                path.append(e->pos() * PPX_WORLD_TO_PIXEL);
                 path.alpha(alpha);
             }
         }
@@ -94,7 +94,7 @@ namespace ppx_demo
         demo_app &papp = demo_app::get();
         ppx::engine2D &eng = papp.engine();
         prm::thick_line_strip path(papp[e.index()].getFillColor(), p_line_thickness);
-        path.append(e.pos() * WORLD_TO_PIXEL);
+        path.append(e.pos() * PPX_WORLD_TO_PIXEL);
 
         const bool collisions = eng.collider().enabled();
         eng.checkpoint();
@@ -106,7 +106,7 @@ namespace ppx_demo
         {
             eng.raw_forward(p_dt);
             path.alpha(1.f - (float)i / (float)(p_steps - 1));
-            path.append(e.pos() * WORLD_TO_PIXEL);
+            path.append(e.pos() * PPX_WORLD_TO_PIXEL);
         }
         papp.draw(path);
         if (!p_with_collisions)
@@ -123,37 +123,53 @@ namespace ppx_demo
         return false;
     }
 
-    void predictor::serialize(ini::serializer &out) const
+    YAML::Emitter &operator<<(YAML::Emitter &out, const predictor &pred)
     {
-        out.write("enabled", p_enabled);
-        out.write("timestep", p_dt);
-        out.write("thickness", p_line_thickness);
-        out.write("steps", p_steps);
-        out.write("with_collisions", p_with_collisions);
-        out.write("auto_predict", p_auto_predict);
-
-        const std::string key = "entity";
-        for (const auto &[e, path] : m_paths)
-            out.write(key + std::to_string(e.index()), e.index());
+        out << YAML::BeginMap;
+        out << YAML::Key << "Enabled" << YAML::Value << pred.p_enabled;
+        out << YAML::Key << "Auto predict" << YAML::Value << pred.p_auto_predict;
+        out << YAML::Key << "With collisions" << YAML::Value << pred.p_with_collisions;
+        out << YAML::Key << "Timestep" << YAML::Value << pred.p_dt;
+        out << YAML::Key << "Steps" << YAML::Value << pred.p_steps;
+        out << YAML::Key << "Line thickness" << YAML::Value << pred.p_line_thickness;
+        out << YAML::Key << "Paths" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto &[e, line] : pred.m_paths)
+            out << e.index();
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        return out;
     }
+}
 
-    void predictor::deserialize(ini::deserializer &in)
+namespace YAML
+{
+    Node convert<ppx_demo::predictor>::encode(const ppx_demo::predictor &pred)
     {
-        p_enabled = (bool)in.readi16("enabled");
-        p_dt = in.readf32("timestep");
-        p_line_thickness = in.readf32("thickness");
-        p_steps = in.readui32("steps");
-        p_with_collisions = (bool)in.readi16("with_collisions");
-        p_auto_predict = (bool)in.readi16("auto_predict");
-        m_paths.clear();
-
-        const std::string key = "entity";
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                predict(e);
-        }
+        Node node;
+        node["Enabled"] = pred.p_enabled;
+        node["Auto predict"] = pred.p_auto_predict;
+        node["With collisions"] = pred.p_with_collisions;
+        node["Timestep"] = pred.p_dt;
+        node["Steps"] = pred.p_steps;
+        node["Line thickness"] = pred.p_line_thickness;
+        for (const auto &[e, line] : pred.m_paths)
+            node["Paths"].push_back(e.index());
+        node["Paths"].SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+    bool convert<ppx_demo::predictor>::decode(const Node &node, ppx_demo::predictor &pred)
+    {
+        if (!node.IsMap() || node.size() != 7)
+            return false;
+        pred.p_enabled = node["Enabled"].as<bool>();
+        pred.p_auto_predict = node["Auto predict"].as<bool>();
+        pred.p_with_collisions = node["With collisions"].as<bool>();
+        pred.p_dt = node["Timestep"].as<float>();
+        pred.p_steps = node["Steps"].as<std::uint32_t>();
+        pred.p_line_thickness = node["Line thickness"].as<float>();
+        pred.m_paths.clear();
+        for (const Node &n : node["Paths"])
+            pred.predict(ppx_demo::demo_app::get().engine()[n.as<std::size_t>()]);
+        return true;
     }
 }

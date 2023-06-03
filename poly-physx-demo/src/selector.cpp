@@ -1,6 +1,6 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "selector.hpp"
-#include "debug/debug.hpp"
+
 #include "globals.hpp"
 #include "demo_app.hpp"
 #include "geo/intersection.hpp"
@@ -23,7 +23,7 @@ namespace ppx_demo
 
             for (ppx::entity2D_ptr e : entities)
             {
-                if (e.try_validate())
+                if (e.validate())
                     m_entities.insert(e);
             }
         };
@@ -31,21 +31,21 @@ namespace ppx_demo
         {
             for (auto it = m_springs.begin(); it != m_springs.end(); ++it)
             {
-                if (it->first == sp.e1() && it->second == sp.e2())
+                if (it->first == sp.e1().id() && it->second == sp.e2().id())
                 {
                     m_springs.erase(it);
                     break;
                 }
             }
         };
-        const auto validate_rb = [this](const std::shared_ptr<ppx::constraint_interface2D> &ctr)
+        const auto validate_rb = [this](const ppx::ref<ppx::constraint_interface2D> &ctr)
         {
             const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
             if (!rb)
                 return;
             for (auto it = m_rbars.begin(); it != m_rbars.end(); ++it)
             {
-                if (it->first == rb->e1() && it->second == rb->e2())
+                if (it->first == rb->e1().id() && it->second == rb->e2().id())
                 {
                     m_rbars.erase(it);
                     break;
@@ -82,6 +82,14 @@ namespace ppx_demo
         m_selecting = false;
     }
 
+    static bool contains_pair(const std::vector<selector::id_pair> &pairs,
+                              const ppx::uuid id1, const ppx::uuid id2)
+    {
+        for (const auto &[i1, i2] : pairs)
+            if (i1 == id1 && i2 == id2)
+                return true;
+        return false;
+    }
     void selector::update_selected_springs_rbars()
     {
         demo_app &papp = demo_app::get();
@@ -90,8 +98,8 @@ namespace ppx_demo
         for (const ppx::spring2D &sp : papp.engine().springs())
             for (const ppx::entity2D_ptr &e1 : m_entities)
                 for (const ppx::entity2D_ptr &e2 : m_entities)
-                    if (sp.e1() == e1 && sp.e2() == e2)
-                        m_springs.emplace_back(e1, e2);
+                    if (sp.e1() == e1 && sp.e2() == e2 && !contains_pair(m_springs, e1.id(), e2.id()))
+                        m_springs.emplace_back(e1.id(), e2.id());
         m_rbars.clear();
         for (const auto &ctr : papp.engine().compeller().constraints())
         {
@@ -99,16 +107,15 @@ namespace ppx_demo
             if (rb)
                 for (const ppx::entity2D_ptr &e1 : m_entities)
                     for (const ppx::entity2D_ptr &e2 : m_entities)
-                        if (rb->e1() == e1 && rb->e2() == e2)
-                            m_rbars.emplace_back(e1, e2);
+                        if (rb->e1() == e1 && rb->e2() == e2 && !contains_pair(m_rbars, e1.id(), e2.id()))
+                            m_rbars.emplace_back(e1.id(), e2.id());
         }
     }
 
     bool selector::is_selecting(const ppx::entity2D_ptr &e) const
     {
-        const geo::aabb2D aabb = select_box();
-        return (m_selecting && geo::intersect(aabb, e->shape().bounding_box())) ||
-               m_entities.find(e) != m_entities.end();
+        return m_entities.find(e) != m_entities.end() ||
+               (m_selecting && geo::intersect(select_box(), e->shape().bounding_box()));
     }
 
     bool selector::is_selected(const ppx::entity2D_ptr &e) const { return m_entities.find(e) != m_entities.end(); }
@@ -122,8 +129,8 @@ namespace ppx_demo
         const glm::vec2 &mm = aabb.min(),
                         &mx = aabb.max();
         sf::Vertex vertices[5];
-        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * WORLD_TO_PIXEL, p2 = mx * WORLD_TO_PIXEL,
-                        p3 = glm::vec2(mx.x, mm.y) * WORLD_TO_PIXEL, p4 = mm * WORLD_TO_PIXEL;
+        const glm::vec2 p1 = glm::vec2(mm.x, mx.y) * PPX_WORLD_TO_PIXEL, p2 = mx * PPX_WORLD_TO_PIXEL,
+                        p3 = glm::vec2(mx.x, mm.y) * PPX_WORLD_TO_PIXEL, p4 = mm * PPX_WORLD_TO_PIXEL;
         vertices[0].position = {p1.x, p1.y};
         vertices[1].position = {p2.x, p2.y};
         vertices[2].position = {p3.x, p3.y};
@@ -132,31 +139,9 @@ namespace ppx_demo
         demo_app::get().draw(vertices, 5u, sf::LineStrip);
     }
 
-    void selector::serialize(ini::serializer &out) const
-    {
-        const std::string key = "selected";
-        for (const auto &e : m_entities)
-            out.write(key + std::to_string(e.index()), e.index());
-    }
-
-    void selector::deserialize(ini::deserializer &in)
-    {
-        m_entities.clear();
-        const std::string key = "selected";
-
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                m_entities.insert(e);
-        }
-        update_selected_springs_rbars();
-    }
-
     const std::unordered_set<ppx::entity2D_ptr> &selector::entities() const { return m_entities; }
-    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::springs() const { return m_springs; }
-    const std::vector<std::pair<ppx::const_entity2D_ptr, ppx::const_entity2D_ptr>> &selector::rbars() const { return m_rbars; }
+    const std::vector<selector::id_pair> &selector::spring_pairs() const { return m_springs; }
+    const std::vector<selector::id_pair> &selector::rbar_pairs() const { return m_rbars; }
 
     geo::aabb2D selector::select_box() const
     {
@@ -165,5 +150,38 @@ namespace ppx_demo
                                      std::min(mpos.y, m_mpos_start.y)),
                            glm::vec2(std::max(mpos.x, m_mpos_start.x),
                                      std::max(mpos.y, m_mpos_start.y)));
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const selector &slct)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Selected entities" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto &e : slct.entities())
+            out << e.index();
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::selector>::encode(const ppx_demo::selector &slct)
+    {
+        Node node;
+        for (const auto &e : slct.entities())
+            node["Selected entities"].push_back(e.index());
+        node["Selected entities"].SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+    bool convert<ppx_demo::selector>::decode(const Node &node, ppx_demo::selector &slct)
+    {
+        if (!node.IsMap() || node.size() != 1)
+            return false;
+        slct.m_entities.clear();
+        for (const Node &n : node["Selected entities"])
+            slct.m_entities.insert(ppx_demo::demo_app::get().engine()[n.as<std::size_t>()]);
+        slct.update_selected_springs_rbars();
+        return true;
     }
 }

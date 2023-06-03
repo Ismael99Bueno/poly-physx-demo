@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "add_tab.hpp"
 #include "globals.hpp"
 #include "demo_app.hpp"
@@ -60,46 +60,52 @@ namespace ppx_demo
 
                 ImGui::EndMenu();
             }
-            ImGui::BeginMenu(m_adder.has_saved_entity() ? ("Current entity: " + m_adder.p_current_templ.name).c_str() : "No entity template. Select 'Save as...' to create one", false);
+            ImGui::BeginMenu(m_adder.has_saved_entity() ? ("Current entity: " + m_adder.p_add_specs.name).c_str() : "No entity template. Select 'Save as...' to create one", false);
             ImGui::EndMenuBar();
         }
     }
 
+    static void draw_rect(const float w, const float h)
+    {
+        const glm::vec2 size = glm::vec2(w, h) * PPX_WORLD_TO_PIXEL,
+                        pos = glm::vec2(350.f, -30.f) - 0.5f * size;
+        ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), demo_app::get().entity_color());
+    }
+
+    static void draw_ngon(const float radius, const std::uint32_t sides)
+    {
+        const sf::Color &color = demo_app::get().entity_color();
+        const ImVec2 pos = ImGui::GetCursorScreenPos();
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+        draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)sides);
+    }
+
     void add_tab::render_shape_list() const
     {
-        demo_app &papp = demo_app::get();
-        adder::shape_type &shape = m_adder.p_current_templ.shape;
+        adder::shape_type &shape = m_adder.p_add_specs.shape;
 
         const char *shapes[4] = {"Rectangle", "NGon", "Circle", "Custom"};
         if (ImGui::ListBox("Shapes", (int *)&shape, shapes, IM_ARRAYSIZE(shapes)))
             m_adder.update_template_vertices();
 
-        const sf::Color &color = papp.entity_color();
         switch (shape)
         {
         case adder::RECT:
         {
-            const float w = std::min(m_adder.p_current_templ.width, 18.f),
-                        h = std::min(m_adder.p_current_templ.height, 18.f);
-            const glm::vec2 size = glm::vec2(w, h) * WORLD_TO_PIXEL,
-                            pos = glm::vec2(350.f, -30.f) - 0.5f * size;
-            ImGui::DrawRectFilled(sf::FloatRect({pos.x, pos.y}, {size.x, size.y}), color);
+            draw_rect(std::min(m_adder.p_add_specs.width, 18.f),
+                      std::min(m_adder.p_add_specs.height, 18.f));
             break;
         }
         case adder::NGON:
         {
-            const float radius = std::min(m_adder.p_current_templ.ngon_radius, 9.f) * WORLD_TO_PIXEL;
-            const ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddNgonFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b), (int)m_adder.p_current_templ.sides);
+            const float radius = std::min(m_adder.p_add_specs.ngon_radius, 9.f) * PPX_WORLD_TO_PIXEL;
+            draw_ngon(radius, m_adder.p_add_specs.sides);
             break;
         }
         case adder::CIRCLE:
         {
-            const float radius = std::min(m_adder.p_current_templ.circle_radius, 9.f) * WORLD_TO_PIXEL;
-            const ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImDrawList *draw_list = ImGui::GetWindowDrawList();
-            draw_list->AddCircleFilled({pos.x + 350.f, pos.y - 30.f}, radius, ImColor(color.r, color.g, color.b));
+            const float radius = std::min(m_adder.p_add_specs.circle_radius, 9.f) * PPX_WORLD_TO_PIXEL;
+            draw_ngon(radius, 30);
             break;
         }
         default:
@@ -107,31 +113,37 @@ namespace ppx_demo
         }
     }
 
+    template <typename... Args>
+    static void dfloat_with_tooltip(const char *tooltip, Args &&...args)
+    {
+        ImGui::DragFloat(std::forward<Args>(args)...);
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+            ImGui::SetTooltip("%s", tooltip);
+    }
+
     void add_tab::render_entity_inputs() const
     {
         demo_app &papp = demo_app::get();
 
-        ImGui::DragFloat("Mass", &m_adder.p_current_templ.entity_templ.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("The mass of an entity represents how hard it is to move it.");
+        const char *ttip = "The mass of an entity represents how hard it is to move it.";
+        dfloat_with_tooltip(ttip, "Mass", &m_adder.p_add_specs.entity_spec.mass, 0.2f, 1.f, FLT_MAX, "%.1f");
 
-        ImGui::DragFloat("Charge", &m_adder.p_current_templ.entity_templ.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            ImGui::SetTooltip("The charge of an entity represents how strongly\nit will react to electrical interactions.");
-        switch (m_adder.p_current_templ.shape)
+        ttip = "The charge of an entity represents how strongly\nit will react to electrical interactions.";
+        dfloat_with_tooltip(ttip, "Charge", &m_adder.p_add_specs.entity_spec.charge, 0.2f, -FLT_MAX, FLT_MAX, "%.1f");
+
+        ttip = "Together with the shape, it is directly proportional to the inertia that the entity will have.";
+        switch (m_adder.p_add_specs.shape)
         {
         case adder::RECT:
-            ImGui::DragFloat("Width", &m_adder.p_current_templ.width, 0.2f, 1.f, FLT_MAX, "%.1f");
-            // if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
-            //     ImGui::SetTooltip("Together with the shape, it is directly proportional\nto the inertia that the entity will have.");
-            ImGui::DragFloat("Height", &m_adder.p_current_templ.height, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Width", &m_adder.p_add_specs.width, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Height", &m_adder.p_add_specs.height, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::NGON:
-            ImGui::SliderInt("Sides", (int *)&m_adder.p_current_templ.sides, 3, 30);
-            ImGui::DragFloat("Radius", &m_adder.p_current_templ.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            ImGui::SliderInt("Sides", (int *)&m_adder.p_add_specs.sides, 3, 30);
+            dfloat_with_tooltip(ttip, "Radius", &m_adder.p_add_specs.ngon_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CIRCLE:
-            ImGui::DragFloat("Radius", &m_adder.p_current_templ.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
+            dfloat_with_tooltip(ttip, "Radius", &m_adder.p_add_specs.circle_radius, 0.2f, 1.f, FLT_MAX, "%.1f");
             break;
         case adder::CUSTOM:
             render_canvas();
@@ -140,7 +152,7 @@ namespace ppx_demo
             break;
         }
 
-        ImGui::Checkbox("Kinematic", &m_adder.p_current_templ.entity_templ.kinematic);
+        ImGui::Checkbox("Kinematic", &m_adder.p_add_specs.entity_spec.kinematic);
         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
             ImGui::SetTooltip("If unchecked, the entity will not accelerate by any means.");
 
@@ -158,31 +170,31 @@ namespace ppx_demo
         if (ImGui::ColorPicker3("Entity color", imcolor, ImGuiColorEditFlags_NoTooltip))
         {
             papp.entity_color({(sf::Uint8)(imcolor[0] * 255.f), (sf::Uint8)(imcolor[1] * 255.f), (sf::Uint8)(imcolor[2] * 255.f)});
-            m_adder.p_current_templ.color = color;
+            m_adder.p_add_specs.color = color;
         }
     }
 
     void add_tab::render_canvas() const
     {
 
-        ImGui::Checkbox("Soft body", &m_adder.p_current_templ.soft_body);
-        if (m_adder.p_current_templ.soft_body)
+        ImGui::Checkbox("Soft body", &m_adder.p_add_specs.soft_body);
+        if (m_adder.p_add_specs.soft_body)
         {
-            auto &current = m_adder.p_current_templ;
+            auto &current = m_adder.p_add_specs;
             ImGui::SliderInt("Entities between vertices", (int *)&current.entities_between_vertices, 0, 10);
             ImGui::DragFloat("Stiffness", &current.sb_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
             ImGui::DragFloat("Dampening", &current.sb_dampening, 0.3f, 0.f, FLT_MAX, "%.1f");
-            ImGui::DragFloat("Radius", &current.sb_radius, 0.3f, 0.f, FLT_MAX, "%.1f");
+            ImGui::DragFloat("Radius", &current.sb_radius, 0.3f, 1.f, FLT_MAX, "%.1f");
         }
 
         static glm::vec2 scrolling(0.f);
         demo_app &papp = demo_app::get();
 
-        const geo::polygon &poly = std::get<geo::polygon>(m_adder.p_current_templ.entity_templ.shape);
-        std::vector<glm::vec2> vertices = poly.vertices();
+        const geo::polygon poly(m_adder.p_add_specs.entity_spec.vertices);
+        ppx::blk_vector<glm::vec2> vertices = poly.globals();
 
         const bool is_convex = poly.is_convex();
-        if (!is_convex && !m_adder.p_current_templ.soft_body)
+        if (!is_convex && !m_adder.p_add_specs.soft_body)
         {
             ImGui::SameLine(ImGui::GetWindowWidth() - 575.f);
             ImGui::Text("The polygon is not convex!");
@@ -209,7 +221,7 @@ namespace ppx_demo
         ImGuiIO &io = ImGui::GetIO();
         const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y), // Lock scrolled origin
             pixel_mouse = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor,
-            world_mouse = pixel_mouse * PIXEL_TO_WORLD;
+            world_mouse = pixel_mouse * PPX_PIXEL_TO_WORLD;
 
         const glm::vec2 towards_poly = poly.closest_direction_from(world_mouse);
         const float max_dist = 5.f;
@@ -217,7 +229,7 @@ namespace ppx_demo
 
         std::size_t to_edit = vertices.size() - 1;
         const float thres_distance = 2.f;
-        float min_distance = std::numeric_limits<float>::max();
+        float min_distance = FLT_MAX;
 
         for (std::size_t i = 0; i < vertices.size(); i++)
         {
@@ -247,29 +259,29 @@ namespace ppx_demo
             draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
 
         const sf::Color &entity_col = papp.entity_color();
-        const auto col = (is_convex || m_adder.p_current_templ.soft_body) ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
-                                                                          : IM_COL32(255, 0, 0, 255);
+        const auto col = (is_convex || m_adder.p_add_specs.soft_body) ? IM_COL32(entity_col.r, entity_col.g, entity_col.b, entity_col.a)
+                                                                      : IM_COL32(255, 0, 0, 255);
 
         std::vector<ImVec2> points(poly.size());
         for (std::size_t i = 0; i < poly.size(); i++)
         {
-            const glm::vec2 p1 = origin + poly[i] * scale_factor * WORLD_TO_PIXEL + canvas_hdim,
-                            p2 = origin + poly[i + 1] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
+            const glm::vec2 p1 = origin + poly.globals(i) * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim,
+                            p2 = origin + poly.globals(i + 1) * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim;
             const float thickness = 3.f;
             draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
             points[i] = {p1.x, p1.y};
         }
 
-        if (is_convex && !m_adder.p_current_templ.soft_body)
+        if (is_convex && !m_adder.p_add_specs.soft_body)
             draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(), IM_COL32(entity_col.r, entity_col.g, entity_col.b, 120));
         if (valid_to_add)
         {
-            const glm::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * WORLD_TO_PIXEL) * scale_factor + canvas_hdim
-                                                   : origin + vertices[to_edit] * scale_factor * WORLD_TO_PIXEL + canvas_hdim;
+            const glm::vec2 center = create_vertex ? origin + (pixel_mouse + towards_poly * PPX_WORLD_TO_PIXEL) * scale_factor + canvas_hdim
+                                                   : origin + vertices[to_edit] * scale_factor * PPX_WORLD_TO_PIXEL + canvas_hdim;
             const float radius = 8.f;
             draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
         }
         draw_list->PopClipRect();
-        m_adder.p_current_templ.entity_templ.shape = vertices;
+        m_adder.p_add_specs.entity_spec.vertices = vertices;
     }
 }

@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "entities_tab.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
@@ -163,7 +163,7 @@ namespace ppx_demo
                 if (!render_entity_node(e, -1))
                     ImGui::SameLine();
 
-                ImGui::PushID(-(int)e.id());
+                ImGui::PushID(&e);
                 if (ImGui::Button(slct.is_selected(e_ptr) ? "Deselect" : "Select"))
                 {
                     if (slct.is_selected(e_ptr))
@@ -173,7 +173,7 @@ namespace ppx_demo
                 }
                 ImGui::PopID();
                 ImGui::SameLine();
-                ImGui::PushID(-(int)e.id());
+                ImGui::PushID(&e);
                 if (ImGui::Button("Remove"))
                     to_remove = &e;
                 ImGui::PopID();
@@ -209,7 +209,7 @@ namespace ppx_demo
 
     bool entities_tab::render_entity_node(ppx::entity2D &e, std::int8_t sign) const
     {
-        const bool expanded = ImGui::TreeNode((void *)(intptr_t)((std::int64_t)e.id() * sign), "Entity '%s'", glob::generate_name(e.id()));
+        const bool expanded = ImGui::TreeNode(&e, "Entity '%s'", glob::generate_name(e.id()));
         if (expanded || ImGui::IsItemHovered())
             demo_app::get().p_outline_manager.load_outline(e.index(), sf::Color::Cyan, 5);
         if (expanded)
@@ -226,7 +226,7 @@ namespace ppx_demo
               vel[2] = {e.vel().x, e.vel().y},
               angpos = e.angpos(), angvel = e.angvel(),
               mass = e.mass(), charge = e.charge();
-        ImGui::Text("ID: %zu", e.id());
+        ImGui::Text("ID: %llu", (std::uint64_t)e.id());
         if (ImGui::DragFloat2("Position", pos, 0.2f))
         {
             e.pos(glm::vec2(pos[0], pos[1]));
@@ -237,8 +237,7 @@ namespace ppx_demo
             e.vel(glm::vec2(vel[0], vel[1]));
             e.dispatch();
         }
-        ImGui::Text("Force - x: %f, y: %f", e.force().x, e.force().y);
-        if (ImGui::DragFloat("Angular position", &angpos, 0.2f))
+        if (ImGui::DragFloat("Angular position", &angpos, 0.05f))
         {
             e.angpos(angpos);
             e.dispatch();
@@ -248,7 +247,6 @@ namespace ppx_demo
             e.angvel(angvel);
             e.dispatch();
         }
-        ImGui::Text("Torque - %f", e.torque());
         if (ImGui::DragFloat("Mass", &mass, 0.2f, 1.f, FLT_MAX))
             e.mass(mass);
         if (ImGui::DragFloat("Charge", &charge, 0.2f, -FLT_MAX, FLT_MAX))
@@ -264,8 +262,9 @@ namespace ppx_demo
         {
             for (std::size_t i = 0; i < poly->size(); i++)
             {
-                const glm::vec2 v = poly->vertices()[i] - e.pos();
-                ImGui::Text("Vertex %zu - x: %f, y: %f", i, v.x, v.y);
+                const glm::vec2 &rot = poly->globals()[i] - e.pos(),
+                                &loc = poly->locals()[i];
+                ImGui::Text("Vertex %zu - x: %f, y: %f (x: %f, y: %f)", i, rot.x, rot.y, loc.x, loc.y);
             }
             ImGui::TreePop();
         }
@@ -304,6 +303,13 @@ namespace ppx_demo
                 flwr.follow(papp.engine()[e.index()]);
             else
                 flwr.unfollow(e);
+        }
+
+        if (ImGui::Button("Jump to"))
+        {
+            const auto &v = papp.window().getView();
+            const glm::vec2 center = glm::vec2(v.getCenter().x, v.getCenter().y);
+            papp.transform_camera(e.pos() * PPX_WORLD_TO_PIXEL - center);
         }
     }
 }

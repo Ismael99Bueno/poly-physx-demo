@@ -1,7 +1,7 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "outline_manager.hpp"
 #include "ppx/entity2D_ptr.hpp"
-#include "debug/debug.hpp"
+
 #include "demo_app.hpp"
 
 namespace ppx_demo
@@ -39,13 +39,13 @@ namespace ppx_demo
         {
             const auto &[priority, color] = m_outline_colors[i];
             sf::Shape &shape = papp[i];
-            shape.setOutlineColor(color);
             if (priority)
             {
                 const float ampl = 3.f, freq = 3.5f;
+                shape.setOutlineColor(color);
                 shape.setOutlineThickness(ampl * (2.0f + sinf(freq * m_clock.getElapsedTime().asSeconds())));
             }
-            else
+            else if (shape.getOutlineThickness() != 0.f)
                 shape.setOutlineThickness(0.f);
         }
     }

@@ -1,13 +1,13 @@
 #ifndef ADDER_HPP
 #define ADDER_HPP
 
-#include "templates.hpp"
+#include "globals.hpp"
 #include "ppx-app/app.hpp"
 #include <SFML/Graphics.hpp>
 
 namespace ppx_demo
 {
-    class adder : public ini::serializable
+    class adder
     {
     public:
         enum shape_type
@@ -19,10 +19,10 @@ namespace ppx_demo
         };
 
     private:
-        struct add_template : private ini::serializable
+        struct add_specs
         {
             std::string name;
-            entity_template entity_templ;
+            ppx::entity2D::specs entity_spec;
             shape_type shape = RECT;
             float width = DEFAULT_SIZE, height = DEFAULT_SIZE,
                   ngon_radius = 0.6f * DEFAULT_SIZE,
@@ -32,10 +32,7 @@ namespace ppx_demo
             std::uint32_t entities_between_vertices = 0;
 
             std::uint32_t sides = 3;
-            sf::Color color = DEFAULT_ENTITY_COLOR;
-
-            void serialize(ini::serializer &out) const override;
-            void deserialize(ini::deserializer &in) override;
+            sf::Color color = PPX_DEFAULT_ENTITY_COLOR;
         };
 
     public:
@@ -55,22 +52,19 @@ namespace ppx_demo
 
         void add();
 
-        void serialize(ini::serializer &out) const override;
-        void deserialize(ini::deserializer &in) override;
-
-        const std::map<std::string, add_template> &templates() const;
+        const std::map<std::string, add_specs> &templates() const;
         bool has_saved_entity() const;
 
-        add_template p_current_templ;
+        add_specs p_add_specs;
         bool p_predict_path = true;
 
     private:
-        std::map<std::string, add_template> m_templates;
+        std::map<std::string, add_specs> m_templates;
 
         glm::vec2 m_start_pos{0.f};
         bool m_adding = false;
 
-        std::unique_ptr<sf::Shape> m_preview;
+        ppx::scope<sf::Shape> m_preview;
 
         ppx::entity2D_ptr add_entity(bool definitive = true);
         void add_soft_body();
@@ -82,6 +76,31 @@ namespace ppx_demo
 
         void draw_entity_preview();
         void draw_velocity_arrow() const;
+
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const adder &);
+        friend struct YAML::convert<adder>;
+        friend YAML::Emitter &operator<<(YAML::Emitter &, const add_specs &);
+        friend struct YAML::convert<add_specs>;
+    };
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder &addr);
+    YAML::Emitter &operator<<(YAML::Emitter &out, const adder::add_specs &add_tmpl);
+}
+
+namespace YAML
+{
+    template <>
+    struct convert<ppx_demo::adder>
+    {
+        static Node encode(const ppx_demo::adder &addr);
+        static bool decode(const Node &node, ppx_demo::adder &addr);
+    };
+
+    template <>
+    struct convert<ppx_demo::adder::add_specs>
+    {
+        static Node encode(const ppx_demo::adder::add_specs &add_tmpl);
+        static bool decode(const Node &node, ppx_demo::adder::add_specs &add_tmpl);
     };
 }
 

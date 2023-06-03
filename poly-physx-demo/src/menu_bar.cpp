@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "menu_bar.hpp"
 #include "demo_app.hpp"
 #include "globals.hpp"
@@ -129,8 +129,8 @@ namespace ppx_demo
                 SUBSTITUTE(buffer, ' ', '-')
                 const std::string savefile(buffer);
                 demo_app &papp = demo_app::get();
-                papp.session(savefile + ".ini");
-                papp.write_save(savefile + ".ini");
+                papp.session(savefile + ".yaml");
+                papp.write_save(savefile + ".yaml");
                 buffer[0] = '\0';
             }
             ImGui::PopItemWidth();

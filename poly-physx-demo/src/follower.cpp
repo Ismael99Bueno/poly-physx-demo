@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "follower.hpp"
 #include "demo_app.hpp"
 
@@ -9,7 +9,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_entities.begin(); it != m_entities.end();)
-                if (!it->try_validate())
+                if (!it->validate())
                     it = m_entities.erase(it);
                 else
                     ++it;
@@ -26,14 +26,17 @@ namespace ppx_demo
             return;
 
         const glm::vec2 com = center_of_mass();
-        demo_app::get().transform_camera((com - m_prev_com) * WORLD_TO_PIXEL);
+        demo_app::get().transform_camera((com - m_prev_com) * PPX_WORLD_TO_PIXEL);
         m_prev_com = com;
     }
 
     void follower::follow(const ppx::const_entity2D_ptr &e)
     {
         if (!is_following(*e))
+        {
             m_entities.push_back(e);
+            m_prev_com = center_of_mass();
+        }
     }
     void follower::unfollow(const ppx::entity2D &e)
     {
@@ -55,27 +58,6 @@ namespace ppx_demo
     bool follower::empty() const { return m_entities.empty(); }
     void follower::clear() { m_entities.clear(); }
 
-    void follower::serialize(ini::serializer &out) const
-    {
-        out.write("prevcomx", m_prev_com.x);
-        out.write("prevcomy", m_prev_com.y);
-        const std::string key = "entity";
-        for (const ppx::const_entity2D_ptr &e : m_entities)
-            out.write(key + std::to_string(e.index()), e.index());
-    }
-    void follower::deserialize(ini::deserializer &in)
-    {
-        m_prev_com = {in.readf32("prevcomx"), in.readf32("prevcomy")};
-        const std::string key = "entity";
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                follow(e);
-        }
-    }
-
     glm::vec2 follower::center_of_mass() const
     {
         if (m_entities.size() == 1)
@@ -89,5 +71,41 @@ namespace ppx_demo
             mass += e->mass();
         }
         return com / mass;
+    }
+
+    YAML::Emitter &operator<<(YAML::Emitter &out, const follower &flw)
+    {
+        out << YAML::BeginMap;
+        out << YAML::Key << "Previous COM" << YAML::Value << flw.m_prev_com;
+        out << YAML::Key << "Entities" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto &e : flw.m_entities)
+            out << e.index();
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        return out;
+    }
+}
+
+namespace YAML
+{
+    Node convert<ppx_demo::follower>::encode(const ppx_demo::follower &flw)
+    {
+        Node node;
+        node["Previous COM"] = flw.m_prev_com;
+        for (const auto &e : flw.m_entities)
+            node["Entities"].push_back(e.index());
+        node["Entities"].SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+    bool convert<ppx_demo::follower>::decode(const Node &node, ppx_demo::follower &flw)
+    {
+        if (!node.IsMap() || node.size() != 2)
+            return false;
+        flw.m_entities.clear();
+        flw.m_prev_com = node["Previous COM"].as<glm::vec2>();
+        for (const Node &n : node["Entities"])
+            flw.m_entities.push_back(ppx_demo::demo_app::get().engine()[n.as<std::size_t>()]);
+
+        return true;
     }
 }

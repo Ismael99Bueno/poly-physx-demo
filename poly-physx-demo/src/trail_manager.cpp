@@ -1,4 +1,4 @@
-#include "pch.hpp"
+#include "ppxdpch.hpp"
 #include "trail_manager.hpp"
 #include "prm/thick_line.hpp"
 #include "demo_app.hpp"
@@ -15,7 +15,7 @@ namespace ppx_demo
         const auto on_removal = [this](const std::size_t index)
         {
             for (auto it = m_trails.begin(); it != m_trails.end();)
-                if (!it->first.try_validate())
+                if (!it->first.validate())
                     it = m_trails.erase(it);
                 else
                     ++it;
@@ -39,7 +39,7 @@ namespace ppx_demo
             if (vertices.unwrap().size() >= p_steps)
                 trail.erase(0, vertices.unwrap().size() - p_steps + 1);
 
-            trail.append(e->pos() * WORLD_TO_PIXEL);
+            trail.append(e->pos() * PPX_WORLD_TO_PIXEL);
             for (std::size_t i = 0; i < vertices.unwrap().size(); i++)
             {
                 const float alpha = (float)i / (float)(p_steps - 1);
@@ -60,7 +60,7 @@ namespace ppx_demo
                 demo_app &papp = demo_app::get();
 
                 const auto &[last_pos, last_color] = trail.vertices().back();
-                prm::thick_line tl(last_pos, e->pos() * WORLD_TO_PIXEL, p_line_thickness, last_color, true);
+                prm::thick_line tl(last_pos, e->pos() * PPX_WORLD_TO_PIXEL, p_line_thickness, last_color, true);
 
                 papp.draw(tl);
                 papp.draw(trail);
@@ -89,34 +89,50 @@ namespace ppx_demo
         return false;
     }
 
-    void trail_manager::serialize(ini::serializer &out) const
+    YAML::Emitter &operator<<(YAML::Emitter &out, const trail_manager &tm)
     {
-        out.write("steps", p_steps);
-        out.write("length", p_length);
-        out.write("thickness", p_line_thickness);
-        out.write("enabled", p_enabled);
-        out.write("auto_include", p_auto_include);
-
-        const std::string key = "entity";
-        for (const auto &[e, trail] : m_trails)
-            out.write(key + std::to_string(e.index()), e.index());
+        out << YAML::BeginMap;
+        out << YAML::Key << "Enabled" << YAML::Value << tm.p_enabled;
+        out << YAML::Key << "Auto include" << YAML::Value << tm.p_auto_include;
+        out << YAML::Key << "Steps" << YAML::Value << tm.p_steps;
+        out << YAML::Key << "Length" << YAML::Value << tm.p_length;
+        out << YAML::Key << "Line thickness" << YAML::Value << tm.p_line_thickness;
+        out << YAML::Key << "Trails" << YAML::Value << YAML::Flow << YAML::BeginSeq;
+        for (const auto &[e, line] : tm.m_trails)
+            out << e.index();
+        out << YAML::EndSeq;
+        out << YAML::EndMap;
+        return out;
     }
-    void trail_manager::deserialize(ini::deserializer &in)
-    {
-        p_steps = in.readui32("steps");
-        p_length = in.readui32("length");
-        p_line_thickness = in.readf32("thickness");
-        p_enabled = (bool)in.readi16("enabled");
-        p_auto_include = (bool)in.readi16("auto_include");
-        m_trails.clear();
+}
 
-        const std::string key = "entity";
-        demo_app &papp = demo_app::get();
-        for (std::size_t i = 0; i < papp.engine().size(); i++)
-        {
-            const ppx::entity2D_ptr e = papp.engine()[i];
-            if (in.contains_key(key + std::to_string(e.index())))
-                include(e);
-        }
+namespace YAML
+{
+    Node convert<ppx_demo::trail_manager>::encode(const ppx_demo::trail_manager &tm)
+    {
+        Node node;
+        node["Enabled"] = tm.p_enabled;
+        node["Auto include"] = tm.p_auto_include;
+        node["Steps"] = tm.p_steps;
+        node["Length"] = tm.p_length;
+        node["Line thickness"] = tm.p_line_thickness;
+        for (const auto &[e, line] : tm.m_trails)
+            node["Trails"].push_back(e.index());
+        node["Trails"].SetStyle(YAML::EmitterStyle::Flow);
+        return node;
+    }
+    bool convert<ppx_demo::trail_manager>::decode(const Node &node, ppx_demo::trail_manager &tm)
+    {
+        if (!node.IsMap() || node.size() != 6)
+            return false;
+        tm.p_enabled = node["Enabled"].as<bool>();
+        tm.p_steps = node["Steps"].as<std::uint32_t>();
+        tm.p_line_thickness = node["Line thickness"].as<float>();
+        tm.p_auto_include = node["Auto include"].as<bool>();
+        tm.p_length = node["Length"].as<std::uint32_t>();
+        tm.m_trails.clear();
+        for (const Node &n : node["Trails"])
+            tm.include(ppx_demo::demo_app::get().engine()[n.as<std::size_t>()]);
+        return true;
     }
 }

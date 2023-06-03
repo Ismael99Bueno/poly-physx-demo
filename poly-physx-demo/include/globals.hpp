@@ -14,8 +14,8 @@
 #define SAVES_DIR "saves/"
 #define EXAMPLES_DIR "examples/"
 #endif
-#define DEFAULT_SAVE "default.ini"
-#define LAST_SAVE "last.ini"
+#define DEFAULT_SAVE "default.yaml"
+#define LAST_SAVE "last.yaml"
 
 #define SUBSTITUTE(buff, from, to)        \
     for (char *c = buff; *c != '\0'; c++) \
@@ -26,7 +26,7 @@
 
 namespace glob
 {
-    const char *generate_name(std::size_t id);
+    const char *generate_name(std::uint64_t id);
 }
 
 #endif
