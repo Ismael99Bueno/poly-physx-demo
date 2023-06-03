@@ -134,12 +134,12 @@ void joints_tab::render_rigid_bars_list() const
     demo_app &papp = demo_app::get();
 
     auto &ctrs = papp.engine().compeller().constraints();
-    ppx::ref<ppx::constraint_interface2D> to_remove = nullptr;
+    const ppx::constraint_interface2D *to_remove = nullptr;
 
     if (ImGui::CollapsingHeader("Rigid bars"))
         for (std::size_t i = 0; i < ctrs.size(); i++)
         {
-            const auto rb = std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctrs[i]);
+            const auto rb = dynamic_cast<ppx::rigid_bar2D *>(ctrs[i].get());
             if (render_list("Rigid bar", rb->value(), papp.rigid_bars_color(), *rb))
                 to_remove = rb;
         }
@@ -157,10 +157,10 @@ static std::vector<ppx::spring2D *> from_ids(const ppx::uuid id1, const ppx::uui
     return res;
 }
 
-static std::vector<ppx::ref<ppx::rigid_bar2D>> from_ids(const ppx::uuid id1, const ppx::uuid id2,
-                                                        const std::vector<ppx::ref<ppx::rigid_bar2D>> &vec)
+static std::vector<ppx::rigid_bar2D *> from_ids(const ppx::uuid id1, const ppx::uuid id2,
+                                                const std::vector<ppx::rigid_bar2D *> &vec)
 {
-    std::vector<ppx::ref<ppx::rigid_bar2D>> res;
+    std::vector<ppx::rigid_bar2D *> res;
     res.reserve(10);
     for (const auto &rb : vec)
         if (rb->e1().id() == id1 && rb->e2().id() == id2)
@@ -256,9 +256,9 @@ void joints_tab::render_selected_rbars() const
     demo_app &papp = demo_app::get();
     selector &slct = papp.p_selector;
 
-    std::vector<ppx::ref<ppx::rigid_bar2D>> selected_rbars, rbars;
+    std::vector<ppx::rigid_bar2D *> selected_rbars, rbars;
     for (const auto &ctr : papp.engine().compeller().constraints())
-        rbars.push_back(std::dynamic_pointer_cast<ppx::rigid_bar2D>(ctr));
+        rbars.push_back(dynamic_cast<ppx::rigid_bar2D *>(ctr.get()));
 
     selected_rbars.reserve(slct.rbar_pairs().size());
     auto [avg_stiffness, avg_dampening, avg_length, amount] =

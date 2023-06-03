@@ -65,7 +65,7 @@ void copy_paste::copy(group &g)
 
     for (const auto &ctr : papp.engine().compeller().constraints())
     {
-        const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+        const auto rb = dynamic_cast<const ppx::rigid_bar2D *>(ctr.get());
         if (!rb)
             continue;
         if (contains_ids(g.entities, *rb))

@@ -36,8 +36,8 @@ void selector::start()
             }
         }
     };
-    const auto validate_rb = [this](const ppx::ref<ppx::constraint_interface2D> &ctr) {
-        const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+    const auto validate_rb = [this](const ppx::constraint_interface2D &ctr) {
+        const auto rb = dynamic_cast<const ppx::rigid_bar2D *>(&ctr);
         if (!rb)
             return;
         for (auto it = m_rbars.begin(); it != m_rbars.end(); ++it)
@@ -99,7 +99,7 @@ void selector::update_selected_springs_rbars()
     m_rbars.clear();
     for (const auto &ctr : papp.engine().compeller().constraints())
     {
-        const auto rb = std::dynamic_pointer_cast<const ppx::rigid_bar2D>(ctr);
+        const auto rb = dynamic_cast<const ppx::rigid_bar2D *>(ctr.get());
         if (rb)
             for (const ppx::entity2D_ptr &e1 : m_entities)
                 for (const ppx::entity2D_ptr &e2 : m_entities)
