@@ -25,9 +25,11 @@ The following git submodules are included:
 - [glm](https://github.com/g-truc/glm)
 - [sfml-primitives](https://github.com/ismawno/sfml-primitives)
 - [rk-integrator](https://github.com/ismawno/rk-integrator)
-- [debug-tools](https://github.com/ismawno/debug-tools)
+- [allocators](https://github.com/ismawno/allocators)
+- [debug-log-tools](https://github.com/ismawno/debug-log-tools)
+- [spdlog](https://github.com/gabime/spdlog)
 - [profile-tools](https://github.com/ismawno/profile-tools)
-- [ini-parser](https://github.com/ismawno/ini-parser)
+- [yaml-cpp](https://github.com/ismawno/yaml-cpp)
 - [container-view](https://github.com/ismawno/container-view)
 - [shapes-2D](https://github.com/ismawno/shapes-2D)
 
