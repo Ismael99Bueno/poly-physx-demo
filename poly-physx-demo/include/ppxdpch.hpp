@@ -11,9 +11,13 @@
 #include <unordered_set>
 #include <vector>
 #include <variant>
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtx/norm.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+
 #include <algorithm>
 #include <filesystem>
 #include <cmath>

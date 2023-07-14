@@ -37,6 +37,7 @@ includedirs {
    "include",
    "%{wks.location}/poly-physx/include",
    "%{wks.location}/poly-physx-app/include",
+   "%{wks.location}/lynx/include",
    "%{wks.location}/shapes-2D/include",
    "%{wks.location}/rk-integrator/include",
    "%{wks.location}/debug-log-tools/include",
@@ -63,6 +64,7 @@ links {
    "imgui-SFML",
    "implot",
    "poly-physx-app",
+   "lynx",
    "sfml-primitives"
 }
 
