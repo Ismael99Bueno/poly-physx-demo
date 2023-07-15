@@ -55,3 +55,6 @@
 [submodule "premake-export-compile-commands"]
 	path = vendor/premake-export-compile-commands
 	url = https://github.com/tarruda/premake-export-compile-commands.git
+[submodule "cpp-kit"]
+	path = cpp-kit
+	url = https://github.com/ismawno/cpp-kit.git
