@@ -192,7 +192,7 @@ void add_tab::render_canvas() const
     demo_app &papp = demo_app::get();
 
     const geo::polygon poly(m_adder.p_add_specs.entity_spec.vertices);
-    ppx::blk_vector<glm::vec2> vertices = poly.globals();
+    ppx::block_vector<glm::vec2> vertices = poly.globals();
 
     const bool is_convex = poly.is_convex();
     if (!is_convex && !m_adder.p_add_specs.soft_body)

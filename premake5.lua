@@ -10,14 +10,12 @@ configurations {
 startproject "poly-physx-demo"
 
 defines {
-   "HAS_GLM",
-   "HAS_YAML_CPP",
-   "HAS_IMPLOT",
-   "HAS_DEBUG_LOG_TOOLS",
-   "HAS_PROFILE_TOOLS",
-   "HAS_ALLOCATORS",
+   "YAML_CPP_GLM_COMPAT",
+   "YAML_CPP_COMPAT",
+   "YAML_CPP_STATIC_DEFINE",
    "PPX_MULTITHREADED",
-   "YAML_CPP_STATIC_DEFINE"
+   "KIT_USE_SPDLOG",
+   "KIT_USE_CUSTOM_ALLOC"
 }
 
 function script_path()
@@ -54,7 +52,7 @@ filter {}
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 
 filter "configurations:debug*"
-   defines "DEBUG"
+   defines {"DEBUG", "KIT_DEBUG"}
    runtime "Debug"
    symbols "On"
 
@@ -64,19 +62,18 @@ filter "configurations:release*"
    optimize "On"
 
 filter "configurations:*profile"
-   defines "PERF"
+   defines "KIT_PERF"
 filter {}
 
 include "rk-integrator"
 include "shapes-2D"
-include "vendor/yaml-cpp"
-include "profile-tools"
 include "poly-physx"
+include "lynx"
+include "poly-physx-app"
+include "poly-physx-demo"
+include "cpp-kit"
+include "vendor/yaml-cpp"
 include "vendor/imgui"
 include "vendor/imgui-sfml"
 include "vendor/implot"
 include "vendor/glfw"
-include "lynx"
-include "poly-physx-app"
-include "sfml-primitives"
-include "poly-physx-demo"

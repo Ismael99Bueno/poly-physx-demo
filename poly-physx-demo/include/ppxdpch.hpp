@@ -24,13 +24,11 @@
 #include <random>
 #include <string>
 #include <limits>
-#ifdef HAS_YAML_CPP
+#ifdef YAML_CPP_COMPAT
 #include <yaml-cpp/yaml.h>
 #endif
 #include <functional>
 #include "ppx-app/pch.hpp"
-#ifdef HAS_DEBUG_LOG_TOOLS
-#include "dbg/log.hpp"
-#endif
+#include "kit/debug/log.hpp"
 
 #endif

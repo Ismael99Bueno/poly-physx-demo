@@ -13,15 +13,9 @@
 [submodule "shapes-2D"]
 	path = shapes-2D
 	url = https://github.com/ismawno/shapes-2D.git
-[submodule "profile-tools"]
-	path = profile-tools
-	url = https://github.com/ismawno/profile-tools.git
 [submodule "rk-integrator"]
 	path = rk-integrator
 	url = https://github.com/ismawno/rk-integrator.git
-[submodule "sfml-primitives"]
-	path = sfml-primitives
-	url = https://github.com/ismawno/sfml-primitives.git
 [submodule "poly-physx"]
 	path = poly-physx
 	url = https://github.com/ismawno/poly-physx.git
@@ -31,21 +25,12 @@
 [submodule "glm"]
 	path = vendor/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "container-view"]
-	path = container-view
-	url = https://github.com/ismawno/container-view.git
 [submodule "yaml-cpp"]
 	path = vendor/yaml-cpp
 	url = https://github.com/ismawno/yaml-cpp.git
-[submodule "debug-log-tools"]
-	path = debug-log-tools
-	url = https://github.com/ismawno/debug-log-tools.git
 [submodule "spdlog"]
 	path = vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "allocators"]
-	path = allocators
-	url = https://github.com/ismawno/allocators.git
 [submodule "lynx"]
 	path = lynx
 	url = https://github.com/ismawno/lynx.git
