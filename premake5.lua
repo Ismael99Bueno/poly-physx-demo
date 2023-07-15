@@ -52,7 +52,7 @@ filter {}
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 
 filter "configurations:debug*"
-   defines {"DEBUG", "KIT_DEBUG"}
+   defines {"DEBUG", "KIT_LOG"}
    runtime "Debug"
    symbols "On"
 
@@ -62,7 +62,7 @@ filter "configurations:release*"
    optimize "On"
 
 filter "configurations:*profile"
-   defines "KIT_PERF"
+   defines "KIT_PROFILE"
 filter {}
 
 include "rk-integrator"

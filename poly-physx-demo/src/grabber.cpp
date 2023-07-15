@@ -21,14 +21,14 @@ void grabber::start()
 
 void grabber::update() const
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_grabbed)
         move_grabbed_entity();
 }
 
 void grabber::render() const
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_grabbed)
         draw_padded_spring(demo_app::get().pixel_mouse(), glm::rotate(m_anchor, m_grabbed->angpos() - m_angle));
 }

@@ -136,7 +136,7 @@ void perf_panel::render_full()
 void perf_panel::render_time_hierarchy()
 {
     const auto &hierarchy = perf::profiler::get().hierarchy();
-    if (hierarchy.find(PERF_SESSION_NAME) == hierarchy.end())
+    if (hierarchy.find(KIT_PERF_SESSION_NAME) == hierarchy.end())
         return;
 
     const perf::profile_stats &stats = hierarchy.at(PERF_SESSION_NAME);

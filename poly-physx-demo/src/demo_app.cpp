@@ -98,12 +98,12 @@ bool demo_app::read_save(const std::string &filename)
 
 void demo_app::write_save() const
 {
-    DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to save.")
+    KIT_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to save.")
     write_save(m_session);
 }
 bool demo_app::read_save()
 {
-    DBG_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to load.")
+    KIT_ASSERT_CRITICAL(has_session(), "No current session active. Must specify a specific session name to load.")
     return read_save(m_session);
 }
 
@@ -114,7 +114,7 @@ bool demo_app::read_example(const std::string &filepath)
 
 void demo_app::on_update()
 {
-    PERF_FUNCTION()
+    KIT_PERF_FUNCTION()
     p_predictor.update();
     p_trails.update();
     p_follower.update();
@@ -134,7 +134,7 @@ void demo_app::on_update()
 
 void demo_app::on_render()
 {
-    PERF_FUNCTION()
+    KIT_PERF_FUNCTION()
     // draw_interaction_lines();
     p_selector.render();
     p_copy_paste.render();
@@ -148,7 +148,7 @@ void demo_app::on_render()
 
 void demo_app::on_late_update()
 {
-    PERF_FUNCTION()
+    KIT_PERF_FUNCTION()
     p_outline_manager.update();
 }
 

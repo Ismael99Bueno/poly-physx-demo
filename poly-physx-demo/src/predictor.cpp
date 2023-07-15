@@ -30,7 +30,7 @@ void predictor::update()
     if (!p_enabled || m_paths.empty())
         return;
 
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     demo_app &papp = demo_app::get();
     ppx::engine2D &eng = papp.engine();
     for (auto &[e, path] : m_paths)
@@ -66,7 +66,7 @@ void predictor::render() const
 {
     if (!p_enabled)
         return;
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     for (const auto &[e, path] : m_paths)
         demo_app::get().draw(path);
 }
@@ -88,7 +88,7 @@ void predictor::stop_predicting(const ppx::entity2D &e)
 
 void predictor::predict_and_render(const ppx::entity2D &e)
 {
-    PERF_FUNCTION()
+    KIT_PERF_FUNCTION()
     demo_app &papp = demo_app::get();
     ppx::engine2D &eng = papp.engine();
     prm::thick_line_strip path(papp[e.index()].getFillColor(), p_line_thickness);

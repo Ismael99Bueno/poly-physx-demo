@@ -14,7 +14,7 @@ namespace ppx_demo
 {
 void adder::render()
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_adding)
         preview_entity();
 }

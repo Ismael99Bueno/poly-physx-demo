@@ -9,7 +9,7 @@ namespace ppx_demo
 {
 void attacher::update(const bool snap_e2_to_center)
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (!m_e1)
         return;
     if (!m_snap_e1_to_center)
@@ -31,7 +31,7 @@ void attacher::update(const bool snap_e2_to_center)
 }
 void attacher::render(const bool snap_e2_to_center) const
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_e1)
         draw_unattached_anchor(snap_e2_to_center);
 }

@@ -57,7 +57,7 @@ void selector::start()
 
 void selector::render() const
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_selecting)
         draw_select_box();
 }

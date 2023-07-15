@@ -7,7 +7,7 @@ namespace ppx_demo
 {
 void copy_paste::render()
 {
-    PERF_PRETTY_FUNCTION()
+    KIT_PERF_PRETTY_FUNCTION()
     if (m_has_copy)
         preview();
 }
@@ -20,7 +20,7 @@ void copy_paste::save_group(const std::string &name)
 }
 void copy_paste::load_group(const std::string &name)
 {
-    DBG_ASSERT_ERROR(m_groups.find(name) != m_groups.end(), "Group not found when loading %s!", name.c_str())
+    KIT_ASSERT_ERROR(m_groups.find(name) != m_groups.end(), "Group not found when loading %s!", name.c_str())
     m_copy = m_groups.at(name);
     m_has_copy = true;
 }
@@ -48,7 +48,7 @@ void copy_paste::copy(group &g)
 {
     demo_app &papp = demo_app::get();
     const selector &slct = papp.p_selector;
-    DBG_ASSERT_ERROR(!slct.entities().empty(), "Must have something selected to copy!")
+    KIT_ASSERT_ERROR(!slct.entities().empty(), "Must have something selected to copy!")
 
     g.ref_pos = glm::vec2(0.f);
 
