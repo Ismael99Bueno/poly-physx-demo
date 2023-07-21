@@ -11,11 +11,12 @@ startproject "poly-physx-demo"
 
 defines {
    "YAML_CPP_GLM_COMPAT",
-   "YAML_CPP_COMPAT",
    "YAML_CPP_STATIC_DEFINE",
    "PPX_MULTITHREADED",
    "KIT_USE_SPDLOG",
-   "KIT_USE_CUSTOM_ALLOC"
+   "KIT_USE_CUSTOM_ALLOC",
+   "KIT_USE_YAML_CPP",
+   "LYNX_ENABLE_IMGUI"
 }
 
 function script_path()

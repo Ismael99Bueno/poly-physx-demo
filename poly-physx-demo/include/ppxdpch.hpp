@@ -24,7 +24,7 @@
 #include <random>
 #include <string>
 #include <limits>
-#ifdef YAML_CPP_COMPAT
+#ifdef KIT_USE_YAML_CPP
 #include <yaml-cpp/yaml.h>
 #endif
 #include <functional>
