@@ -18,8 +18,8 @@ filter "system:macosx"
    rpath = "-Wl,-rpath,".. rootpath .."vendor/vulkan-sdk/macOS/lib"
    linkoptions {rpath}
 
-pchheader "ppxdpch.hpp"
-pchsource "src/pch.cpp"
+pchheader "ppx-demo/internal/pch.hpp"
+pchsource "src/internal/pch.cpp"
 
 targetdir("bin/" .. outputdir)
 objdir("build/" .. outputdir)
@@ -41,6 +41,7 @@ includedirs {
    "%{wks.location}/vendor/imgui",
    "%{wks.location}/vendor/implot/include",
    "%{wks.location}/vendor/yaml-cpp/include",
+   "%{wks.location}/vendor/glfw/include",
    "%{wks.location}/vendor/spdlog/include"
 }
 
@@ -50,11 +51,11 @@ links {
    "IOKit.framework",
    "CoreFoundation.framework",
    "vulkan",
-   "profile-tools",
    "yaml-cpp",
    "rk-integrator",
    "shapes-2D",
    "poly-physx",
+   "cpp-kit",
    "imgui",
    "implot",
    "poly-physx-app",
