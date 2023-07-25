@@ -1,14 +1,14 @@
-#ifndef PPX_PERFORMANCE_TAB_HPP
-#define PPX_PERFORMANCE_TAB_HPP
+#ifndef PPX_PERFORMANCE_PANEL_HPP
+#define PPX_PERFORMANCE_PANEL_HPP
 
 #include "lynx/app/layer.hpp"
 
 namespace ppx::demo
 {
-class performance_tab : public lynx::layer
+class performance_panel : public lynx::layer
 {
   public:
-    performance_tab();
+    performance_panel();
 
   private:
     void on_render(float ts) override;

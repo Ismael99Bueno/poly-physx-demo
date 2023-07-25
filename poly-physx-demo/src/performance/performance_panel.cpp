@@ -1,13 +1,13 @@
 #include "ppx-demo/internal/pch.hpp"
-#include "ppx-demo/performance/performance_tab.hpp"
+#include "ppx-demo/performance/performance_panel.hpp"
 
 namespace ppx::demo
 {
-performance_tab::performance_tab() : lynx::layer("Performance tab")
+performance_panel::performance_panel() : lynx::layer("Performance tab")
 {
 }
 
-void performance_tab::on_render(const float ts)
+void performance_panel::on_render(const float ts)
 {
     if (!ImGui::Begin("Performance"))
     {

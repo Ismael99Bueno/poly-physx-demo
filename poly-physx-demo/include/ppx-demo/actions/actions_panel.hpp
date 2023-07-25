@@ -1,14 +1,14 @@
-#ifndef PPX_ACTIONS_TAB_HPP
-#define PPX_ACTIONS_TAB_HPP
+#ifndef PPX_ACTIONS_PANEL_HPP
+#define PPX_ACTIONS_PANEL_HPP
 
 #include "lynx/app/layer.hpp"
 
 namespace ppx::demo
 {
-class actions_tab : public lynx::layer
+class actions_panel : public lynx::layer
 {
   public:
-    actions_tab();
+    actions_panel();
 
   private:
     void on_render(float ts) override;

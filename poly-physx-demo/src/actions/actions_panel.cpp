@@ -1,12 +1,12 @@
 #include "ppx-demo/internal/pch.hpp"
-#include "ppx-demo/actions/actions_tab.hpp"
+#include "ppx-demo/actions/actions_panel.hpp"
 
 namespace ppx::demo
 {
-actions_tab::actions_tab() : lynx::layer("Actions tab")
+actions_panel::actions_panel() : lynx::layer("Actions tab")
 {
 }
-void actions_tab::on_render(const float ts)
+void actions_panel::on_render(const float ts)
 {
     if (!ImGui::Begin("Actions"))
     {
