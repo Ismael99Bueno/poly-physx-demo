@@ -63,7 +63,6 @@ template <typename TimeUnit> static void render_hierarchy_recursive(const kit::m
                          measure.parent_relative_percent * 100.f))
         return;
 
-    ImGui::PushID(measure.name());
     if (ImGui::CollapsingHeader("Details"))
     {
         const float per_call = measure.duration_per_call.as<TimeUnit, float>();
@@ -74,7 +73,6 @@ template <typename TimeUnit> static void render_hierarchy_recursive(const kit::m
         ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
         ImGui::Text("Calls (overall): %u", measure.total_calls);
     }
-    ImGui::PopID();
     for (const kit::measurement &m : measure.children)
         render_hierarchy_recursive<TimeUnit>(m, unit);
 
