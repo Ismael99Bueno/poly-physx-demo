@@ -11,6 +11,9 @@ class demo_app : public app
     demo_app();
 
   private:
+    void on_late_start() override;
+    void on_late_shutdown() override;
+
 #ifdef DEBUG
     void on_render(float ts) override;
 #endif

@@ -1,20 +1,6 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
-
-#ifdef ROOT_PATH
-
-#define SAVES_DIR ROOT_PATH "saves/"
-#define EXAMPLES_DIR ROOT_PATH "examples/"
-
-#else
-
-#define SAVES_DIR "saves/"
-#define EXAMPLES_DIR "examples/"
-
-#endif
-
-#define DEFAULT_SAVE "default.yaml"
-#define LAST_SAVE "last.yaml"
+#include "ppx-demo/app/demo_app.hpp"
 
 namespace ppx::demo
 {
@@ -35,5 +21,27 @@ void menu_bar::on_render(const float ts)
         }
         ImGui::EndMainMenuBar();
     }
+}
+
+void menu_bar::serialize_to_saves(const std::string &filename) const
+{
+    const std::string filepath = SAVES_DIRECTORY + filename;
+    m_app->serialize(filepath);
+}
+void menu_bar::serialize_to_examples(const std::string &filename) const
+{
+    const std::string filepath = EXAMPLES_DIRECTORY + filename;
+    m_app->serialize(filepath);
+}
+
+void menu_bar::deserialize_from_saves(const std::string &filename) const
+{
+    const std::string filepath = SAVES_DIRECTORY + filename;
+    m_app->deserialize(filepath);
+}
+void menu_bar::deserialize_from_examples(const std::string &filename) const
+{
+    const std::string filepath = EXAMPLES_DIRECTORY + filename;
+    m_app->deserialize(filepath);
 }
 } // namespace ppx::demo

@@ -13,6 +13,22 @@ demo_app::demo_app()
     push_layer<menu_bar>();
 }
 
+void demo_app::on_late_start()
+{
+    if (!std::filesystem::exists(menu_bar::SAVES_DIRECTORY))
+        std::filesystem::create_directory(menu_bar::SAVES_DIRECTORY);
+
+    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
+
+    if (std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH))
+        deserialize(menu_bar::LAST_SAVE_FILEPATH);
+}
+
+void demo_app::on_late_shutdown()
+{
+    serialize(menu_bar::LAST_SAVE_FILEPATH);
+}
+
 #ifdef DEBUG
 void demo_app::on_render(const float ts)
 {
