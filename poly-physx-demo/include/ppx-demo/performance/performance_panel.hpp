@@ -33,9 +33,10 @@ class performance_panel : public demo_layer
     void render_smoothness_slider();
     void render_fps() const;
 
-    template <typename TimeUnit, typename T> void render_measurements_summary(const char *format) const;
-
+    void render_summary() const;
     void render_measurements_hierarchy() const;
+
+    template <typename TimeUnit, typename T> void render_measurements_summary(const char *format) const;
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;

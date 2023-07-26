@@ -27,6 +27,16 @@ void performance_panel::on_render(const float ts)
     render_unit_slider();
     render_smoothness_slider();
     render_fps();
+#ifdef KIT_PROFILE
+    render_measurements_hierarchy();
+#else
+    render_summary();
+#endif
+    ImGui::End();
+}
+
+void performance_panel::render_summary() const
+{
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
@@ -44,7 +54,53 @@ void performance_panel::on_render(const float ts)
     default:
         break;
     }
-    ImGui::End();
+}
+
+template <typename TimeUnit> static void render_hierarchy_recursive(const kit::measurement &measure, const char *unit)
+{
+    const float over_calls = measure.duration_over_calls.as<TimeUnit, float>();
+    if (!ImGui::TreeNode(measure.name(), "%s (%.2f %s, %.2f%%)", measure.name(), over_calls, unit,
+                         measure.parent_relative_percent * 100.f))
+        return;
+
+    ImGui::PushID(measure.name());
+    if (ImGui::CollapsingHeader("Details"))
+    {
+        const float per_call = measure.duration_per_call.as<TimeUnit, float>();
+
+        ImGui::Text("Duration per execution: %.2f %s", per_call, unit);
+        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%)", per_call * measure.total_calls, unit,
+                    measure.total_percent * 100.f);
+        ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
+        ImGui::Text("Calls (overall): %u", measure.total_calls);
+    }
+    ImGui::PopID();
+    for (const kit::measurement &m : measure.children)
+        render_hierarchy_recursive<TimeUnit>(m, unit);
+
+    ImGui::TreePop();
+}
+
+void performance_panel::render_measurements_hierarchy() const
+{
+    const kit::measurement &measure = kit::instrumentor::get().last_measurement();
+    switch (m_time_unit)
+    {
+    case time_unit::NANOSECONDS:
+        render_hierarchy_recursive<kit::time::nanoseconds>(measure, "ns");
+        break;
+    case time_unit::MICROSECONDS:
+        render_hierarchy_recursive<kit::time::microseconds>(measure, "us");
+        break;
+    case time_unit::MILLISECONDS:
+        render_hierarchy_recursive<kit::time::milliseconds>(measure, "ms");
+        break;
+    case time_unit::SECONDS:
+        render_hierarchy_recursive<kit::time::seconds>(measure, "s");
+        break;
+    default:
+        break;
+    }
 }
 
 void performance_panel::render_unit_slider()
@@ -56,7 +112,8 @@ void performance_panel::render_unit_slider()
 
 void performance_panel::render_smoothness_slider()
 {
-    ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");
+    if (ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f"))
+        kit::instrumentor::get().measurement_smoothness(m_smoothness);
 }
 
 void performance_panel::render_fps() const
@@ -83,15 +140,6 @@ template <typename TimeUnit, typename T> void performance_panel::render_measurem
     }
 }
 
-template <typename TimeUnit, typename T>
-static void render_hierarchy_recursive(const kit::measurement &measure, const char *format)
-{
-}
-
-void performance_panel::render_measurements_hierarchy() const
-{
-}
-
 YAML::Node performance_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
@@ -107,6 +155,7 @@ bool performance_panel::decode(const YAML::Node &node)
         return false;
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();
+    kit::instrumentor::get().measurement_smoothness(m_smoothness);
 
     return true;
 }

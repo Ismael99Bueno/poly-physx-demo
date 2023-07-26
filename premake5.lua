@@ -15,7 +15,8 @@ defines {
    "KIT_USE_SPDLOG",
    "KIT_USE_CUSTOM_ALLOC",
    "KIT_USE_YAML_CPP",
-   "LYNX_ENABLE_IMGUI"
+   "LYNX_ENABLE_IMGUI",
+   "LYNX_ENABLE_IMPLOT"
 }
 
 function script_path()
