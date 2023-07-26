@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "kit/profile/perf.hpp"
 
 namespace ppx::demo
 {
@@ -29,16 +30,16 @@ void performance_panel::on_render(const float ts)
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        render_time_summary<kit::time::nanoseconds, long long>("%s: %lld (%lld) ns");
+        render_measurements_summary<kit::time::nanoseconds, long long>("%s: %lld (%lld) ns");
         break;
     case time_unit::MICROSECONDS:
-        render_time_summary<kit::time::microseconds, long long>("%s: %lld (%lld) us");
+        render_measurements_summary<kit::time::microseconds, long long>("%s: %lld (%lld) us");
         break;
     case time_unit::MILLISECONDS:
-        render_time_summary<kit::time::milliseconds, long>("%s: %lld (%lld) ms");
+        render_measurements_summary<kit::time::milliseconds, long>("%s: %lld (%lld) ms");
         break;
     case time_unit::SECONDS:
-        render_time_summary<kit::time::seconds, float>("%s: %.3f (%.2f) s");
+        render_measurements_summary<kit::time::seconds, float>("%s: %.3f (%.2f) s");
         break;
     default:
         break;
@@ -64,7 +65,7 @@ void performance_panel::render_fps() const
     ImGui::Text("FPS: %u", fps);
 }
 
-template <typename TimeUnit, typename T> void performance_panel::render_time_summary(const char *format) const
+template <typename TimeUnit, typename T> void performance_panel::render_measurements_summary(const char *format) const
 {
     static const std::array<const char *, 4> measurement_names = {"Frame time", "Update time", "Physics time",
                                                                   "Draw time"};
@@ -80,6 +81,15 @@ template <typename TimeUnit, typename T> void performance_panel::render_time_sum
         max = std::max(max, current);
         ImGui::Text(format, measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
+}
+
+template <typename TimeUnit, typename T>
+static void render_hierarchy_recursive(const kit::measurement &measure, const char *format)
+{
+}
+
+void performance_panel::render_measurements_hierarchy() const
+{
 }
 
 YAML::Node performance_panel::encode() const
