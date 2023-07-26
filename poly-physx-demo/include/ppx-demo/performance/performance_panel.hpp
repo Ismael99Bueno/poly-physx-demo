@@ -1,12 +1,12 @@
 #ifndef PPX_PERFORMANCE_PANEL_HPP
 #define PPX_PERFORMANCE_PANEL_HPP
 
-#include "lynx/app/layer.hpp"
+#include "ppx-demo/app/demo_layer.hpp"
 #include "kit/profile/time.hpp"
 
 namespace ppx::demo
 {
-class performance_panel : public lynx::layer
+class performance_panel : public demo_layer
 {
   public:
     performance_panel();

@@ -3,7 +3,7 @@
 
 namespace ppx::demo
 {
-actions_panel::actions_panel() : lynx::layer("Actions tab")
+actions_panel::actions_panel() : demo_layer("Actions tab")
 {
 }
 void actions_panel::on_render(const float ts)

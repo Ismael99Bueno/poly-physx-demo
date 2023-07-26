@@ -4,17 +4,16 @@
 
 namespace ppx::demo
 {
-performance_panel::performance_panel() : lynx::layer("Performance tab")
+performance_panel::performance_panel() : demo_layer("Performance tab")
 {
 }
 
 void performance_panel::on_update(const float ts)
 {
-    const demo_app &papp = demo_app::get();
-    m_time_measurements[0] = m_smoothness * m_time_measurements[0] + (1.f - m_smoothness) * papp.frame_time();
-    m_time_measurements[1] = m_smoothness * m_time_measurements[1] + (1.f - m_smoothness) * papp.update_time();
-    m_time_measurements[2] = m_smoothness * m_time_measurements[2] + (1.f - m_smoothness) * papp.physics_time();
-    m_time_measurements[3] = m_smoothness * m_time_measurements[3] + (1.f - m_smoothness) * papp.draw_time();
+    m_time_measurements[0] = m_smoothness * m_time_measurements[0] + (1.f - m_smoothness) * m_app->frame_time();
+    m_time_measurements[1] = m_smoothness * m_time_measurements[1] + (1.f - m_smoothness) * m_app->update_time();
+    m_time_measurements[2] = m_smoothness * m_time_measurements[2] + (1.f - m_smoothness) * m_app->physics_time();
+    m_time_measurements[3] = m_smoothness * m_time_measurements[3] + (1.f - m_smoothness) * m_app->draw_time();
 }
 
 void performance_panel::on_render(const float ts)
@@ -85,7 +84,7 @@ template <typename TimeUnit, typename T> void performance_panel::render_time_sum
 
 YAML::Node performance_panel::encode() const
 {
-    YAML::Node node = lynx::layer::encode();
+    YAML::Node node = demo_layer::encode();
     node["Time unit"] = (std::uint32_t)m_time_unit;
     node["Measurement smoothness"] = m_smoothness;
 
@@ -94,7 +93,7 @@ YAML::Node performance_panel::encode() const
 
 bool performance_panel::decode(const YAML::Node &node)
 {
-    if (!lynx::layer::decode(node))
+    if (!demo_layer::decode(node))
         return false;
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();

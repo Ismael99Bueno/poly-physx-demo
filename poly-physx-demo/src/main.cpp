@@ -5,6 +5,7 @@
 int main()
 {
     KIT_PERF_BEGIN_SESSION("ppx-demo-app", kit::profiler::output::HIERARCHY)
-    ppx::demo::demo_app::get().run();
+    ppx::demo::demo_app app;
+    app.run();
     KIT_PERF_END_SESSION()
 }
