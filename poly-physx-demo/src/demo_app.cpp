@@ -15,4 +15,12 @@ demo_app &demo_app::get()
     static demo_app app;
     return app;
 }
+
+#ifdef DEBUG
+void demo_app::on_render(const float ts)
+{
+    ppx::app::on_render(ts);
+    ImGui::ShowDemoWindow();
+}
+#endif
 } // namespace ppx::demo

@@ -10,6 +10,10 @@ class demo_app : public app
   public:
     static demo_app &get();
 
+#ifdef DEBUG
+    void on_render(float ts) override;
+#endif
+
   private:
     demo_app();
 };
