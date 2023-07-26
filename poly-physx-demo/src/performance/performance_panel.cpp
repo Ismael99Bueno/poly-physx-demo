@@ -1,6 +1,6 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
-#include "ppx-demo/demo_app.hpp"
+#include "ppx-demo/app/demo_app.hpp"
 
 namespace ppx::demo
 {
@@ -82,4 +82,24 @@ template <typename TimeUnit, typename T> void performance_panel::render_time_sum
         ImGui::Text(format, measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
 }
+
+YAML::Node performance_panel::encode() const
+{
+    YAML::Node node = lynx::layer::encode();
+    node["Time unit"] = (std::uint32_t)m_time_unit;
+    node["Measurement smoothness"] = m_smoothness;
+
+    return node;
+}
+
+bool performance_panel::decode(const YAML::Node &node)
+{
+    if (!lynx::layer::decode(node))
+        return false;
+    m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
+    m_smoothness = node["Measurement smoothness"].as<float>();
+
+    return true;
+}
+
 } // namespace ppx::demo
