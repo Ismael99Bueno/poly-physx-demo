@@ -12,6 +12,7 @@ class actions_panel : public demo_layer
 
   private:
     void on_render(float ts) override;
+    bool on_event(const lynx::event &event) override;
 };
 } // namespace ppx::demo
 

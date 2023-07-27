@@ -16,7 +16,8 @@ defines {
    "KIT_USE_CUSTOM_ALLOC",
    "KIT_USE_YAML_CPP",
    "LYNX_ENABLE_IMGUI",
-   "LYNX_ENABLE_IMPLOT"
+   "LYNX_ENABLE_IMPLOT",
+   "LYNX_MULTITHREADED"
 }
 
 function script_path()
