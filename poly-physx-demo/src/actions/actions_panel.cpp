@@ -31,7 +31,7 @@ bool actions_panel::on_event(const lynx::event &event)
         switch (event.mouse.button)
         {
         case lynx::input::mouse::BUTTON_1: {
-            m_app->world().add_body(m_app->world_mouse_position());
+            m_app->world.add_body(m_app->world_mouse_position());
         }
         default:
             break;

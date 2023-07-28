@@ -4,6 +4,7 @@
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
 #include "lynx/rendering/buffer.hpp"
+#include "lynx/geometry/camera.hpp"
 
 namespace ppx::demo
 {
@@ -23,6 +24,8 @@ void demo_app::on_late_start()
 
     if (std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH))
         deserialize(menu_bar::LAST_SAVE_FILEPATH);
+    else
+        add_walls();
 }
 
 void demo_app::on_late_shutdown()
@@ -37,4 +40,35 @@ void demo_app::on_render(const float ts)
     ImGui::ShowDemoWindow();
 }
 #endif
+
+void demo_app::add_walls()
+{
+    const glm::vec2 size = m_camera->transform.scale;
+    const float thck = 5.f;
+
+    ppx::body2D::specs body1;
+    ppx::body2D::specs body2;
+    ppx::body2D::specs body3;
+    ppx::body2D::specs body4;
+
+    body1.position = glm::vec2(-size.x - 0.5f * thck, 0.f);
+    body2.position = glm::vec2(size.x + 0.5f * thck, 0.f);
+    body3.position = glm::vec2(0.f, -size.y - 0.5f * thck);
+    body4.position = glm::vec2(0.f, size.y + 0.5f * thck);
+
+    body1.vertices = geo::polygon::rect(thck, 2.f * (size.y + thck));
+    body2.vertices = geo::polygon::rect(thck, 2.f * (size.y + thck));
+    body3.vertices = geo::polygon::rect(2.f * size.x, thck);
+    body4.vertices = geo::polygon::rect(2.f * size.x, thck);
+
+    body1.kinematic = false;
+    body2.kinematic = false;
+    body3.kinematic = false;
+    body4.kinematic = false;
+
+    world.add_body(body1);
+    world.add_body(body2);
+    world.add_body(body3);
+    world.add_body(body4);
+}
 } // namespace ppx::demo

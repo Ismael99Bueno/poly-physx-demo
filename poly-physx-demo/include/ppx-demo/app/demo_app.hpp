@@ -17,6 +17,8 @@ class demo_app : public app
 #ifdef DEBUG
     void on_render(float ts) override;
 #endif
+
+    void add_walls();
 };
 } // namespace ppx::demo
 
