@@ -43,7 +43,9 @@ void demo_app::on_render(const float ts)
 
 void demo_app::add_walls()
 {
-    const glm::vec2 size = m_camera->transform.scale;
+    const lynx::camera2D *cam = window()->camera();
+
+    const glm::vec2 size = cam->transform.scale;
     const float thck = 5.f;
 
     ppx::body2D::specs body1;
