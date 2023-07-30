@@ -35,41 +35,51 @@ void performance_panel::on_render(const float ts)
     ImGui::End();
 }
 
-void performance_panel::render_summary() const
+void performance_panel::render_summary()
 {
+    if (ImGui::Button("Reset maximums"))
+        for (kit::time &max : m_max_time_measurements)
+            max = kit::time();
+
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        render_measurements_summary<kit::time::nanoseconds, long long>("%s: %lld (%lld) ns");
+        render_measurements_summary<kit::time::nanoseconds, long long>("%s: %lld ns (max: %lld ns)");
         break;
     case time_unit::MICROSECONDS:
-        render_measurements_summary<kit::time::microseconds, long long>("%s: %lld (%lld) us");
+        render_measurements_summary<kit::time::microseconds, long long>("%s: %lld us (max: %lld us)");
         break;
     case time_unit::MILLISECONDS:
-        render_measurements_summary<kit::time::milliseconds, long>("%s: %lld (%lld) ms");
+        render_measurements_summary<kit::time::milliseconds, long>("%s: %lld ms (max: %lld ms)");
         break;
     case time_unit::SECONDS:
-        render_measurements_summary<kit::time::seconds, float>("%s: %.3f (%.2f) s");
+        render_measurements_summary<kit::time::seconds, float>("%s: %.2f s (max: %.2f s)");
         break;
     default:
         break;
     }
 }
 
-template <typename TimeUnit> static void render_hierarchy_recursive(const kit::measurement &measure, const char *unit)
+template <typename TimeUnit>
+void performance_panel::render_hierarchy_recursive(const kit::measurement &measure, const char *unit)
 {
     const float over_calls = measure.duration_over_calls.as<TimeUnit, float>();
-    if (!ImGui::TreeNode(measure.name(), "%s (%.2f %s, %.2f%%)", measure.name(), over_calls, unit,
-                         measure.parent_relative_percent * 100.f))
+    const float max_over_calls =
+        evaluate_max_hierarchy_measurement(measure.name(), measure.duration_over_calls).as<TimeUnit, float>();
+
+    if (!ImGui::TreeNode(measure.name(), "%s (%.2f %s, %.2f%%, max: %.2f %s)", measure.name(), over_calls, unit,
+                         measure.parent_relative_percent * 100.f, max_over_calls, unit))
         return;
 
     if (ImGui::CollapsingHeader("Details"))
     {
         const float per_call = measure.duration_per_call.as<TimeUnit, float>();
+        const float max_per_call =
+            evaluate_max_hierarchy_measurement(measure.name(), measure.duration_per_call).as<TimeUnit, float>();
 
-        ImGui::Text("Duration per execution: %.2f %s", per_call, unit);
-        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%)", per_call * measure.total_calls, unit,
-                    measure.total_percent * 100.f);
+        ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
+        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", per_call * measure.total_calls, unit,
+                    measure.total_percent * 100.f, max_per_call * measure.total_calls, unit);
         ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
         ImGui::Text("Calls (overall): %u", measure.total_calls);
     }
@@ -79,8 +89,11 @@ template <typename TimeUnit> static void render_hierarchy_recursive(const kit::m
     ImGui::TreePop();
 }
 
-void performance_panel::render_measurements_hierarchy() const
+void performance_panel::render_measurements_hierarchy()
 {
+    if (ImGui::Button("Reset maximums"))
+        m_max_time_hierarchy_measurements.clear();
+
     const kit::measurement &measure = kit::instrumentor::last_measurement();
     switch (m_time_unit)
     {
@@ -120,22 +133,28 @@ void performance_panel::render_fps() const
     ImGui::Text("FPS: %u", fps);
 }
 
-template <typename TimeUnit, typename T> void performance_panel::render_measurements_summary(const char *format) const
+template <typename TimeUnit, typename T> void performance_panel::render_measurements_summary(const char *format)
 {
     static const std::array<const char *, 4> measurement_names = {"Frame time", "Update time", "Physics time",
                                                                   "Draw time"};
-    if (ImGui::Button("Reset maximums"))
-        for (kit::time &max : s_max_time_measurements)
-            max = kit::time();
-
     for (std::size_t i = 0; i < 4; i++)
     {
         const kit::time &current = m_time_measurements[i];
-        kit::time &max = s_max_time_measurements[i];
+        kit::time &max = m_max_time_measurements[i];
 
         max = std::max(max, current);
         ImGui::Text(format, measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
+}
+
+kit::time performance_panel::evaluate_max_hierarchy_measurement(const char *name, kit::time duration)
+{
+    if (m_max_time_hierarchy_measurements.find(name) != m_max_time_hierarchy_measurements.end() &&
+        duration <= m_max_time_hierarchy_measurements.at(name))
+        return m_max_time_hierarchy_measurements.at(name);
+
+    m_max_time_hierarchy_measurements[name] = duration;
+    return duration;
 }
 
 YAML::Node performance_panel::encode() const

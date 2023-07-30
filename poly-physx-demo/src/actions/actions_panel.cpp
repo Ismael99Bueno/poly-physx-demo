@@ -7,18 +7,20 @@ namespace ppx::demo
 actions_panel::actions_panel() : demo_layer("Actions tab")
 {
 }
+
+void actions_panel::on_attach()
+{
+    demo_layer::on_attach();
+    m_add_tab = add_tab(m_app);
+}
+void actions_panel::on_update(float ts)
+{
+    m_add_tab.update();
+}
+
 void actions_panel::on_render(const float ts)
 {
-    if (!ImGui::Begin("Actions"))
-    {
-        ImGui::End();
-        return;
-    }
-    const glm::vec2 wmpos = m_app->world_mouse_position();
-    const glm::vec2 pmpos = lynx::input::mouse_position();
-    ImGui::Text("WMPos: %f, %f", wmpos.x, wmpos.y);
-    ImGui::Text("PMPos: %f, %f", pmpos.x, pmpos.y);
-    ImGui::End();
+    m_add_tab.render();
 }
 
 bool actions_panel::on_event(const lynx::event &event)
@@ -31,12 +33,26 @@ bool actions_panel::on_event(const lynx::event &event)
         switch (event.mouse.button)
         {
         case lynx::input::mouse::BUTTON_1: {
-            m_app->world.add_body(m_app->world_mouse_position());
+            m_add_tab.begin_body_spawn();
         }
         default:
             break;
         }
         break;
+
+    case lynx::event::MOUSE_RELEASED:
+        if (ImGui::GetIO().WantCaptureMouse)
+            return false;
+        switch (event.mouse.button)
+        {
+        case lynx::input::mouse::BUTTON_1: {
+            m_add_tab.end_body_spawn();
+        }
+        default:
+            break;
+        }
+        break;
+
     default:
         break;
     }

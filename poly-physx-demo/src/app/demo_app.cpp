@@ -3,7 +3,6 @@
 #include "ppx-demo/actions/actions_panel.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
-#include "lynx/rendering/buffer.hpp"
 #include "lynx/geometry/camera.hpp"
 
 namespace ppx::demo
