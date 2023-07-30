@@ -81,7 +81,7 @@ template <typename TimeUnit> static void render_hierarchy_recursive(const kit::m
 
 void performance_panel::render_measurements_hierarchy() const
 {
-    const kit::measurement &measure = kit::instrumentor::get().last_measurement();
+    const kit::measurement &measure = kit::instrumentor::last_measurement();
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
@@ -111,7 +111,7 @@ void performance_panel::render_unit_slider()
 void performance_panel::render_smoothness_slider()
 {
     if (ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f"))
-        kit::instrumentor::get().measurement_smoothness(m_smoothness);
+        kit::instrumentor::measurement_smoothness(m_smoothness);
 }
 
 void performance_panel::render_fps() const
@@ -153,7 +153,7 @@ bool performance_panel::decode(const YAML::Node &node)
         return false;
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();
-    kit::instrumentor::get().measurement_smoothness(m_smoothness);
+    kit::instrumentor::measurement_smoothness(m_smoothness);
 
     return true;
 }
