@@ -39,7 +39,7 @@ includedirs {
    "%{wks.location}/cpp-kit/include",
    "%{wks.location}/vendor/glm",
    "%{wks.location}/vendor/imgui",
-   "%{wks.location}/vendor/implot/include",
+   "%{wks.location}/vendor/implot",
    "%{wks.location}/vendor/yaml-cpp/include",
    "%{wks.location}/vendor/glfw/include",
    "%{wks.location}/vendor/spdlog/include"
