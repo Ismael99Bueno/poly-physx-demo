@@ -139,6 +139,11 @@ fi
 echo "VulkanSDK installed
 "
 
+echo "Compiling shaders...
+"
+
+"$ROOT"/lynx/scripts/macos-compile-shaders.sh
+
 python3 "$DIR/src/generate_build_files.py"
 echo "Run generate_build_files.py with python to have further details on how the project can be built. Use the -h flag to display the options available
 "
