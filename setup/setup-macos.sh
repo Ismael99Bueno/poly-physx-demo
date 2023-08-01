@@ -62,27 +62,6 @@ fi
 echo "Python3 installed
 "
 
-echo "Checking CMake intallation..."
-if ! which -s cmake
-then
-    echo "CMake installation not found. Do you wish to install? [Y]/N"
-    read -r ANSWER
-    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
-    then
-        echo "CMake installation failed... Setup terminated"
-        exit
-    fi
-    if ! install_brew
-    then
-        echo "Homebrew installation failed... Setup terminated"
-        exit
-    fi
-
-    brew install cmake
-fi
-echo "CMake installed
-"
-
 echo "Checking premake installation..."
 
 if ! which -s premake5
@@ -134,9 +113,34 @@ while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
   [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+ROOT="$DIR/.."
 
-python3 "$DIR/generate_build_files.py"
-echo "Run generate_build_files.py with python to have further detain on how the project can be built. Use the -h flag to display the options available
+
+if [ ! -d "/usr/local/include/vulkan" ] || [ ! -f "/usr/local/lib/libvulkan.dylib" ]
+then
+    echo "VulkanSDK installation not found. Do you wish to install? [Y]/N"
+    read -r ANSWER
+    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
+    then
+        echo "VulkanSDK installation failed... Setup terminated"
+        exit
+    fi
+
+    if [ ! -f "$ROOT/vendor/vulkan-sdk/bin/vulkan-installer.dmg" ]
+    then
+        mkdir -p "$ROOT/vendor/vulkan-sdk/bin"
+        curl -o "$ROOT/vendor/vulkan-sdk/bin/vulkan-installer.dmg" "https://sdk.lunarg.com/sdk/download/1.3.250.1/mac/vulkansdk-macos-1.3.250.1.dmg"
+    fi
+
+    hdiutil attach "$ROOT/vendor/vulkan-sdk/bin/vulkan-installer.dmg"
+    sudo /Volumes/VulkanSDK/InstallVulkan.app/Contents/MacOS/InstallVulkan --root ~/VulkanSDK/1.3.250.1 --accept-licenses --default-answer --confirm-command install com.lunarg.vulkan.core com.lunarg.vulkan.usr
+    hdiutil detach /Volumes/VulkanSDK
+fi
+echo "VulkanSDK installed
+"
+
+python3 "$DIR/src/generate_build_files.py"
+echo "Run generate_build_files.py with python to have further details on how the project can be built. Use the -h flag to display the options available
 "
 
 echo "Setup completed successfully!"

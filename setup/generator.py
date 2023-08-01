@@ -30,7 +30,9 @@ class PPXGenerator(Generator):
         print("Generating build files for poly-physx...")
 
         bud = Buddy()
-        bud.add_to_premake_path(f"{bud.root_path}/vendor/premake-export-compile-commands")
+        bud.add_to_premake_path(
+            f"{bud.root_path}/vendor/premake-export-compile-commands"
+        )
         subprocess.run(
             [
                 (
