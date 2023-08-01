@@ -15,9 +15,6 @@ filter "system:macosx"
       "-Wno-unused-parameter"
    }
 
-   rpath = "-Wl,-rpath,".. rootpath .."vendor/vulkan-sdk/macOS/lib"
-   linkoptions {rpath}
-
 pchheader "ppx-demo/internal/pch.hpp"
 pchsource "src/internal/pch.cpp"
 
