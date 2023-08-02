@@ -18,9 +18,34 @@ void actions_panel::on_update(float ts)
     m_add_tab.update();
 }
 
+template <typename T> static void render_tab(const char *name, const char *tooltip, T &tab)
+{
+    const bool expanded = ImGui::BeginTabItem(name);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("%s", tooltip);
+    if (expanded)
+    {
+        tab.render_tab();
+        ImGui::EndTabItem();
+    }
+}
+
 void actions_panel::on_render(const float ts)
 {
     m_add_tab.render();
+
+    if (!ImGui::Begin("Actions"))
+    {
+        ImGui::End();
+        return;
+    }
+    ImGui::BeginTabBar("Actions tab bar");
+    render_tab("Add", "Add entities", m_add_tab);
+    // render_tab("Grab", "Grab entities", m_grab_tab);
+    // render_tab("Joints", "Attach entities with joints", m_joints_tab);
+    // render_tab("Entities", "Entities overview", m_entities_tab);
+    ImGui::EndTabBar();
+    ImGui::End();
 }
 
 bool actions_panel::on_event(const lynx::event &event)
