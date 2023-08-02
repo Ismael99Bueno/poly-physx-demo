@@ -10,14 +10,16 @@ configurations {
 startproject "poly-physx-demo"
 
 defines {
+   "PPX_MULTITHREADED",
    "YAML_CPP_GLM_COMPAT",
    "YAML_CPP_STATIC_DEFINE",
    "KIT_USE_SPDLOG",
    "KIT_USE_CUSTOM_ALLOC",
    "KIT_USE_YAML_CPP",
+   "KIT_AKNOWLEDGE_PROFILE_THREAD_UNSAFETY",
    "LYNX_ENABLE_IMGUI",
-   "LYNX_ENABLE_IMPLOT"
-   --"LYNX_MULTITHREADED"
+   "LYNX_ENABLE_IMPLOT",
+   "LYNX_MULTITHREADED"
 }
 
 function script_path()
