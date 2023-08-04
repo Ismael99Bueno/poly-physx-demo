@@ -1,5 +1,5 @@
-#ifndef PPX_ADD_TAB_HPP
-#define PPX_ADD_TAB_HPP
+#ifndef PPX_SPAWN_TAB_HPP
+#define PPX_SPAWN_TAB_HPP
 
 #include "lynx/drawing/shape.hpp"
 #include "ppx/body2D.hpp"
@@ -7,11 +7,11 @@
 namespace ppx::demo
 {
 class demo_app;
-class add_tab
+class spawn_tab
 {
   public:
-    add_tab() = default;
-    add_tab(demo_app *app);
+    spawn_tab() = default;
+    spawn_tab(demo_app *app);
 
     void update();
     void render();

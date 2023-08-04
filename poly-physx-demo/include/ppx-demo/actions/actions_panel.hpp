@@ -2,7 +2,7 @@
 #define PPX_ACTIONS_PANEL_HPP
 
 #include "ppx-demo/app/demo_layer.hpp"
-#include "ppx-demo/actions/add_tab.hpp"
+#include "ppx-demo/actions/spawn_tab.hpp"
 
 namespace ppx::demo
 {
@@ -12,7 +12,7 @@ class actions_panel : public demo_layer
     actions_panel();
 
   private:
-    add_tab m_add_tab;
+    spawn_tab m_spawn_tab;
 
     void on_attach() override;
     void on_update(float ts) override;

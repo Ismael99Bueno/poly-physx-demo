@@ -1,16 +1,16 @@
 #include "ppx-demo/internal/pch.hpp"
-#include "ppx-demo/actions/add_tab.hpp"
+#include "ppx-demo/actions/spawn_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "lynx/app/window.hpp"
 
 namespace ppx::demo
 {
-add_tab::add_tab(demo_app *app) : m_app(app)
+spawn_tab::spawn_tab(demo_app *app) : m_app(app)
 {
     m_window = app->window();
 }
 
-void add_tab::update()
+void spawn_tab::update()
 {
     if (!m_previewing)
         return;
@@ -23,13 +23,13 @@ void add_tab::update()
     m_current_body_template.specs.rotation = angle;
 }
 
-void add_tab::render()
+void spawn_tab::render()
 {
     if (m_previewing)
         m_window->draw(*m_preview);
 }
 
-void add_tab::render_tab()
+void spawn_tab::render_tab()
 {
     ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.2f, 0.1f, 2.f);
     render_menu_bar();
@@ -37,13 +37,13 @@ void add_tab::render_tab()
     render_body_properties();
 }
 
-void add_tab::render_body_shape_types()
+void spawn_tab::render_body_shape_types()
 {
     static const char *shape_types[4] = {"Rect", "Circle", "NGon", "Custom"};
     ImGui::ListBox("Body shape", (int *)&m_current_body_template.type, shape_types, 4);
 }
 
-void add_tab::render_body_properties()
+void spawn_tab::render_body_properties()
 {
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
@@ -75,12 +75,12 @@ void add_tab::render_body_properties()
     }
 }
 
-bool add_tab::is_current_template_registered() const
+bool spawn_tab::is_current_template_registered() const
 {
     return !m_current_body_template.name.empty();
 }
 
-void add_tab::render_save_template_prompts()
+void spawn_tab::render_save_template_prompts()
 {
     static char buffer[24] = "\0";
     if (ImGui::InputTextWithHint("##", "Body name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
@@ -93,7 +93,7 @@ void add_tab::render_save_template_prompts()
         buffer[0] = '\0';
     }
 }
-void add_tab::render_load_template_and_removal_prompts()
+void spawn_tab::render_load_template_and_removal_prompts()
 {
     for (const auto &[name, btemplate] : m_templates)
     {
@@ -113,7 +113,7 @@ void add_tab::render_load_template_and_removal_prompts()
     }
 }
 
-void add_tab::render_menu_bar()
+void spawn_tab::render_menu_bar()
 {
     if (ImGui::BeginMenuBar())
     {
@@ -148,7 +148,7 @@ void add_tab::render_menu_bar()
     }
 }
 
-void add_tab::begin_body_spawn()
+void spawn_tab::begin_body_spawn()
 {
     KIT_ASSERT_ERROR(!m_previewing, "Cannot begin body spawn without ending the previous one")
     m_previewing = true;
@@ -172,7 +172,7 @@ void add_tab::begin_body_spawn()
     m_current_body_template.specs.position = m_starting_mouse_pos;
 }
 
-void add_tab::end_body_spawn()
+void spawn_tab::end_body_spawn()
 {
     KIT_ASSERT_ERROR(m_previewing, "Cannot end body spawn without beginning one")
     m_previewing = false;
@@ -180,13 +180,14 @@ void add_tab::end_body_spawn()
     m_app->world.add_body(m_current_body_template.specs);
 }
 
-YAML::Node add_tab::encode_template(const body_template &btemplate)
+YAML::Node spawn_tab::encode_template(const body_template &btemplate)
 {
     YAML::Node node;
     if (!btemplate.name.empty())
         node["Name"] = btemplate.name;
 
     node["Body"] = body2D(btemplate.specs);
+    node["Type"] = (int)btemplate.type;
     switch (btemplate.type)
     {
     case shape_type::RECT:
@@ -202,13 +203,14 @@ YAML::Node add_tab::encode_template(const body_template &btemplate)
     }
     return node;
 }
-add_tab::body_template add_tab::decode_template(const YAML::Node &node)
+spawn_tab::body_template spawn_tab::decode_template(const YAML::Node &node)
 {
     body_template btemplate;
     if (node["Name"])
         btemplate.name = node["Name"].as<std::string>();
 
     btemplate.specs = body2D::specs::from_body(node["Body"].as<body2D>());
+    btemplate.type = (shape_type)node["Type"].as<int>();
     if (node["Width"])
     {
         btemplate.width = node["Width"].as<float>();
@@ -222,7 +224,7 @@ add_tab::body_template add_tab::decode_template(const YAML::Node &node)
     return btemplate;
 }
 
-YAML::Node add_tab::encode() const
+YAML::Node spawn_tab::encode() const
 {
     YAML::Node node;
     node["Current template"] = encode_template(m_current_body_template);
@@ -231,7 +233,7 @@ YAML::Node add_tab::encode() const
     node["Spawn speed"] = m_speed_spawn_multiplier;
     return node;
 }
-void add_tab::decode(const YAML::Node &node)
+void spawn_tab::decode(const YAML::Node &node)
 {
     m_current_body_template = decode_template(node["Current template"]);
     if (node["Saved templates"])

@@ -11,11 +11,11 @@ actions_panel::actions_panel() : demo_layer("Actions tab")
 void actions_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_add_tab = add_tab(m_app);
+    m_spawn_tab = spawn_tab(m_app);
 }
 void actions_panel::on_update(float ts)
 {
-    m_add_tab.update();
+    m_spawn_tab.update();
 }
 
 template <typename T> static void render_tab(const char *name, const char *tooltip, T &tab)
@@ -32,11 +32,11 @@ template <typename T> static void render_tab(const char *name, const char *toolt
 
 void actions_panel::on_render(const float ts)
 {
-    m_add_tab.render();
+    m_spawn_tab.render();
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
-        render_tab("Add", "Add entities", m_add_tab);
+        render_tab("Spawn", "Spawn bodies", m_spawn_tab);
         // render_tab("Grab", "Grab entities", m_grab_tab);
         // render_tab("Joints", "Attach entities with joints", m_joints_tab);
         // render_tab("Entities", "Entities overview", m_entities_tab);
@@ -55,7 +55,7 @@ bool actions_panel::on_event(const lynx::event &event)
         switch (event.mouse.button)
         {
         case lynx::input::mouse::BUTTON_1: {
-            m_add_tab.begin_body_spawn();
+            m_spawn_tab.begin_body_spawn();
         }
         default:
             break;
@@ -68,7 +68,7 @@ bool actions_panel::on_event(const lynx::event &event)
         switch (event.mouse.button)
         {
         case lynx::input::mouse::BUTTON_1: {
-            m_add_tab.end_body_spawn();
+            m_spawn_tab.end_body_spawn();
         }
         default:
             break;
@@ -84,12 +84,12 @@ bool actions_panel::on_event(const lynx::event &event)
 YAML::Node actions_panel::encode() const
 {
     YAML::Node node;
-    node["Add tab"] = m_add_tab.encode();
+    node["Spawn tab"] = m_spawn_tab.encode();
     return node;
 }
 bool actions_panel::decode(const YAML::Node &node)
 {
-    m_add_tab.decode(node["Add tab"]);
+    m_spawn_tab.decode(node["Spawn tab"]);
     return true;
 }
 } // namespace ppx::demo
