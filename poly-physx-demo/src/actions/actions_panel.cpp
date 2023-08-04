@@ -80,4 +80,16 @@ bool actions_panel::on_event(const lynx::event &event)
     }
     return false;
 }
+
+YAML::Node actions_panel::encode() const
+{
+    YAML::Node node;
+    node["Add tab"] = m_add_tab.encode();
+    return node;
+}
+bool actions_panel::decode(const YAML::Node &node)
+{
+    m_add_tab.decode(node["Add tab"]);
+    return true;
+}
 } // namespace ppx::demo

@@ -20,6 +20,9 @@ class add_tab
     void begin_body_spawn();
     void end_body_spawn();
 
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
+
   private:
     enum class shape_type
     {
@@ -28,8 +31,9 @@ class add_tab
         NGON,
         CUSTOM
     };
-    struct body_template : body2D::specs
+    struct body_template
     {
+        body2D::specs specs;
         std::string name;
         float width = 5.f, height = 5.f, ngon_radius = 3.f;
         int ngon_sides = 3;
@@ -55,6 +59,9 @@ class add_tab
     void render_body_shape_types();
     void render_body_properties();
     void render_menu_bar();
+
+    static YAML::Node encode_template(const body_template &btemplate);
+    static body_template decode_template(const YAML::Node &node);
 };
 } // namespace ppx::demo
 

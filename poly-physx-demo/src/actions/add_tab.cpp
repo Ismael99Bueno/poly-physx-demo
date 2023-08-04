@@ -16,11 +16,11 @@ void add_tab::update()
         return;
 
     const glm::vec2 velocity = (m_starting_mouse_pos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
-    m_current_body_template.velocity = velocity;
+    m_current_body_template.specs.velocity = velocity;
 
     const float angle = std::atan2f(velocity.y, velocity.x);
     m_preview->transform.rotation = angle;
-    m_current_body_template.rotation = angle;
+    m_current_body_template.specs.rotation = angle;
 }
 
 void add_tab::render()
@@ -31,6 +31,7 @@ void add_tab::render()
 
 void add_tab::render_tab()
 {
+    ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.2f, 0.1f, 2.f);
     render_menu_bar();
     render_body_shape_types();
     render_body_properties();
@@ -46,25 +47,25 @@ void add_tab::render_body_properties()
 {
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
-    ImGui::DragFloat("Mass", &m_current_body_template.mass, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Charge", &m_current_body_template.charge, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Mass", &m_current_body_template.specs.mass, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Charge", &m_current_body_template.specs.charge, drag_speed, 0.f, FLT_MAX, format);
     switch (m_current_body_template.type)
     {
     case shape_type::RECT:
         ImGui::DragFloat("Width", &m_current_body_template.width, drag_speed, 0.f, FLT_MAX, format);
         ImGui::DragFloat("Height", &m_current_body_template.height, drag_speed, 0.f, FLT_MAX, format);
-        m_current_body_template.vertices =
+        m_current_body_template.specs.vertices =
             geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
         break;
 
     case shape_type::CIRCLE:
-        ImGui::DragFloat("Radius", &m_current_body_template.radius, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Radius", &m_current_body_template.specs.radius, drag_speed, 0.f, FLT_MAX, format);
         break;
 
     case shape_type::NGON:
         ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
         ImGui::DragInt("Sides", &m_current_body_template.ngon_sides, drag_speed, 3, 30);
-        m_current_body_template.vertices =
+        m_current_body_template.specs.vertices =
             geo::polygon::ngon(m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
         break;
 
@@ -94,17 +95,19 @@ void add_tab::render_save_template_prompts()
 }
 void add_tab::render_load_template_and_removal_prompts()
 {
-    for (const auto &[name, body_template] : m_templates)
+    for (const auto &[name, btemplate] : m_templates)
     {
         if (ImGui::Button("X"))
         {
             m_templates.erase(name);
+            if (m_current_body_template.name == name)
+                m_current_body_template.name.clear();
             return;
         }
         ImGui::SameLine();
         if (ImGui::MenuItem(name.c_str()))
         {
-            m_current_body_template = body_template;
+            m_current_body_template = btemplate;
             return;
         }
     }
@@ -117,6 +120,8 @@ void add_tab::render_menu_bar()
         if (ImGui::BeginMenu("Bodies"))
         {
             const bool registered = is_current_template_registered();
+            if (ImGui::MenuItem("New", nullptr, nullptr))
+                m_current_body_template = {};
             if (ImGui::MenuItem("Save", nullptr, nullptr, registered))
                 m_templates[m_current_body_template.name] = m_current_body_template;
             if (ImGui::MenuItem("Load", nullptr, nullptr, registered))
@@ -150,21 +155,21 @@ void add_tab::begin_body_spawn()
 
     if (m_current_body_template.type == shape_type::CIRCLE)
     {
-        m_current_body_template.shape = body2D::shape_type::CIRCLE;
-        m_preview =
-            kit::make_scope<lynx::ellipse2D>(m_current_body_template.radius, lynx::color(m_app->body_color, 120u));
+        m_current_body_template.specs.shape = body2D::shape_type::CIRCLE;
+        m_preview = kit::make_scope<lynx::ellipse2D>(m_current_body_template.specs.radius,
+                                                     lynx::color(m_app->body_color, 120u));
     }
     else
     {
-        m_current_body_template.shape = body2D::shape_type::POLYGON;
-        const geo::polygon poly{m_current_body_template.vertices};
+        m_current_body_template.specs.shape = body2D::shape_type::POLYGON;
+        const geo::polygon poly{m_current_body_template.specs.vertices};
         const auto &local_vertices = poly.locals();
         m_preview = kit::make_scope<lynx::polygon2D>(local_vertices, lynx::color(m_app->body_color, 120u));
     }
 
     m_starting_mouse_pos = m_app->world_mouse_position();
     m_preview->transform.position = m_starting_mouse_pos;
-    m_current_body_template.position = m_starting_mouse_pos;
+    m_current_body_template.specs.position = m_starting_mouse_pos;
 }
 
 void add_tab::end_body_spawn()
@@ -172,6 +177,66 @@ void add_tab::end_body_spawn()
     KIT_ASSERT_ERROR(m_previewing, "Cannot end body spawn without beginning one")
     m_previewing = false;
 
-    m_app->world.add_body(m_current_body_template);
+    m_app->world.add_body(m_current_body_template.specs);
+}
+
+YAML::Node add_tab::encode_template(const body_template &btemplate)
+{
+    YAML::Node node;
+    if (!btemplate.name.empty())
+        node["Name"] = btemplate.name;
+
+    node["Body"] = body2D(btemplate.specs);
+    switch (btemplate.type)
+    {
+    case shape_type::RECT:
+        node["Width"] = btemplate.width;
+        node["Height"] = btemplate.height;
+        break;
+    case shape_type::NGON:
+        node["NGon radius"] = btemplate.ngon_radius;
+        node["NGon sides"] = btemplate.ngon_sides;
+        break;
+    default:
+        break;
+    }
+    return node;
+}
+add_tab::body_template add_tab::decode_template(const YAML::Node &node)
+{
+    body_template btemplate;
+    if (node["Name"])
+        btemplate.name = node["Name"].as<std::string>();
+
+    btemplate.specs = body2D::specs::from_body(node["Body"].as<body2D>());
+    if (node["Width"])
+    {
+        btemplate.width = node["Width"].as<float>();
+        btemplate.height = node["Height"].as<float>();
+    }
+    else if (node["NGon radius"])
+    {
+        btemplate.ngon_radius = node["NGon radius"].as<float>();
+        btemplate.ngon_sides = node["NGon sides"].as<int>();
+    }
+    return btemplate;
+}
+
+YAML::Node add_tab::encode() const
+{
+    YAML::Node node;
+    node["Current template"] = encode_template(m_current_body_template);
+    for (const auto &[name, btemplate] : m_templates)
+        node["Saved templates"].push_back(encode_template(btemplate));
+    node["Spawn speed"] = m_speed_spawn_multiplier;
+    return node;
+}
+void add_tab::decode(const YAML::Node &node)
+{
+    m_current_body_template = decode_template(node["Current template"]);
+    if (node["Saved templates"])
+        for (const auto &n : node["Saved templates"])
+            m_templates[n["Name"].as<std::string>()] = decode_template(n);
+    m_speed_spawn_multiplier = node["Spawn speed"].as<float>();
 }
 } // namespace ppx::demo
