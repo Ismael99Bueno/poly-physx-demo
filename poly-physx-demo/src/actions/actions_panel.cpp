@@ -33,18 +33,15 @@ template <typename T> static void render_tab(const char *name, const char *toolt
 void actions_panel::on_render(const float ts)
 {
     m_add_tab.render();
-
-    if (!ImGui::Begin("Actions"))
+    if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
-        ImGui::End();
-        return;
+        ImGui::BeginTabBar("Actions tab bar");
+        render_tab("Add", "Add entities", m_add_tab);
+        // render_tab("Grab", "Grab entities", m_grab_tab);
+        // render_tab("Joints", "Attach entities with joints", m_joints_tab);
+        // render_tab("Entities", "Entities overview", m_entities_tab);
+        ImGui::EndTabBar();
     }
-    ImGui::BeginTabBar("Actions tab bar");
-    render_tab("Add", "Add entities", m_add_tab);
-    // render_tab("Grab", "Grab entities", m_grab_tab);
-    // render_tab("Joints", "Attach entities with joints", m_joints_tab);
-    // render_tab("Entities", "Entities overview", m_entities_tab);
-    ImGui::EndTabBar();
     ImGui::End();
 }
 

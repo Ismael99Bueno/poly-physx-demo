@@ -31,6 +31,7 @@ void add_tab::render()
 
 void add_tab::render_tab()
 {
+    render_menu_bar();
     render_body_shape_types();
     render_body_properties();
 }
@@ -70,6 +71,75 @@ void add_tab::render_body_properties()
     case shape_type::CUSTOM:
         KIT_ASSERT_ERROR(false, "Not implemented")
         break;
+    }
+}
+
+bool add_tab::is_current_template_registered() const
+{
+    return !m_current_body_template.name.empty();
+}
+
+void add_tab::render_save_template_prompts()
+{
+    static char buffer[24] = "\0";
+    if (ImGui::InputTextWithHint("##", "Body name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
+        buffer[0] != '\0')
+    {
+        std::string name = buffer;
+        std::replace(name.begin(), name.end(), ' ', '-');
+        m_current_body_template.name = name;
+        m_templates[name] = m_current_body_template;
+        buffer[0] = '\0';
+    }
+}
+void add_tab::render_load_template_and_removal_prompts()
+{
+    for (const auto &[name, body_template] : m_templates)
+    {
+        if (ImGui::Button("X"))
+        {
+            m_templates.erase(name);
+            return;
+        }
+        ImGui::SameLine();
+        if (ImGui::MenuItem(name.c_str()))
+        {
+            m_current_body_template = body_template;
+            return;
+        }
+    }
+}
+
+void add_tab::render_menu_bar()
+{
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Bodies"))
+        {
+            const bool registered = is_current_template_registered();
+            if (ImGui::MenuItem("Save", nullptr, nullptr, registered))
+                m_templates[m_current_body_template.name] = m_current_body_template;
+            if (ImGui::MenuItem("Load", nullptr, nullptr, registered))
+                m_current_body_template = m_templates[m_current_body_template.name];
+
+            if (ImGui::BeginMenu("Save as..."))
+            {
+                render_save_template_prompts();
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Load as..."))
+            {
+                render_load_template_and_removal_prompts();
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+        ImGui::MenuItem(is_current_template_registered() ? ("Current body: " + m_current_body_template.name).c_str()
+                                                         : "Press 'Bodies -> Save as...' to save a body configuration",
+                        nullptr, nullptr, false);
+
+        ImGui::EndMenuBar();
     }
 }
 

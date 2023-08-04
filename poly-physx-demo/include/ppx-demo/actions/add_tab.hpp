@@ -30,6 +30,7 @@ class add_tab
     };
     struct body_template : body2D::specs
     {
+        std::string name;
         float width = 5.f, height = 5.f, ngon_radius = 3.f;
         int ngon_sides = 3;
         shape_type type = shape_type::RECT;
@@ -37,16 +38,23 @@ class add_tab
 
     demo_app *m_app;
     lynx::window2D *m_window;
-    glm::vec2 m_starting_mouse_pos{0.f};
-    float m_speed_spawn_multiplier = 0.6f;
-
     kit::scope<lynx::shape2D> m_preview;
 
+    glm::vec2 m_starting_mouse_pos{0.f};
+    float m_speed_spawn_multiplier = 0.6f;
     body_template m_current_body_template{};
     bool m_previewing = false;
 
+    std::unordered_map<std::string, body_template> m_templates;
+
+    bool is_current_template_registered() const;
+
+    void render_save_template_prompts();
+    void render_load_template_and_removal_prompts();
+
     void render_body_shape_types();
     void render_body_properties();
+    void render_menu_bar();
 };
 } // namespace ppx::demo
 

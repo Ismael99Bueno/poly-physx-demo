@@ -19,19 +19,17 @@ void performance_panel::on_update(const float ts)
 
 void performance_panel::on_render(const float ts)
 {
-    if (!ImGui::Begin("Performance"))
+    if (ImGui::Begin("Performance"))
     {
-        ImGui::End();
-        return;
-    }
-    render_unit_slider();
-    render_smoothness_slider();
-    render_fps();
+        render_unit_slider();
+        render_smoothness_slider();
+        render_fps();
 #ifdef KIT_PROFILE
-    render_measurements_hierarchy();
+        render_measurements_hierarchy();
 #else
-    render_summary();
+        render_summary();
 #endif
+    }
     ImGui::End();
 }
 
