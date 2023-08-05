@@ -54,7 +54,7 @@ class spawn_tab
 
     bool is_current_template_registered() const;
 
-    void render_save_template_prompts();
+    void render_save_template_prompt();
     void render_load_template_and_removal_prompts();
 
     void render_body_shape_types();

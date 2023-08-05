@@ -81,10 +81,10 @@ void spawn_tab::render_body_properties()
 
 bool spawn_tab::is_current_template_registered() const
 {
-    return !m_current_body_template.name.empty();
+    return m_templates.find(m_current_body_template.name) != m_templates.end();
 }
 
-void spawn_tab::render_save_template_prompts()
+void spawn_tab::render_save_template_prompt()
 {
     static char buffer[24] = "\0";
     if (ImGui::InputTextWithHint("##", "Body name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
@@ -104,8 +104,6 @@ void spawn_tab::render_load_template_and_removal_prompts()
         if (ImGui::Button("X"))
         {
             m_templates.erase(name);
-            if (m_current_body_template.name == name)
-                m_current_body_template.name.clear();
             return;
         }
         ImGui::SameLine();
@@ -125,7 +123,10 @@ void spawn_tab::render_menu_bar()
         {
             const bool registered = is_current_template_registered();
             if (ImGui::MenuItem("New", nullptr, nullptr))
+            {
                 m_current_body_template = {};
+                m_current_body_template.color = app::DEFAULT_BODY_COLOR;
+            }
             if (ImGui::MenuItem("Save", nullptr, nullptr, registered))
                 m_templates[m_current_body_template.name] = m_current_body_template;
             if (ImGui::MenuItem("Load", nullptr, nullptr, registered))
@@ -133,10 +134,10 @@ void spawn_tab::render_menu_bar()
 
             if (ImGui::BeginMenu("Save as..."))
             {
-                render_save_template_prompts();
+                render_save_template_prompt();
                 ImGui::EndMenu();
             }
-            if (ImGui::BeginMenu("Load as..."))
+            if (ImGui::BeginMenu("Load as...", !m_templates.empty()))
             {
                 render_load_template_and_removal_prompts();
                 ImGui::EndMenu();

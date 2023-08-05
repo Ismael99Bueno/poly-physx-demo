@@ -2,7 +2,7 @@ project "poly-physx-demo"
 kind "ConsoleApp"
 staticruntime "off"
 
-defines {'ROOT_PATH="' .. rootpath .. '"'}
+defines {'PPX_DEMO_ROOT_PATH="' .. rootpath .. '"'}
 
 language "C++"
 cppdialect "C++17"
