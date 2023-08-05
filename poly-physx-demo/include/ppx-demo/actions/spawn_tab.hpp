@@ -38,6 +38,7 @@ class spawn_tab
         float width = 5.f, height = 5.f, ngon_radius = 3.f;
         int ngon_sides = 3;
         shape_type type = shape_type::RECT;
+        lynx::color color;
     };
 
     demo_app *m_app;

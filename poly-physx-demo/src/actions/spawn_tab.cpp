@@ -8,6 +8,7 @@ namespace ppx::demo
 spawn_tab::spawn_tab(demo_app *app) : m_app(app)
 {
     m_window = app->window();
+    m_current_body_template.color = m_app->body_color;
 }
 
 void spawn_tab::update()
@@ -73,6 +74,9 @@ void spawn_tab::render_body_properties()
         KIT_ASSERT_ERROR(false, "Not implemented")
         break;
     }
+    m_current_body_template.specs.shape =
+        m_current_body_template.type == shape_type::CIRCLE ? body2D::shape_type::CIRCLE : body2D::shape_type::POLYGON;
+    ImGui::ColorPicker3("Color", m_current_body_template.color.ptr());
 }
 
 bool spawn_tab::is_current_template_registered() const
@@ -152,19 +156,16 @@ void spawn_tab::begin_body_spawn()
 {
     KIT_ASSERT_ERROR(!m_previewing, "Cannot begin body spawn without ending the previous one")
     m_previewing = true;
+    m_app->body_color = m_current_body_template.color;
 
     if (m_current_body_template.type == shape_type::CIRCLE)
-    {
-        m_current_body_template.specs.shape = body2D::shape_type::CIRCLE;
         m_preview = kit::make_scope<lynx::ellipse2D>(m_current_body_template.specs.radius,
-                                                     lynx::color(m_app->body_color, 120u));
-    }
+                                                     lynx::color(m_current_body_template.color, 120u));
     else
     {
-        m_current_body_template.specs.shape = body2D::shape_type::POLYGON;
         const geo::polygon poly{m_current_body_template.specs.vertices};
         const auto &local_vertices = poly.locals();
-        m_preview = kit::make_scope<lynx::polygon2D>(local_vertices, lynx::color(m_app->body_color, 120u));
+        m_preview = kit::make_scope<lynx::polygon2D>(local_vertices, lynx::color(m_current_body_template.color, 120u));
     }
 
     m_starting_mouse_pos = m_app->world_mouse_position();
@@ -185,6 +186,7 @@ YAML::Node spawn_tab::encode_template(const body_template &btemplate)
     YAML::Node node;
     if (!btemplate.name.empty())
         node["Name"] = btemplate.name;
+    node["Color"] = btemplate.color.normalized;
 
     node["Body"] = body2D(btemplate.specs);
     node["Type"] = (int)btemplate.type;
@@ -208,6 +210,7 @@ spawn_tab::body_template spawn_tab::decode_template(const YAML::Node &node)
     body_template btemplate;
     if (node["Name"])
         btemplate.name = node["Name"].as<std::string>();
+    btemplate.color = lynx::color(node["Color"].as<glm::vec4>());
 
     btemplate.specs = body2D::specs::from_body(node["Body"].as<body2D>());
     btemplate.type = (shape_type)node["Type"].as<int>();
