@@ -26,17 +26,15 @@ class menu_bar : public demo_layer
 
   private:
     std::string m_session;
+    std::string m_serialize_path;
+    std::string m_deserialize_path;
 
     void on_render(float ts) override;
-
-    void serialize_to_saves(const std::string &filename) const;
-    void serialize_to_examples(const std::string &filename) const;
-
-    void deserialize_from_saves(const std::string &filename) const;
-    void deserialize_from_examples(const std::string &filename) const;
+    void on_frame_end(float ts) override;
 
     void render_save_prompt();
-    void render_load_and_removal_prompts();
+    void render_load_prompts(const char *path);
+    void render_load_and_removal_prompts(const char *path);
 
     bool has_active_session() const;
 

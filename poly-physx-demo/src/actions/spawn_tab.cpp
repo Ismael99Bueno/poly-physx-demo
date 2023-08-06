@@ -32,7 +32,7 @@ void spawn_tab::render()
 
 void spawn_tab::render_tab()
 {
-    ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.2f, 0.1f, 2.f);
+    ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_menu_bar();
     render_body_shape_types();
     render_body_properties();
