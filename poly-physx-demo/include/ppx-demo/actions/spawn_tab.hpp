@@ -19,6 +19,7 @@ class spawn_tab
 
     void begin_body_spawn();
     void end_body_spawn();
+    void cancel_body_spawn();
 
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
@@ -57,8 +58,7 @@ class spawn_tab
     void render_save_template_prompt();
     void render_load_template_and_removal_prompts();
 
-    void render_body_shape_types();
-    void render_body_properties();
+    void render_body_shape_types_and_properties();
     void render_menu_bar();
 
     static YAML::Node encode_template(const body_template &btemplate);

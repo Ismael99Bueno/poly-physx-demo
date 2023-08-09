@@ -3,6 +3,7 @@
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "ppx-demo/actions/spawn_tab.hpp"
+#include "ppx-demo/actions/joints_tab.hpp"
 
 namespace ppx::demo
 {
@@ -13,6 +14,7 @@ class actions_panel : public demo_layer
 
   private:
     spawn_tab m_spawn_tab;
+    joints_tab m_joints_tab;
 
     void on_attach() override;
     void on_update(float ts) override;

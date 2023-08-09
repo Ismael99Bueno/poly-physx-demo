@@ -34,48 +34,52 @@ void spawn_tab::render_tab()
 {
     ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_menu_bar();
-    render_body_shape_types();
-    render_body_properties();
+    render_body_shape_types_and_properties();
 }
 
-void spawn_tab::render_body_shape_types()
+void spawn_tab::render_body_shape_types_and_properties()
 {
     static const char *shape_types[4] = {"Rect", "Circle", "NGon", "Custom"};
-    ImGui::ListBox("Body shape", (int *)&m_current_body_template.type, shape_types, 4);
-}
+    const bool needs_update = ImGui::ListBox("Body shape", (int *)&m_current_body_template.type, shape_types, 4);
 
-void spawn_tab::render_body_properties()
-{
+    if (needs_update)
+        m_current_body_template.specs.shape = m_current_body_template.type == shape_type::CIRCLE
+                                                  ? body2D::shape_type::CIRCLE
+                                                  : body2D::shape_type::POLYGON;
+
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
     ImGui::DragFloat("Mass", &m_current_body_template.specs.mass, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Charge", &m_current_body_template.specs.charge, drag_speed, 0.f, FLT_MAX, format);
     switch (m_current_body_template.type)
     {
-    case shape_type::RECT:
-        ImGui::DragFloat("Width", &m_current_body_template.width, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragFloat("Height", &m_current_body_template.height, drag_speed, 0.f, FLT_MAX, format);
-        m_current_body_template.specs.vertices =
-            geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
+    case shape_type::RECT: {
+        const bool w = ImGui::DragFloat("Width", &m_current_body_template.width, drag_speed, 0.f, FLT_MAX, format);
+        const bool h = ImGui::DragFloat("Height", &m_current_body_template.height, drag_speed, 0.f, FLT_MAX, format);
+        if (needs_update || w || h)
+            m_current_body_template.specs.vertices =
+                geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
         break;
+    }
 
     case shape_type::CIRCLE:
         ImGui::DragFloat("Radius", &m_current_body_template.specs.radius, drag_speed, 0.f, FLT_MAX, format);
         break;
 
-    case shape_type::NGON:
-        ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragInt("Sides", &m_current_body_template.ngon_sides, drag_speed, 3, 30);
-        m_current_body_template.specs.vertices =
-            geo::polygon::ngon(m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
+    case shape_type::NGON: {
+        const bool r =
+            ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
+        const bool s = ImGui::DragInt("Sides", &m_current_body_template.ngon_sides, drag_speed, 3, 30);
+        if (needs_update || r || s)
+            m_current_body_template.specs.vertices = geo::polygon::ngon(
+                m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
         break;
+    }
 
     case shape_type::CUSTOM:
         KIT_ASSERT_ERROR(false, "Not implemented")
         break;
     }
-    m_current_body_template.specs.shape =
-        m_current_body_template.type == shape_type::CIRCLE ? body2D::shape_type::CIRCLE : body2D::shape_type::POLYGON;
     ImGui::ColorPicker3("Color", m_current_body_template.color.ptr());
 }
 
@@ -176,10 +180,16 @@ void spawn_tab::begin_body_spawn()
 
 void spawn_tab::end_body_spawn()
 {
-    KIT_ASSERT_ERROR(m_previewing, "Cannot end body spawn without beginning one")
+    if (!m_previewing)
+        return;
     m_previewing = false;
 
     m_app->world.add_body(m_current_body_template.specs);
+}
+
+void spawn_tab::cancel_body_spawn()
+{
+    m_previewing = false;
 }
 
 YAML::Node spawn_tab::encode_template(const body_template &btemplate)
@@ -187,10 +197,15 @@ YAML::Node spawn_tab::encode_template(const body_template &btemplate)
     YAML::Node node;
     if (!btemplate.name.empty())
         node["Name"] = btemplate.name;
-    node["Color"] = btemplate.color.normalized;
 
-    node["Body"] = body2D(btemplate.specs);
+    node["Mass"] = btemplate.specs.mass;
+    node["Charge"] = btemplate.specs.charge;
+    node["Radius"] = btemplate.specs.radius;
+    node["Vertices"] = btemplate.specs.vertices;
+
+    node["Color"] = btemplate.color.normalized;
     node["Type"] = (int)btemplate.type;
+
     switch (btemplate.type)
     {
     case shape_type::RECT:
@@ -211,10 +226,20 @@ spawn_tab::body_template spawn_tab::decode_template(const YAML::Node &node)
     body_template btemplate;
     if (node["Name"])
         btemplate.name = node["Name"].as<std::string>();
+
+    btemplate.specs.mass = node["Mass"].as<float>();
+    btemplate.specs.charge = node["Charge"].as<float>();
+    btemplate.specs.radius = node["Radius"].as<float>();
+    btemplate.specs.vertices.clear();
+    for (const YAML::Node &n : node["Vertices"])
+        btemplate.specs.vertices.push_back(n.as<glm::vec2>());
+
     btemplate.color = lynx::color(node["Color"].as<glm::vec4>());
 
-    btemplate.specs = body2D::specs::from_body(node["Body"].as<body2D>());
     btemplate.type = (shape_type)node["Type"].as<int>();
+    btemplate.specs.shape =
+        btemplate.type == shape_type::CIRCLE ? body2D::shape_type::CIRCLE : body2D::shape_type::POLYGON;
+
     if (node["Width"])
     {
         btemplate.width = node["Width"].as<float>();

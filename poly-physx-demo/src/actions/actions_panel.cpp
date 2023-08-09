@@ -12,10 +12,12 @@ void actions_panel::on_attach()
 {
     demo_layer::on_attach();
     m_spawn_tab = spawn_tab(m_app);
+    m_joints_tab = joints_tab(m_app);
 }
 void actions_panel::on_update(float ts)
 {
     m_spawn_tab.update();
+    m_joints_tab.update();
 }
 
 template <typename T> static void render_tab(const char *name, const char *tooltip, T &tab)
@@ -33,12 +35,13 @@ template <typename T> static void render_tab(const char *name, const char *toolt
 void actions_panel::on_render(const float ts)
 {
     m_spawn_tab.render();
+    m_joints_tab.render();
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
         render_tab("Spawn", "Spawn bodies", m_spawn_tab);
         // render_tab("Grab", "Grab entities", m_grab_tab);
-        // render_tab("Joints", "Attach entities with joints", m_joints_tab);
+        render_tab("Joints", "Attach entities with joints", m_joints_tab);
         // render_tab("Entities", "Entities overview", m_entities_tab);
         ImGui::EndTabBar();
     }
@@ -47,16 +50,38 @@ void actions_panel::on_render(const float ts)
 
 bool actions_panel::on_event(const lynx::event &event)
 {
+    const bool attaching = lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL);
     switch (event.type)
     {
+    case lynx::event::KEY_PRESSED:
+        if (ImGui::GetIO().WantCaptureKeyboard)
+            return false;
+        switch (event.key)
+        {
+        case lynx::input::key::BACKSPACE:
+            m_spawn_tab.cancel_body_spawn();
+            m_joints_tab.cancel_joint_attach();
+            break;
+        default:
+            break;
+        }
+        break;
     case lynx::event::MOUSE_PRESSED:
         if (ImGui::GetIO().WantCaptureMouse)
             return false;
         switch (event.mouse.button)
         {
-        case lynx::input::mouse::BUTTON_1: {
-            m_spawn_tab.begin_body_spawn();
-        }
+        case lynx::input::mouse::BUTTON_1:
+            if (attaching)
+            {
+                if (m_joints_tab.first_is_selected())
+                    m_joints_tab.end_joint_attach();
+                else
+                    m_joints_tab.begin_joint_attach();
+            }
+            else
+                m_spawn_tab.begin_body_spawn();
+
         default:
             break;
         }
