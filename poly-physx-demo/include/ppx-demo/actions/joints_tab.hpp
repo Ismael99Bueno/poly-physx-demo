@@ -25,6 +25,9 @@ class joints_tab
 
     bool first_is_selected() const;
 
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
+
   private:
     enum class joint_type
     {

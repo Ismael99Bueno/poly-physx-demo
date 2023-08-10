@@ -22,8 +22,14 @@ void joints_tab::update()
     else
         m_preview->p1(m_body1->position());
 
+    const bool has_anchor2 = !lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT);
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_preview->p2(mpos);
+
+    const body2D::ptr body2 = m_app->world[mpos];
+    if (!has_anchor2 && body2)
+        m_preview->p2(body2->position());
+    else
+        m_preview->p2(mpos);
 }
 
 void joints_tab::render()
@@ -157,5 +163,35 @@ void joints_tab::cancel_joint_attach()
 bool joints_tab::first_is_selected() const
 {
     return m_body1;
+}
+
+YAML::Node joints_tab::encode() const
+{
+    YAML::Node node;
+    node["Joint type"] = (int)m_joint_type;
+
+    node["Spring stiffness"] = m_spring_specs.stiffness;
+    node["Spring dampening"] = m_spring_specs.dampening;
+    if (!m_auto_spring_length)
+        node["Spring length"] = m_spring_specs.length;
+
+    node["Revolute stiffness"] = m_revolute_specs.stiffness;
+    node["Revolute dampening"] = m_revolute_specs.dampening;
+
+    return node;
+}
+void joints_tab::decode(const YAML::Node &node)
+{
+    m_joint_type = (joint_type)node["Joint type"].as<int>();
+
+    m_spring_specs.stiffness = node["Spring stiffness"].as<float>();
+    m_spring_specs.dampening = node["Spring dampening"].as<float>();
+    m_auto_spring_length = !node["Spring length"];
+
+    if (!m_auto_spring_length)
+        m_spring_specs.length = node["Spring length"].as<float>();
+
+    m_revolute_specs.stiffness = node["Revolute stiffness"].as<float>();
+    m_revolute_specs.dampening = node["Revolute dampening"].as<float>();
 }
 } // namespace ppx::demo
