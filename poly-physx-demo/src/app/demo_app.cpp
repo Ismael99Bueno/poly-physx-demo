@@ -2,6 +2,7 @@
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/actions/actions_panel.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
+#include "ppx-demo/physics/physics_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
 #include "lynx/geometry/camera.hpp"
 
@@ -11,6 +12,7 @@ demo_app::demo_app()
 {
     push_layer<actions_panel>();
     push_layer<performance_panel>();
+    push_layer<physics_panel>();
     push_layer<menu_bar>();
 }
 

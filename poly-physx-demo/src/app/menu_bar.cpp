@@ -72,7 +72,8 @@ void menu_bar::on_frame_end(float ts)
 void menu_bar::render_save_prompt()
 {
     static char buffer[24] = "\0";
-    if (ImGui::InputTextWithHint("##", "Session name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
+    if (ImGui::InputTextWithHint("##Body name input", "Session name", buffer, 24,
+                                 ImGuiInputTextFlags_EnterReturnsTrue) &&
         buffer[0] != '\0')
     {
         std::string name = buffer;

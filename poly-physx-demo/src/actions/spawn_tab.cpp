@@ -91,7 +91,7 @@ bool spawn_tab::is_current_template_registered() const
 void spawn_tab::render_save_template_prompt()
 {
     static char buffer[24] = "\0";
-    if (ImGui::InputTextWithHint("##", "Body name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
+    if (ImGui::InputTextWithHint("##Body name input", "Body name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
         buffer[0] != '\0')
     {
         std::string name = buffer;

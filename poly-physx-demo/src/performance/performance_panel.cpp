@@ -63,9 +63,9 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
 {
     const float over_calls = measure.duration_over_calls.as<TimeUnit, float>();
     const float max_over_calls =
-        evaluate_max_hierarchy_measurement(measure.name(), measure.duration_over_calls).as<TimeUnit, float>();
+        evaluate_max_hierarchy_measurement(measure.name, measure.duration_over_calls).as<TimeUnit, float>();
 
-    if (!ImGui::TreeNode(measure.name(), "%s (%.2f %s, %.2f%%, max: %.2f %s)", measure.name(), over_calls, unit,
+    if (!ImGui::TreeNode(measure.name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", measure.name, over_calls, unit,
                          measure.parent_relative_percent * 100.f, max_over_calls, unit))
         return;
 
@@ -73,7 +73,7 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
     {
         const float per_call = measure.duration_per_call.as<TimeUnit, float>();
         const float max_per_call =
-            evaluate_max_hierarchy_measurement(measure.name(), measure.duration_per_call).as<TimeUnit, float>();
+            evaluate_max_hierarchy_measurement(measure.name, measure.duration_per_call).as<TimeUnit, float>();
 
         ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
         ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", per_call * measure.total_calls, unit,

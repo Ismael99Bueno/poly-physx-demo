@@ -63,6 +63,8 @@ void grab_tab::begin_grab()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     m_body = m_app->world[mpos];
+    if (!m_body)
+        return;
     m_anchor = mpos - m_body->position();
     m_rotation = m_body->rotation();
 }
