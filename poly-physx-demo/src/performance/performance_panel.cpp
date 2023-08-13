@@ -67,6 +67,27 @@ void performance_panel::render_summary()
     }
 }
 
+static void render_performance_pie_plot(const kit::measurement &measure)
+{
+    const std::size_t partitions = measure.children.size();
+    std::vector<const char *> labels(partitions + 1);
+    std::vector<float> usage_percents(partitions + 1);
+    float unprofiled_percent = 100.f;
+
+    for (std::size_t i = 0; i < partitions; i++)
+    {
+        labels[i] = measure.children[i].name;
+        usage_percents[i] = measure.children[i].parent_relative_percent * 100.f;
+        unprofiled_percent -= usage_percents[i];
+    }
+    labels[partitions] = "Unprofiled";
+    usage_percents[partitions] = unprofiled_percent;
+
+    ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoDecorations, ImPlotAxisFlags_NoDecorations);
+    ImPlot::SetupLegend(ImPlotLocation_West, ImPlotLegendFlags_Outside);
+    ImPlot::PlotPieChart(labels.data(), usage_percents.data(), (int)partitions + 1, 0.5, 0.5, 0.4, "%.1f%%", 90);
+}
+
 template <typename TimeUnit>
 void performance_panel::render_hierarchy_recursive(const kit::measurement &measure, const char *unit)
 {
@@ -89,6 +110,14 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
                     measure.total_percent * 100.f, max_per_call * measure.total_calls, unit);
         ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
         ImGui::Text("Calls (overall): %u", measure.total_calls);
+
+        ImGui::PushID(measure.name);
+        if (ImPlot::BeginPlot("##Performance pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
+        {
+            render_performance_pie_plot(measure);
+            ImPlot::EndPlot();
+        }
+        ImGui::PopID();
     }
     for (const kit::measurement &m : measure.children)
         render_hierarchy_recursive<TimeUnit>(m, unit);
