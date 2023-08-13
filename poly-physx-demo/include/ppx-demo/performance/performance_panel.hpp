@@ -24,6 +24,9 @@ class performance_panel : public demo_layer
     time_unit m_time_unit = time_unit::MILLISECONDS;
     float m_smoothness = 0.f;
 
+    bool m_show_time_plot = false;
+    float m_time_plot_speed = 0.02f;
+
     std::array<kit::time, 4> m_time_measurements;
     std::array<kit::time, 4> m_max_time_measurements;
     std::unordered_map<const char *, kit::time> m_max_time_hierarchy_measurements;
@@ -37,6 +40,7 @@ class performance_panel : public demo_layer
 
     void render_summary();
     template <typename TimeUnit, typename T> void render_measurements_summary(const char *format);
+    template <typename TimeUnit> void render_time_plot(const std::string &unit);
 
     void render_measurements_hierarchy();
     template <typename TimeUnit> void render_hierarchy_recursive(const kit::measurement &measure, const char *unit);
