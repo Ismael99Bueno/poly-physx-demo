@@ -49,6 +49,9 @@ void physics_panel::on_render(const float ts)
 {
     if (ImGui::Begin("Physics"))
     {
+        ImGui::Checkbox("Show energy plot", &m_show_energy_plot);
+        if (m_show_energy_plot)
+            render_energy_plot();
         render_behaviour(m_gravity);
         render_behaviour(m_drag);
         render_behaviour(m_gravitational);
@@ -57,5 +60,41 @@ void physics_panel::on_render(const float ts)
         render_behaviour(m_exponential);
     }
     ImGui::End();
+}
+
+void physics_panel::render_energy_plot() const
+{
+    constexpr std::size_t buffer_size = 3000;
+    constexpr float broad = 4.f;
+    const float t = m_app->world.elapsed();
+
+    static std::size_t current_size = 0;
+    static std::size_t offset = 0;
+
+    const std::array<float, 3> energy_measures = {m_app->world.kinetic_energy(), m_app->world.potential_energy(),
+                                                  m_app->world.energy()};
+    static std::array<std::array<glm::vec2, buffer_size>, 3> energy_graph_measures;
+    constexpr std::array<const char *, 3> energy_graph_names = {"Kinetic energy", "Potential energy", "Total energy"};
+
+    const bool overflow = current_size >= buffer_size;
+    const std::size_t graph_index = overflow ? offset : current_size;
+
+    for (std::size_t i = 0; i < 3; i++)
+        energy_graph_measures[i][graph_index] = {t, energy_measures[i]};
+
+    offset = overflow ? (offset + 1) % buffer_size : 0;
+    if (!overflow)
+        current_size++;
+
+    if (ImPlot::BeginPlot("##Energy", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
+    {
+        ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_NoTickLabels);
+        ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
+        for (std::size_t i = 0; i < 3; i++)
+            ImPlot::PlotLine(energy_graph_names[i], &energy_graph_measures[i].data()->x,
+                             &energy_graph_measures[i].data()->y, (int)current_size, 0, (int)offset, sizeof(glm::vec2));
+
+        ImPlot::EndPlot();
+    }
 }
 } // namespace ppx::demo

@@ -20,8 +20,12 @@ class physics_panel : public demo_layer
     exponential *m_exponential;
     std::array<behaviour2D *, 6> m_behaviours;
 
+    bool m_show_energy_plot = false;
+
     void on_attach() override;
     void on_render(float ts) override;
+
+    void render_energy_plot() const;
 };
 } // namespace ppx::demo
 
