@@ -16,18 +16,18 @@ void joints_tab::update()
 
     if (m_has_anchor1)
     {
-        const glm::vec2 rot_anchor1 = glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1);
-        m_preview->p1(m_body1->position() + rot_anchor1);
+        const glm::vec2 rot_anchor1 = glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1);
+        m_preview->p1(m_body1->transform().position + rot_anchor1);
     }
     else
-        m_preview->p1(m_body1->position());
+        m_preview->p1(m_body1->transform().position);
 
     const bool has_anchor2 = !lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
     const body2D::ptr body2 = m_app->world[mpos];
     if (!has_anchor2 && body2)
-        m_preview->p2(body2->position());
+        m_preview->p2(body2->transform().position);
     else
         m_preview->p2(mpos);
 }
@@ -40,9 +40,10 @@ void joints_tab::render()
 
 float joints_tab::current_joint_length()
 {
-    const glm::vec2 p1 = m_has_anchor1
-                             ? (m_body1->position() + glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1))
-                             : m_body1->position();
+    const glm::vec2 p1 =
+        m_has_anchor1
+            ? (m_body1->transform().position + glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1))
+            : m_body1->transform().position;
     const glm::vec2 p2 = m_app->world_mouse_position();
     return glm::distance(p1, p2);
 }
@@ -102,8 +103,8 @@ void joints_tab::begin_joint_attach()
         return;
 
     m_has_anchor1 = !lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT);
-    m_anchor1 = m_has_anchor1 ? (mpos - m_body1->position()) : glm::vec2(0.f);
-    m_rotation1 = m_body1->rotation();
+    m_anchor1 = m_has_anchor1 ? (mpos - m_body1->transform().position) : glm::vec2(0.f);
+    m_rotation1 = m_body1->transform().rotation;
 
     switch (m_joint_type)
     {
@@ -127,8 +128,9 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs)
     specs.has_anchors = m_has_anchor1 || has_anchor2;
     if (specs.has_anchors)
     {
-        specs.anchor1 = m_has_anchor1 ? glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1) : glm::vec2(0.f);
-        specs.anchor2 = has_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
+        specs.anchor1 =
+            m_has_anchor1 ? glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1) : glm::vec2(0.f);
+        specs.anchor2 = has_anchor2 ? (mpos - body2->transform().position) : glm::vec2(0.f);
     }
 
     specs.body1 = m_body1;

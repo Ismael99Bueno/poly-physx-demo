@@ -18,8 +18,8 @@ void grab_tab::update()
 
     const glm::vec2 mpos = m_app->world_mouse_position();
 
-    const glm::vec2 rotanchor = glm::rotate(m_anchor, m_body->rotation() - m_rotation);
-    m_spring_line.p1(m_body->position() + rotanchor);
+    const glm::vec2 rotanchor = glm::rotate(m_anchor, m_body->transform().rotation - m_rotation);
+    m_spring_line.p1(m_body->transform().position + rotanchor);
     m_spring_line.p2(mpos);
     apply_force_to_body(rotanchor, mpos);
 }
@@ -31,7 +31,7 @@ static float cross(const glm::vec2 &v1, const glm::vec2 &v2)
 
 void grab_tab::apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &mpos) const
 {
-    const glm::vec2 p1 = m_body->position() + rotanchor;
+    const glm::vec2 p1 = m_body->transform().position + rotanchor;
     const glm::vec2 &p2 = mpos;
 
     const glm::vec2 relpos = p2 - p1;
@@ -65,8 +65,8 @@ void grab_tab::begin_grab()
     m_body = m_app->world[mpos];
     if (!m_body)
         return;
-    m_anchor = mpos - m_body->position();
-    m_rotation = m_body->rotation();
+    m_anchor = mpos - m_body->transform().position;
+    m_rotation = m_body->transform().rotation;
 }
 
 void grab_tab::end_grab()
