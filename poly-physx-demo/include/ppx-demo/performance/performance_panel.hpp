@@ -24,7 +24,6 @@ class performance_panel : public demo_layer
     time_unit m_time_unit = time_unit::MILLISECONDS;
     float m_smoothness = 0.f;
 
-    bool m_show_time_plot = false;
     float m_time_plot_speed = 0.02f;
 
     std::array<kit::time, 4> m_time_measurements;

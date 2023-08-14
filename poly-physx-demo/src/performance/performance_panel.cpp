@@ -39,27 +39,26 @@ void performance_panel::render_summary()
         for (kit::time &max : m_max_time_measurements)
             max = kit::time();
 
-    ImGui::Checkbox("Show time plot", &m_show_time_plot);
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
         render_measurements_summary<kit::time::nanoseconds, long long>("%s: %lld ns (max: %lld ns)");
-        if (m_show_time_plot)
+        if (ImGui::CollapsingHeader("Execution time plot (ns)"))
             render_time_plot<kit::time::nanoseconds>("ns");
         break;
     case time_unit::MICROSECONDS:
         render_measurements_summary<kit::time::microseconds, long long>("%s: %lld us (max: %lld us)");
-        if (m_show_time_plot)
+        if (ImGui::CollapsingHeader("Execution time plot (us)"))
             render_time_plot<kit::time::microseconds>("us");
         break;
     case time_unit::MILLISECONDS:
         render_measurements_summary<kit::time::milliseconds, long>("%s: %lld ms (max: %lld ms)");
-        if (m_show_time_plot)
+        if (ImGui::CollapsingHeader("Execution time plot (ms)"))
             render_time_plot<kit::time::milliseconds>("ms");
         break;
     case time_unit::SECONDS:
         render_measurements_summary<kit::time::seconds, float>("%s: %.2f s (max: %.2f s)");
-        if (m_show_time_plot)
+        if (ImGui::CollapsingHeader("Execution time plot (s)"))
             render_time_plot<kit::time::seconds>("s");
         break;
     default:
@@ -185,16 +184,16 @@ template <typename TimeUnit, typename T> void performance_panel::render_measurem
 
 template <typename TimeUnit> void performance_panel::render_time_plot(const std::string &unit)
 {
-    constexpr std::size_t buffer_size = 3000;
-    constexpr float broad = 4.f;
+    static constexpr std::size_t buffer_size = 3000;
+    static constexpr float broad = 4.f;
 
     static float t = 0.f;
     static std::size_t current_size = 0;
     static std::size_t offset = 0;
 
     static std::array<std::array<glm::vec2, buffer_size>, 4> time_graph_measures;
-    constexpr std::array<const char *, 4> time_graph_names = {"Frame time", "Update time", "Physics time",
-                                                              "Render time"};
+    static constexpr std::array<const char *, 4> time_graph_names = {"Frame time", "Update time", "Physics time",
+                                                                     "Render time"};
 
     const bool overflow = current_size >= buffer_size;
     const std::size_t graph_index = overflow ? offset : current_size;
@@ -236,7 +235,6 @@ YAML::Node performance_panel::encode() const
     YAML::Node node = demo_layer::encode();
     node["Time unit"] = (std::uint32_t)m_time_unit;
     node["Measurement smoothness"] = m_smoothness;
-    node["Show time plot"] = m_show_time_plot;
     node["Time plot speed"] = m_time_plot_speed;
 
     return node;
@@ -248,7 +246,6 @@ bool performance_panel::decode(const YAML::Node &node)
         return false;
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();
-    m_show_time_plot = node["Show time plot"].as<bool>();
     m_time_plot_speed = node["Time plot speed"].as<float>();
 
     kit::instrumentor::measurement_smoothness(m_smoothness);
