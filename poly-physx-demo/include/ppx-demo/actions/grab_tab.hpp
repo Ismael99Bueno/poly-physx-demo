@@ -1,7 +1,7 @@
 #ifndef GRAB_TAB_HPP
 #define GRAB_TAB_HPP
 
-#include "ppx-app/spring_line.hpp"
+#include "ppx-app/lines/spring_line.hpp"
 #include "ppx/body2D.hpp"
 
 namespace ppx::demo

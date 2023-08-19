@@ -66,7 +66,7 @@ bool actions_panel::on_event(const lynx::event &event)
             m_spawn_tab.cancel_body_spawn();
             m_joints_tab.cancel_joint_attach();
             m_grab_tab.end_grab();
-            break;
+            return true;
         default:
             break;
         }
@@ -88,11 +88,12 @@ bool actions_panel::on_event(const lynx::event &event)
                 m_grab_tab.begin_grab();
             else
                 m_spawn_tab.begin_body_spawn();
+            return true;
 
         default:
-            break;
+            return false;
         }
-        break;
+        return false;
 
     case lynx::event::MOUSE_RELEASED:
         if (ImGui::GetIO().WantCaptureMouse)
@@ -104,14 +105,15 @@ bool actions_panel::on_event(const lynx::event &event)
                 m_grab_tab.end_grab();
             else
                 m_spawn_tab.end_body_spawn();
+            return true;
         }
         default:
-            break;
+            return false;
         }
-        break;
+        return false;
 
     default:
-        break;
+        return false;
     }
     return false;
 }

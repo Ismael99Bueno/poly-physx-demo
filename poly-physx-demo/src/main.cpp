@@ -1,4 +1,4 @@
-#include "ppx-app/app.hpp"
+#include "ppx-app/app/app.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 
 int main()

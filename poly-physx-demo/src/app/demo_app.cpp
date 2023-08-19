@@ -8,7 +8,7 @@
 
 namespace ppx::demo
 {
-demo_app::demo_app()
+demo_app::demo_app() : selector(*this)
 {
     push_layer<actions_panel>();
     push_layer<performance_panel>();
@@ -34,13 +34,57 @@ void demo_app::on_late_shutdown()
     serialize(menu_bar::LAST_SAVE_FILEPATH);
 }
 
-#ifdef DEBUG
+void demo_app::on_update(const float ts)
+{
+    app::on_update(ts);
+    selector.update();
+}
+
 void demo_app::on_render(const float ts)
 {
-    ppx::app::on_render(ts);
+    app::on_render(ts);
+    selector.render();
     ImGui::ShowDemoWindow();
 }
-#endif
+
+bool demo_app::on_event(const lynx::event &event)
+{
+    if (app::on_event(event))
+        return true;
+
+    const bool selecting = lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL);
+    switch (event.type)
+    {
+    case lynx::event::MOUSE_PRESSED:
+        if (ImGui::GetIO().WantCaptureKeyboard || !selecting)
+            return false;
+        switch (event.mouse.button)
+        {
+        case lynx::input::mouse::BUTTON_1:
+            selector.begin_selection(!lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT));
+            return true;
+        default:
+            return false;
+        }
+
+        return false;
+    case lynx::event::MOUSE_RELEASED:
+        if (ImGui::GetIO().WantCaptureKeyboard || !selecting)
+            return false;
+        switch (event.mouse.button)
+        {
+        case lynx::input::mouse::BUTTON_1:
+            selector.end_selection();
+            return true;
+        default:
+            return false;
+        }
+        return false;
+    default:
+        return false;
+    }
+    return false;
+}
 
 void demo_app::add_walls()
 {
@@ -49,10 +93,10 @@ void demo_app::add_walls()
     const glm::vec2 size = cam->transform.scale;
     const float thck = 5.f;
 
-    ppx::body2D::specs body1;
-    ppx::body2D::specs body2;
-    ppx::body2D::specs body3;
-    ppx::body2D::specs body4;
+    body2D::specs body1;
+    body2D::specs body2;
+    body2D::specs body3;
+    body2D::specs body4;
 
     body1.position = glm::vec2(-size.x - 0.5f * thck, 0.f);
     body2.position = glm::vec2(size.x + 0.5f * thck, 0.f);
