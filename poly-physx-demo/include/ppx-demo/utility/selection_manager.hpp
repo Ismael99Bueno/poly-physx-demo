@@ -26,6 +26,8 @@ class selection_manager
     kit::event<const body2D::ptr &> on_select;
     kit::event<const body2D::ptr &> on_deselect;
 
+    const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selected_bodies() const;
+
   private:
     demo_app &m_app;
     lynx::window2D *m_window;

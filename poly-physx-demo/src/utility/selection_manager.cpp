@@ -10,13 +10,14 @@ selection_manager::selection_manager(demo_app &app)
     : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
 {
     m_window = m_app.window();
-    const kit::callback<std::size_t> add_body{[this](const std::size_t index) {
+    const kit::callback<std::size_t> remove_body{[this](const std::size_t index) {
         for (auto it = m_selected_bodies.begin(); it != m_selected_bodies.end();)
             if (!(*it))
                 it = m_selected_bodies.erase(it);
             else
                 ++it;
     }};
+    app.world.events.on_late_body_removal += remove_body;
 }
 
 static float oscillating_thickness(const float t)
@@ -101,5 +102,10 @@ bool selection_manager::is_selecting(const body2D::ptr &body)
 {
     return (m_selecting && geo::intersect(m_selection_boundaries, body->shape().bounding_box())) ||
            m_selected_bodies.find(body) != m_selected_bodies.end();
+}
+
+const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selection_manager::selected_bodies() const
+{
+    return m_selected_bodies;
 }
 } // namespace ppx::demo

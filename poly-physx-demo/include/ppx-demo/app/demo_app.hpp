@@ -22,6 +22,7 @@ class demo_app : public app
     bool on_event(const lynx::event &event) override;
 
     void add_walls();
+    void remove_selected_bodies();
 };
 } // namespace ppx::demo
 

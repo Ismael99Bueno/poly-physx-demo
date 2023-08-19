@@ -55,8 +55,20 @@ bool demo_app::on_event(const lynx::event &event)
     const bool selecting = lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL);
     switch (event.type)
     {
+    case lynx::event::KEY_PRESSED:
+        if (ImGui::GetIO().WantCaptureKeyboard)
+            return false;
+        switch (event.key)
+        {
+        case lynx::input::key::BACKSPACE:
+            remove_selected_bodies();
+            return true;
+        default:
+            return false;
+        }
+
     case lynx::event::MOUSE_PRESSED:
-        if (ImGui::GetIO().WantCaptureKeyboard || !selecting)
+        if (ImGui::GetIO().WantCaptureMouse || !selecting)
             return false;
         switch (event.mouse.button)
         {
@@ -69,7 +81,7 @@ bool demo_app::on_event(const lynx::event &event)
 
         return false;
     case lynx::event::MOUSE_RELEASED:
-        if (ImGui::GetIO().WantCaptureKeyboard || !selecting)
+        if (ImGui::GetIO().WantCaptureMouse || !selecting)
             return false;
         switch (event.mouse.button)
         {
@@ -84,6 +96,14 @@ bool demo_app::on_event(const lynx::event &event)
         return false;
     }
     return false;
+}
+
+void demo_app::remove_selected_bodies()
+{
+    const auto selected = selector.selected_bodies();
+    for (const body2D::ptr &body : selected)
+        if (body)
+            world.remove_body(*body);
 }
 
 void demo_app::add_walls()
