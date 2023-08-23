@@ -14,7 +14,7 @@ class selection_manager
     selection_manager(demo_app &app);
 
     void update();
-    void render();
+    void render() const;
 
     void begin_selection(bool override_current);
     void end_selection();
@@ -27,6 +27,9 @@ class selection_manager
     kit::event<const body2D::ptr &> on_deselect;
 
     const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selected_bodies() const;
+
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
 
   private:
     demo_app &m_app;

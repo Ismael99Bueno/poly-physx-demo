@@ -8,7 +8,7 @@
 
 namespace ppx::demo
 {
-demo_app::demo_app() : selector(*this)
+demo_app::demo_app() : selector(*this), grouper(*this)
 {
     push_layer<actions_panel>();
     push_layer<performance_panel>();
@@ -38,13 +38,17 @@ void demo_app::on_update(const float ts)
 {
     app::on_update(ts);
     selector.update();
+    grouper.update();
 }
 
 void demo_app::on_render(const float ts)
 {
     app::on_render(ts);
     selector.render();
+    grouper.render();
+#ifdef DEBUG
     ImGui::ShowDemoWindow();
+#endif
 }
 
 bool demo_app::on_event(const lynx::event &event)
@@ -60,8 +64,15 @@ bool demo_app::on_event(const lynx::event &event)
             return false;
         switch (event.key)
         {
+        case lynx::input::key::C:
+            grouper.begin_group_from_selected();
+            return true;
+        case lynx::input::key::V:
+            grouper.paste_group();
+            return true;
         case lynx::input::key::BACKSPACE:
             remove_selected_bodies();
+            grouper.cancel_group();
             return true;
         default:
             return false;
@@ -137,5 +148,19 @@ void demo_app::add_walls()
     world.add_body(body2);
     world.add_body(body3);
     world.add_body(body4);
+}
+
+YAML::Node demo_app::encode() const
+{
+    YAML::Node node = app::encode();
+    node["Selector"] = selector.encode();
+    return node;
+}
+bool demo_app::decode(const YAML::Node &node)
+{
+    if (!app::decode(node))
+        return false;
+    selector.decode(node["Selector"]);
+    return true;
 }
 } // namespace ppx::demo

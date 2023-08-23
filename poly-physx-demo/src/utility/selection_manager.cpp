@@ -59,7 +59,7 @@ void selection_manager::update()
 
     m_selection_boundaries = geo::aabb2D(min, max);
 }
-void selection_manager::render()
+void selection_manager::render() const
 {
     if (!m_selecting)
         return;
@@ -107,5 +107,24 @@ bool selection_manager::is_selecting(const body2D::ptr &body)
 const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selection_manager::selected_bodies() const
 {
     return m_selected_bodies;
+}
+
+YAML::Node selection_manager::encode() const
+{
+    YAML::Node node;
+    for (const body2D::ptr &body : m_selected_bodies)
+        node["Bodies"].push_back(body->index);
+    node["Bodies"].SetStyle(YAML::EmitterStyle::Flow);
+    return node;
+}
+
+void selection_manager::decode(const YAML::Node &node)
+{
+    if (node["Bodies"])
+        for (const YAML::Node &n : node["Bodies"])
+        {
+            const std::size_t index = n.as<std::size_t>();
+            m_selected_bodies.insert(m_app.world[index]);
+        }
 }
 } // namespace ppx::demo
