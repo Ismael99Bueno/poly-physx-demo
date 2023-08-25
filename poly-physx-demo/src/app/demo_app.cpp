@@ -71,8 +71,10 @@ bool demo_app::on_event(const lynx::event &event)
             grouper.paste_group();
             return true;
         case lynx::input::key::BACKSPACE:
-            remove_selected_bodies();
-            grouper.cancel_group();
+            if (grouper.ongoing_group())
+                grouper.cancel_group();
+            else
+                remove_selected_bodies();
             return true;
         default:
             return false;

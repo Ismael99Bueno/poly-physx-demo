@@ -55,7 +55,7 @@ template <typename T> void joints_tab::render_joint_properties(T &specs)
 
     ImGui::DragFloat("Stiffness", &specs.stiffness, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Dampening", &specs.dampening, drag_speed, 0.f, FLT_MAX, format);
-    if constexpr (std::is_same<T, spring2D::specs>::value)
+    if constexpr (std::is_same_v<T, spring2D::specs>)
     {
         ImGui::Checkbox("Auto-length", &m_auto_spring_length);
         if (m_auto_spring_length && m_body1)

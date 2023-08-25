@@ -7,6 +7,9 @@
 
 #include "lynx/drawing/shape.hpp"
 
+#include "ppx-app/lines/spring_line.hpp"
+#include "ppx-app/lines/thick_line.hpp"
+
 namespace ppx::demo
 {
 class demo_app;
@@ -25,6 +28,8 @@ class group_manager
     void save_group_from_selected(const std::string &name);
     void load_group(const std::string &name);
 
+    bool ongoing_group() const;
+
   private:
     struct body_template
     {
@@ -38,25 +43,25 @@ class group_manager
     };
     struct spring_template
     {
-        spring_template(const kit::uuid id1, const kit::uuid id2, const lynx::color &color,
-                        const spring2D::specs &specs)
-            : id1(id1), id2(id2), color(color), specs(specs)
+        spring_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
+                        const lynx::color &color, const spring2D::specs &specs)
+            : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
         {
         }
-        kit::uuid id1;
-        kit::uuid id2;
+        std::size_t btemplate_index1;
+        std::size_t btemplate_index2;
         lynx::color color;
         spring2D::specs specs;
     };
     struct revolute_template
     {
-        revolute_template(const kit::uuid id1, const kit::uuid id2, const lynx::color &color,
-                          const revolute_joint2D::specs &specs)
-            : id1(id1), id2(id2), color(color), specs(specs)
+        revolute_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
+                          const lynx::color &color, const revolute_joint2D::specs &specs)
+            : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
         {
         }
-        kit::uuid id1;
-        kit::uuid id2;
+        std::size_t btemplate_index1;
+        std::size_t btemplate_index2;
         lynx::color color;
         revolute_joint2D::specs specs;
     };
@@ -76,6 +81,8 @@ class group_manager
 
     std::vector<group> m_groups;
     std::vector<kit::scope<lynx::shape2D>> m_group_shapes_preview;
+    std::vector<spring_line> m_group_springs_preview;
+    std::vector<thick_line> m_group_revolutes_preview;
 
     bool m_ongoing_group = false;
 
