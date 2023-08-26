@@ -15,7 +15,7 @@ class spawn_tab
 
     void update();
     void render();
-    void render_tab();
+    void render_imgui_tab();
 
     void begin_body_spawn();
     void end_body_spawn();

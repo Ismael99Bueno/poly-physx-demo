@@ -56,7 +56,7 @@ bool demo_app::on_event(const lynx::event &event)
     if (app::on_event(event))
         return true;
 
-    const bool selecting = lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL);
+    const bool selecting = lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT);
     switch (event.type)
     {
     case lynx::event::KEY_PRESSED:
@@ -86,7 +86,7 @@ bool demo_app::on_event(const lynx::event &event)
         switch (event.mouse.button)
         {
         case lynx::input::mouse::BUTTON_1:
-            selector.begin_selection(!lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT));
+            selector.begin_selection(!lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL));
             return true;
         default:
             return false;

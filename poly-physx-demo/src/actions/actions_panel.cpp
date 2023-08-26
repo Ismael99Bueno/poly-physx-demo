@@ -14,22 +14,24 @@ void actions_panel::on_attach()
     m_spawn_tab = spawn_tab(m_app);
     m_joints_tab = joints_tab(m_app);
     m_grab_tab = grab_tab(m_app);
+    m_bodies_tab = bodies_tab(m_app);
 }
 void actions_panel::on_update(float ts)
 {
     m_spawn_tab.update();
     m_joints_tab.update();
     m_grab_tab.update();
+    m_bodies_tab.update();
 }
 
-template <typename T> static void render_tab(const char *name, const char *tooltip, T &tab)
+template <typename T> static void render_imgui_tab(const char *name, const char *tooltip, T &tab)
 {
     const bool expanded = ImGui::BeginTabItem(name);
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("%s", tooltip);
     if (expanded)
     {
-        tab.render_tab();
+        tab.render_imgui_tab();
         ImGui::EndTabItem();
     }
 }
@@ -42,10 +44,10 @@ void actions_panel::on_render(const float ts)
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
-        render_tab("Spawn", "Spawn bodies", m_spawn_tab);
-        render_tab("Joints", "Attach bodies with joints", m_joints_tab);
-        render_tab("Grab", "Grab bodies", m_grab_tab);
-        // render_tab("Entities", "Entities overview", m_entities_tab);
+        render_imgui_tab("Spawn", "Spawn bodies", m_spawn_tab);
+        render_imgui_tab("Joints", "Attach bodies with joints", m_joints_tab);
+        render_imgui_tab("Grab", "Grab bodies", m_grab_tab);
+        render_imgui_tab("Bodies", "Bodies overview", m_bodies_tab);
         ImGui::EndTabBar();
     }
     ImGui::End();

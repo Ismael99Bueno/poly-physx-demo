@@ -97,6 +97,26 @@ void group_manager::cancel_group()
     m_ongoing_group = false;
 }
 
+void group_manager::save_group_from_selected(const std::string &name)
+{
+    m_groups[name] = create_group_from_selected();
+}
+void group_manager::load_group(const std::string &name)
+{
+    m_current_group = m_groups[name];
+    update_preview_from_current_group();
+    m_ongoing_group = true;
+}
+void group_manager::remove_group(const std::string &name)
+{
+    m_groups.erase(name);
+}
+
+const std::unordered_map<std::string, group_manager::group> &group_manager::groups() const
+{
+    return m_groups;
+}
+
 void group_manager::paste_group()
 {
     if (!m_ongoing_group)

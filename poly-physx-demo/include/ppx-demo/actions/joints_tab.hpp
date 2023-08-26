@@ -17,7 +17,7 @@ class joints_tab
 
     void update();
     void render();
-    void render_tab();
+    void render_imgui_tab();
 
     void begin_joint_attach();
     void end_joint_attach();

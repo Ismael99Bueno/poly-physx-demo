@@ -27,6 +27,7 @@ class group_manager
 
     void save_group_from_selected(const std::string &name);
     void load_group(const std::string &name);
+    void remove_group(const std::string &name);
 
     bool ongoing_group() const;
 
@@ -67,19 +68,22 @@ class group_manager
     };
     struct group
     {
-        std::string name;
         glm::vec2 mean_position{0.f};
         std::vector<body_template> body_templates;
         std::vector<spring_template> spring_templates;
         std::vector<revolute_template> revolute_templates;
     };
 
+  public:
+    const std::unordered_map<std::string, group> &groups() const;
+
+  private:
     demo_app &m_app;
     lynx::window2D *m_window;
 
     group m_current_group;
 
-    std::vector<group> m_groups;
+    std::unordered_map<std::string, group> m_groups;
     std::vector<kit::scope<lynx::shape2D>> m_group_shapes_preview;
     std::vector<spring_line> m_group_springs_preview;
     std::vector<thick_line> m_group_revolutes_preview;

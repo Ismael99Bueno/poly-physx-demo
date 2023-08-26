@@ -15,6 +15,8 @@ class demo_app : public app
     selection_manager selector;
     group_manager grouper;
 
+    void add_walls();
+
   private:
     void on_late_start() override;
     void on_late_shutdown() override;
@@ -23,7 +25,6 @@ class demo_app : public app
     void on_render(float ts) override;
     bool on_event(const lynx::event &event) override;
 
-    void add_walls();
     void remove_selected_bodies();
 
     YAML::Node encode() const override;

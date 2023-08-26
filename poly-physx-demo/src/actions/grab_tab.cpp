@@ -53,7 +53,7 @@ void grab_tab::render()
     m_window->draw(m_spring_line);
 }
 
-void grab_tab::render_tab()
+void grab_tab::render_imgui_tab()
 {
     ImGui::DragFloat("Stiffness", &m_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
     ImGui::DragFloat("Dampening", &m_dampening, 0.3f, 0.f, FLT_MAX, "%.1f");

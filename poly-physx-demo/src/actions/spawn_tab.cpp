@@ -30,7 +30,7 @@ void spawn_tab::render()
         m_window->draw(*m_preview);
 }
 
-void spawn_tab::render_tab()
+void spawn_tab::render_imgui_tab()
 {
     ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_menu_bar();
@@ -159,7 +159,8 @@ void spawn_tab::render_menu_bar()
 
 void spawn_tab::begin_body_spawn()
 {
-    KIT_ASSERT_ERROR(!m_previewing, "Cannot begin body spawn without ending the previous one")
+    if (m_previewing)
+        return;
     m_previewing = true;
     m_app->body_color = m_current_body_template.color;
 

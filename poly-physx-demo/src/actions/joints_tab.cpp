@@ -73,7 +73,7 @@ template <typename T> void joints_tab::render_joint_properties(T &specs)
     }
 }
 
-void joints_tab::render_tab()
+void joints_tab::render_imgui_tab()
 {
     ImGui::BeginTabBar("Joints tab bar");
 
