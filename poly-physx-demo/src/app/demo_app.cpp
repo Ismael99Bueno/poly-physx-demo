@@ -156,6 +156,7 @@ YAML::Node demo_app::encode() const
 {
     YAML::Node node = app::encode();
     node["Selector"] = selector.encode();
+    node["Group manager"] = grouper.encode();
     return node;
 }
 bool demo_app::decode(const YAML::Node &node)
@@ -163,6 +164,7 @@ bool demo_app::decode(const YAML::Node &node)
     if (!app::decode(node))
         return false;
     selector.decode(node["Selector"]);
+    grouper.decode(node["Group manager"]);
     return true;
 }
 } // namespace ppx::demo

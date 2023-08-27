@@ -92,6 +92,106 @@ bool group_manager::ongoing_group() const
     return m_ongoing_group;
 }
 
+template <typename T> static YAML::Node encode_joint_template(const T &jtemplate)
+{
+    YAML::Node node;
+    node["Index 1"] = jtemplate.btemplate_index1;
+    node["Index 2"] = jtemplate.btemplate_index2;
+    node["Color"] = jtemplate.color.normalized;
+    node["Stiffness"] = jtemplate.specs.stiffness;
+    node["Dampening"] = jtemplate.specs.dampening;
+    if (jtemplate.specs.has_anchors)
+    {
+        node["Anchor1"] = jtemplate.specs.anchor1;
+        node["Anchor2"] = jtemplate.specs.anchor2;
+    }
+}
+
+template <typename T> static void decode_joint_template(T &jtemplate, const YAML::Node &node)
+{
+    jtemplate.btemplate_index1 = node["Index 1"].as<std::size_t>();
+    jtemplate.btemplate_index2 = node["Index 2"].as<std::size_t>();
+    jtemplate.color.normalized = node["Color"].as<glm::vec4>();
+    jtemplate.specs.stiffness = node["Stiffness"].as<float>();
+    jtemplate.specs.dampening = node["Dampening"].as<float>();
+    if (node["Anchor1"])
+    {
+        jtemplate.specs.has_anchors = true;
+        jtemplate.specs.anchor1 = node["Anchor1"].as<glm::vec2>();
+        jtemplate.specs.anchor2 = node["Anchor2"].as<glm::vec2>();
+    }
+    else
+        jtemplate.specs.has_anchors = false;
+}
+
+YAML::Node group_manager::group::encode() const
+{
+    YAML::Node node;
+    for (const body_template &btemplate : body_templates)
+    {
+        YAML::Node btnode;
+        btnode["ID"] = (std::uint64_t)btemplate.id;
+        btnode["Color"] = btemplate.color.normalized;
+        btnode["Body"] = body2D(btemplate.specs);
+        node["Body templates"].push_back(btnode);
+    }
+
+    for (const spring_template &sptemplate : spring_templates)
+    {
+        YAML::Node spnode = encode_joint_template(sptemplate);
+        spnode["Length"] = sptemplate.specs.length;
+        node["Spring templates"].push_back(spnode);
+    }
+
+    for (const revolute_template &rvtemplate : revolute_templates)
+        node["Revolute templates"].push_back(encode_joint_template(rvtemplate));
+
+    return node;
+}
+void group_manager::group::decode(const YAML::Node &node)
+{
+    body_templates.clear();
+    spring_templates.clear();
+    revolute_templates.clear();
+
+    if (node["Body templates"])
+        for (const YAML::Node &n : node["Body templates"])
+        {
+            body_template &btemplate = body_templates.emplace_back();
+            btemplate.id = kit::uuid(n["ID"].as<std::uint64_t>());
+            btemplate.color.normalized = n["Color"].as<glm::vec4>();
+            btemplate.specs = body2D::specs::from_body(n["Body"].as<body2D>());
+        }
+    if (node["Spring templates"])
+        for (const YAML::Node &n : node["Spring templates"])
+        {
+            spring_template &sptemplate = spring_templates.emplace_back();
+            decode_joint_template(sptemplate, n);
+            sptemplate.specs.length = n["Length"].as<float>();
+        }
+
+    if (node["Revolute templates"])
+        for (const YAML::Node &n : node["Revolute templates"])
+            decode_joint_template(revolute_templates.emplace_back(), n);
+}
+
+YAML::Node group_manager::encode() const
+{
+    YAML::Node node;
+    for (const auto &[name, group] : m_groups)
+        node[name] = group.encode();
+    return node;
+}
+void group_manager::decode(const YAML::Node &node)
+{
+    for (auto it = node.begin(); it != node.end(); ++it)
+    {
+        group g;
+        g.decode(it->second);
+        m_groups.emplace(it->first.as<std::string>(), g);
+    }
+}
+
 void group_manager::cancel_group()
 {
     m_ongoing_group = false;

@@ -31,9 +31,13 @@ class group_manager
 
     bool ongoing_group() const;
 
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
+
   private:
     struct body_template
     {
+        body_template() = default;
         body_template(const kit::uuid id, const lynx::color &color, const body2D::specs &specs)
             : id(id), color(color), specs(specs)
         {
@@ -44,6 +48,7 @@ class group_manager
     };
     struct spring_template
     {
+        spring_template() = default;
         spring_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
                         const lynx::color &color, const spring2D::specs &specs)
             : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
@@ -56,6 +61,7 @@ class group_manager
     };
     struct revolute_template
     {
+        revolute_template() = default;
         revolute_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
                           const lynx::color &color, const revolute_joint2D::specs &specs)
             : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
@@ -72,6 +78,9 @@ class group_manager
         std::vector<body_template> body_templates;
         std::vector<spring_template> spring_templates;
         std::vector<revolute_template> revolute_templates;
+
+        YAML::Node encode() const;
+        void decode(const YAML::Node &node);
     };
 
   public:

@@ -75,7 +75,7 @@ void bodies_tab::render_single_body_properties(body2D &body)
     float angular_velocity = body.angular_velocity();
 
     ImGui::Checkbox("Kinematic", &body.kinematic);
-    if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, 0.f, format))
+    if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         body.mass(mass);
 
     if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
@@ -139,7 +139,7 @@ void bodies_tab::render_selected_bodies_properties()
         for (const body2D::ptr &body : selected)
             body->kinematic = kinematic;
 
-    if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, 0.f, format))
+    if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         for (const body2D::ptr &body : selected)
             body->mass(mass);
 
@@ -155,6 +155,7 @@ void bodies_tab::render_selected_bodies_properties()
         std::replace(name.begin(), name.end(), ' ', '-');
 
         m_app->grouper.save_group_from_selected(name);
+        buffer[0] = '\0';
     }
 }
 
