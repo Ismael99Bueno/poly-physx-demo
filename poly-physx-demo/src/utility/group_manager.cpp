@@ -79,12 +79,10 @@ void group_manager::update_preview_from_current_group()
                 .get();
 
     for (const spring_template &sptemplate : m_current_group.spring_templates)
-        m_group_springs_preview.emplace_back(sptemplate.specs.body1->transform().position,
-                                             sptemplate.specs.body2->transform().position, sptemplate.color);
+        m_group_springs_preview.emplace_back(sptemplate.color);
 
     for (const revolute_template &rjtemplate : m_current_group.revolute_templates)
-        m_group_revolutes_preview.emplace_back(rjtemplate.specs.body1->transform().position,
-                                               rjtemplate.specs.body2->transform().position, rjtemplate.color);
+        m_group_revolutes_preview.emplace_back(rjtemplate.color);
 }
 
 bool group_manager::ongoing_group() const
@@ -105,6 +103,7 @@ template <typename T> static YAML::Node encode_joint_template(const T &jtemplate
         node["Anchor1"] = jtemplate.specs.anchor1;
         node["Anchor2"] = jtemplate.specs.anchor2;
     }
+    return node;
 }
 
 template <typename T> static void decode_joint_template(T &jtemplate, const YAML::Node &node)
@@ -127,6 +126,8 @@ template <typename T> static void decode_joint_template(T &jtemplate, const YAML
 YAML::Node group_manager::group::encode() const
 {
     YAML::Node node;
+    node["Mean position"] = mean_position;
+
     for (const body_template &btemplate : body_templates)
     {
         YAML::Node btnode;
@@ -154,6 +155,7 @@ void group_manager::group::decode(const YAML::Node &node)
     spring_templates.clear();
     revolute_templates.clear();
 
+    mean_position = node["Mean position"].as<glm::vec2>();
     if (node["Body templates"])
         for (const YAML::Node &n : node["Body templates"])
         {
