@@ -77,7 +77,7 @@ void spawn_tab::render_body_shape_types_and_properties()
     }
 
     case shape_type::CUSTOM:
-        KIT_ASSERT_ERROR(false, "Not implemented")
+        render_custom_shape_canvas();
         break;
     }
     ImGui::ColorPicker3("Color", m_current_body_template.color.ptr());
@@ -191,6 +191,112 @@ void spawn_tab::end_body_spawn()
 void spawn_tab::cancel_body_spawn()
 {
     m_previewing = false;
+}
+
+void spawn_tab::render_custom_shape_canvas()
+{
+    const geo::polygon poly{m_current_body_template.specs.vertices};
+    const bool is_convex = poly.is_convex();
+    if (!is_convex)
+    {
+        ImGui::SameLine(ImGui::GetWindowWidth() - 575.f);
+        ImGui::Text("The polygon is not convex!");
+    }
+
+    const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
+                 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+    const glm::vec2 canvas_hdim = glm::vec2(canvas_sz.x, canvas_sz.y) * 0.5f;
+
+    // Draw border and background color
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
+    draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
+
+    // This will catch our interactions
+    ImGui::InvisibleButton("canvas", canvas_sz, ImGuiButtonFlags_MouseButtonLeft);
+    const bool is_hovered = ImGui::IsItemHovered();
+
+    static glm::vec2 scrolling{0.f};
+
+    const ImGuiIO &io = ImGui::GetIO();
+    static constexpr float scale_factor = 10.f;
+
+    const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
+    const glm::vec2 imgui_mpos = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor;
+
+    const glm::vec2 towards_poly = poly.closest_direction_from(imgui_mpos);
+
+    static constexpr float max_dist = 5.f;
+    const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
+
+    auto vertices = poly.globals();
+    std::size_t to_edit = vertices.size() - 1;
+    static constexpr float thres_distance = 2.f;
+    float min_distance = FLT_MAX;
+
+    for (std::size_t i = 0; i < vertices.size(); i++)
+    {
+        const float dist = glm::distance2(vertices[i], imgui_mpos);
+        if (dist < min_distance)
+        {
+            min_distance = dist;
+            to_edit = i;
+        }
+    }
+
+    const bool create_vertex = min_distance >= thres_distance;
+    bool updated_vertices = false;
+    if (create_vertex)
+    {
+        if (valid_to_add && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            vertices.push_back(imgui_mpos);
+            updated_vertices = true;
+        }
+        to_edit = vertices.size() - 1;
+    }
+    if (valid_to_add && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+    {
+        vertices[to_edit] = imgui_mpos;
+        updated_vertices = true;
+    }
+
+    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
+    const float grid_step = 64.f;
+    for (float x = fmodf(scrolling.x, grid_step); x < canvas_sz.x; x += grid_step)
+        draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y),
+                           IM_COL32(200, 200, 200, 40));
+    for (float y = fmodf(scrolling.y, grid_step); y < canvas_sz.y; y += grid_step)
+        draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y),
+                           IM_COL32(200, 200, 200, 40));
+
+    const lynx::color &body_color = m_current_body_template.color;
+    const auto col =
+        is_convex ? IM_COL32(body_color.r(), body_color.g(), body_color.b(), body_color.a()) : IM_COL32(255, 0, 0, 255);
+
+    std::vector<ImVec2> points(poly.size());
+    for (std::size_t i = 0; i < poly.size(); i++)
+    {
+        const glm::vec2 p1 = origin + poly.globals(i) * scale_factor + canvas_hdim,
+                        p2 = origin + poly.globals(i + 1) * scale_factor + canvas_hdim;
+        const float thickness = 3.f;
+        draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
+        points[i] = {p1.x, p1.y};
+    }
+
+    if (is_convex)
+        draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(),
+                                       IM_COL32(body_color.r(), body_color.g(), body_color.b(), 120));
+    if (valid_to_add)
+    {
+        const glm::vec2 center = create_vertex ? origin + (imgui_mpos + towards_poly) * scale_factor + canvas_hdim
+                                               : origin + vertices[to_edit] * scale_factor + canvas_hdim;
+        const float radius = 8.f;
+        draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
+    }
+    draw_list->PopClipRect();
+    if (updated_vertices)
+        m_current_body_template.specs.vertices = vertices;
 }
 
 YAML::Node spawn_tab::encode_template(const body_template &btemplate)

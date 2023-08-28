@@ -60,6 +60,7 @@ class spawn_tab
 
     void render_body_shape_types_and_properties();
     void render_menu_bar();
+    void render_custom_shape_canvas();
 
     static YAML::Node encode_template(const body_template &btemplate);
     static body_template decode_template(const YAML::Node &node);
