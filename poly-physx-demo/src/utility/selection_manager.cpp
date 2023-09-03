@@ -20,12 +20,12 @@ selection_manager::selection_manager(demo_app &app)
     app.world.events.on_late_body_removal += remove_body;
 }
 
-static float oscillating_thickness(const float t)
+static float oscillating_thickness(const float time)
 {
     static constexpr float freq = 2.5f;
     static constexpr float min_amplitude = 0.4f;
     static constexpr float max_amplitude = 1.f;
-    return min_amplitude + 0.5f * (max_amplitude - min_amplitude) * (1.f - cosf(freq * t));
+    return min_amplitude + 0.5f * (max_amplitude - min_amplitude) * (1.f - cosf(freq * time));
 }
 
 void selection_manager::update()

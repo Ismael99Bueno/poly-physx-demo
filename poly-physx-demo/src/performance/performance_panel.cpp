@@ -5,7 +5,7 @@
 
 namespace ppx::demo
 {
-performance_panel::performance_panel() : demo_layer("Performance tab")
+performance_panel::performance_panel() : demo_layer("Performance panel")
 {
 }
 
@@ -187,7 +187,7 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     static constexpr std::size_t buffer_size = 3000;
     static constexpr float broad = 4.f;
 
-    static float t = 0.f;
+    static float time = 0.f;
     static std::size_t current_size = 0;
     static std::size_t offset = 0;
 
@@ -199,7 +199,7 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     const std::size_t graph_index = overflow ? offset : current_size;
 
     for (std::size_t i = 0; i < 4; i++)
-        time_graph_measures[i][graph_index] = {t, m_time_measurements[i].as<TimeUnit, float>()};
+        time_graph_measures[i][graph_index] = {time, m_time_measurements[i].as<TimeUnit, float>()};
 
     offset = overflow ? (offset + 1) % buffer_size : 0;
     if (!overflow)
@@ -210,14 +210,14 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     if (ImPlot::BeginPlot("##Performance", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
     {
         ImPlot::SetupAxes(nullptr, y_axis_name.c_str(), ImPlotAxisFlags_NoTickLabels);
-        ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
+        ImPlot::SetupAxisLimits(ImAxis_X1, time - broad, time, ImGuiCond_Always);
         for (std::size_t i = 0; i < 4; i++)
             ImPlot::PlotLine(time_graph_names[i], &time_graph_measures[i].data()->x, &time_graph_measures[i].data()->y,
                              (int)current_size, 0, (int)offset, sizeof(glm::vec2));
 
         ImPlot::EndPlot();
     }
-    t += m_time_plot_speed;
+    time += m_time_plot_speed;
 }
 
 kit::time performance_panel::evaluate_max_hierarchy_measurement(const char *name, kit::time duration)

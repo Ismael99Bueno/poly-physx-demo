@@ -29,8 +29,8 @@ class menu_bar : public demo_layer
     std::string m_serialize_path;
     std::string m_deserialize_path;
 
+    void on_update(float ts) override;
     void on_render(float ts) override;
-    void on_frame_end(float ts) override;
 
     void render_save_prompt();
     void render_load_prompts(const char *path);

@@ -73,7 +73,7 @@ void physics_panel::render_energy_plot() const
 {
     static constexpr std::size_t buffer_size = 3000;
     static constexpr float broad = 4.f;
-    const float t = m_app->world.elapsed();
+    const float time = m_app->world.elapsed();
 
     static std::size_t current_size = 0;
     static std::size_t offset = 0;
@@ -88,7 +88,7 @@ void physics_panel::render_energy_plot() const
     const std::size_t graph_index = overflow ? offset : current_size;
 
     for (std::size_t i = 0; i < 3; i++)
-        energy_graph_measures[i][graph_index] = {t, energy_measures[i]};
+        energy_graph_measures[i][graph_index] = {time, energy_measures[i]};
 
     offset = overflow ? (offset + 1) % buffer_size : 0;
     if (!overflow)
@@ -97,7 +97,7 @@ void physics_panel::render_energy_plot() const
     if (ImPlot::BeginPlot("##Energy", ImVec2(-1, 0), ImPlotFlags_NoMouseText))
     {
         ImPlot::SetupAxes(nullptr, nullptr, ImPlotAxisFlags_NoTickLabels, ImPlotAxisFlags_NoTickLabels);
-        ImPlot::SetupAxisLimits(ImAxis_X1, t - broad, t, ImGuiCond_Always);
+        ImPlot::SetupAxisLimits(ImAxis_X1, time - broad, time, ImGuiCond_Always);
         for (std::size_t i = 0; i < 3; i++)
             ImPlot::PlotLine(energy_graph_names[i], &energy_graph_measures[i].data()->x,
                              &energy_graph_measures[i].data()->y, (int)current_size, 0, (int)offset, sizeof(glm::vec2));

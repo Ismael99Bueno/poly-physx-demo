@@ -4,7 +4,7 @@
 
 namespace ppx::demo
 {
-actions_panel::actions_panel() : demo_layer("Actions tab")
+actions_panel::actions_panel() : demo_layer("Actions panel")
 {
 }
 

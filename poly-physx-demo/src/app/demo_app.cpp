@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/actions/actions_panel.hpp"
+#include "ppx-demo/engine/engine_panel.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/physics/physics_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
@@ -11,6 +12,7 @@ namespace ppx::demo
 demo_app::demo_app() : selector(*this), grouper(*this)
 {
     push_layer<actions_panel>();
+    push_layer<engine_panel>();
     push_layer<performance_panel>();
     push_layer<physics_panel>();
     push_layer<menu_bar>();

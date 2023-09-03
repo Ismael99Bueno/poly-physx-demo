@@ -21,6 +21,20 @@ static bool any_user_file_present(const char *path)
     return false;
 }
 
+void menu_bar::on_update(float ts)
+{
+    if (!m_serialize_path.empty())
+    {
+        m_app->serialize(m_serialize_path);
+        m_serialize_path.clear();
+    }
+    if (!m_deserialize_path.empty())
+    {
+        m_app->deserialize(m_deserialize_path);
+        m_deserialize_path.clear();
+    }
+}
+
 void menu_bar::on_render(const float ts)
 {
     if (ImGui::BeginMainMenuBar())
@@ -52,20 +66,6 @@ void menu_bar::on_render(const float ts)
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
-    }
-}
-
-void menu_bar::on_frame_end(float ts)
-{
-    if (!m_serialize_path.empty())
-    {
-        m_app->serialize(m_serialize_path);
-        m_serialize_path.clear();
-    }
-    if (!m_deserialize_path.empty())
-    {
-        m_app->deserialize(m_deserialize_path);
-        m_deserialize_path.clear();
     }
 }
 
