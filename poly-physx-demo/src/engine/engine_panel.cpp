@@ -8,6 +8,19 @@ engine_panel::engine_panel() : demo_layer("Engine panel")
 {
 }
 
+void engine_panel::on_attach()
+{
+    demo_layer::on_attach();
+    m_qtdet = m_app->world.collision_detection<quad_tree_detection2D>();
+    m_window = m_app->window<lynx::window2D>();
+}
+
+void engine_panel::on_update(const float ts)
+{
+    if (m_draw_bounding_boxes)
+        update_bounding_boxes();
+}
+
 void engine_panel::on_render(const float ts)
 {
     if (ImGui::Begin("Engine"))
@@ -15,6 +28,8 @@ void engine_panel::on_render(const float ts)
         ImGui::Text("Bodies: %zu", m_app->world.size());
         if (ImGui::CollapsingHeader("Integration"))
             render_integrator_parameters();
+        if (ImGui::CollapsingHeader("Collision"))
+            render_collision_parameters();
     }
     ImGui::End();
 }
@@ -36,6 +51,51 @@ void engine_panel::render_integrator_parameters()
     }
     render_timestep_settings();
     render_integration_method();
+}
+
+void engine_panel::render_collision_parameters()
+{
+    ImGui::Checkbox("Enabled", &m_app->world.enable_collisions);
+    if (m_draw_bounding_boxes)
+        render_bounding_boxes();
+    ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
+    render_collision_detection_list();
+}
+
+void engine_panel::render_collision_detection_list()
+{
+    static const char *coldet_methods[3] = {"Brute force", "Quad tree", "Sort and sweep"};
+    if (ImGui::ListBox("Collision detection method", (int *)&m_detection_method, coldet_methods, 3))
+        update_detection_method();
+}
+
+void engine_panel::update_bounding_boxes()
+{
+    const std::size_t size_limit = glm::min(m_bbox_lines.size(), m_app->world.size());
+    for (std::size_t i = 0; i < size_limit; i++)
+    {
+        const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
+        const glm::vec2 &mm = aabb.min();
+        const glm::vec2 &mx = aabb.max();
+        m_bbox_lines[i].point(0, {mm.x, mx.y});
+        m_bbox_lines[i].point(1, mx);
+        m_bbox_lines[i].point(2, {mx.x, mm.y});
+        m_bbox_lines[i].point(3, mm);
+        m_bbox_lines[i].point(4, m_bbox_lines[i].point(0).position);
+    }
+    for (std::size_t i = m_bbox_lines.size(); i < m_app->world.size(); i++)
+    {
+        const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
+        const glm::vec2 &mm = aabb.min();
+        const glm::vec2 &mx = aabb.max();
+        const std::vector<glm::vec2> points{{mm.x, mx.y}, mx, {mx.x, mm.y}, mm, {mm.x, mx.y}};
+        m_bbox_lines.emplace_back(points);
+    }
+}
+void engine_panel::render_bounding_boxes()
+{
+    for (std::size_t i = 0; i < m_app->world.size(); i++)
+        m_window->draw(m_bbox_lines[i]);
 }
 
 static std::uint32_t to_hertz(const float timestep)
@@ -102,5 +162,56 @@ void engine_panel::update_integration_method() const
         integ.tableau(rk::butcher_tableau::rkf78);
         break;
     }
+}
+void engine_panel::update_detection_method()
+{
+    switch (m_detection_method)
+    {
+    case detection_method::BRUTE_FORCE:
+        m_bfdet = m_app->world.set_collision_detection<brute_force_detection2D>();
+        break;
+    case detection_method::QUAD_TREE:
+        m_qtdet = m_app->world.set_collision_detection<quad_tree_detection2D>();
+        break;
+    case detection_method::SORT_AND_SWEEP:
+        m_ssdet = m_app->world.set_collision_detection<sort_sweep_detection2D>();
+        break;
+    }
+}
+
+YAML::Node engine_panel::encode() const
+{
+    YAML::Node node = demo_layer::encode();
+    node["Detection method"] = (int)m_detection_method;
+
+    YAML::Node nqt = node["Quad tree"];
+    nqt["Max bodies"] = quad_tree2D::max_bodies;
+    nqt["Max depth"] = quad_tree2D::max_depth;
+    nqt["Min size"] = quad_tree2D::min_size;
+
+    YAML::Node nspslv = node["Spring solver"];
+    nspslv["Sptiffness"] = spring_solver2D::stiffness;
+    nspslv["Dampening"] = spring_solver2D::dampening;
+
+    return node;
+}
+bool engine_panel::decode(const YAML::Node &node)
+{
+    if (!demo_layer::decode(node))
+        return false;
+    m_detection_method = (detection_method)node["Detection method"].as<int>();
+
+    const YAML::Node nqt = node["Quad tree"];
+    quad_tree2D::max_bodies = nqt["Max bodies"].as<std::size_t>();
+    quad_tree2D::max_depth = nqt["Max depth"].as<std::uint32_t>();
+    quad_tree2D::min_size = nqt["Min size"].as<float>();
+
+    const YAML::Node nspslv = node["Spring solver"];
+    spring_solver2D::stiffness = nspslv["Sptiffness"].as<float>();
+    spring_solver2D::dampening = nspslv["Dampening"].as<float>();
+
+    update_detection_method();
+
+    return true;
 }
 } // namespace ppx::demo

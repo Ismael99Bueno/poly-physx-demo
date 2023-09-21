@@ -6,7 +6,7 @@ namespace ppx::demo
 {
 joints_tab::joints_tab(demo_app *app) : m_app(app)
 {
-    m_window = app->window();
+    m_window = app->window<lynx::window2D>();
 }
 
 void joints_tab::update()

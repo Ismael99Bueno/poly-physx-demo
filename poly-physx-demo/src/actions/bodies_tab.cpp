@@ -6,7 +6,7 @@ namespace ppx::demo
 {
 bodies_tab::bodies_tab(demo_app *app) : m_app(app)
 {
-    m_window = m_app->window();
+    m_window = m_app->window<lynx::window2D>();
 }
 
 void bodies_tab::update()

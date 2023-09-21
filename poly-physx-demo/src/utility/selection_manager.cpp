@@ -9,7 +9,7 @@ namespace ppx::demo
 selection_manager::selection_manager(demo_app &app)
     : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
 {
-    m_window = m_app.window();
+    m_window = m_app.window<lynx::window2D>();
     const kit::callback<std::size_t> remove_body{[this](const std::size_t index) {
         for (auto it = m_selected_bodies.begin(); it != m_selected_bodies.end();)
             if (!(*it))

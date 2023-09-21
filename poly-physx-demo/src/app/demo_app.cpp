@@ -123,7 +123,7 @@ void demo_app::remove_selected_bodies()
 
 void demo_app::add_walls()
 {
-    const lynx::camera2D *cam = window()->camera();
+    const lynx::camera2D *cam = window()->camera<lynx::camera2D>();
 
     const glm::vec2 size = cam->transform.scale;
     const float thck = 5.f;
