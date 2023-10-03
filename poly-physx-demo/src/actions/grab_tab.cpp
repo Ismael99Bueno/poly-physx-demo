@@ -7,7 +7,7 @@ namespace ppx::demo
 {
 grab_tab::grab_tab(demo_app *app) : m_app(app)
 {
-    m_window = m_app->window<lynx::window2D>();
+    m_window = m_app->window();
     m_spring_line.color(m_app->joint_color);
 }
 

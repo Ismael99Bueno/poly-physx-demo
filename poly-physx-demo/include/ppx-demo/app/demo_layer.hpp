@@ -6,10 +6,10 @@
 namespace ppx::demo
 {
 class demo_app;
-class demo_layer : public lynx::layer
+class demo_layer : public lynx::layer2D
 {
   public:
-    using lynx::layer::layer;
+    using lynx::layer2D::layer2D;
 
     virtual void on_attach() override;
 

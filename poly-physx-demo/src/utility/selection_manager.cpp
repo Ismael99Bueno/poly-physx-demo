@@ -9,7 +9,7 @@ namespace ppx::demo
 selection_manager::selection_manager(demo_app &app)
     : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
 {
-    m_window = m_app.window<lynx::window2D>();
+    m_window = m_app.window();
     const kit::callback<std::size_t> remove_body{[this](const std::size_t index) {
         for (auto it = m_selected_bodies.begin(); it != m_selected_bodies.end();)
             if (!(*it))
@@ -33,7 +33,7 @@ void selection_manager::update()
     if (!m_selecting)
     {
         for (const body2D::ptr &body : m_selected_bodies)
-            m_app.shapes()[body->index]->outline_thickness(oscillating_thickness(m_app.world.elapsed()));
+            m_app.shapes()[body->index]->outline_thickness = oscillating_thickness(m_app.world.elapsed());
 
         return;
     }
@@ -42,9 +42,9 @@ void selection_manager::update()
         const body2D::ptr body = m_app.world[i];
         const auto &shape = m_app.shapes()[i];
         if (is_selecting(body))
-            shape->outline_thickness(oscillating_thickness(m_app.world.elapsed()));
-        else if (!kit::approaches_zero(shape->outline_thickness()))
-            shape->outline_thickness(0.f);
+            shape->outline_thickness = oscillating_thickness(m_app.world.elapsed());
+        else if (!kit::approaches_zero(shape->outline_thickness))
+            shape->outline_thickness = 0.f;
     }
 
     const glm::vec2 &static_outline_point = m_selection_outline.point(0).position;
@@ -96,7 +96,7 @@ void selection_manager::select(const body2D::ptr &body)
 void selection_manager::deselect(const body2D::ptr &body)
 {
     m_selected_bodies.erase(body);
-    m_app.shapes()[body->index]->outline_thickness(0.f);
+    m_app.shapes()[body->index]->outline_thickness = 0.f;
 }
 bool selection_manager::is_selecting(const body2D::ptr &body)
 {

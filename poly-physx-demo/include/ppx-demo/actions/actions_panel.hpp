@@ -23,7 +23,7 @@ class actions_panel : public demo_layer
     void on_attach() override;
     void on_update(float ts) override;
     void on_render(float ts) override;
-    bool on_event(const lynx::event &event) override;
+    bool on_event(const lynx::event2D &event) override;
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;

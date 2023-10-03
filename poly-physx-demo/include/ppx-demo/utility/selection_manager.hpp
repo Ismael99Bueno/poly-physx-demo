@@ -2,6 +2,7 @@
 #define PPX_SELECTION_MANAGER_HPP
 
 #include "lynx/drawing/line.hpp"
+#include "lynx/app/window.hpp"
 #include "ppx/body2D.hpp"
 #include <unordered_set>
 

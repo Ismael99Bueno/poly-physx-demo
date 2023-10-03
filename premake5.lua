@@ -19,7 +19,6 @@ defines {
    "KIT_AKNOWLEDGE_PROFILE_THREAD_UNSAFETY",
    "LYNX_ENABLE_IMGUI",
    "LYNX_ENABLE_IMPLOT",
-   "LYNX_MULTITHREADED"
 }
 
 function script_path()

@@ -7,7 +7,7 @@ namespace ppx::demo
 {
 spawn_tab::spawn_tab(demo_app *app) : m_app(app)
 {
-    m_window = app->window<lynx::window2D>();
+    m_window = app->window();
     m_current_body_template.color = m_app->body_color;
 }
 

@@ -23,7 +23,7 @@ class demo_app : public app
 
     void on_update(float ts) override;
     void on_render(float ts) override;
-    bool on_event(const lynx::event &event) override;
+    bool on_event(const lynx::event2D &event) override;
 
     void remove_selected_bodies();
 

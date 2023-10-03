@@ -53,18 +53,18 @@ void actions_panel::on_render(const float ts)
     ImGui::End();
 }
 
-bool actions_panel::on_event(const lynx::event &event)
+bool actions_panel::on_event(const lynx::event2D &event)
 {
-    const bool attaching = lynx::input::key_pressed(lynx::input::key::F);
-    const bool grabbing = lynx::input::key_pressed(lynx::input::key::G) && !attaching;
+    const bool attaching = lynx::input2D::key_pressed(lynx::input2D::key::F);
+    const bool grabbing = lynx::input2D::key_pressed(lynx::input2D::key::G) && !attaching;
     switch (event.type)
     {
-    case lynx::event::KEY_PRESSED:
+    case lynx::event2D::KEY_PRESSED:
         if (ImGui::GetIO().WantCaptureKeyboard)
             return false;
         switch (event.key)
         {
-        case lynx::input::key::BACKSPACE:
+        case lynx::input2D::key::BACKSPACE:
             m_spawn_tab.cancel_body_spawn();
             m_joints_tab.cancel_joint_attach();
             m_grab_tab.end_grab();
@@ -73,12 +73,12 @@ bool actions_panel::on_event(const lynx::event &event)
             break;
         }
         break;
-    case lynx::event::MOUSE_PRESSED:
+    case lynx::event2D::MOUSE_PRESSED:
         if (ImGui::GetIO().WantCaptureMouse)
             return false;
         switch (event.mouse.button)
         {
-        case lynx::input::mouse::BUTTON_1:
+        case lynx::input2D::mouse::BUTTON_1:
             if (attaching)
             {
                 if (m_joints_tab.first_is_selected())
@@ -97,12 +97,12 @@ bool actions_panel::on_event(const lynx::event &event)
         }
         return false;
 
-    case lynx::event::MOUSE_RELEASED:
+    case lynx::event2D::MOUSE_RELEASED:
         if (ImGui::GetIO().WantCaptureMouse)
             return false;
         switch (event.mouse.button)
         {
-        case lynx::input::mouse::BUTTON_1: {
+        case lynx::input2D::mouse::BUTTON_1: {
             if (grabbing)
                 m_grab_tab.end_grab();
             else

@@ -2,6 +2,7 @@
 #define PPX_SPAWN_TAB_HPP
 
 #include "lynx/drawing/shape.hpp"
+#include "lynx/app/window.hpp"
 #include "ppx/body2D.hpp"
 
 namespace ppx::demo

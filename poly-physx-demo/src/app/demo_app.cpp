@@ -53,26 +53,26 @@ void demo_app::on_render(const float ts)
 #endif
 }
 
-bool demo_app::on_event(const lynx::event &event)
+bool demo_app::on_event(const lynx::event2D &event)
 {
     if (app::on_event(event))
         return true;
 
-    const bool selecting = lynx::input::key_pressed(lynx::input::key::LEFT_SHIFT);
+    const bool selecting = lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT);
     switch (event.type)
     {
-    case lynx::event::KEY_PRESSED:
+    case lynx::event2D::KEY_PRESSED:
         if (ImGui::GetIO().WantCaptureKeyboard)
             return false;
         switch (event.key)
         {
-        case lynx::input::key::C:
+        case lynx::input2D::key::C:
             grouper.begin_group_from_selected();
             return true;
-        case lynx::input::key::V:
+        case lynx::input2D::key::V:
             grouper.paste_group();
             return true;
-        case lynx::input::key::BACKSPACE:
+        case lynx::input2D::key::BACKSPACE:
             if (grouper.ongoing_group())
                 grouper.cancel_group();
             else
@@ -82,25 +82,25 @@ bool demo_app::on_event(const lynx::event &event)
             return false;
         }
 
-    case lynx::event::MOUSE_PRESSED:
+    case lynx::event2D::MOUSE_PRESSED:
         if (ImGui::GetIO().WantCaptureMouse || !selecting)
             return false;
         switch (event.mouse.button)
         {
-        case lynx::input::mouse::BUTTON_1:
-            selector.begin_selection(!lynx::input::key_pressed(lynx::input::key::LEFT_CONTROL));
+        case lynx::input2D::mouse::BUTTON_1:
+            selector.begin_selection(!lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL));
             return true;
         default:
             return false;
         }
 
         return false;
-    case lynx::event::MOUSE_RELEASED:
+    case lynx::event2D::MOUSE_RELEASED:
         if (ImGui::GetIO().WantCaptureMouse || !selecting)
             return false;
         switch (event.mouse.button)
         {
-        case lynx::input::mouse::BUTTON_1:
+        case lynx::input2D::mouse::BUTTON_1:
             selector.end_selection();
             return true;
         default:

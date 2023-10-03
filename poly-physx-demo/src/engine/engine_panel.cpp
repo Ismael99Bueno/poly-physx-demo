@@ -12,7 +12,7 @@ void engine_panel::on_attach()
 {
     demo_layer::on_attach();
     m_qtdet = m_app->world.collision_detection<quad_tree_detection2D>();
-    m_window = m_app->window<lynx::window2D>();
+    m_window = m_app->window();
 }
 
 void engine_panel::on_update(const float ts)
@@ -77,18 +77,18 @@ void engine_panel::update_bounding_boxes()
         const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
         const glm::vec2 &mm = aabb.min();
         const glm::vec2 &mx = aabb.max();
-        m_bbox_lines[i].point(0, {mm.x, mx.y});
-        m_bbox_lines[i].point(1, mx);
-        m_bbox_lines[i].point(2, {mx.x, mm.y});
-        m_bbox_lines[i].point(3, mm);
-        m_bbox_lines[i].point(4, m_bbox_lines[i].point(0).position);
+        const std::array<glm::vec2, 5> points{glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm,
+                                              glm::vec2(mm.x, mx.y)};
+        m_bbox_lines[i].update_points(
+            [&points](const std::size_t index, lynx::vertex2D &vertex) { vertex.position = points[index]; });
     }
     for (std::size_t i = m_bbox_lines.size(); i < m_app->world.size(); i++)
     {
         const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
         const glm::vec2 &mm = aabb.min();
         const glm::vec2 &mx = aabb.max();
-        const std::vector<glm::vec2> points{{mm.x, mx.y}, mx, {mx.x, mm.y}, mm, {mm.x, mx.y}};
+        const std::vector<glm::vec2> points{glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm,
+                                            glm::vec2(mm.x, mx.y)};
         m_bbox_lines.emplace_back(points);
     }
 }

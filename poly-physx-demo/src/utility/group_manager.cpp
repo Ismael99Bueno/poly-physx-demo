@@ -6,7 +6,7 @@ namespace ppx::demo
 {
 group_manager::group_manager(demo_app &app) : m_app(app)
 {
-    m_window = m_app.window<lynx::window2D>();
+    m_window = m_app.window();
 }
 
 void group_manager::update()
