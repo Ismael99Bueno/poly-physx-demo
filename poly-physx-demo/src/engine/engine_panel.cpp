@@ -69,26 +69,25 @@ void engine_panel::render_collision_detection_list()
         update_detection_method();
 }
 
+std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
+{
+    const glm::vec2 &mm = aabb.min();
+    const glm::vec2 &mx = aabb.max();
+    return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
+}
+
 void engine_panel::update_bounding_boxes()
 {
     const std::size_t size_limit = glm::min(m_bbox_lines.size(), m_app->world.size());
     for (std::size_t i = 0; i < size_limit; i++)
     {
-        const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
-        const glm::vec2 &mm = aabb.min();
-        const glm::vec2 &mx = aabb.max();
-        const std::array<glm::vec2, 5> points{glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm,
-                                              glm::vec2(mm.x, mx.y)};
-        m_bbox_lines[i].update_points(
-            [&points](const std::size_t index, lynx::vertex2D &vertex) { vertex.position = points[index]; });
+        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.bodies()[i].shape().bounding_box());
+        for (std::size_t j = 0; j < points.size(); j++)
+            m_bbox_lines[i][j].position = points[j];
     }
     for (std::size_t i = m_bbox_lines.size(); i < m_app->world.size(); i++)
     {
-        const geo::aabb2D aabb = m_app->world.bodies()[i].shape().bounding_box();
-        const glm::vec2 &mm = aabb.min();
-        const glm::vec2 &mx = aabb.max();
-        const std::vector<glm::vec2> points{glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm,
-                                            glm::vec2(mm.x, mx.y)};
+        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.bodies()[i].shape().bounding_box());
         m_bbox_lines.emplace_back(points);
     }
 }

@@ -47,12 +47,12 @@ void selection_manager::update()
             shape->outline_thickness = 0.f;
     }
 
-    const glm::vec2 &static_outline_point = m_selection_outline.point(0).position;
+    const glm::vec2 &static_outline_point = m_selection_outline[0].position;
     const glm::vec2 mpos = m_app.world_mouse_position();
 
-    m_selection_outline.point(1, {mpos.x, static_outline_point.y});
-    m_selection_outline.point(2, mpos);
-    m_selection_outline.point(3, {static_outline_point.x, mpos.y});
+    m_selection_outline[1].position = {mpos.x, static_outline_point.y};
+    m_selection_outline[2].position = mpos;
+    m_selection_outline[3].position = {static_outline_point.x, mpos.y};
 
     const glm::vec2 min = {glm::min(mpos.x, static_outline_point.x), glm::min(mpos.y, static_outline_point.y)};
     const glm::vec2 max = {glm::max(mpos.x, static_outline_point.x), glm::max(mpos.y, static_outline_point.y)};
@@ -71,8 +71,8 @@ void selection_manager::begin_selection(const bool override_current)
     if (m_selecting)
         return;
     const glm::vec2 mpos = m_app.world_mouse_position();
-    m_selection_outline.point(0, mpos);
-    m_selection_outline.point(4, mpos);
+    m_selection_outline[0].position = mpos;
+    m_selection_outline[4].position = mpos;
 
     if (override_current)
         m_selected_bodies.clear();
