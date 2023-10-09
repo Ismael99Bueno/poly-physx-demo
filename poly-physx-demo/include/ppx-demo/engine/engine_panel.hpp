@@ -46,7 +46,11 @@ class engine_panel : public demo_layer
     detection_method m_detection_method = detection_method::QUAD_TREE;
 
     bool m_draw_bounding_boxes = false;
+    bool m_visualize_qtree = false;
+
     std::vector<lynx::line_strip2D> m_bbox_lines;
+    std::vector<lynx::line_strip2D> m_qt_lines;
+    std::size_t m_qt_active_partitions = 0;
 
     void on_attach() override;
     void on_render(float ts) override;
@@ -54,6 +58,7 @@ class engine_panel : public demo_layer
 
     void render_integrator_parameters();
     void render_collision_parameters();
+    void render_quad_tree_parameters();
 
     void render_timestep_settings() const;
     void render_integration_method();
@@ -61,9 +66,11 @@ class engine_panel : public demo_layer
     void update_integration_method() const;
     void update_detection_method();
     void update_bounding_boxes();
+    void update_quad_tree_lines(const quad_tree2D &qt);
 
     void render_collision_detection_list();
     void render_bounding_boxes();
+    void render_quad_tree_lines();
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;

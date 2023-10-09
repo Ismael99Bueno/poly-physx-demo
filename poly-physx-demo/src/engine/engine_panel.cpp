@@ -19,6 +19,11 @@ void engine_panel::on_update(const float ts)
 {
     if (m_draw_bounding_boxes)
         update_bounding_boxes();
+    if (m_visualize_qtree && m_detection_method == detection_method::QUAD_TREE)
+    {
+        m_qt_active_partitions = 0;
+        update_quad_tree_lines(m_qtdet->quad_tree());
+    }
 }
 
 void engine_panel::on_render(const float ts)
@@ -60,6 +65,8 @@ void engine_panel::render_collision_parameters()
         render_bounding_boxes();
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     render_collision_detection_list();
+    if (m_detection_method == detection_method::QUAD_TREE)
+        render_quad_tree_parameters();
 }
 
 void engine_panel::render_collision_detection_list()
@@ -69,32 +76,64 @@ void engine_panel::render_collision_detection_list()
         update_detection_method();
 }
 
-std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
+void engine_panel::render_quad_tree_parameters()
+{
+    ImGui::Text("Quad tree parameters");
+    ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree2D::max_bodies, 2, 20);
+    ImGui::SliderInt("Max tree depth", (int *)&quad_tree2D::max_depth, 2, 20);
+    ImGui::SliderFloat("Min quadrant size", &quad_tree2D::min_size, 4.f, 50.f);
+
+    ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
+    if (m_visualize_qtree)
+        render_quad_tree_lines();
+}
+
+static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
 {
     const glm::vec2 &mm = aabb.min();
     const glm::vec2 &mx = aabb.max();
     return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
 }
 
+void engine_panel::update_quad_tree_lines(const quad_tree2D &qt)
+{
+    if (qt.partitioned())
+        for (const auto &child : qt.children())
+            update_quad_tree_lines(*child);
+    else
+    {
+        const std::vector<glm::vec2> points = get_bbox_points(qt.aabb);
+        if (m_qt_active_partitions < m_qt_lines.size())
+            for (std::size_t i = 0; i < points.size(); i++)
+                m_qt_lines[m_qt_active_partitions][i].position = points[i];
+        else
+            m_qt_lines.emplace_back(points);
+        m_qt_active_partitions++;
+    }
+}
+
 void engine_panel::update_bounding_boxes()
 {
-    const std::size_t size_limit = glm::min(m_bbox_lines.size(), m_app->world.size());
-    for (std::size_t i = 0; i < size_limit; i++)
+    for (std::size_t i = 0; i < m_app->world.size(); i++)
     {
         const std::vector<glm::vec2> points = get_bbox_points(m_app->world.bodies()[i].shape().bounding_box());
-        for (std::size_t j = 0; j < points.size(); j++)
-            m_bbox_lines[i][j].position = points[j];
-    }
-    for (std::size_t i = m_bbox_lines.size(); i < m_app->world.size(); i++)
-    {
-        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.bodies()[i].shape().bounding_box());
-        m_bbox_lines.emplace_back(points);
+        if (i < m_bbox_lines.size())
+            for (std::size_t j = 0; j < points.size(); j++)
+                m_bbox_lines[i][j].position = points[j];
+        else
+            m_bbox_lines.emplace_back(points);
     }
 }
 void engine_panel::render_bounding_boxes()
 {
     for (std::size_t i = 0; i < m_app->world.size(); i++)
         m_window->draw(m_bbox_lines[i]);
+}
+
+void engine_panel::render_quad_tree_lines()
+{
+    for (std::size_t i = 0; i < m_qt_active_partitions; i++)
+        m_window->draw(m_qt_lines[i]);
 }
 
 static std::uint32_t to_hertz(const float timestep)
@@ -181,6 +220,8 @@ void engine_panel::update_detection_method()
 YAML::Node engine_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
+    node["Draw bounding boxes"] = m_draw_bounding_boxes;
+    node["Visualize quad tree"] = m_visualize_qtree;
     node["Detection method"] = (int)m_detection_method;
 
     YAML::Node nqt = node["Quad tree"];
@@ -198,6 +239,8 @@ bool engine_panel::decode(const YAML::Node &node)
 {
     if (!demo_layer::decode(node))
         return false;
+    m_draw_bounding_boxes = node["Draw bounding boxes"].as<bool>();
+    m_visualize_qtree = node["Visualize quad tree"].as<bool>();
     m_detection_method = (detection_method)node["Detection method"].as<int>();
 
     const YAML::Node nqt = node["Quad tree"];
