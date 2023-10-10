@@ -13,8 +13,8 @@ void performance_panel::on_update(const float ts)
 {
     m_time_measurements[0] = m_smoothness * m_time_measurements[0] + (1.f - m_smoothness) * m_app->frame_time();
     m_time_measurements[1] = m_smoothness * m_time_measurements[1] + (1.f - m_smoothness) * m_app->update_time();
-    m_time_measurements[2] = m_smoothness * m_time_measurements[2] + (1.f - m_smoothness) * m_app->physics_time();
-    m_time_measurements[3] = m_smoothness * m_time_measurements[3] + (1.f - m_smoothness) * m_app->draw_time();
+    m_time_measurements[2] = m_smoothness * m_time_measurements[2] + (1.f - m_smoothness) * m_app->render_time();
+    m_time_measurements[3] = m_smoothness * m_time_measurements[3] + (1.f - m_smoothness) * m_app->physics_time();
 }
 
 void performance_panel::on_render(const float ts)
@@ -170,8 +170,8 @@ void performance_panel::render_fps() const
 
 template <typename TimeUnit, typename T> void performance_panel::render_measurements_summary(const char *format)
 {
-    static const std::array<const char *, 4> measurement_names = {"Frame time", "Update time", "Physics time",
-                                                                  "Draw time"};
+    static const std::array<const char *, 4> measurement_names = {"LYNX:Frame", "LYNX:On-update", "LYNX:On-render",
+                                                                  "PPX-APP:Physics"};
     for (std::size_t i = 0; i < 4; i++)
     {
         const kit::time &current = m_time_measurements[i];
@@ -192,8 +192,8 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     static std::size_t offset = 0;
 
     static std::array<std::array<glm::vec2, buffer_size>, 4> time_graph_measures;
-    static constexpr std::array<const char *, 4> time_graph_names = {"Frame time", "Update time", "Physics time",
-                                                                     "Render time"};
+    static constexpr std::array<const char *, 4> time_graph_names = {"LYNX:Frame", "LYNX:On-update", "LYNX:On-render",
+                                                                     "PPX-APP:Physics"};
 
     const bool overflow = current_size >= buffer_size;
     const std::size_t graph_index = overflow ? offset : current_size;
