@@ -73,11 +73,12 @@ static void render_performance_pie_plot(const kit::measurement &measure)
     std::vector<float> usage_percents(partitions + 1);
     float unprofiled_percent = 100.f;
 
-    for (std::size_t i = 0; i < partitions; i++)
+    std::size_t index = 0;
+    for (const auto &[name, child] : measure.children)
     {
-        labels[i] = measure.children[i].name;
-        usage_percents[i] = measure.children[i].parent_relative_percent * 100.f;
-        unprofiled_percent -= usage_percents[i];
+        labels[index] = child.name;
+        usage_percents[index] = child.parent_relative_percent * 100.f;
+        unprofiled_percent -= usage_percents[index++];
     }
     labels[partitions] = "Unprofiled";
     usage_percents[partitions] = unprofiled_percent;
@@ -101,12 +102,11 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
     if (ImGui::CollapsingHeader("Details"))
     {
         const float per_call = measure.duration_per_call.as<TimeUnit, float>();
-        const float max_per_call =
-            evaluate_max_hierarchy_measurement(measure.name, measure.duration_per_call).as<TimeUnit, float>();
+        const float max_per_call = max_over_calls / measure.total_calls;
 
         ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
-        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", per_call * measure.total_calls, unit,
-                    measure.total_percent * 100.f, max_per_call * measure.total_calls, unit);
+        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
+                    measure.total_percent * 100.f, max_over_calls, unit);
         ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
         ImGui::Text("Calls (overall): %u", measure.total_calls);
 
@@ -118,8 +118,8 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
         }
         ImGui::PopID();
     }
-    for (const kit::measurement &m : measure.children)
-        render_hierarchy_recursive<TimeUnit>(m, unit);
+    for (const auto &[name, child] : measure.children)
+        render_hierarchy_recursive<TimeUnit>(child, unit);
 
     ImGui::TreePop();
 }
