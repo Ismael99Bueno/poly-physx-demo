@@ -96,8 +96,6 @@ template <typename T> static YAML::Node encode_joint_template(const T &jtemplate
     node["Index 1"] = jtemplate.btemplate_index1;
     node["Index 2"] = jtemplate.btemplate_index2;
     node["Color"] = jtemplate.color.normalized;
-    node["Stiffness"] = jtemplate.specs.stiffness;
-    node["Dampening"] = jtemplate.specs.dampening;
     if (jtemplate.specs.has_anchors)
     {
         node["Anchor1"] = jtemplate.specs.anchor1;
@@ -111,8 +109,6 @@ template <typename T> static void decode_joint_template(T &jtemplate, const YAML
     jtemplate.btemplate_index1 = node["Index 1"].as<std::size_t>();
     jtemplate.btemplate_index2 = node["Index 2"].as<std::size_t>();
     jtemplate.color.normalized = node["Color"].as<glm::vec4>();
-    jtemplate.specs.stiffness = node["Stiffness"].as<float>();
-    jtemplate.specs.dampening = node["Dampening"].as<float>();
     if (node["Anchor1"])
     {
         jtemplate.specs.has_anchors = true;

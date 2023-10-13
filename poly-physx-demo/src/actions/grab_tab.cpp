@@ -24,11 +24,6 @@ void grab_tab::update()
     apply_force_to_body(rotanchor, mpos);
 }
 
-static float cross(const glm::vec2 &v1, const glm::vec2 &v2)
-{
-    return v1.x * v2.y - v1.y * v2.x;
-}
-
 void grab_tab::apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &mpos) const
 {
     const glm::vec2 p1 = m_body->transform().position + rotanchor;
@@ -41,7 +36,7 @@ void grab_tab::apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &
     const glm::vec2 relvel = -direction * glm::dot(m_body->velocity(), direction);
 
     const glm::vec2 force = m_stiffness * relpos + m_dampening * relvel;
-    const float torque = cross(rotanchor, force);
+    const float torque = kit::cross2D(rotanchor, force);
     m_body->add_force(force);
     m_body->add_torque(torque);
 }

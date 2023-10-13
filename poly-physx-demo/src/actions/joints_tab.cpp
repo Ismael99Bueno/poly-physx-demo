@@ -22,7 +22,7 @@ void joints_tab::update()
     else
         m_preview->p1(m_body1->transform().position);
 
-    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT);
+    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
     const body2D::ptr body2 = m_app->world[mpos];
@@ -48,15 +48,14 @@ float joints_tab::current_joint_length()
     return glm::distance(p1, p2);
 }
 
-template <typename T> void joints_tab::render_joint_properties(T &specs)
+template <typename T> void joints_tab::render_joint_properties(T &specs) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
     constexpr const char *format = "%.1f";
-
-    ImGui::DragFloat("Stiffness", &specs.stiffness, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Dampening", &specs.dampening, drag_speed, 0.f, FLT_MAX, format);
     if constexpr (std::is_same_v<T, spring2D::specs>)
     {
+        ImGui::DragFloat("Stiffness", &specs.stiffness, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Dampening", &specs.dampening, drag_speed, 0.f, FLT_MAX, format);
         ImGui::Checkbox("Auto-length", &m_auto_spring_length);
         if (m_auto_spring_length && m_body1)
         {
@@ -102,7 +101,7 @@ void joints_tab::begin_joint_attach()
     if (!m_body1)
         return;
 
-    m_has_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT);
+    m_has_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     m_anchor1 = m_has_anchor1 ? (mpos - m_body1->transform().position) : glm::vec2(0.f);
     m_rotation1 = m_body1->transform().rotation;
 
@@ -124,7 +123,7 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs)
     if (!body2 || m_body1 == body2)
         return false;
 
-    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT);
+    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     specs.has_anchors = m_has_anchor1 || has_anchor2;
     if (specs.has_anchors)
     {
@@ -177,9 +176,6 @@ YAML::Node joints_tab::encode() const
     if (!m_auto_spring_length)
         node["Spring length"] = m_spring_specs.length;
 
-    node["Revolute stiffness"] = m_revolute_specs.stiffness;
-    node["Revolute dampening"] = m_revolute_specs.dampening;
-
     return node;
 }
 void joints_tab::decode(const YAML::Node &node)
@@ -192,8 +188,5 @@ void joints_tab::decode(const YAML::Node &node)
 
     if (!m_auto_spring_length)
         m_spring_specs.length = node["Spring length"].as<float>();
-
-    m_revolute_specs.stiffness = node["Revolute stiffness"].as<float>();
-    m_revolute_specs.dampening = node["Revolute dampening"].as<float>();
 }
 } // namespace ppx::demo
