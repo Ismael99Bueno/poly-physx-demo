@@ -5,11 +5,11 @@ namespace ppx::demo
 {
 glm::vec3 gravity::force(const body2D &body) const
 {
-    return {0.f, body.mass() * magnitude, 0.f};
+    return {0.f, body.real_mass() * magnitude, 0.f};
 }
 float gravity::potential_energy(const body2D &body) const
 {
-    return -body.mass() * magnitude * body.transform().position.y;
+    return -body.real_mass() * magnitude * body.transform().position.y;
 }
 
 glm::vec3 drag::force(const body2D &body) const
@@ -21,7 +21,7 @@ glm::vec3 drag::force(const body2D &body) const
 
 glm::vec3 gravitational::force_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.mass() * body2.mass();
+    const float cte = magnitude * body1.real_mass() * body2.real_mass();
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
 
     const glm::vec2 force = cte * (body2.transform().position - body1.transform().position) / (dist * dist * dist);
@@ -29,7 +29,7 @@ glm::vec3 gravitational::force_pair(const body2D &body1, const body2D &body2) co
 }
 float gravitational::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.mass() * body2.mass();
+    const float cte = magnitude * body1.real_mass() * body2.real_mass();
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
     return -cte / dist;
 }

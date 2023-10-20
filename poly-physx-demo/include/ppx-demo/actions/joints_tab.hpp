@@ -41,7 +41,6 @@ class joints_tab
     body2D::ptr m_body1;
     glm::vec2 m_anchor1;
     float m_rotation1;
-    bool m_has_anchor1;
 
     joint_type m_joint_type = joint_type::SPRING;
     kit::scope<lynx::line2D> m_preview;

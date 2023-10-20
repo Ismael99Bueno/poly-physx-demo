@@ -67,7 +67,7 @@ void bodies_tab::render_single_body_properties(body2D &body)
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    float mass = body.mass();
+    float mass = body.real_mass();
     float charge = body.charge();
 
     kit::transform2D tr = body.transform();
@@ -92,6 +92,9 @@ void bodies_tab::render_single_body_properties(body2D &body)
 
     if (ImGui::DragFloat("Angular velocity", &angular_velocity, drag_speed, 0.f, 0.f, format))
         body.angular_velocity(angular_velocity);
+
+    ImGui::Text("Area: %.1f", body.shape().area());
+    ImGui::Text("Inertia: %.1f", body.real_inertia());
 
     if (const auto *poly = body.shape_if<geo::polygon>())
     {
@@ -128,7 +131,7 @@ void bodies_tab::render_selected_bodies_properties()
 
     for (const body2D::ptr &body : selected)
     {
-        mass += body->mass();
+        mass += body->real_mass();
         charge += body->charge();
         kinematic |= body->kinematic;
     }

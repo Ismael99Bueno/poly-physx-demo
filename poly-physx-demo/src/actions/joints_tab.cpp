@@ -14,22 +14,15 @@ void joints_tab::update()
     if (!m_body1)
         return;
 
-    if (m_has_anchor1)
-    {
-        const glm::vec2 rot_anchor1 = glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1);
-        m_preview->p1(m_body1->transform().position + rot_anchor1);
-    }
-    else
-        m_preview->p1(m_body1->transform().position);
+    const glm::vec2 rot_anchor1 = glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1);
+    m_preview->p1(m_body1->position() + rot_anchor1);
 
-    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
+    const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
     const body2D::ptr body2 = m_app->world[mpos];
-    if (!has_anchor2 && body2)
-        m_preview->p2(body2->transform().position);
-    else
-        m_preview->p2(mpos);
+
+    m_preview->p2((!center_anchor2 && body2) ? body2->position() : mpos);
 }
 
 void joints_tab::render()
@@ -40,11 +33,13 @@ void joints_tab::render()
 
 float joints_tab::current_joint_length()
 {
-    const glm::vec2 p1 =
-        m_has_anchor1
-            ? (m_body1->transform().position + glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1))
-            : m_body1->transform().position;
-    const glm::vec2 p2 = m_app->world_mouse_position();
+    const glm::vec2 p1 = m_body1->position() + glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1);
+
+    const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
+    const glm::vec2 mpos = m_app->world_mouse_position();
+    const body2D::ptr body2 = m_app->world[mpos];
+
+    const glm::vec2 p2 = (!center_anchor2 && body2) ? body2->position() : mpos;
     return glm::distance(p1, p2);
 }
 
@@ -101,9 +96,9 @@ void joints_tab::begin_joint_attach()
     if (!m_body1)
         return;
 
-    m_has_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
-    m_anchor1 = m_has_anchor1 ? (mpos - m_body1->transform().position) : glm::vec2(0.f);
-    m_rotation1 = m_body1->transform().rotation;
+    const bool center_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
+    m_anchor1 = center_anchor1 ? (mpos - m_body1->position()) : glm::vec2(0.f);
+    m_rotation1 = m_body1->rotation();
 
     switch (m_joint_type)
     {
@@ -123,14 +118,10 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs)
     if (!body2 || m_body1 == body2)
         return false;
 
-    const bool has_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
-    specs.has_anchors = m_has_anchor1 || has_anchor2;
-    if (specs.has_anchors)
-    {
-        specs.anchor1 =
-            m_has_anchor1 ? glm::rotate(m_anchor1, m_body1->transform().rotation - m_rotation1) : glm::vec2(0.f);
-        specs.anchor2 = has_anchor2 ? (mpos - body2->transform().position) : glm::vec2(0.f);
-    }
+    const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
+
+    specs.anchor1 = m_anchor1;
+    specs.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
 
     specs.body1 = m_body1;
     specs.body2 = body2;

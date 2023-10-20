@@ -96,11 +96,10 @@ template <typename T> static YAML::Node encode_joint_template(const T &jtemplate
     node["Index 1"] = jtemplate.btemplate_index1;
     node["Index 2"] = jtemplate.btemplate_index2;
     node["Color"] = jtemplate.color.normalized;
-    if (jtemplate.specs.has_anchors)
-    {
-        node["Anchor1"] = jtemplate.specs.anchor1;
-        node["Anchor2"] = jtemplate.specs.anchor2;
-    }
+
+    node["Anchor1"] = jtemplate.specs.anchor1;
+    node["Anchor2"] = jtemplate.specs.anchor2;
+
     return node;
 }
 
@@ -109,14 +108,9 @@ template <typename T> static void decode_joint_template(T &jtemplate, const YAML
     jtemplate.btemplate_index1 = node["Index 1"].as<std::size_t>();
     jtemplate.btemplate_index2 = node["Index 2"].as<std::size_t>();
     jtemplate.color.normalized = node["Color"].as<glm::vec4>();
-    if (node["Anchor1"])
-    {
-        jtemplate.specs.has_anchors = true;
-        jtemplate.specs.anchor1 = node["Anchor1"].as<glm::vec2>();
-        jtemplate.specs.anchor2 = node["Anchor2"].as<glm::vec2>();
-    }
-    else
-        jtemplate.specs.has_anchors = false;
+
+    jtemplate.specs.anchor1 = node["Anchor1"].as<glm::vec2>();
+    jtemplate.specs.anchor2 = node["Anchor2"].as<glm::vec2>();
 }
 
 YAML::Node group_manager::group::encode() const
@@ -260,7 +254,7 @@ group_manager::group group_manager::create_group_from_selected()
     {
         const lynx::color color{m_app.shapes()[body->index]->color(), alpha};
         created_group.body_templates.emplace_back(body->id, color, body2D::specs::from_body(*body));
-        created_group.mean_position += body->transform().position;
+        created_group.mean_position += body->position();
     }
     created_group.mean_position /= created_group.body_templates.size();
 
