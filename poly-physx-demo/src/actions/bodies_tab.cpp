@@ -93,6 +93,14 @@ void bodies_tab::render_single_body_properties(body2D &body)
     if (ImGui::DragFloat("Angular velocity", &angular_velocity, drag_speed, 0.f, 0.f, format))
         body.angular_velocity(angular_velocity);
 
+    const glm::vec2 force = body.force();
+    ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
+    ImGui::DragFloat2("Force modifier", glm::value_ptr(body.persistent_force), drag_speed, 0.f, 0.f, format);
+
+    const float torque = body.torque();
+    ImGui::Text("Torque: %.1f", torque);
+    ImGui::DragFloat("Torque modifier", &body.persistent_torque, drag_speed, 0.f, 0.f, format);
+
     ImGui::Text("Area: %.1f", body.shape().area());
     ImGui::Text("Inertia: %.1f", body.real_inertia());
 
