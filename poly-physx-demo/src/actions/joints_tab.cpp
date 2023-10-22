@@ -120,11 +120,11 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs)
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
 
-    specs.anchor1 = m_anchor1;
-    specs.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
+    specs.joint.anchor1 = m_anchor1;
+    specs.joint.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
 
-    specs.body1 = m_body1;
-    specs.body2 = body2;
+    specs.joint.body1 = m_body1;
+    specs.joint.body2 = body2;
 
     return true;
 }

@@ -24,9 +24,9 @@ void group_manager::update()
     {
         const spring_template &sptemplate = m_current_group.spring_templates[i];
         const glm::vec2 p1 = m_current_group.body_templates[sptemplate.btemplate_index1].specs.position +
-                             sptemplate.specs.anchor1 + offset_pos;
+                             sptemplate.specs.joint.anchor1 + offset_pos;
         const glm::vec2 p2 = m_current_group.body_templates[sptemplate.btemplate_index2].specs.position +
-                             sptemplate.specs.anchor2 + offset_pos;
+                             sptemplate.specs.joint.anchor2 + offset_pos;
         m_group_springs_preview[i].p1(p1);
         m_group_springs_preview[i].p2(p2);
     }
@@ -35,9 +35,9 @@ void group_manager::update()
     {
         const revolute_template &rjtemplate = m_current_group.revolute_templates[i];
         const glm::vec2 p1 = m_current_group.body_templates[rjtemplate.btemplate_index1].specs.position +
-                             rjtemplate.specs.anchor1 + offset_pos;
+                             rjtemplate.specs.joint.anchor1 + offset_pos;
         const glm::vec2 p2 = m_current_group.body_templates[rjtemplate.btemplate_index2].specs.position +
-                             rjtemplate.specs.anchor2 + offset_pos;
+                             rjtemplate.specs.joint.anchor2 + offset_pos;
         m_group_revolutes_preview[i].p1(p1);
         m_group_revolutes_preview[i].p2(p2);
     }
@@ -97,8 +97,8 @@ template <typename T> static YAML::Node encode_joint_template(const T &jtemplate
     node["Index 2"] = jtemplate.btemplate_index2;
     node["Color"] = jtemplate.color.normalized;
 
-    node["Anchor1"] = jtemplate.specs.anchor1;
-    node["Anchor2"] = jtemplate.specs.anchor2;
+    node["Anchor1"] = jtemplate.specs.joint.anchor1;
+    node["Anchor2"] = jtemplate.specs.joint.anchor2;
 
     return node;
 }
@@ -109,8 +109,8 @@ template <typename T> static void decode_joint_template(T &jtemplate, const YAML
     jtemplate.btemplate_index2 = node["Index 2"].as<std::size_t>();
     jtemplate.color.normalized = node["Color"].as<glm::vec4>();
 
-    jtemplate.specs.anchor1 = node["Anchor1"].as<glm::vec2>();
-    jtemplate.specs.anchor2 = node["Anchor2"].as<glm::vec2>();
+    jtemplate.specs.joint.anchor1 = node["Anchor1"].as<glm::vec2>();
+    jtemplate.specs.joint.anchor2 = node["Anchor2"].as<glm::vec2>();
 }
 
 YAML::Node group_manager::group::encode() const
@@ -228,8 +228,8 @@ void group_manager::paste_group()
         const kit::uuid id1 = m_current_group.body_templates[sptemplate.btemplate_index1].id;
         const kit::uuid id2 = m_current_group.body_templates[sptemplate.btemplate_index2].id;
 
-        sptemplate.specs.body1 = old_id_to_new_body[id1];
-        sptemplate.specs.body2 = old_id_to_new_body[id2];
+        sptemplate.specs.joint.body1 = old_id_to_new_body[id1];
+        sptemplate.specs.joint.body2 = old_id_to_new_body[id2];
         m_app.world.add_spring(sptemplate.specs);
     }
 
@@ -238,8 +238,8 @@ void group_manager::paste_group()
         const kit::uuid id1 = m_current_group.body_templates[rjtemplate.btemplate_index1].id;
         const kit::uuid id2 = m_current_group.body_templates[rjtemplate.btemplate_index2].id;
 
-        rjtemplate.specs.body1 = old_id_to_new_body[id1];
-        rjtemplate.specs.body2 = old_id_to_new_body[id2];
+        rjtemplate.specs.joint.body1 = old_id_to_new_body[id1];
+        rjtemplate.specs.joint.body2 = old_id_to_new_body[id2];
         m_app.world.add_constraint<revolute_joint2D>(rjtemplate.specs);
     }
 }
@@ -268,7 +268,7 @@ group_manager::group group_manager::create_group_from_selected()
             for (const spring2D::ptr &sp : m_app.world.springs_from_ids(id1, id2))
             {
                 const lynx::color color{m_app.spring_lines()[sp->index].color(), alpha};
-                const bool reversed = id1 != sp->body1()->id;
+                const bool reversed = id1 != sp->joint.body1()->id;
                 created_group.spring_templates.emplace_back(reversed ? j : i, reversed ? i : j, color,
                                                             spring2D::specs::from_spring(*sp));
             }
@@ -277,7 +277,7 @@ group_manager::group group_manager::create_group_from_selected()
             {
                 const revolute_joint2D *rj = dynamic_cast<const revolute_joint2D *>(ctr);
                 const lynx::color color{m_app.revolute_lines().at(rj).color(), alpha};
-                const bool reversed = id1 != rj->body1()->id;
+                const bool reversed = id1 != rj->joint.body1()->id;
                 created_group.revolute_templates.emplace_back(reversed ? j : i, reversed ? i : j, color,
                                                               revolute_joint2D::specs::from_revolute_joint(*rj));
             }
