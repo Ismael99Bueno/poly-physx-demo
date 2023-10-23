@@ -21,11 +21,12 @@ demo_app::demo_app() : selector(*this), grouper(*this)
 void demo_app::on_late_start()
 {
     if (!std::filesystem::exists(menu_bar::SAVES_DIRECTORY))
+    {
         std::filesystem::create_directory(menu_bar::SAVES_DIRECTORY);
-
-    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
-
-    if (std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH))
+        add_walls();
+        serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
+    }
+    else if (std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH))
         deserialize(menu_bar::LAST_SAVE_FILEPATH);
     else
         add_walls();

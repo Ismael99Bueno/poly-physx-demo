@@ -31,10 +31,16 @@ class menu_bar : public demo_layer
 
     void on_update(float ts) override;
     void on_render(float ts) override;
+    bool on_event(const lynx::event2D &event) override;
 
-    void render_save_prompt();
+    void new_session();
+    void save();
+    void load();
+
+    void save_as();
+    void load_as(const char *path);
+
     void render_load_prompts(const char *path);
-    void render_load_and_removal_prompts(const char *path);
 
     bool has_active_session() const;
 

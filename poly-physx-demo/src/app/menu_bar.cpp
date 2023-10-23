@@ -41,20 +41,23 @@ void menu_bar::on_render(const float ts)
     {
         if (ImGui::BeginMenu("File"))
         {
+            if (ImGui::MenuItem("New", "Ctrl + N"))
+                new_session();
+
             const bool active_session = has_active_session();
             if (ImGui::MenuItem("Save", "Ctrl + S", nullptr, active_session))
-                m_serialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+                save();
             if (ImGui::MenuItem("Load", "Ctrl + L", nullptr, active_session))
-                m_deserialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+                load();
 
             if (ImGui::BeginMenu("Save as..."))
             {
-                render_save_prompt();
+                save_as();
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Load as...", any_user_file_present(SAVES_DIRECTORY)))
             {
-                render_load_and_removal_prompts(SAVES_DIRECTORY);
+                load_as(SAVES_DIRECTORY);
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Examples", any_user_file_present(EXAMPLES_DIRECTORY)))
@@ -69,7 +72,54 @@ void menu_bar::on_render(const float ts)
     }
 }
 
-void menu_bar::render_save_prompt()
+bool menu_bar::on_event(const lynx::event2D &event)
+{
+    switch (event.type)
+    {
+    case lynx::event2D::KEY_PRESSED:
+        switch (event.key)
+        {
+        case lynx::input2D::key::S:
+            if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL) && has_active_session())
+            {
+                save();
+                return true;
+            }
+        case lynx::input2D::key::L:
+            if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL) && has_active_session())
+            {
+                load();
+                return true;
+            }
+        case lynx::input2D::key::N:
+            if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL))
+            {
+                new_session();
+                return true;
+            }
+        default:
+            break;
+        }
+    default:
+        break;
+    }
+    return false;
+}
+
+void menu_bar::new_session()
+{
+    m_deserialize_path = DEFAULT_SAVE_FILEPATH;
+}
+void menu_bar::save()
+{
+    m_serialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+}
+void menu_bar::load()
+{
+    m_deserialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+}
+
+void menu_bar::save_as()
 {
     static char buffer[24] = "\0";
     if (ImGui::InputTextWithHint("##Body name input", "Session name", buffer, 24,
@@ -101,7 +151,7 @@ void menu_bar::render_load_prompts(const char *path)
         }
     }
 }
-void menu_bar::render_load_and_removal_prompts(const char *path)
+void menu_bar::load_as(const char *path)
 {
     for (const auto &entry : std::filesystem::directory_iterator(path))
     {
