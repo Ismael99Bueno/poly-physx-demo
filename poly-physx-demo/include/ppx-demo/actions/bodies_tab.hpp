@@ -25,7 +25,7 @@ class bodies_tab
     void render_general_options();
     void render_single_body_properties(body2D &body);
     void render_selected_bodies_properties();
-    void render_body_list();
+    void render_bodies_list();
     void render_groups() const;
 };
 } // namespace ppx::demo

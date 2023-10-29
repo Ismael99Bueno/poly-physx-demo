@@ -11,6 +11,14 @@ joints_tab::joints_tab(demo_app *app) : m_app(app)
 
 void joints_tab::update()
 {
+    for (const spring2D::const_ptr &sp : m_to_remove_springs)
+        if (sp)
+            m_app->world.remove_spring(*sp);
+    for (const constraint2D *ctr : m_to_remove_ctrs)
+        m_app->world.remove_constraint(ctr);
+
+    m_to_remove_springs.clear();
+    m_to_remove_ctrs.clear();
     if (!m_body1)
         return;
 
@@ -31,7 +39,7 @@ void joints_tab::render()
         m_window->draw(*m_preview);
 }
 
-float joints_tab::current_joint_length()
+float joints_tab::current_joint_length() const
 {
     const glm::vec2 p1 = m_body1->position() + glm::rotate(m_anchor1, m_body1->rotation() - m_rotation1);
 
@@ -41,6 +49,165 @@ float joints_tab::current_joint_length()
 
     const glm::vec2 p2 = (!center_anchor2 && body2) ? body2->position() : mpos;
     return glm::distance(p1, p2);
+}
+
+void joints_tab::render_single_spring_properties(spring2D &sp)
+{
+    if (ImGui::Button("Remove"))
+        m_to_remove_springs.push_back(m_app->world.spring(sp.index));
+
+    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(sp.id).c_str());
+    ImGui::Text("UUID: %llu", (std::uint64_t)sp.id);
+
+    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(sp.joint.body1()->id).c_str(),
+                kit::uuid::random_name_from_id(sp.joint.body2()->id).c_str());
+
+    static constexpr float drag_speed = 0.3f;
+    static constexpr const char *format = "%.1f";
+
+    ImGui::DragFloat("Stiffness##Single", &sp.stiffness, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Dampening##Single", &sp.dampening, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Length##Single", &sp.length, drag_speed, 0.f, FLT_MAX, format);
+}
+
+void joints_tab::render_selected_spring_properties()
+{
+    const auto &selected = m_app->selector.selected_springs();
+    if (ImGui::TreeNode(&selected, "Selected springs: %zu", selected.size()))
+    {
+        if (selected.empty())
+        {
+            ImGui::Text("No joints selected (select both ends to select a joint)");
+            ImGui::TreePop();
+            return;
+        }
+        if (selected.size() == 1)
+        {
+            render_single_spring_properties(**selected.begin());
+            ImGui::TreePop();
+            return;
+        }
+
+        if (ImGui::Button("Remove selected"))
+            m_to_remove_springs.insert(m_to_remove_springs.end(), selected.begin(), selected.end());
+
+        static constexpr float drag_speed = 0.3f;
+        static constexpr const char *format = "%.1f";
+
+        float stiffness = 0.f;
+        float dampening = 0.f;
+        float length = 0.f;
+
+        for (const spring2D::ptr &sp : selected)
+        {
+            stiffness += sp->stiffness;
+            dampening += sp->dampening;
+            length += sp->length;
+        }
+        stiffness /= selected.size();
+        dampening /= selected.size();
+        length /= selected.size();
+
+        if (ImGui::DragFloat("Stiffness##Multiple", &stiffness, drag_speed, 0.f, FLT_MAX, format))
+            for (const spring2D::ptr &sp : selected)
+                sp->stiffness = stiffness;
+        if (ImGui::DragFloat("Dampening##Multiple", &dampening, drag_speed, 0.f, FLT_MAX, format))
+            for (const spring2D::ptr &sp : selected)
+                sp->dampening = dampening;
+        if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
+            for (const spring2D::ptr &sp : selected)
+                sp->length = length;
+        ImGui::TreePop();
+    }
+}
+
+void joints_tab::render_springs_list()
+{
+    for (spring2D &sp : m_app->world.springs())
+        if (ImGui::TreeNode(&sp, "%s", kit::uuid::random_name_from_id(sp.id).c_str()))
+        {
+            render_single_spring_properties(sp);
+            ImGui::TreePop();
+        }
+}
+
+void joints_tab::render_single_dist_joint_properties(revolute_joint2D &rj)
+{
+    if (ImGui::Button("Remove"))
+        m_to_remove_ctrs.push_back(&rj);
+
+    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(rj.id).c_str());
+    ImGui::Text("UUID: %llu", (std::uint64_t)rj.id);
+
+    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(rj.joint.body1()->id).c_str(),
+                kit::uuid::random_name_from_id(rj.joint.body2()->id).c_str());
+
+    ImGui::Spacing();
+    ImGui::Text("Stress: %.2f", rj.constraint_value());
+    ImGui::Text("Deviation: %.2f", rj.constraint_derivative());
+    ImGui::DragFloat("Length", &rj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
+}
+
+template <typename D, typename B> std::vector<D *> select_only_from_type(const std::vector<B> &ctrs)
+{
+    std::vector<D *> selected;
+    selected.reserve(ctrs.size());
+    for (const auto &ctr : ctrs)
+    {
+        D *casted;
+        if constexpr (std::is_same_v<B, constraint2D *>)
+            casted = dynamic_cast<D *>(ctr);
+        else
+            casted = dynamic_cast<D *>(ctr.get());
+        if (casted)
+            selected.push_back(casted);
+    }
+    return selected;
+}
+
+void joints_tab::render_selected_dist_joint_properties()
+{
+    const auto &selected = select_only_from_type<revolute_joint2D>(m_app->selector.selected_constraints());
+
+    if (ImGui::TreeNode(&selected, "Selected distance joints: %zu", selected.size()))
+    {
+        if (selected.empty())
+        {
+            ImGui::Text("No joints selected (select both ends to select a joint)");
+            ImGui::TreePop();
+            return;
+        }
+        if (selected.size() == 1)
+        {
+            render_single_dist_joint_properties(**selected.begin());
+            ImGui::TreePop();
+            return;
+        }
+
+        if (ImGui::Button("Remove selected"))
+            m_to_remove_ctrs.insert(m_to_remove_ctrs.end(), selected.begin(), selected.end());
+
+        float length = 0.f;
+
+        for (const revolute_joint2D *rj : selected)
+            length += rj->length;
+        length /= selected.size();
+
+        if (ImGui::DragFloat("Length", &length, 0.3f, 0.f, FLT_MAX, "%.1f"))
+            for (revolute_joint2D *rj : selected)
+                rj->length = length;
+        ImGui::TreePop();
+    }
+}
+void joints_tab::render_dist_joints_list()
+{
+    const auto &djoints = select_only_from_type<revolute_joint2D>(m_app->world.constraints());
+    for (revolute_joint2D *rj : djoints)
+        if (ImGui::TreeNode(rj, "%s", kit::uuid::random_name_from_id(rj->id).c_str()))
+        {
+            render_single_dist_joint_properties(*rj);
+            ImGui::TreePop();
+        }
 }
 
 template <typename T> void joints_tab::render_joint_properties(T &specs) // This is dodgy
@@ -76,6 +243,9 @@ void joints_tab::render_imgui_tab()
         if (!m_body1)
             m_joint_type = joint_type::SPRING;
         render_joint_properties(m_spring_specs);
+        render_selected_spring_properties();
+        if (ImGui::CollapsingHeader("Springs"))
+            render_springs_list();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem("Revolute"))
@@ -83,6 +253,9 @@ void joints_tab::render_imgui_tab()
         if (!m_body1)
             m_joint_type = joint_type::REVOLUTE;
         render_joint_properties(m_revolute_specs);
+        render_selected_dist_joint_properties();
+        if (ImGui::CollapsingHeader("Distance joints"))
+            render_dist_joints_list();
         ImGui::EndTabItem();
     }
 
@@ -111,7 +284,7 @@ void joints_tab::begin_joint_attach()
     }
 }
 
-template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs)
+template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     const body2D::ptr body2 = m_app->world[mpos];

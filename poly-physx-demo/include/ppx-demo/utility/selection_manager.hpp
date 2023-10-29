@@ -4,6 +4,8 @@
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
 #include "ppx/body2D.hpp"
+#include "ppx/constraints/constraint2D.hpp"
+#include "ppx/joints/spring2D.hpp"
 #include <unordered_set>
 
 namespace ppx::demo
@@ -24,10 +26,11 @@ class selection_manager
     void deselect(const body2D::ptr &body);
     bool is_selecting(const body2D::ptr &body);
 
-    kit::event<const body2D::ptr &> on_select;
-    kit::event<const body2D::ptr &> on_deselect;
+    void update_selected_joints();
 
     const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selected_bodies() const;
+    const std::vector<spring2D::ptr> &selected_springs() const;
+    const std::vector<constraint2D *> &selected_constraints() const;
 
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
@@ -41,6 +44,8 @@ class selection_manager
 
     lynx::line_strip2D m_selection_outline;
     std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> m_selected_bodies;
+    std::vector<spring2D::ptr> m_selected_springs;
+    std::vector<constraint2D *> m_selected_constraints;
 };
 } // namespace ppx::demo
 

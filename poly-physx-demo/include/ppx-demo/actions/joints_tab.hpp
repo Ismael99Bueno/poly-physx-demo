@@ -49,9 +49,20 @@ class joints_tab
     revolute_joint2D::specs m_revolute_specs;
     bool m_auto_spring_length = false;
 
+    std::vector<spring2D::const_ptr> m_to_remove_springs;
+    std::vector<const constraint2D *> m_to_remove_ctrs;
+
+    void render_single_spring_properties(spring2D &sp);
+    void render_selected_spring_properties();
+    void render_springs_list();
+
+    void render_single_dist_joint_properties(revolute_joint2D &rj);
+    void render_selected_dist_joint_properties();
+    void render_dist_joints_list();
+
     template <typename T> void render_joint_properties(T &specs);
-    template <typename T> bool attach_bodies_to_joint_specs(T &specs);
-    float current_joint_length();
+    template <typename T> bool attach_bodies_to_joint_specs(T &specs) const;
+    float current_joint_length() const;
 };
 } // namespace ppx::demo
 

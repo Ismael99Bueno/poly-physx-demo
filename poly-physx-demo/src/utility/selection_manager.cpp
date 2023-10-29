@@ -17,7 +17,25 @@ selection_manager::selection_manager(demo_app &app)
             else
                 ++it;
     }};
+    const kit::callback<std::size_t> remove_spring{[this](const std::size_t index) {
+        for (auto it = m_selected_springs.begin(); it != m_selected_springs.end();)
+            if (!(*it))
+                it = m_selected_springs.erase(it);
+            else
+                ++it;
+    }};
+    const kit::callback<const constraint2D &> remove_ctr{[this](const constraint2D &ctr) {
+        for (auto it = m_selected_constraints.begin(); it != m_selected_constraints.end(); ++it)
+            if (**it == ctr)
+            {
+                m_selected_constraints.erase(it);
+                return;
+            }
+    }};
+
     app.world.events.on_late_body_removal += remove_body;
+    app.world.events.on_late_spring_removal += remove_spring;
+    app.world.events.on_constraint_removal += remove_ctr;
 }
 
 static float oscillating_thickness(const float time)
@@ -87,16 +105,19 @@ void selection_manager::end_selection()
     const std::vector<body2D::ptr> bodies = m_app.world[m_selection_boundaries];
     m_selected_bodies.insert(bodies.begin(), bodies.end());
     m_selecting = false;
+    update_selected_joints();
 }
 
 void selection_manager::select(const body2D::ptr &body)
 {
     m_selected_bodies.insert(body);
+    update_selected_joints();
 }
 void selection_manager::deselect(const body2D::ptr &body)
 {
     m_selected_bodies.erase(body);
     m_app.shapes()[body->index]->outline_thickness = 0.f;
+    update_selected_joints();
 }
 bool selection_manager::is_selecting(const body2D::ptr &body)
 {
@@ -104,9 +125,35 @@ bool selection_manager::is_selecting(const body2D::ptr &body)
            m_selected_bodies.find(body) != m_selected_bodies.end();
 }
 
+void selection_manager::update_selected_joints()
+{
+    m_selected_springs.clear();
+    m_selected_constraints.clear();
+
+    for (const spring2D &sp : m_app.world.springs())
+        if (m_selected_bodies.find(sp.joint.body1()) != m_selected_bodies.end() &&
+            m_selected_bodies.find(sp.joint.body2()) != m_selected_bodies.end())
+            m_selected_springs.push_back(m_app.world.spring(sp.index));
+    for (const auto &ctr : m_app.world.constraints())
+    {
+        revolute_joint2D *rj = dynamic_cast<revolute_joint2D *>(ctr.get());
+        if (rj && m_selected_bodies.find(rj->joint.body1()) != m_selected_bodies.end() &&
+            m_selected_bodies.find(rj->joint.body2()) != m_selected_bodies.end())
+            m_selected_constraints.push_back(ctr.get());
+    }
+}
+
 const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selection_manager::selected_bodies() const
 {
     return m_selected_bodies;
+}
+const std::vector<spring2D::ptr> &selection_manager::selected_springs() const
+{
+    return m_selected_springs;
+}
+const std::vector<constraint2D *> &selection_manager::selected_constraints() const
+{
+    return m_selected_constraints;
 }
 
 YAML::Node selection_manager::encode() const
@@ -121,10 +168,13 @@ YAML::Node selection_manager::encode() const
 void selection_manager::decode(const YAML::Node &node)
 {
     if (node["Bodies"])
+    {
         for (const YAML::Node &n : node["Bodies"])
         {
             const std::size_t index = n.as<std::size_t>();
             m_selected_bodies.insert(m_app.world[index]);
         }
+        update_selected_joints();
+    }
 }
 } // namespace ppx::demo

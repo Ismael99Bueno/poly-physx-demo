@@ -24,17 +24,10 @@ void bodies_tab::update()
 void bodies_tab::render_imgui_tab()
 {
     render_general_options();
-
-    const auto &selected = m_app->selector.selected_bodies();
-    if (selected.empty())
-        ImGui::Text("Selected bodies will appear here");
-    else if (selected.size() == 1)
-        render_single_body_properties(**selected.begin());
-    else
-        render_selected_bodies_properties();
-    if (ImGui::CollapsingHeader("Bodies list"))
-        render_body_list();
-    if (ImGui::CollapsingHeader("Body groups"))
+    render_selected_bodies_properties();
+    if (ImGui::CollapsingHeader("Bodies"))
+        render_bodies_list();
+    if (ImGui::CollapsingHeader("Saved body presets"))
         render_groups();
 }
 
@@ -46,7 +39,7 @@ void bodies_tab::render_general_options()
         m_app->add_walls();
 }
 
-void bodies_tab::render_body_list()
+void bodies_tab::render_bodies_list()
 {
     for (body2D &body : m_app->world.bodies())
         if (ImGui::TreeNode(&body, "%s", kit::uuid::random_name_from_id(body.id).c_str()))
@@ -125,48 +118,65 @@ void bodies_tab::render_single_body_properties(body2D &body)
 void bodies_tab::render_selected_bodies_properties()
 {
     const auto &selected = m_app->selector.selected_bodies();
-    ImGui::Text("Selected bodies: %zu", selected.size());
 
-    if (ImGui::Button("Remove selected"))
-        m_to_remove.insert(m_to_remove.end(), selected.begin(), selected.end());
-
-    static constexpr float drag_speed = 0.3f;
-    static constexpr const char *format = "%.1f";
-
-    float mass = 0.f;
-    float charge = 0.f;
-    bool kinematic = false;
-
-    for (const body2D::ptr &body : selected)
+    if (ImGui::TreeNode(&selected, "Selected bodies: %zu", selected.size()))
     {
-        mass += body->real_mass();
-        charge += body->charge();
-        kinematic |= body->kinematic;
-    }
-    mass /= selected.size();
-    charge /= selected.size();
+        if (selected.empty())
+        {
+            ImGui::Text("No bodies selected");
+            ImGui::TreePop();
+            return;
+        }
+        if (selected.size() == 1)
+        {
+            render_single_body_properties(**selected.begin());
+            ImGui::TreePop();
+            return;
+        }
 
-    if (ImGui::Checkbox("Kinematic", &kinematic))
+        if (ImGui::Button("Remove selected"))
+            m_to_remove.insert(m_to_remove.end(), selected.begin(), selected.end());
+
+        static constexpr float drag_speed = 0.3f;
+        static constexpr const char *format = "%.1f";
+
+        float mass = 0.f;
+        float charge = 0.f;
+        bool kinematic = false;
+
         for (const body2D::ptr &body : selected)
-            body->kinematic = kinematic;
+        {
+            mass += body->real_mass();
+            charge += body->charge();
+            kinematic |= body->kinematic;
+        }
+        mass /= selected.size();
+        charge /= selected.size();
 
-    if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
-        for (const body2D::ptr &body : selected)
-            body->mass(mass);
+        if (ImGui::Checkbox("Kinematic", &kinematic))
+            for (const body2D::ptr &body : selected)
+                body->kinematic = kinematic;
 
-    if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
-        for (const body2D::ptr &body : selected)
-            body->charge(charge);
+        if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
+            for (const body2D::ptr &body : selected)
+                body->mass(mass);
 
-    static char buffer[24] = "\0";
-    if (ImGui::InputTextWithHint("Save as a group", "Group name", buffer, 24, ImGuiInputTextFlags_EnterReturnsTrue) &&
-        buffer[0] != '\0')
-    {
-        std::string name = buffer;
-        std::replace(name.begin(), name.end(), ' ', '-');
+        if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
+            for (const body2D::ptr &body : selected)
+                body->charge(charge);
 
-        m_app->grouper.save_group_from_selected(name);
-        buffer[0] = '\0';
+        static char buffer[24] = "\0";
+        if (ImGui::InputTextWithHint("Save as a group", "Group name", buffer, 24,
+                                     ImGuiInputTextFlags_EnterReturnsTrue) &&
+            buffer[0] != '\0')
+        {
+            std::string name = buffer;
+            std::replace(name.begin(), name.end(), ' ', '-');
+
+            m_app->grouper.save_group_from_selected(name);
+            buffer[0] = '\0';
+        }
+        ImGui::TreePop();
     }
 }
 
