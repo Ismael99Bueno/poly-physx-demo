@@ -31,15 +31,15 @@ void group_manager::update()
         m_group_springs_preview[i].p2(p2);
     }
 
-    for (std::size_t i = 0; i < m_group_revolutes_preview.size(); i++)
+    for (std::size_t i = 0; i < m_group_dist_joints_preview.size(); i++)
     {
-        const revolute_template &rjtemplate = m_current_group.revolute_templates[i];
+        const dist_joint_template &rjtemplate = m_current_group.dist_joint_templates[i];
         const glm::vec2 p1 = m_current_group.body_templates[rjtemplate.btemplate_index1].specs.position +
                              rjtemplate.specs.joint.anchor1 + offset_pos;
         const glm::vec2 p2 = m_current_group.body_templates[rjtemplate.btemplate_index2].specs.position +
                              rjtemplate.specs.joint.anchor2 + offset_pos;
-        m_group_revolutes_preview[i].p1(p1);
-        m_group_revolutes_preview[i].p2(p2);
+        m_group_dist_joints_preview[i].p1(p1);
+        m_group_dist_joints_preview[i].p2(p2);
     }
 }
 void group_manager::render() const
@@ -51,7 +51,7 @@ void group_manager::render() const
         m_window->draw(*shape);
     for (const spring_line &spline : m_group_springs_preview)
         m_window->draw(spline);
-    for (const thick_line &rjline : m_group_revolutes_preview)
+    for (const thick_line &rjline : m_group_dist_joints_preview)
         m_window->draw(rjline);
 }
 
@@ -66,7 +66,7 @@ void group_manager::update_preview_from_current_group()
 {
     m_group_shapes_preview.clear();
     m_group_springs_preview.clear();
-    m_group_revolutes_preview.clear();
+    m_group_dist_joints_preview.clear();
 
     for (const body_template &btemplate : m_current_group.body_templates)
         if (btemplate.specs.shape == body2D::shape_type::POLYGON)
@@ -81,8 +81,8 @@ void group_manager::update_preview_from_current_group()
     for (const spring_template &sptemplate : m_current_group.spring_templates)
         m_group_springs_preview.emplace_back(sptemplate.color);
 
-    for (const revolute_template &rjtemplate : m_current_group.revolute_templates)
-        m_group_revolutes_preview.emplace_back(rjtemplate.color);
+    for (const dist_joint_template &rjtemplate : m_current_group.dist_joint_templates)
+        m_group_dist_joints_preview.emplace_back(rjtemplate.color);
 }
 
 bool group_manager::ongoing_group() const
@@ -134,8 +134,8 @@ YAML::Node group_manager::group::encode() const
         node["Spring templates"].push_back(spnode);
     }
 
-    for (const revolute_template &rvtemplate : revolute_templates)
-        node["Revolute templates"].push_back(encode_joint_template(rvtemplate));
+    for (const dist_joint_template &rvtemplate : dist_joint_templates)
+        node["Distance joint templates"].push_back(encode_joint_template(rvtemplate));
 
     return node;
 }
@@ -143,7 +143,7 @@ void group_manager::group::decode(const YAML::Node &node)
 {
     body_templates.clear();
     spring_templates.clear();
-    revolute_templates.clear();
+    dist_joint_templates.clear();
 
     mean_position = node["Mean position"].as<glm::vec2>();
     if (node["Body templates"])
@@ -162,9 +162,9 @@ void group_manager::group::decode(const YAML::Node &node)
             sptemplate.specs.length = n["Length"].as<float>();
         }
 
-    if (node["Revolute templates"])
-        for (const YAML::Node &n : node["Revolute templates"])
-            decode_joint_template(revolute_templates.emplace_back(), n);
+    if (node["Distance joint templates"])
+        for (const YAML::Node &n : node["Distance joint templates"])
+            decode_joint_template(dist_joint_templates.emplace_back(), n);
 }
 
 YAML::Node group_manager::encode() const
@@ -233,14 +233,14 @@ void group_manager::paste_group()
         m_app.world.add_spring(sptemplate.specs);
     }
 
-    for (revolute_template &rjtemplate : m_current_group.revolute_templates)
+    for (dist_joint_template &rjtemplate : m_current_group.dist_joint_templates)
     {
         const kit::uuid id1 = m_current_group.body_templates[rjtemplate.btemplate_index1].id;
         const kit::uuid id2 = m_current_group.body_templates[rjtemplate.btemplate_index2].id;
 
         rjtemplate.specs.joint.body1 = old_id_to_new_body[id1];
         rjtemplate.specs.joint.body2 = old_id_to_new_body[id2];
-        m_app.world.add_constraint<revolute_joint2D>(rjtemplate.specs);
+        m_app.world.add_constraint<distance_joint2D>(rjtemplate.specs);
     }
 }
 
@@ -275,11 +275,11 @@ group_manager::group group_manager::create_group_from_selected()
 
             for (const constraint2D *ctr : m_app.world.constraints_from_ids({id1, id2}))
             {
-                const revolute_joint2D *rj = dynamic_cast<const revolute_joint2D *>(ctr);
-                const lynx::color color{m_app.revolute_lines().at(rj).color(), alpha};
-                const bool reversed = id1 != rj->joint.body1()->id;
-                created_group.revolute_templates.emplace_back(reversed ? j : i, reversed ? i : j, color,
-                                                              revolute_joint2D::specs::from_revolute_joint(*rj));
+                const distance_joint2D *dj = dynamic_cast<const distance_joint2D *>(ctr);
+                const lynx::color color{m_app.dist_joint_lines().at(dj).color(), alpha};
+                const bool reversed = id1 != dj->joint.body1()->id;
+                created_group.dist_joint_templates.emplace_back(reversed ? j : i, reversed ? i : j, color,
+                                                                distance_joint2D::specs::from_distance_joint(*dj));
             }
         }
 

@@ -3,7 +3,7 @@
 
 #include "ppx/body2D.hpp"
 #include "ppx/joints/spring2D.hpp"
-#include "ppx/joints/revolute_joint2D.hpp"
+#include "ppx/joints/distance_joint2D.hpp"
 
 #include "lynx/drawing/shape.hpp"
 
@@ -59,25 +59,25 @@ class group_manager
         lynx::color color;
         spring2D::specs specs;
     };
-    struct revolute_template
+    struct dist_joint_template
     {
-        revolute_template() = default;
-        revolute_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
-                          const lynx::color &color, const revolute_joint2D::specs &specs)
+        dist_joint_template() = default;
+        dist_joint_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
+                            const lynx::color &color, const distance_joint2D::specs &specs)
             : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
         {
         }
         std::size_t btemplate_index1;
         std::size_t btemplate_index2;
         lynx::color color;
-        revolute_joint2D::specs specs;
+        distance_joint2D::specs specs;
     };
     struct group
     {
         glm::vec2 mean_position{0.f};
         std::vector<body_template> body_templates;
         std::vector<spring_template> spring_templates;
-        std::vector<revolute_template> revolute_templates;
+        std::vector<dist_joint_template> dist_joint_templates;
 
         YAML::Node encode() const;
         void decode(const YAML::Node &node);
@@ -95,7 +95,7 @@ class group_manager
     std::unordered_map<std::string, group> m_groups;
     std::vector<kit::scope<lynx::shape2D>> m_group_shapes_preview;
     std::vector<spring_line> m_group_springs_preview;
-    std::vector<thick_line> m_group_revolutes_preview;
+    std::vector<thick_line> m_group_dist_joints_preview;
 
     bool m_ongoing_group = false;
 

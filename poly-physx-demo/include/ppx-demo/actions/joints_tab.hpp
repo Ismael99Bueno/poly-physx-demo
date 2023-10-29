@@ -3,7 +3,7 @@
 
 #include "ppx-app/lines/spring_line.hpp"
 #include "ppx-app/lines/thick_line.hpp"
-#include "ppx/joints/revolute_joint2D.hpp"
+#include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 
 namespace ppx::demo
@@ -32,7 +32,7 @@ class joints_tab
     enum class joint_type
     {
         SPRING,
-        REVOLUTE
+        DISTANCE
     };
 
     demo_app *m_app;
@@ -46,7 +46,7 @@ class joints_tab
     kit::scope<lynx::line2D> m_preview;
 
     spring2D::specs m_spring_specs;
-    revolute_joint2D::specs m_revolute_specs;
+    distance_joint2D::specs m_dist_joint_specs;
     bool m_auto_spring_length = false;
 
     std::vector<spring2D::const_ptr> m_to_remove_springs;
@@ -56,7 +56,7 @@ class joints_tab
     void render_selected_spring_properties();
     void render_springs_list();
 
-    void render_single_dist_joint_properties(revolute_joint2D &rj);
+    void render_single_dist_joint_properties(distance_joint2D &rj);
     void render_selected_dist_joint_properties();
     void render_dist_joints_list();
 

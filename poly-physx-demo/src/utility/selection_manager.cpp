@@ -136,9 +136,9 @@ void selection_manager::update_selected_joints()
             m_selected_springs.push_back(m_app.world.spring(sp.index));
     for (const auto &ctr : m_app.world.constraints())
     {
-        revolute_joint2D *rj = dynamic_cast<revolute_joint2D *>(ctr.get());
-        if (rj && m_selected_bodies.find(rj->joint.body1()) != m_selected_bodies.end() &&
-            m_selected_bodies.find(rj->joint.body2()) != m_selected_bodies.end())
+        distance_joint2D *dj = dynamic_cast<distance_joint2D *>(ctr.get());
+        if (dj && m_selected_bodies.find(dj->joint.body1()) != m_selected_bodies.end() &&
+            m_selected_bodies.find(dj->joint.body2()) != m_selected_bodies.end())
             m_selected_constraints.push_back(ctr.get());
     }
 }

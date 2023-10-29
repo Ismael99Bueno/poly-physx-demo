@@ -131,21 +131,21 @@ void joints_tab::render_springs_list()
         }
 }
 
-void joints_tab::render_single_dist_joint_properties(revolute_joint2D &rj)
+void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
 {
     if (ImGui::Button("Remove"))
-        m_to_remove_ctrs.push_back(&rj);
+        m_to_remove_ctrs.push_back(&dj);
 
-    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(rj.id).c_str());
-    ImGui::Text("UUID: %llu", (std::uint64_t)rj.id);
+    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(dj.id).c_str());
+    ImGui::Text("UUID: %llu", (std::uint64_t)dj.id);
 
-    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(rj.joint.body1()->id).c_str(),
-                kit::uuid::random_name_from_id(rj.joint.body2()->id).c_str());
+    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(dj.joint.body1()->id).c_str(),
+                kit::uuid::random_name_from_id(dj.joint.body2()->id).c_str());
 
     ImGui::Spacing();
-    ImGui::Text("Stress: %.2f", rj.constraint_value());
-    ImGui::Text("Deviation: %.2f", rj.constraint_derivative());
-    ImGui::DragFloat("Length", &rj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::Text("Stress: %.2f", dj.constraint_value());
+    ImGui::Text("Deviation: %.2f", dj.constraint_derivative());
+    ImGui::DragFloat("Length", &dj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
 
 template <typename D, typename B> std::vector<D *> select_only_from_type(const std::vector<B> &ctrs)
@@ -167,7 +167,7 @@ template <typename D, typename B> std::vector<D *> select_only_from_type(const s
 
 void joints_tab::render_selected_dist_joint_properties()
 {
-    const auto &selected = select_only_from_type<revolute_joint2D>(m_app->selector.selected_constraints());
+    const auto &selected = select_only_from_type<distance_joint2D>(m_app->selector.selected_constraints());
 
     if (ImGui::TreeNode(&selected, "Selected distance joints: %zu", selected.size()))
     {
@@ -189,23 +189,23 @@ void joints_tab::render_selected_dist_joint_properties()
 
         float length = 0.f;
 
-        for (const revolute_joint2D *rj : selected)
-            length += rj->length;
+        for (const distance_joint2D *dj : selected)
+            length += dj->length;
         length /= selected.size();
 
         if (ImGui::DragFloat("Length", &length, 0.3f, 0.f, FLT_MAX, "%.1f"))
-            for (revolute_joint2D *rj : selected)
-                rj->length = length;
+            for (distance_joint2D *dj : selected)
+                dj->length = length;
         ImGui::TreePop();
     }
 }
 void joints_tab::render_dist_joints_list()
 {
-    const auto &djoints = select_only_from_type<revolute_joint2D>(m_app->world.constraints());
-    for (revolute_joint2D *rj : djoints)
-        if (ImGui::TreeNode(rj, "%s", kit::uuid::random_name_from_id(rj->id).c_str()))
+    const auto &djoints = select_only_from_type<distance_joint2D>(m_app->world.constraints());
+    for (distance_joint2D *dj : djoints)
+        if (ImGui::TreeNode(dj, "%s", kit::uuid::random_name_from_id(dj->id).c_str()))
         {
-            render_single_dist_joint_properties(*rj);
+            render_single_dist_joint_properties(*dj);
             ImGui::TreePop();
         }
 }
@@ -248,11 +248,11 @@ void joints_tab::render_imgui_tab()
             render_springs_list();
         ImGui::EndTabItem();
     }
-    if (ImGui::BeginTabItem("Revolute"))
+    if (ImGui::BeginTabItem("Distance joint"))
     {
         if (!m_body1)
-            m_joint_type = joint_type::REVOLUTE;
-        render_joint_properties(m_revolute_specs);
+            m_joint_type = joint_type::DISTANCE;
+        render_joint_properties(m_dist_joint_specs);
         render_selected_dist_joint_properties();
         if (ImGui::CollapsingHeader("Distance joints"))
             render_dist_joints_list();
@@ -278,7 +278,7 @@ void joints_tab::begin_joint_attach()
     case joint_type::SPRING:
         m_preview = kit::make_scope<spring_line>(mpos, mpos, m_app->joint_color);
         break;
-    case joint_type::REVOLUTE:
+    case joint_type::DISTANCE:
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
         break;
     }
@@ -312,9 +312,9 @@ void joints_tab::end_joint_attach()
         if (attach_bodies_to_joint_specs(m_spring_specs))
             m_app->world.add_spring(m_spring_specs);
         break;
-    case joint_type::REVOLUTE:
-        if (attach_bodies_to_joint_specs(m_revolute_specs))
-            m_app->world.add_constraint<revolute_joint2D>(m_revolute_specs);
+    case joint_type::DISTANCE:
+        if (attach_bodies_to_joint_specs(m_dist_joint_specs))
+            m_app->world.add_constraint<distance_joint2D>(m_dist_joint_specs);
         break;
     }
     m_body1 = nullptr;
