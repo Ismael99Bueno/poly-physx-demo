@@ -35,6 +35,10 @@ class engine_panel : public demo_layer
         QUAD_TREE,
         SORT_AND_SWEEP
     };
+    enum class collision_solver
+    {
+        SPRING_SOLVER
+    };
 
     lynx::window2D *m_window;
 
@@ -42,8 +46,11 @@ class engine_panel : public demo_layer
     quad_tree_detection2D *m_qtdet = nullptr;
     sort_sweep_detection2D *m_ssdet = nullptr;
 
+    spring_solver2D *m_sp_solver = nullptr;
+
     integration_method m_integration_method = integration_method::RK4;
     detection_method m_detection_method = detection_method::QUAD_TREE;
+    collision_solver m_collision_solver = collision_solver::SPRING_SOLVER;
 
     bool m_draw_bounding_boxes = false;
     bool m_visualize_qtree = false;
@@ -59,16 +66,19 @@ class engine_panel : public demo_layer
     void render_integrator_parameters();
     void render_collision_parameters();
     void render_quad_tree_parameters();
+    void render_spring_solver_parameters();
 
     void render_timestep_settings() const;
     void render_integration_method();
 
     void update_integration_method() const;
     void update_detection_method();
+    void update_collision_solver();
     void update_bounding_boxes();
     void update_quad_tree_lines(const quad_tree2D &qt);
 
     void render_collision_detection_list();
+    void render_collision_solver_list();
     void render_bounding_boxes();
     void render_quad_tree_lines();
 

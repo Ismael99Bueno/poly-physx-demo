@@ -12,6 +12,7 @@ void engine_panel::on_attach()
 {
     demo_layer::on_attach();
     m_qtdet = m_app->world.collision_detection<quad_tree_detection2D>();
+    m_sp_solver = m_app->world.collision_solver<spring_solver2D>();
     m_window = m_app->window();
 }
 
@@ -64,9 +65,14 @@ void engine_panel::render_collision_parameters()
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
+
     render_collision_detection_list();
     if (m_detection_method == detection_method::QUAD_TREE)
         render_quad_tree_parameters();
+
+    render_collision_solver_list();
+    if (m_collision_solver == collision_solver::SPRING_SOLVER) // ALL OF THIS ONLY MAKES SENSE IF ADDING NEW SOLVERS
+        render_spring_solver_parameters();
 }
 
 void engine_panel::render_collision_detection_list()
@@ -76,16 +82,51 @@ void engine_panel::render_collision_detection_list()
         update_detection_method();
 }
 
+void engine_panel::render_collision_solver_list()
+{
+    static const char *solvers[1] = {"Spring solver"};
+    if (ImGui::ListBox("Collision solver", (int *)&m_collision_solver, solvers, 1))
+        update_collision_solver();
+}
+
 void engine_panel::render_quad_tree_parameters()
 {
-    ImGui::Text("Quad tree parameters");
-    ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree2D::max_bodies, 2, 20);
-    ImGui::SliderInt("Max tree depth", (int *)&quad_tree2D::max_depth, 2, 20);
-    ImGui::SliderFloat("Min quadrant size", &quad_tree2D::min_size, 4.f, 50.f);
+    if (ImGui::CollapsingHeader("Quad tree parameters"))
+    {
+        ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree2D::max_bodies, 2, 20);
+        ImGui::SliderInt("Max tree depth", (int *)&quad_tree2D::max_depth, 2, 20);
+        ImGui::SliderFloat("Min quadrant size", &quad_tree2D::min_size, 4.f, 50.f);
 
-    ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
-    if (m_visualize_qtree)
-        render_quad_tree_lines();
+        ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
+        if (m_visualize_qtree)
+            render_quad_tree_lines();
+    }
+}
+
+template <typename ValFun, typename SetFun>
+static void render_spring_solver_parameter(const char *name, ValFun cfun, ValFun vfun, SetFun sfun)
+{
+    float val = cfun();
+    if (ImGui::SliderFloat(name, &val, 0.001f, 0.999f))
+        sfun(val);
+    ImGui::SameLine();
+    ImGui::Text("(%.1f)", vfun());
+}
+
+void engine_panel::render_spring_solver_parameters()
+{
+    if (ImGui::CollapsingHeader("Spring solver parameters"))
+    {
+        render_spring_solver_parameter("Rigidity", &spring_solver2D::rigidity_coeff, &spring_solver2D::rigidity,
+                                       static_cast<void (*)(float)>(&spring_solver2D::rigidity_coeff));
+
+        render_spring_solver_parameter("Restitution", &spring_solver2D::restitution_coeff,
+                                       &spring_solver2D::restitution,
+                                       static_cast<void (*)(float)>(&spring_solver2D::restitution_coeff));
+
+        render_spring_solver_parameter("Friction", &spring_solver2D::friction_coeff, &spring_solver2D::friction,
+                                       static_cast<void (*)(float)>(&spring_solver2D::friction_coeff));
+    }
 }
 
 static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
@@ -216,6 +257,15 @@ void engine_panel::update_detection_method()
         break;
     }
 }
+void engine_panel::update_collision_solver()
+{
+    switch (m_collision_solver)
+    {
+    case collision_solver::SPRING_SOLVER:
+        m_sp_solver = m_app->world.set_collision_solver<spring_solver2D>();
+        break;
+    }
+}
 
 YAML::Node engine_panel::encode() const
 {
@@ -230,8 +280,9 @@ YAML::Node engine_panel::encode() const
     nqt["Min size"] = quad_tree2D::min_size;
 
     YAML::Node nspslv = node["Spring solver"];
-    nspslv["Sptiffness"] = spring_solver2D::stiffness;
-    nspslv["Dampening"] = spring_solver2D::dampening;
+    nspslv["Rigidity"] = spring_solver2D::rigidity_coeff();
+    nspslv["Restitution"] = spring_solver2D::restitution_coeff();
+    nspslv["Friction"] = spring_solver2D::friction_coeff();
 
     return node;
 }
@@ -249,8 +300,9 @@ bool engine_panel::decode(const YAML::Node &node)
     quad_tree2D::min_size = nqt["Min size"].as<float>();
 
     const YAML::Node nspslv = node["Spring solver"];
-    spring_solver2D::stiffness = nspslv["Sptiffness"].as<float>();
-    spring_solver2D::dampening = nspslv["Dampening"].as<float>();
+    spring_solver2D::rigidity_coeff(nspslv["Rigidity"].as<float>());
+    spring_solver2D::restitution_coeff(nspslv["Restitution"].as<float>());
+    spring_solver2D::friction_coeff(nspslv["Friction"].as<float>());
 
     update_detection_method();
 
