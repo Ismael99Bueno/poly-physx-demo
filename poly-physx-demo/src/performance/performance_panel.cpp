@@ -126,10 +126,12 @@ void performance_panel::render_hierarchy_recursive(const kit::measurement &measu
 
 void performance_panel::render_measurements_hierarchy()
 {
+    if (!kit::instrumentor::has_hierarchy_measurement("ppx-demo-app"))
+        return;
     if (ImGui::Button("Reset maximums"))
         m_max_time_hierarchy_measurements.clear();
 
-    const kit::measurement &measure = kit::instrumentor::last_measurement();
+    const kit::measurement &measure = kit::instrumentor::hierarchy_measurement("ppx-demo-app");
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
