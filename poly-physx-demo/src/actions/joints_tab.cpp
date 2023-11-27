@@ -13,9 +13,9 @@ void joints_tab::update()
 {
     for (const spring2D::const_ptr &sp : m_to_remove_springs)
         if (sp)
-            m_app->world.remove_spring(*sp);
+            m_app->world.springs.remove(*sp);
     for (const constraint2D *ctr : m_to_remove_ctrs)
-        m_app->world.remove_constraint(ctr);
+        m_app->world.constraints.remove(ctr);
 
     m_to_remove_springs.clear();
     m_to_remove_ctrs.clear();
@@ -28,7 +28,7 @@ void joints_tab::update()
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
-    const body2D::ptr body2 = m_app->world[mpos];
+    const body2D::ptr body2 = m_app->world.bodies[mpos];
 
     m_preview->p2((!center_anchor2 && body2) ? body2->position() : mpos);
 }
@@ -45,7 +45,7 @@ float joints_tab::current_joint_length() const
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
-    const body2D::ptr body2 = m_app->world[mpos];
+    const body2D::ptr body2 = m_app->world.bodies[mpos];
 
     const glm::vec2 p2 = (!center_anchor2 && body2) ? body2->position() : mpos;
     return glm::distance(p1, p2);
@@ -54,7 +54,7 @@ float joints_tab::current_joint_length() const
 void joints_tab::render_single_spring_properties(spring2D &sp)
 {
     if (ImGui::Button("Remove"))
-        m_to_remove_springs.push_back(m_app->world.spring(sp.index));
+        m_to_remove_springs.push_back(sp.as_ptr());
 
     ImGui::Text("Name: %s", kit::uuid::random_name_from_id(sp.id).c_str());
     ImGui::Text("UUID: %llu", (std::uint64_t)sp.id);
@@ -123,7 +123,7 @@ void joints_tab::render_selected_spring_properties()
 
 void joints_tab::render_springs_list()
 {
-    for (spring2D &sp : m_app->world.springs())
+    for (spring2D &sp : m_app->world.springs)
         if (ImGui::TreeNode(&sp, "%s", kit::uuid::random_name_from_id(sp.id).c_str()))
         {
             render_single_spring_properties(sp);
@@ -149,14 +149,14 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
     ImGui::DragFloat("Length", &dj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
 
-template <typename D, typename B> std::vector<D *> select_only_from_type(const std::vector<B> &ctrs)
+template <bool is_unique_ptr, typename D, typename CB> std::vector<D *> select_only_from_type(const CB &ctrs)
 {
     std::vector<D *> selected;
     selected.reserve(ctrs.size());
     for (const auto &ctr : ctrs)
     {
         D *casted;
-        if constexpr (std::is_same_v<B, constraint2D *>)
+        if constexpr (!is_unique_ptr)
             casted = dynamic_cast<D *>(ctr);
         else
             casted = dynamic_cast<D *>(ctr.get());
@@ -168,7 +168,7 @@ template <typename D, typename B> std::vector<D *> select_only_from_type(const s
 
 void joints_tab::render_selected_dist_joint_properties()
 {
-    const auto &selected = select_only_from_type<distance_joint2D>(m_app->selector.selected_constraints());
+    const auto &selected = select_only_from_type<false, distance_joint2D>(m_app->selector.selected_constraints());
 
     if (ImGui::TreeNode(&selected, "Selected distance joints: %zu", selected.size()))
     {
@@ -202,7 +202,7 @@ void joints_tab::render_selected_dist_joint_properties()
 }
 void joints_tab::render_dist_joints_list()
 {
-    const auto &djoints = select_only_from_type<distance_joint2D>(m_app->world.constraints());
+    const auto &djoints = select_only_from_type<true, distance_joint2D>(m_app->world.constraints);
     for (distance_joint2D *dj : djoints)
         if (ImGui::TreeNode(dj, "%s", kit::uuid::random_name_from_id(dj->id).c_str()))
         {
@@ -266,7 +266,7 @@ void joints_tab::render_imgui_tab()
 void joints_tab::begin_joint_attach()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_body1 = m_app->world[mpos];
+    m_body1 = m_app->world.bodies[mpos];
     if (!m_body1)
         return;
 
@@ -288,7 +288,7 @@ void joints_tab::begin_joint_attach()
 template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    const body2D::ptr body2 = m_app->world[mpos];
+    const body2D::ptr body2 = m_app->world.bodies[mpos];
     if (!body2 || m_body1 == body2)
         return false;
 
@@ -311,11 +311,11 @@ void joints_tab::end_joint_attach()
     {
     case joint_type::SPRING:
         if (attach_bodies_to_joint_specs(m_spring_specs))
-            m_app->world.add_spring(m_spring_specs);
+            m_app->world.springs.add(m_spring_specs);
         break;
     case joint_type::DISTANCE:
         if (attach_bodies_to_joint_specs(m_dist_joint_specs))
-            m_app->world.add_constraint<distance_joint2D>(m_dist_joint_specs);
+            m_app->world.constraints.add<distance_joint2D>(m_dist_joint_specs);
         break;
     }
     m_body1 = nullptr;

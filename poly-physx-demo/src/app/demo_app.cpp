@@ -119,7 +119,7 @@ void demo_app::remove_selected_bodies()
     const auto selected = selector.selected_bodies();
     for (const body2D::ptr &body : selected)
         if (body)
-            world.remove_body(*body);
+            world.bodies.remove(*body);
 }
 
 void demo_app::add_walls()
@@ -149,10 +149,10 @@ void demo_app::add_walls()
     body3.kinematic = false;
     body4.kinematic = false;
 
-    world.add_body(body1);
-    world.add_body(body2);
-    world.add_body(body3);
-    world.add_body(body4);
+    world.bodies.add(body1);
+    world.bodies.add(body2);
+    world.bodies.add(body3);
+    world.bodies.add(body4);
 }
 
 YAML::Node demo_app::encode() const

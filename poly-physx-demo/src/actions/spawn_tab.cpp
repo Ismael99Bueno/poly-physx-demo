@@ -185,7 +185,7 @@ void spawn_tab::end_body_spawn()
         return;
     m_previewing = false;
 
-    m_app->world.add_body(m_current_body_template.specs);
+    m_app->world.bodies.add(m_current_body_template.specs);
 }
 
 void spawn_tab::cancel_body_spawn()

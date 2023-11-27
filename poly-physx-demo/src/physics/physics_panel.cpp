@@ -11,12 +11,12 @@ physics_panel::physics_panel() : demo_layer("Physics panel")
 void physics_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_gravity = m_app->world.add_behaviour<gravity>("Gravity");
-    m_drag = m_app->world.add_behaviour<drag>("Drag");
-    m_gravitational = m_app->world.add_behaviour<gravitational>("Gravitational");
-    m_repulsive = m_app->world.add_behaviour<electrical>("Repulsive");
-    m_attractive = m_app->world.add_behaviour<electrical>("Attractive");
-    m_exponential = m_app->world.add_behaviour<exponential>("Exponential");
+    m_gravity = m_app->world.behaviours.add<gravity>("Gravity");
+    m_drag = m_app->world.behaviours.add<drag>("Drag");
+    m_gravitational = m_app->world.behaviours.add<gravitational>("Gravitational");
+    m_repulsive = m_app->world.behaviours.add<electrical>("Repulsive");
+    m_attractive = m_app->world.behaviours.add<electrical>("Attractive");
+    m_exponential = m_app->world.behaviours.add<exponential>("Exponential");
 
     m_behaviours = {m_gravity, m_drag, m_gravitational, m_repulsive, m_attractive, m_exponential};
     for (std::size_t i = 1; i < m_behaviours.size(); i++)
@@ -27,7 +27,7 @@ void physics_panel::on_attach()
 
     const kit::callback<const body2D::ptr &> include_behaviour{[this](const body2D::ptr &body) {
         for (behaviour2D *bhv : m_behaviours)
-            bhv->include(body);
+            bhv->add(body);
     }};
     m_app->world.events.on_body_addition += include_behaviour;
 }

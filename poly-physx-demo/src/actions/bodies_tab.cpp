@@ -12,11 +12,11 @@ bodies_tab::bodies_tab(demo_app *app) : m_app(app)
 void bodies_tab::update()
 {
     if (m_signal_clear_bodies)
-        m_app->world.clear_bodies();
+        m_app->world.bodies.clear();
     else
         for (const body2D::const_ptr &body : m_to_remove)
             if (body)
-                m_app->world.remove_body(*body);
+                m_app->world.bodies.remove(*body);
     m_to_remove.clear();
     m_signal_clear_bodies = false;
 }
@@ -41,7 +41,7 @@ void bodies_tab::render_general_options()
 
 void bodies_tab::render_bodies_list()
 {
-    for (body2D &body : m_app->world.bodies())
+    for (body2D &body : m_app->world.bodies)
         if (ImGui::TreeNode(&body, "%s", kit::uuid::random_name_from_id(body.id).c_str()))
         {
             render_single_body_properties(body);
@@ -52,7 +52,7 @@ void bodies_tab::render_bodies_list()
 void bodies_tab::render_single_body_properties(body2D &body)
 {
     if (ImGui::Button("Remove"))
-        m_to_remove.push_back(m_app->world[body.index]);
+        m_to_remove.push_back(body.as_ptr());
 
     ImGui::Text("Name: %s", kit::uuid::random_name_from_id(body.id).c_str());
     ImGui::Text("UUID: %llu", (std::uint64_t)body.id);

@@ -55,9 +55,9 @@ void selection_manager::update()
 
         return;
     }
-    for (std::size_t i = 0; i < m_app.world.size(); i++)
+    for (std::size_t i = 0; i < m_app.world.bodies.size(); i++)
     {
-        const body2D::ptr body = m_app.world[i];
+        const body2D::ptr body = m_app.world.bodies.ptr(i);
         const auto &shape = m_app.shapes()[i];
         if (is_selecting(body))
             shape->outline_thickness = oscillating_thickness(m_app.world.elapsed());
@@ -102,7 +102,7 @@ void selection_manager::end_selection()
 {
     if (!m_selecting)
         return;
-    const std::vector<body2D::ptr> bodies = m_app.world[m_selection_boundaries];
+    const std::vector<body2D::ptr> bodies = m_app.world.bodies[m_selection_boundaries];
     m_selected_bodies.insert(bodies.begin(), bodies.end());
     m_selecting = false;
     update_selected_joints();
@@ -121,7 +121,7 @@ void selection_manager::deselect(const body2D::ptr &body)
 }
 bool selection_manager::is_selecting(const body2D::ptr &body)
 {
-    return (m_selecting && geo::intersect(m_selection_boundaries, body->shape().bounding_box())) ||
+    return (m_selecting && geo::intersects(m_selection_boundaries, body->shape().bounding_box())) ||
            m_selected_bodies.find(body) != m_selected_bodies.end();
 }
 
@@ -130,11 +130,12 @@ void selection_manager::update_selected_joints()
     m_selected_springs.clear();
     m_selected_constraints.clear();
 
-    for (const spring2D &sp : m_app.world.springs())
+    for (spring2D &sp : m_app.world.springs)
         if (m_selected_bodies.find(sp.joint.body1()) != m_selected_bodies.end() &&
             m_selected_bodies.find(sp.joint.body2()) != m_selected_bodies.end())
-            m_selected_springs.push_back(m_app.world.spring(sp.index));
-    for (const auto &ctr : m_app.world.constraints())
+            m_selected_springs.push_back(sp.as_ptr());
+
+    for (const auto &ctr : m_app.world.constraints)
     {
         distance_joint2D *dj = dynamic_cast<distance_joint2D *>(ctr.get());
         if (dj && m_selected_bodies.find(dj->joint.body1()) != m_selected_bodies.end() &&
@@ -172,7 +173,7 @@ void selection_manager::decode(const YAML::Node &node)
         for (const YAML::Node &n : node["Bodies"])
         {
             const std::size_t index = n.as<std::size_t>();
-            m_selected_bodies.insert(m_app.world[index]);
+            m_selected_bodies.insert(m_app.world.bodies.ptr(index));
         }
         update_selected_joints();
     }

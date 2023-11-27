@@ -220,7 +220,7 @@ void group_manager::paste_group()
     {
         body2D::specs specs = btemplate.specs;
         specs.position += offset_pos;
-        old_id_to_new_body[btemplate.id] = m_app.world.add_body(specs);
+        old_id_to_new_body[btemplate.id] = m_app.world.bodies.add(specs);
     }
 
     for (spring_template &sptemplate : m_current_group.spring_templates)
@@ -230,7 +230,7 @@ void group_manager::paste_group()
 
         sptemplate.specs.joint.body1 = old_id_to_new_body[id1];
         sptemplate.specs.joint.body2 = old_id_to_new_body[id2];
-        m_app.world.add_spring(sptemplate.specs);
+        m_app.world.springs.add(sptemplate.specs);
     }
 
     for (dist_joint_template &rjtemplate : m_current_group.dist_joint_templates)
@@ -240,7 +240,7 @@ void group_manager::paste_group()
 
         rjtemplate.specs.joint.body1 = old_id_to_new_body[id1];
         rjtemplate.specs.joint.body2 = old_id_to_new_body[id2];
-        m_app.world.add_constraint<distance_joint2D>(rjtemplate.specs);
+        m_app.world.constraints.add<distance_joint2D>(rjtemplate.specs);
     }
 }
 
@@ -265,7 +265,7 @@ group_manager::group group_manager::create_group_from_selected()
         {
             const kit::uuid id1 = body_templates[i].id;
             const kit::uuid id2 = body_templates[j].id;
-            for (const spring2D::ptr &sp : m_app.world.springs_from_ids(id1, id2))
+            for (const spring2D::ptr &sp : m_app.world.springs.from_ids(id1, id2))
             {
                 const lynx::color color{m_app.spring_lines()[sp->index].color(), alpha};
                 const bool reversed = id1 != sp->joint.body1()->id;
@@ -273,7 +273,7 @@ group_manager::group group_manager::create_group_from_selected()
                                                             spring2D::specs::from_spring(*sp));
             }
 
-            for (const constraint2D *ctr : m_app.world.constraints_from_ids({id1, id2}))
+            for (const constraint2D *ctr : m_app.world.constraints.from_ids({id1, id2}))
             {
                 const distance_joint2D *dj = dynamic_cast<const distance_joint2D *>(ctr);
                 const lynx::color color{m_app.dist_joint_lines().at(dj).color(), alpha};

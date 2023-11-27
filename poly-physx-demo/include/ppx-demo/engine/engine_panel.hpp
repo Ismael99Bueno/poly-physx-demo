@@ -2,10 +2,10 @@
 #define PPX_ENGINE_PANEL_HPP
 
 #include "ppx-demo/app/demo_layer.hpp"
-#include "ppx/collision/brute_force_detection2D.hpp"
-#include "ppx/collision/quad_tree_detection2D.hpp"
-#include "ppx/collision/sort_sweep_detection2D.hpp"
-#include "ppx/collision/spring_solver2D.hpp"
+#include "ppx/collision/detection/brute_force_detection2D.hpp"
+#include "ppx/collision/detection/quad_tree_detection2D.hpp"
+#include "ppx/collision/detection/sort_sweep_detection2D.hpp"
+#include "ppx/collision/solvers/spring_solver2D.hpp"
 
 #include "lynx/app/window.hpp"
 #include "lynx/drawing/line.hpp"
@@ -66,7 +66,7 @@ class engine_panel : public demo_layer
     void render_integrator_parameters();
     void render_collision_parameters();
     void render_quad_tree_parameters();
-    void render_spring_solver_parameters();
+    void render_collision_solver_parameters();
 
     void render_timestep_settings() const;
     void render_integration_method();
