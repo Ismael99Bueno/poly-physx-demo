@@ -62,6 +62,7 @@ void engine_panel::render_integrator_parameters()
 void engine_panel::render_collision_parameters()
 {
     ImGui::Checkbox("Enabled", &m_app->world.collision.enabled);
+    ImGui::Text("Last collision count: %zu", m_app->world.collision.detection()->last_collision_count());
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
@@ -84,8 +85,8 @@ void engine_panel::render_collision_detection_list()
 
 void engine_panel::render_collision_solver_list()
 {
-    static const char *solvers[1] = {"Spring solver"};
-    if (ImGui::ListBox("Collision solver", (int *)&m_collision_solver, solvers, 1))
+    static const char *solvers[2] = {"Spring solver", "Constraint solver"};
+    if (ImGui::ListBox("Collision solver", (int *)&m_collision_solver, solvers, 2))
         update_collision_solver();
 }
 
@@ -265,6 +266,9 @@ void engine_panel::update_collision_solver()
     {
     case collision_solver::SPRING_SOLVER:
         m_sp_solver = m_app->world.collision.set_solver<spring_solver2D>();
+        break;
+    case collision_solver::CONSTRAINT_SOLVER:
+        m_ctr_solver = m_app->world.collision.set_solver<constraint_solver2D>();
         break;
     }
 }

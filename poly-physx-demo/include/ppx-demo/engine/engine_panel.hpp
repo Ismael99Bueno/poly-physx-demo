@@ -6,6 +6,7 @@
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
 #include "ppx/collision/solvers/spring_solver2D.hpp"
+#include "ppx/collision/solvers/constraint_solver2D.hpp"
 
 #include "lynx/app/window.hpp"
 #include "lynx/drawing/line.hpp"
@@ -37,7 +38,8 @@ class engine_panel : public demo_layer
     };
     enum class collision_solver
     {
-        SPRING_SOLVER
+        SPRING_SOLVER,
+        CONSTRAINT_SOLVER
     };
 
     lynx::window2D *m_window;
@@ -47,6 +49,7 @@ class engine_panel : public demo_layer
     sort_sweep_detection2D *m_ssdet = nullptr;
 
     spring_solver2D *m_sp_solver = nullptr;
+    constraint_solver2D *m_ctr_solver = nullptr;
 
     integration_method m_integration_method = integration_method::RK4;
     detection_method m_detection_method = detection_method::QUAD_TREE;
