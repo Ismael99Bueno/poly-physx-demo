@@ -56,11 +56,11 @@ void joints_tab::render_single_spring_properties(spring2D &sp)
     if (ImGui::Button("Remove"))
         m_to_remove_springs.push_back(sp.as_ptr());
 
-    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(sp.id).c_str());
+    ImGui::Text("Name: %s", kit::uuid::name_from_id(sp.id).c_str());
     ImGui::Text("UUID: %llu", (std::uint64_t)sp.id);
 
-    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(sp.joint.body1()->id).c_str(),
-                kit::uuid::random_name_from_id(sp.joint.body2()->id).c_str());
+    ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_id(sp.joint.body1()->id).c_str(),
+                kit::uuid::name_from_id(sp.joint.body2()->id).c_str());
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
@@ -124,7 +124,7 @@ void joints_tab::render_selected_spring_properties()
 void joints_tab::render_springs_list()
 {
     for (spring2D &sp : m_app->world.springs)
-        if (ImGui::TreeNode(&sp, "%s", kit::uuid::random_name_from_id(sp.id).c_str()))
+        if (ImGui::TreeNode(&sp, "%s", kit::uuid::name_from_id(sp.id).c_str()))
         {
             render_single_spring_properties(sp);
             ImGui::TreePop();
@@ -136,11 +136,11 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
     if (ImGui::Button("Remove"))
         m_to_remove_ctrs.push_back(&dj);
 
-    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(dj.id).c_str());
+    ImGui::Text("Name: %s", kit::uuid::name_from_id(dj.id).c_str());
     ImGui::Text("UUID: %llu", (std::uint64_t)dj.id);
 
-    ImGui::Text("Attached to: %s - %s", kit::uuid::random_name_from_id(dj.joint.body1()->id).c_str(),
-                kit::uuid::random_name_from_id(dj.joint.body2()->id).c_str());
+    ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_id(dj.joint.body1()->id).c_str(),
+                kit::uuid::name_from_id(dj.joint.body2()->id).c_str());
 
     ImGui::Spacing();
     ImGui::Text("CValue: %.2f", dj.constraint_value());
@@ -204,7 +204,7 @@ void joints_tab::render_dist_joints_list()
 {
     const auto &djoints = select_only_from_type<true, distance_joint2D>(m_app->world.constraints);
     for (distance_joint2D *dj : djoints)
-        if (ImGui::TreeNode(dj, "%s", kit::uuid::random_name_from_id(dj->id).c_str()))
+        if (ImGui::TreeNode(dj, "%s", kit::uuid::name_from_id(dj->id).c_str()))
         {
             render_single_dist_joint_properties(*dj);
             ImGui::TreePop();

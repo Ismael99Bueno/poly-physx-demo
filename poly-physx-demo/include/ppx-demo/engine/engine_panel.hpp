@@ -2,6 +2,7 @@
 #define PPX_ENGINE_PANEL_HPP
 
 #include "ppx-demo/app/demo_layer.hpp"
+#include "ppx-app/lines/thick_line.hpp"
 #include "ppx/collision/detection/brute_force_detection2D.hpp"
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
@@ -62,6 +63,9 @@ class engine_panel : public demo_layer
     std::vector<lynx::line_strip2D> m_qt_lines;
     std::size_t m_qt_active_partitions = 0;
 
+    bool m_draw_collisions = false;
+    std::vector<thick_line> m_collision_lines;
+
     void on_attach() override;
     void on_render(float ts) override;
     void on_update(float ts) override;
@@ -78,12 +82,15 @@ class engine_panel : public demo_layer
     void update_detection_method();
     void update_collision_solver();
     void update_bounding_boxes();
+    void update_collisions();
     void update_quad_tree_lines(const quad_tree2D &qt);
 
     void render_collision_detection_list();
+    void render_collision_list();
     void render_collision_solver_list();
-    void render_bounding_boxes();
-    void render_quad_tree_lines();
+    void render_bounding_boxes() const;
+    void render_collisions();
+    void render_quad_tree_lines() const;
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;

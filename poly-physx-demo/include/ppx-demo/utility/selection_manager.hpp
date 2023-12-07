@@ -24,7 +24,8 @@ class selection_manager
 
     void select(const body2D::ptr &body);
     void deselect(const body2D::ptr &body);
-    bool is_selecting(const body2D::ptr &body);
+    bool is_selecting(const body2D::ptr &body) const;
+    bool is_selected(const body2D::ptr &body) const;
 
     void update_selected_joints();
 

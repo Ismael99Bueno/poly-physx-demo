@@ -11,8 +11,8 @@ engine_panel::engine_panel() : demo_layer("Engine panel")
 void engine_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_qtdet = m_app->world.collision.detection<quad_tree_detection2D>();
-    m_sp_solver = m_app->world.collision.solver<spring_solver2D>();
+    m_qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
+    m_sp_solver = m_app->world.collisions.solver<spring_solver2D>();
     m_window = m_app->window();
 }
 
@@ -20,6 +20,8 @@ void engine_panel::on_update(const float ts)
 {
     if (m_draw_bounding_boxes)
         update_bounding_boxes();
+    if (m_draw_collisions)
+        update_collisions();
     if (m_visualize_qtree && m_detection_method == detection_method::QUAD_TREE)
     {
         m_qt_active_partitions = 0;
@@ -61,11 +63,18 @@ void engine_panel::render_integrator_parameters()
 
 void engine_panel::render_collision_parameters()
 {
-    ImGui::Checkbox("Enabled", &m_app->world.collision.enabled);
-    ImGui::Text("Last collision count: %zu", m_app->world.collision.detection()->last_collision_count());
+    ImGui::Checkbox("Enabled", &m_app->world.collisions.enabled);
+
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
+    if (m_draw_collisions)
+        render_collisions();
+
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
+    ImGui::Checkbox("Draw collisions", &m_draw_collisions);
+
+    ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
+    render_collision_list();
 
     render_collision_detection_list();
     if (m_detection_method == detection_method::QUAD_TREE)
@@ -74,6 +83,24 @@ void engine_panel::render_collision_parameters()
     render_collision_solver_list();
     if (m_collision_solver == collision_solver::SPRING_SOLVER) // ALL OF THIS ONLY MAKES SENSE IF ADDING NEW SOLVERS
         render_collision_solver_parameters();
+}
+
+void engine_panel::render_collision_list()
+{
+    if (ImGui::CollapsingHeader("Collisions"))
+        for (const collision2D &col : m_app->world.collisions)
+            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.current->id).c_str(),
+                                kit::uuid::name_from_id(col.incoming->id).c_str()))
+            {
+                const glm::vec2 anchor1 = col.touch1 - col.current->position();
+                const glm::vec2 anchor2 = col.touch2 - col.incoming->position();
+                ImGui::Text("Normal - x: %.2f, y: %.2f", col.normal.x, col.normal.y);
+                ImGui::Text("Touch 1 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", col.touch1.x, col.touch1.y, anchor1.x,
+                            anchor1.y);
+                ImGui::Text("Touch 2 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", col.touch2.x, col.touch2.y, anchor2.x,
+                            anchor2.y);
+                ImGui::TreePop();
+            }
 }
 
 void engine_panel::render_collision_detection_list()
@@ -168,13 +195,31 @@ void engine_panel::update_bounding_boxes()
             m_bbox_lines.emplace_back(points);
     }
 }
-void engine_panel::render_bounding_boxes()
+void engine_panel::update_collisions()
+{
+    for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
+    {
+        const collision2D &col = m_app->world.collisions[i];
+        thick_line &line = i < m_collision_lines.size() ? m_collision_lines[i]
+                                                        : m_collision_lines.emplace_back(lynx::color::green, 0.2f);
+        line.p1(col.touch1);
+        line.p2(col.touch2);
+    }
+}
+
+void engine_panel::render_bounding_boxes() const
 {
     for (std::size_t i = 0; i < m_app->world.bodies.size(); i++)
         m_window->draw(m_bbox_lines[i]);
 }
 
-void engine_panel::render_quad_tree_lines()
+void engine_panel::render_collisions()
+{
+    for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
+        m_window->draw(m_collision_lines[i]);
+}
+
+void engine_panel::render_quad_tree_lines() const
 {
     for (std::size_t i = 0; i < m_qt_active_partitions; i++)
         m_window->draw(m_qt_lines[i]);
@@ -250,13 +295,13 @@ void engine_panel::update_detection_method()
     switch (m_detection_method)
     {
     case detection_method::BRUTE_FORCE:
-        m_bfdet = m_app->world.collision.set_detection<brute_force_detection2D>();
+        m_bfdet = m_app->world.collisions.set_detection<brute_force_detection2D>();
         break;
     case detection_method::QUAD_TREE:
-        m_qtdet = m_app->world.collision.set_detection<quad_tree_detection2D>();
+        m_qtdet = m_app->world.collisions.set_detection<quad_tree_detection2D>();
         break;
     case detection_method::SORT_AND_SWEEP:
-        m_ssdet = m_app->world.collision.set_detection<sort_sweep_detection2D>();
+        m_ssdet = m_app->world.collisions.set_detection<sort_sweep_detection2D>();
         break;
     }
 }
@@ -265,10 +310,10 @@ void engine_panel::update_collision_solver()
     switch (m_collision_solver)
     {
     case collision_solver::SPRING_SOLVER:
-        m_sp_solver = m_app->world.collision.set_solver<spring_solver2D>();
+        m_sp_solver = m_app->world.collisions.set_solver<spring_solver2D>();
         break;
     case collision_solver::CONSTRAINT_SOLVER:
-        m_ctr_solver = m_app->world.collision.set_solver<constraint_solver2D>();
+        m_ctr_solver = m_app->world.collisions.set_solver<constraint_solver2D>();
         break;
     }
 }
@@ -277,8 +322,10 @@ YAML::Node engine_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
     node["Draw bounding boxes"] = m_draw_bounding_boxes;
+    node["Draw collisions"] = m_draw_collisions;
     node["Visualize quad tree"] = m_visualize_qtree;
     node["Detection method"] = (int)m_detection_method;
+    node["Solver method"] = (int)m_collision_solver;
 
     YAML::Node nqt = node["Quad tree"];
     nqt["Max bodies"] = quad_tree2D::max_bodies;
@@ -297,8 +344,10 @@ bool engine_panel::decode(const YAML::Node &node)
     if (!demo_layer::decode(node))
         return false;
     m_draw_bounding_boxes = node["Draw bounding boxes"].as<bool>();
+    m_draw_collisions = node["Draw collisions"].as<bool>();
     m_visualize_qtree = node["Visualize quad tree"].as<bool>();
     m_detection_method = (detection_method)node["Detection method"].as<int>();
+    m_collision_solver = (collision_solver)node["Solver method"].as<int>();
 
     const YAML::Node nqt = node["Quad tree"];
     quad_tree2D::max_bodies = nqt["Max bodies"].as<std::size_t>();
@@ -311,6 +360,7 @@ bool engine_panel::decode(const YAML::Node &node)
     collision_solver2D::friction_coeff = nspslv["Friction"].as<float>();
 
     update_detection_method();
+    update_collision_solver();
 
     return true;
 }

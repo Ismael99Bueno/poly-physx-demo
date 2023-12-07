@@ -119,10 +119,14 @@ void selection_manager::deselect(const body2D::ptr &body)
     m_app.shapes()[body->index]->outline_thickness = 0.f;
     update_selected_joints();
 }
-bool selection_manager::is_selecting(const body2D::ptr &body)
+bool selection_manager::is_selecting(const body2D::ptr &body) const
 {
     return (m_selecting && geo::intersects(m_selection_boundaries, body->shape().bounding_box())) ||
            m_selected_bodies.find(body) != m_selected_bodies.end();
+}
+bool selection_manager::is_selected(const body2D::ptr &body) const
+{
+    return m_selected_bodies.find(body) != m_selected_bodies.end();
 }
 
 void selection_manager::update_selected_joints()

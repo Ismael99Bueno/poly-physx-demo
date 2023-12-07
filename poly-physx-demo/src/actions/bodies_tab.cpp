@@ -42,7 +42,7 @@ void bodies_tab::render_general_options()
 void bodies_tab::render_bodies_list()
 {
     for (body2D &body : m_app->world.bodies)
-        if (ImGui::TreeNode(&body, "%s", kit::uuid::random_name_from_id(body.id).c_str()))
+        if (ImGui::TreeNode(&body, "%s", kit::uuid::name_from_id(body.id).c_str()))
         {
             render_single_body_properties(body);
             ImGui::TreePop();
@@ -51,10 +51,17 @@ void bodies_tab::render_bodies_list()
 
 void bodies_tab::render_single_body_properties(body2D &body)
 {
-    if (ImGui::Button("Remove"))
-        m_to_remove.push_back(body.as_ptr());
+    const auto body_ptr = body.as_ptr();
 
-    ImGui::Text("Name: %s", kit::uuid::random_name_from_id(body.id).c_str());
+    if (m_app->selector.is_selected(body_ptr) && ImGui::Button("Deselect"))
+        m_app->selector.deselect(body_ptr);
+    if (!m_app->selector.is_selected(body_ptr) && ImGui::Button("Select"))
+        m_app->selector.select(body_ptr);
+
+    if (ImGui::Button("Remove"))
+        m_to_remove.push_back(body_ptr);
+
+    ImGui::Text("Name: %s", kit::uuid::name_from_id(body.id).c_str());
     ImGui::Text("UUID: %llu", (std::uint64_t)body.id);
 
     static constexpr float drag_speed = 0.3f;
