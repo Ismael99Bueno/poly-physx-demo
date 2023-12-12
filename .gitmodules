@@ -34,3 +34,6 @@
 [submodule "cpp-kit"]
 	path = cpp-kit
 	url = https://github.com/ismawno/cpp-kit.git
+[submodule "geometry"]
+	path = geometry
+	url = https://github.com/ismawno/geometry.git
