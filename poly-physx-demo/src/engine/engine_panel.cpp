@@ -12,7 +12,7 @@ void engine_panel::on_attach()
 {
     demo_layer::on_attach();
     m_qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
-    m_sp_solver = m_app->world.collisions.solver<spring_solver2D>();
+    m_sp_solver = m_app->world.collisions.solver<spring_driven_solver2D>();
     m_window = m_app->window();
 }
 
@@ -149,16 +149,16 @@ void engine_panel::render_collision_solver_parameters()
     {
         if (m_collision_solver == collision_solver::SPRING_SOLVER)
         {
-            ImGui::SliderFloat("Rigidity", &spring_solver2D::rigidity_coeff, 0.001f, 0.999f);
+            ImGui::SliderFloat("Rigidity", &spring_driven_solver2D::rigidity_coeff, 0.001f, 0.999f);
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_solver2D::rigidity());
+            ImGui::Text("(%.1f)", spring_driven_solver2D::rigidity());
         }
 
         ImGui::SliderFloat("Restitution", &collision_solver2D::restitution_coeff, 0.001f, 0.999f);
         if (m_collision_solver == collision_solver::SPRING_SOLVER)
         {
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_solver2D::restitution());
+            ImGui::Text("(%.1f)", spring_driven_solver2D::restitution());
         }
 
         ImGui::SliderFloat("Friction", &collision_solver2D::friction_coeff, 0.001f, 0.999f);
@@ -166,7 +166,7 @@ void engine_panel::render_collision_solver_parameters()
         if (m_collision_solver == collision_solver::SPRING_SOLVER)
         {
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_solver2D::friction());
+            ImGui::Text("(%.1f)", spring_driven_solver2D::friction());
         }
     }
 }
@@ -330,10 +330,10 @@ void engine_panel::update_collision_solver()
     switch (m_collision_solver)
     {
     case collision_solver::SPRING_SOLVER:
-        m_sp_solver = m_app->world.collisions.set_solver<spring_solver2D>();
+        m_sp_solver = m_app->world.collisions.set_solver<spring_driven_solver2D>();
         break;
     case collision_solver::CONSTRAINT_SOLVER:
-        m_ctr_solver = m_app->world.collisions.set_solver<constraint_solver2D>();
+        m_ctr_solver = m_app->world.collisions.set_solver<constraint_driven_solver2D>();
         break;
     }
 }
@@ -353,7 +353,7 @@ YAML::Node engine_panel::encode() const
     nqt["Min size"] = quad_tree2D::min_size;
 
     YAML::Node nspslv = node["Spring solver"];
-    nspslv["Rigidity"] = spring_solver2D::rigidity_coeff;
+    nspslv["Rigidity"] = spring_driven_solver2D::rigidity_coeff;
     nspslv["Restitution"] = collision_solver2D::restitution_coeff;
     nspslv["Friction"] = collision_solver2D::friction_coeff;
 
@@ -375,7 +375,7 @@ bool engine_panel::decode(const YAML::Node &node)
     quad_tree2D::min_size = nqt["Min size"].as<float>();
 
     const YAML::Node nspslv = node["Spring solver"];
-    spring_solver2D::rigidity_coeff = nspslv["Rigidity"].as<float>();
+    spring_driven_solver2D::rigidity_coeff = nspslv["Rigidity"].as<float>();
     collision_solver2D::restitution_coeff = nspslv["Restitution"].as<float>();
     collision_solver2D::friction_coeff = nspslv["Friction"].as<float>();
 
