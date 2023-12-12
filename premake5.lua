@@ -69,7 +69,7 @@ filter "configurations:*profile"
 filter {}
 
 include "rk-integrator"
-include "shapes-2D"
+include "geometry"
 include "poly-physx"
 include "lynx"
 include "poly-physx-app"

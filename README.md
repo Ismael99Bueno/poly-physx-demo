@@ -29,7 +29,7 @@ The following git submodules are included:
 - [profile-tools](https://github.com/ismawno/profile-tools)
 - [ini-parser](https://github.com/ismawno/ini-parser)
 - [container-view](https://github.com/ismawno/container-view)
-- [shapes-2D](https://github.com/ismawno/shapes-2D)
+- [geometry](https://github.com/ismawno/geometry)
 
 ## Setup
 
