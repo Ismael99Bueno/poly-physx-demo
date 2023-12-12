@@ -72,6 +72,7 @@ void engine_panel::render_collision_parameters()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
+    ImGui::Checkbox("Multi-contact manifold", &collision_detection2D::multi_contact_manifold);
 
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collision_list();
@@ -92,13 +93,24 @@ void engine_panel::render_collision_list()
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.current->id).c_str(),
                                 kit::uuid::name_from_id(col.incoming->id).c_str()))
             {
-                const glm::vec2 anchor1 = col.touch1 - col.current->position();
-                const glm::vec2 anchor2 = col.touch2 - col.incoming->position();
+                ImGui::Text("Contact points: %u", col.size);
                 ImGui::Text("Normal - x: %.2f, y: %.2f", col.normal.x, col.normal.y);
-                ImGui::Text("Touch 1 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", col.touch1.x, col.touch1.y, anchor1.x,
-                            anchor1.y);
-                ImGui::Text("Touch 2 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", col.touch2.x, col.touch2.y, anchor2.x,
-                            anchor2.y);
+                ImGui::Spacing();
+
+                for (std::size_t i = 0; i < col.size; i++)
+                    if (ImGui::TreeNode(&col.manifold[i], "Contact point %zu", i + 1))
+                    {
+                        const glm::vec2 &touch1 = col.touch1(i);
+                        const glm::vec2 touch2 = col.touch2(i);
+
+                        const glm::vec2 anchor1 = touch1 - col.current->position();
+                        const glm::vec2 anchor2 = touch2 - col.incoming->position();
+                        ImGui::Text("Touch 1 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch1.x, touch1.y, anchor1.x,
+                                    anchor1.y);
+                        ImGui::Text("Touch 2 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch2.x, touch2.y, anchor2.x,
+                                    anchor2.y);
+                        ImGui::TreePop();
+                    }
                 ImGui::TreePop();
             }
 }
@@ -200,10 +212,17 @@ void engine_panel::update_collisions()
     for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
     {
         const collision2D &col = m_app->world.collisions[i];
-        thick_line &line = i < m_collision_lines.size() ? m_collision_lines[i]
-                                                        : m_collision_lines.emplace_back(lynx::color::green, 0.2f);
-        line.p1(col.touch1);
-        line.p2(col.touch2);
+        if (i >= m_collision_lines.size())
+        {
+            auto &lines = m_collision_lines.emplace_back();
+            for (std::size_t j = 0; j < collision2D::MANIFOLD_SIZE; j++)
+                lines[j] = {lynx::color::green, 0.2f};
+        }
+        for (std::size_t j = 0; j < col.size; j++)
+        {
+            m_collision_lines[i][j].p1(col.touch1(j));
+            m_collision_lines[i][j].p2(col.touch2(j));
+        }
     }
 }
 
@@ -216,7 +235,8 @@ void engine_panel::render_bounding_boxes() const
 void engine_panel::render_collisions()
 {
     for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
-        m_window->draw(m_collision_lines[i]);
+        for (std::size_t j = 0; j < m_app->world.collisions[i].size; j++)
+            m_window->draw(m_collision_lines[i][j]);
 }
 
 void engine_panel::render_quad_tree_lines() const
