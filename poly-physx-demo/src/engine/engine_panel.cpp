@@ -80,8 +80,8 @@ void engine_panel::render_collision_parameters()
     if (m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
         render_quad_tree_parameters();
 
-    render_collision_solver_list();
-    render_collision_solver_parameters();
+    render_collision_resolution_list();
+    render_collision_resolution_parameters();
 }
 
 void engine_panel::render_collision_list()
@@ -117,16 +117,16 @@ void engine_panel::render_collision_detection_list()
 {
     static const char *coldet_methods[3] = {"Brute force", "Quad tree", "Sort and sweep"};
     auto det_method = m_app->world.collisions.detection_method();
-    if (ImGui::ListBox("Collision detection method", (int *)&det_method, coldet_methods, 3))
+    if (ImGui::ListBox("Collision detection", (int *)&det_method, coldet_methods, 3))
         m_app->world.collisions.detection(det_method);
 }
 
-void engine_panel::render_collision_solver_list()
+void engine_panel::render_collision_resolution_list()
 {
-    static const char *solvers[2] = {"Spring solver", "Constraint solver"};
-    auto solv_method = m_app->world.collisions.solver_method();
-    if (ImGui::ListBox("Collision solver", (int *)&solv_method, solvers, 2))
-        m_app->world.collisions.solver(solv_method);
+    static const char *res_methods[2] = {"Spring driven", "Constraint driven"};
+    auto res_method = m_app->world.collisions.resolution_method();
+    if (ImGui::ListBox("Collision resolution", (int *)&res_method, res_methods, 2))
+        m_app->world.collisions.resolution(res_method);
 }
 
 void engine_panel::render_quad_tree_parameters()
@@ -143,32 +143,32 @@ void engine_panel::render_quad_tree_parameters()
     }
 }
 
-void engine_panel::render_collision_solver_parameters()
+void engine_panel::render_collision_resolution_parameters()
 {
-    if (ImGui::CollapsingHeader("Collision solver parameters"))
+    if (ImGui::CollapsingHeader("Collision resolution parameters"))
     {
-        const bool is_spring_solver =
-            m_app->world.collisions.solver_method() == collision_manager2D::solver_type::SPRING_DRIVEN;
-        if (is_spring_solver)
+        const bool is_spring_resolution =
+            m_app->world.collisions.resolution_method() == collision_manager2D::resolution_type::SPRING_DRIVEN;
+        if (is_spring_resolution)
         {
-            ImGui::SliderFloat("Rigidity", &spring_driven_solver2D::rigidity_coeff, 0.001f, 0.999f);
+            ImGui::SliderFloat("Rigidity", &spring_driven_resolution2D::rigidity_coeff, 0.001f, 0.999f);
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_solver2D::rigidity());
+            ImGui::Text("(%.1f)", spring_driven_resolution2D::rigidity());
         }
 
-        ImGui::SliderFloat("Restitution", &collision_solver2D::restitution_coeff, 0.001f, 0.999f);
-        if (is_spring_solver)
+        ImGui::SliderFloat("Restitution", &collision_resolution2D::restitution_coeff, 0.001f, 0.999f);
+        if (is_spring_resolution)
         {
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_solver2D::restitution());
+            ImGui::Text("(%.1f)", spring_driven_resolution2D::restitution());
         }
 
-        ImGui::SliderFloat("Friction", &collision_solver2D::friction_coeff, 0.001f, 0.999f);
+        ImGui::SliderFloat("Friction", &collision_resolution2D::friction_coeff, 0.001f, 0.999f);
         ImGui::SameLine();
-        if (is_spring_solver)
+        if (is_spring_resolution)
         {
             ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_solver2D::friction());
+            ImGui::Text("(%.1f)", spring_driven_resolution2D::friction());
         }
     }
 }

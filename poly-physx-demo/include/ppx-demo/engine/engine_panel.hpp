@@ -6,8 +6,8 @@
 #include "ppx/collision/detection/brute_force_detection2D.hpp"
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
-#include "ppx/collision/solvers/spring_driven_solver2D.hpp"
-#include "ppx/collision/solvers/constraint_driven_solver2D.hpp"
+#include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
+#include "ppx/collision/resolution/constraint_driven_resolution2D.hpp"
 
 #include "lynx/app/window.hpp"
 #include "lynx/drawing/line.hpp"
@@ -52,7 +52,7 @@ class engine_panel : public demo_layer
     void render_integrator_parameters();
     void render_collision_parameters();
     void render_quad_tree_parameters();
-    void render_collision_solver_parameters();
+    void render_collision_resolution_parameters();
 
     void render_timestep_settings() const;
     void render_integration_method();
@@ -64,7 +64,7 @@ class engine_panel : public demo_layer
 
     void render_collision_detection_list();
     void render_collision_list();
-    void render_collision_solver_list();
+    void render_collision_resolution_list();
     void render_bounding_boxes() const;
     void render_collisions();
     void render_quad_tree_lines() const;
