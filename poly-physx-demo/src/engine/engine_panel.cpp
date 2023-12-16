@@ -11,8 +11,6 @@ engine_panel::engine_panel() : demo_layer("Engine panel")
 void engine_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
-    m_sp_solver = m_app->world.collisions.solver<spring_driven_solver2D>();
     m_window = m_app->window();
 }
 
@@ -22,10 +20,11 @@ void engine_panel::on_update(const float ts)
         update_bounding_boxes();
     if (m_draw_collisions)
         update_collisions();
-    if (m_visualize_qtree && m_detection_method == detection_method::QUAD_TREE)
+    if (m_visualize_qtree &&
+        m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
     {
         m_qt_active_partitions = 0;
-        update_quad_tree_lines(m_qtdet->quad_tree());
+        update_quad_tree_lines(m_app->world.collisions.detection<quad_tree_detection2D>()->quad_tree());
     }
 }
 
@@ -72,18 +71,17 @@ void engine_panel::render_collision_parameters()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
-    ImGui::Checkbox("Multi-contact manifold", &collision_detection2D::multi_contact_manifold);
+    ImGui::Checkbox("Build contact manifold over time", &collision_detection2D::build_contact_manifold_over_time);
 
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collision_list();
 
     render_collision_detection_list();
-    if (m_detection_method == detection_method::QUAD_TREE)
+    if (m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
         render_quad_tree_parameters();
 
     render_collision_solver_list();
-    if (m_collision_solver == collision_solver::SPRING_SOLVER) // ALL OF THIS ONLY MAKES SENSE IF ADDING NEW SOLVERS
-        render_collision_solver_parameters();
+    render_collision_solver_parameters();
 }
 
 void engine_panel::render_collision_list()
@@ -118,15 +116,17 @@ void engine_panel::render_collision_list()
 void engine_panel::render_collision_detection_list()
 {
     static const char *coldet_methods[3] = {"Brute force", "Quad tree", "Sort and sweep"};
-    if (ImGui::ListBox("Collision detection method", (int *)&m_detection_method, coldet_methods, 3))
-        update_detection_method();
+    auto det_method = m_app->world.collisions.detection_method();
+    if (ImGui::ListBox("Collision detection method", (int *)&det_method, coldet_methods, 3))
+        m_app->world.collisions.detection(det_method);
 }
 
 void engine_panel::render_collision_solver_list()
 {
     static const char *solvers[2] = {"Spring solver", "Constraint solver"};
-    if (ImGui::ListBox("Collision solver", (int *)&m_collision_solver, solvers, 2))
-        update_collision_solver();
+    auto solv_method = m_app->world.collisions.solver_method();
+    if (ImGui::ListBox("Collision solver", (int *)&solv_method, solvers, 2))
+        m_app->world.collisions.solver(solv_method);
 }
 
 void engine_panel::render_quad_tree_parameters()
@@ -145,9 +145,11 @@ void engine_panel::render_quad_tree_parameters()
 
 void engine_panel::render_collision_solver_parameters()
 {
-    if (ImGui::CollapsingHeader("Spring solver parameters"))
+    if (ImGui::CollapsingHeader("Collision solver parameters"))
     {
-        if (m_collision_solver == collision_solver::SPRING_SOLVER)
+        const bool is_spring_solver =
+            m_app->world.collisions.solver_method() == collision_manager2D::solver_type::SPRING_DRIVEN;
+        if (is_spring_solver)
         {
             ImGui::SliderFloat("Rigidity", &spring_driven_solver2D::rigidity_coeff, 0.001f, 0.999f);
             ImGui::SameLine();
@@ -155,7 +157,7 @@ void engine_panel::render_collision_solver_parameters()
         }
 
         ImGui::SliderFloat("Restitution", &collision_solver2D::restitution_coeff, 0.001f, 0.999f);
-        if (m_collision_solver == collision_solver::SPRING_SOLVER)
+        if (is_spring_solver)
         {
             ImGui::SameLine();
             ImGui::Text("(%.1f)", spring_driven_solver2D::restitution());
@@ -163,7 +165,7 @@ void engine_panel::render_collision_solver_parameters()
 
         ImGui::SliderFloat("Friction", &collision_solver2D::friction_coeff, 0.001f, 0.999f);
         ImGui::SameLine();
-        if (m_collision_solver == collision_solver::SPRING_SOLVER)
+        if (is_spring_solver)
         {
             ImGui::SameLine();
             ImGui::Text("(%.1f)", spring_driven_solver2D::friction());
@@ -310,33 +312,6 @@ void engine_panel::update_integration_method() const
         break;
     }
 }
-void engine_panel::update_detection_method()
-{
-    switch (m_detection_method)
-    {
-    case detection_method::BRUTE_FORCE:
-        m_bfdet = m_app->world.collisions.set_detection<brute_force_detection2D>();
-        break;
-    case detection_method::QUAD_TREE:
-        m_qtdet = m_app->world.collisions.set_detection<quad_tree_detection2D>();
-        break;
-    case detection_method::SORT_AND_SWEEP:
-        m_ssdet = m_app->world.collisions.set_detection<sort_sweep_detection2D>();
-        break;
-    }
-}
-void engine_panel::update_collision_solver()
-{
-    switch (m_collision_solver)
-    {
-    case collision_solver::SPRING_SOLVER:
-        m_sp_solver = m_app->world.collisions.set_solver<spring_driven_solver2D>();
-        break;
-    case collision_solver::CONSTRAINT_SOLVER:
-        m_ctr_solver = m_app->world.collisions.set_solver<constraint_driven_solver2D>();
-        break;
-    }
-}
 
 YAML::Node engine_panel::encode() const
 {
@@ -344,18 +319,6 @@ YAML::Node engine_panel::encode() const
     node["Draw bounding boxes"] = m_draw_bounding_boxes;
     node["Draw collisions"] = m_draw_collisions;
     node["Visualize quad tree"] = m_visualize_qtree;
-    node["Detection method"] = (int)m_detection_method;
-    node["Solver method"] = (int)m_collision_solver;
-
-    YAML::Node nqt = node["Quad tree"];
-    nqt["Max bodies"] = quad_tree2D::max_bodies;
-    nqt["Max depth"] = quad_tree2D::max_depth;
-    nqt["Min size"] = quad_tree2D::min_size;
-
-    YAML::Node nspslv = node["Spring solver"];
-    nspslv["Rigidity"] = spring_driven_solver2D::rigidity_coeff;
-    nspslv["Restitution"] = collision_solver2D::restitution_coeff;
-    nspslv["Friction"] = collision_solver2D::friction_coeff;
 
     return node;
 }
@@ -366,21 +329,6 @@ bool engine_panel::decode(const YAML::Node &node)
     m_draw_bounding_boxes = node["Draw bounding boxes"].as<bool>();
     m_draw_collisions = node["Draw collisions"].as<bool>();
     m_visualize_qtree = node["Visualize quad tree"].as<bool>();
-    m_detection_method = (detection_method)node["Detection method"].as<int>();
-    m_collision_solver = (collision_solver)node["Solver method"].as<int>();
-
-    const YAML::Node nqt = node["Quad tree"];
-    quad_tree2D::max_bodies = nqt["Max bodies"].as<std::size_t>();
-    quad_tree2D::max_depth = nqt["Max depth"].as<std::uint32_t>();
-    quad_tree2D::min_size = nqt["Min size"].as<float>();
-
-    const YAML::Node nspslv = node["Spring solver"];
-    spring_driven_solver2D::rigidity_coeff = nspslv["Rigidity"].as<float>();
-    collision_solver2D::restitution_coeff = nspslv["Restitution"].as<float>();
-    collision_solver2D::friction_coeff = nspslv["Friction"].as<float>();
-
-    update_detection_method();
-    update_collision_solver();
 
     return true;
 }

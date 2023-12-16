@@ -31,30 +31,9 @@ class engine_panel : public demo_layer
         RKFCK45,
         RKF78
     };
-    enum class detection_method
-    {
-        BRUTE_FORCE,
-        QUAD_TREE,
-        SORT_AND_SWEEP
-    };
-    enum class collision_solver
-    {
-        SPRING_SOLVER,
-        CONSTRAINT_SOLVER
-    };
 
     lynx::window2D *m_window;
-
-    brute_force_detection2D *m_bfdet = nullptr;
-    quad_tree_detection2D *m_qtdet = nullptr;
-    sort_sweep_detection2D *m_ssdet = nullptr;
-
-    spring_driven_solver2D *m_sp_solver = nullptr;
-    constraint_driven_solver2D *m_ctr_solver = nullptr;
-
     integration_method m_integration_method = integration_method::RK4;
-    detection_method m_detection_method = detection_method::QUAD_TREE;
-    collision_solver m_collision_solver = collision_solver::SPRING_SOLVER;
 
     bool m_draw_bounding_boxes = false;
     bool m_visualize_qtree = false;
@@ -79,8 +58,6 @@ class engine_panel : public demo_layer
     void render_integration_method();
 
     void update_integration_method() const;
-    void update_detection_method();
-    void update_collision_solver();
     void update_bounding_boxes();
     void update_collisions();
     void update_quad_tree_lines(const quad_tree2D &qt);
