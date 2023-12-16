@@ -166,6 +166,9 @@ void performance_panel::render_smoothness_slider()
 
 void performance_panel::render_fps() const
 {
+    const float frame_time = m_time_measurements[0].as<kit::time::seconds, float>();
+    if (kit::approaches_zero(frame_time))
+        return;
     const std::uint32_t fps = (std::uint32_t)(1.f / m_time_measurements[0].as<kit::time::seconds, float>());
     ImGui::Text("FPS: %u", fps);
 }

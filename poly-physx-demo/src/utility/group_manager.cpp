@@ -273,7 +273,7 @@ group_manager::group group_manager::create_group_from_selected()
                                                             spring2D::specs::from_spring(*sp));
             }
 
-            for (const constraint2D *ctr : m_app.world.constraints.from_ids({id1, id2}))
+            for (const constraint2D *ctr : m_app.world.constraints[{id1, id2}])
             {
                 const distance_joint2D *dj = dynamic_cast<const distance_joint2D *>(ctr);
                 const lynx::color color{m_app.dist_joint_lines().at(dj).color(), alpha};
