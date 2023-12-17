@@ -133,6 +133,7 @@ void engine_panel::render_quad_tree_parameters()
 {
     if (ImGui::CollapsingHeader("Quad tree parameters"))
     {
+        ImGui::Checkbox("Force square shape", &quad_tree_detection2D::force_square_shape);
         ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree2D::max_bodies, 2, 20);
         ImGui::SliderInt("Max tree depth", (int *)&quad_tree2D::max_depth, 2, 20);
         ImGui::SliderFloat("Min quadrant size", &quad_tree2D::min_size, 4.f, 50.f);
@@ -175,8 +176,8 @@ void engine_panel::render_collision_resolution_parameters()
 
 static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
 {
-    const glm::vec2 &mm = aabb.min();
-    const glm::vec2 &mx = aabb.max();
+    const glm::vec2 &mm = aabb.min;
+    const glm::vec2 &mx = aabb.max;
     return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
 }
 
