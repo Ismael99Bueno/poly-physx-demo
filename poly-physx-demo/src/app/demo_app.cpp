@@ -133,6 +133,7 @@ void demo_app::add_walls()
     body2D::specs body2;
     body2D::specs body3;
     body2D::specs body4;
+    body2D::specs floor;
 
     body1.position = glm::vec2(-size.x - 0.5f * thck, 0.f);
     body2.position = glm::vec2(size.x + 0.5f * thck, 0.f);
@@ -149,10 +150,15 @@ void demo_app::add_walls()
     body3.kinematic = false;
     body4.kinematic = false;
 
+    floor.position = {0.f, -250.f};
+    floor.vertices = geo::polygon::rect(2600.f, 3.f * thck);
+    floor.kinematic = false;
+
     world.bodies.add(body1);
     world.bodies.add(body2);
     world.bodies.add(body3);
     world.bodies.add(body4);
+    world.bodies.add(floor);
 }
 
 YAML::Node demo_app::encode() const
