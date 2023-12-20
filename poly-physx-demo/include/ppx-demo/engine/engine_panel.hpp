@@ -60,7 +60,7 @@ class engine_panel : public demo_layer
     void update_integration_method() const;
     void update_bounding_boxes();
     void update_collisions();
-    void update_quad_tree_lines(const quad_tree2D &qt);
+    void update_quad_tree_lines(const quad_tree &qt);
 
     void render_collision_detection_list();
     void render_collision_list();

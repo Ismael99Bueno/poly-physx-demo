@@ -134,9 +134,9 @@ void engine_panel::render_quad_tree_parameters()
     if (ImGui::CollapsingHeader("Quad tree parameters"))
     {
         ImGui::Checkbox("Force square shape", &quad_tree_detection2D::force_square_shape);
-        ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree2D::max_bodies, 2, 20);
-        ImGui::SliderInt("Max tree depth", (int *)&quad_tree2D::max_depth, 2, 20);
-        ImGui::SliderFloat("Min quadrant size", &quad_tree2D::min_size, 4.f, 50.f);
+        ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_bodies, 2, 20);
+        ImGui::SliderInt("Max tree depth", (int *)&quad_tree::max_depth, 2, 20);
+        ImGui::SliderFloat("Min quadrant size", &quad_tree::min_size, 4.f, 50.f);
 
         ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
         if (m_visualize_qtree)
@@ -181,7 +181,7 @@ static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
     return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
 }
 
-void engine_panel::update_quad_tree_lines(const quad_tree2D &qt)
+void engine_panel::update_quad_tree_lines(const quad_tree &qt)
 {
     if (qt.partitioned())
         for (const auto &child : qt.children())
