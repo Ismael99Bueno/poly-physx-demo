@@ -33,12 +33,9 @@ void grab_tab::apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &
     if (kit::approaches_zero(glm::length2(relpos)))
         return;
     const glm::vec2 direction = glm::normalize(relpos);
-    const glm::vec2 relvel = -direction * glm::dot(m_body->velocity(), direction);
+    const glm::vec2 relvel = -direction * glm::dot(m_body->velocity, direction);
 
-    const glm::vec2 force = m_stiffness * relpos + m_dampening * relvel;
-    const float torque = kit::cross2D(rotanchor, force);
-    m_body->add_force(force);
-    m_body->add_torque(torque);
+    m_body->add_force_at(m_stiffness * relpos + m_dampening * relvel, rotanchor);
 }
 
 void grab_tab::render()

@@ -68,30 +68,23 @@ void bodies_tab::render_single_body_properties(body2D &body)
     static constexpr const char *format = "%.1f";
 
     float mass = body.real_mass();
-    float charge = body.charge();
-
     kit::transform2D tr = body.transform();
-    glm::vec2 velocity = body.velocity();
-    float angular_velocity = body.angular_velocity();
 
     ImGui::Checkbox("Kinematic", &body.kinematic);
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         body.mass(mass);
 
-    if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
-        body.charge(charge);
+    ImGui::DragFloat("Charge", &body.charge, drag_speed, 0.f, 0.f, format);
 
     if (ImGui::DragFloat2("Position", glm::value_ptr(tr.position), drag_speed, 0.f, 0.f, format))
         body.position(tr.position);
 
-    if (ImGui::DragFloat2("Velocity", glm::value_ptr(velocity), drag_speed, 0.f, 0.f, format))
-        body.velocity(velocity);
+    ImGui::DragFloat2("Velocity", glm::value_ptr(body.velocity), drag_speed, 0.f, 0.f, format);
 
     if (ImGui::DragFloat("Rotation", &tr.rotation, drag_speed, 0.f, 0.f, format))
         body.rotation(tr.rotation);
 
-    if (ImGui::DragFloat("Angular velocity", &angular_velocity, drag_speed, 0.f, 0.f, format))
-        body.angular_velocity(angular_velocity);
+    ImGui::DragFloat("Angular velocity", &body.angular_velocity, drag_speed, 0.f, 0.f, format);
 
     const glm::vec2 force = body.force();
     ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
@@ -154,7 +147,7 @@ void bodies_tab::render_selected_bodies_properties()
         for (const body2D::ptr &body : selected)
         {
             mass += body->real_mass();
-            charge += body->charge();
+            charge += body->charge;
             kinematic |= body->kinematic;
         }
         mass /= selected.size();
@@ -170,7 +163,7 @@ void bodies_tab::render_selected_bodies_properties()
 
         if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
             for (const body2D::ptr &body : selected)
-                body->charge(charge);
+                body->charge = charge;
 
         static char buffer[24] = "\0";
         if (ImGui::InputTextWithHint("Save as a group", "Group name", buffer, 24,

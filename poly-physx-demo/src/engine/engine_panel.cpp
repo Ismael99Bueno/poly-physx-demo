@@ -24,7 +24,7 @@ void engine_panel::on_update(const float ts)
         m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
     {
         m_qt_active_partitions = 0;
-        update_quad_tree_lines(m_app->world.collisions.detection<quad_tree_detection2D>()->quad_tree());
+        update_quad_tree_lines(m_app->world.collisions.detection<quad_tree_detection2D>()->qtree());
     }
 }
 

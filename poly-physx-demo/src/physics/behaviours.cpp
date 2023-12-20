@@ -14,8 +14,8 @@ float gravity::potential_energy(const body2D &body) const
 
 glm::vec3 drag::force(const body2D &body) const
 {
-    const glm::vec2 force = -magnitude * body.velocity();
-    const float torque = -angular_magnitude * body.angular_velocity();
+    const glm::vec2 force = -magnitude * body.velocity;
+    const float torque = -angular_magnitude * body.angular_velocity;
     return glm::vec3(force, torque);
 }
 
@@ -36,7 +36,7 @@ float gravitational::potential_energy_pair(const body2D &body1, const body2D &bo
 
 glm::vec3 electrical::force_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge() * body2.charge();
+    const float cte = magnitude * body1.charge * body2.charge;
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
     float denominator = dist;
     for (std::size_t i = 1; i < exponent; i++)
@@ -47,7 +47,7 @@ glm::vec3 electrical::force_pair(const body2D &body1, const body2D &body2) const
 }
 float electrical::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge() * body2.charge();
+    const float cte = magnitude * body1.charge * body2.charge;
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
 
     if (exponent == 1)
@@ -61,7 +61,7 @@ float electrical::potential_energy_pair(const body2D &body1, const body2D &body2
 
 glm::vec3 exponential::force_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge() * body2.charge();
+    const float cte = magnitude * body1.charge * body2.charge;
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
 
     const glm::vec2 force =
@@ -70,7 +70,7 @@ glm::vec3 exponential::force_pair(const body2D &body1, const body2D &body2) cons
 }
 float exponential::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge() * body2.charge();
+    const float cte = magnitude * body1.charge * body2.charge;
     const float dist = glm::distance(body1.transform().position, body2.transform().position);
 
     return -cte * expf(exponent_magnitude * dist) / exponent_magnitude;
