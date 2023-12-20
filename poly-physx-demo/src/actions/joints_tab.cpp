@@ -66,7 +66,7 @@ void joints_tab::render_single_spring_properties(spring2D &sp)
     static constexpr const char *format = "%.1f";
 
     ImGui::DragFloat("Stiffness##Single", &sp.stiffness, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Dampening##Single", &sp.dampening, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Damping##Single", &sp.damping, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Length##Single", &sp.length, drag_speed, 0.f, FLT_MAX, format);
 }
 
@@ -95,25 +95,25 @@ void joints_tab::render_selected_spring_properties()
         static constexpr const char *format = "%.1f";
 
         float stiffness = 0.f;
-        float dampening = 0.f;
+        float damping = 0.f;
         float length = 0.f;
 
         for (const spring2D::ptr &sp : selected)
         {
             stiffness += sp->stiffness;
-            dampening += sp->dampening;
+            damping += sp->damping;
             length += sp->length;
         }
         stiffness /= selected.size();
-        dampening /= selected.size();
+        damping /= selected.size();
         length /= selected.size();
 
         if (ImGui::DragFloat("Stiffness##Multiple", &stiffness, drag_speed, 0.f, FLT_MAX, format))
             for (const spring2D::ptr &sp : selected)
                 sp->stiffness = stiffness;
-        if (ImGui::DragFloat("Dampening##Multiple", &dampening, drag_speed, 0.f, FLT_MAX, format))
+        if (ImGui::DragFloat("Damping##Multiple", &damping, drag_speed, 0.f, FLT_MAX, format))
             for (const spring2D::ptr &sp : selected)
-                sp->dampening = dampening;
+                sp->damping = damping;
         if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
             for (const spring2D::ptr &sp : selected)
                 sp->length = length;
@@ -217,7 +217,7 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
     if constexpr (std::is_same_v<T, spring2D::specs>)
     {
         ImGui::DragFloat("Stiffness", &specs.stiffness, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragFloat("Dampening", &specs.dampening, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Damping", &specs.damping, drag_speed, 0.f, FLT_MAX, format);
         ImGui::Checkbox("Auto-length", &m_auto_spring_length);
         if (m_auto_spring_length && m_body1)
         {
@@ -336,7 +336,7 @@ YAML::Node joints_tab::encode() const
     node["Joint type"] = (int)m_joint_type;
 
     node["Spring stiffness"] = m_spring_specs.stiffness;
-    node["Spring dampening"] = m_spring_specs.dampening;
+    node["Spring damping"] = m_spring_specs.damping;
     if (!m_auto_spring_length)
         node["Spring length"] = m_spring_specs.length;
 
@@ -347,7 +347,7 @@ void joints_tab::decode(const YAML::Node &node)
     m_joint_type = (joint_type)node["Joint type"].as<int>();
 
     m_spring_specs.stiffness = node["Spring stiffness"].as<float>();
-    m_spring_specs.dampening = node["Spring dampening"].as<float>();
+    m_spring_specs.damping = node["Spring damping"].as<float>();
     m_auto_spring_length = !node["Spring length"];
 
     if (!m_auto_spring_length)

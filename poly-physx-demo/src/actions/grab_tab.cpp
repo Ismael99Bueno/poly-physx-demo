@@ -35,7 +35,7 @@ void grab_tab::apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &
     const glm::vec2 direction = glm::normalize(relpos);
     const glm::vec2 relvel = -direction * glm::dot(m_body->velocity, direction);
 
-    m_body->add_force_at(m_stiffness * relpos + m_dampening * relvel, rotanchor);
+    m_body->add_force_at(m_stiffness * relpos + m_damping * relvel, rotanchor);
 }
 
 void grab_tab::render()
@@ -48,7 +48,7 @@ void grab_tab::render()
 void grab_tab::render_imgui_tab()
 {
     ImGui::DragFloat("Stiffness", &m_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
-    ImGui::DragFloat("Dampening", &m_dampening, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::DragFloat("Damping", &m_damping, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
 
 void grab_tab::begin_grab()

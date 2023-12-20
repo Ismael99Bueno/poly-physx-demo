@@ -37,6 +37,8 @@ void engine_panel::on_render(const float ts)
             render_integrator_parameters();
         if (ImGui::CollapsingHeader("Collision"))
             render_collision_parameters();
+        if (ImGui::CollapsingHeader("Constraints"))
+            render_constraint_parameters();
     }
     ImGui::End();
 }
@@ -73,20 +75,29 @@ void engine_panel::render_collision_parameters()
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
     ImGui::Checkbox("Build contact manifold over time", &collision_detection2D::build_contact_manifold_over_time);
 
+    render_collision_detection_list();
+    render_collision_resolution_list();
+
+    render_quad_tree_parameters();
+
+    render_spring_driven_parameters();
+    render_constraint_driven_parameters();
+
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collision_list();
+}
 
-    render_collision_detection_list();
-    if (m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
-        render_quad_tree_parameters();
-
-    render_collision_resolution_list();
-    render_collision_resolution_parameters();
+void engine_panel::render_constraint_parameters()
+{
+    ImGui::SliderInt("Iterations", (int *)&m_app->world.constraints.iterations, 1, 20);
+    ImGui::Checkbox("Warmup", &m_app->world.constraints.warmup);
+    ImGui::Checkbox("Position corrections", &m_app->world.constraints.position_corrections);
 }
 
 void engine_panel::render_collision_list()
 {
-    if (ImGui::CollapsingHeader("Collisions"))
+    if (ImGui::TreeNode("Collisions"))
+    {
         for (const collision2D &col : m_app->world.collisions)
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.current->id).c_str(),
                                 kit::uuid::name_from_id(col.incoming->id).c_str()))
@@ -111,6 +122,8 @@ void engine_panel::render_collision_list()
                     }
                 ImGui::TreePop();
             }
+        ImGui::TreePop();
+    }
 }
 
 void engine_panel::render_collision_detection_list()
@@ -131,7 +144,7 @@ void engine_panel::render_collision_resolution_list()
 
 void engine_panel::render_quad_tree_parameters()
 {
-    if (ImGui::CollapsingHeader("Quad tree parameters"))
+    if (ImGui::TreeNode("Quad tree parameters"))
     {
         ImGui::Checkbox("Force square shape", &quad_tree_detection2D::force_square_shape);
         ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_bodies, 2, 20);
@@ -141,36 +154,28 @@ void engine_panel::render_quad_tree_parameters()
         ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
         if (m_visualize_qtree)
             render_quad_tree_lines();
+        ImGui::TreePop();
     }
 }
 
-void engine_panel::render_collision_resolution_parameters()
+void engine_panel::render_spring_driven_parameters()
 {
-    if (ImGui::CollapsingHeader("Collision resolution parameters"))
+    if (ImGui::TreeNode("Spring driven parameters"))
     {
-        const bool is_spring_resolution =
-            m_app->world.collisions.resolution_method() == collision_manager2D::resolution_type::SPRING_DRIVEN;
-        if (is_spring_resolution)
-        {
-            ImGui::SliderFloat("Rigidity", &spring_driven_resolution2D::rigidity_coeff, 0.001f, 0.999f);
-            ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_resolution2D::rigidity());
-        }
+        ImGui::SliderFloat("Rigidity", &spring_driven_resolution2D::rigidity, 0.f, 5000.f);
+        ImGui::SliderFloat("Normal damping", &spring_driven_resolution2D::normal_damping, 0.f, 50.f);
+        ImGui::SliderFloat("Tangent damping", &spring_driven_resolution2D::tangent_damping, 0.f, 50.f);
+        ImGui::TreePop();
+    }
+}
 
-        ImGui::SliderFloat("Restitution", &collision_resolution2D::restitution_coeff, 0.001f, 0.999f);
-        if (is_spring_resolution)
-        {
-            ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_resolution2D::restitution());
-        }
-
-        ImGui::SliderFloat("Friction", &collision_resolution2D::friction_coeff, 0.001f, 0.999f);
-        ImGui::SameLine();
-        if (is_spring_resolution)
-        {
-            ImGui::SameLine();
-            ImGui::Text("(%.1f)", spring_driven_resolution2D::friction());
-        }
+void engine_panel::render_constraint_driven_parameters()
+{
+    if (ImGui::TreeNode("Constraint driven parameters"))
+    {
+        ImGui::SliderFloat("Friction", &constraint_driven_resolution2D::friction, 0.f, 1.f);
+        ImGui::SliderFloat("Restitution", &constraint_driven_resolution2D::restitution, 0.f, 1.f);
+        ImGui::TreePop();
     }
 }
 

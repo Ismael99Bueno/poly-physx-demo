@@ -50,8 +50,11 @@ class engine_panel : public demo_layer
 
     void render_integrator_parameters();
     void render_collision_parameters();
+    void render_constraint_parameters();
+
     void render_quad_tree_parameters();
-    void render_collision_resolution_parameters();
+    void render_spring_driven_parameters();
+    void render_constraint_driven_parameters();
 
     void render_timestep_settings() const;
     void render_integration_method();

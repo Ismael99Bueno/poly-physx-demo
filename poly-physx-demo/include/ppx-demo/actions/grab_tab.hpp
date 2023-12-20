@@ -29,7 +29,7 @@ class grab_tab
     spring_line m_spring_line;
 
     float m_stiffness = 3.f;
-    float m_dampening = 0.f;
+    float m_damping = 0.f;
 
     void apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &mpos) const;
 };
