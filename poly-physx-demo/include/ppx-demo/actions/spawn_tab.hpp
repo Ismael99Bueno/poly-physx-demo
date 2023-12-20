@@ -1,5 +1,4 @@
-#ifndef PPX_SPAWN_TAB_HPP
-#define PPX_SPAWN_TAB_HPP
+#pragma once
 
 #include "lynx/drawing/shape.hpp"
 #include "lynx/app/window.hpp"
@@ -67,5 +66,3 @@ class spawn_tab
     static body_template decode_template(const YAML::Node &node);
 };
 } // namespace ppx::demo
-
-#endif

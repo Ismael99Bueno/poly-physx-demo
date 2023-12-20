@@ -1,5 +1,4 @@
-#ifndef PPX_SELECTION_MANAGER_HPP
-#define PPX_SELECTION_MANAGER_HPP
+#pragma once
 
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
@@ -49,5 +48,3 @@ class selection_manager
     std::vector<constraint2D *> m_selected_constraints;
 };
 } // namespace ppx::demo
-
-#endif

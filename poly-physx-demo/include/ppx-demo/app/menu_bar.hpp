@@ -1,5 +1,4 @@
-#ifndef PPX_MENU_BAR_HPP
-#define PPX_MENU_BAR_HPP
+#pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
 
@@ -48,5 +47,3 @@ class menu_bar : public demo_layer
     bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
-
-#endif

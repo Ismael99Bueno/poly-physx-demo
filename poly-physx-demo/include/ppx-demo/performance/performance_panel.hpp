@@ -1,5 +1,4 @@
-#ifndef PPX_PERFORMANCE_PANEL_HPP
-#define PPX_PERFORMANCE_PANEL_HPP
+#pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "kit/profile/time.hpp"
@@ -50,5 +49,3 @@ class performance_panel : public demo_layer
     bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
-
-#endif

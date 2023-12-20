@@ -1,5 +1,4 @@
-#ifndef PPX_DEMO_LAYER_HPP
-#define PPX_DEMO_LAYER_HPP
+#pragma once
 
 #include "lynx/app/layer.hpp"
 
@@ -17,5 +16,3 @@ class demo_layer : public lynx::layer2D
     demo_app *m_app;
 };
 } // namespace ppx::demo
-
-#endif

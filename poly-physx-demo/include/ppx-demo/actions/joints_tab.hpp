@@ -1,5 +1,4 @@
-#ifndef PPX_JOINTS_TAB_HPP
-#define PPX_JOINTS_TAB_HPP
+#pragma once
 
 #include "ppx-app/lines/spring_line.hpp"
 #include "ppx-app/lines/thick_line.hpp"
@@ -65,5 +64,3 @@ class joints_tab
     float current_joint_length() const;
 };
 } // namespace ppx::demo
-
-#endif

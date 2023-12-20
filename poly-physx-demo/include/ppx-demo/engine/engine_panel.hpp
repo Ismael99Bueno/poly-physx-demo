@@ -1,5 +1,4 @@
-#ifndef PPX_ENGINE_PANEL_HPP
-#define PPX_ENGINE_PANEL_HPP
+#pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "ppx-app/lines/thick_line.hpp"
@@ -73,5 +72,3 @@ class engine_panel : public demo_layer
     bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
-
-#endif

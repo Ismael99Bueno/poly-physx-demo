@@ -1,5 +1,4 @@
-#ifndef PPX_GROUP_MANAGER_HPP
-#define PPX_GROUP_MANAGER_HPP
+#pragma once
 
 #include "ppx/body2D.hpp"
 #include "ppx/joints/spring2D.hpp"
@@ -103,5 +102,3 @@ class group_manager
     group create_group_from_selected();
 };
 } // namespace ppx::demo
-
-#endif

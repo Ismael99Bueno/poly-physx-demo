@@ -1,5 +1,4 @@
-#ifndef PPX_ACTIONS_PANEL_HPP
-#define PPX_ACTIONS_PANEL_HPP
+#pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "ppx-demo/actions/spawn_tab.hpp"
@@ -29,5 +28,3 @@ class actions_panel : public demo_layer
     bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
-
-#endif

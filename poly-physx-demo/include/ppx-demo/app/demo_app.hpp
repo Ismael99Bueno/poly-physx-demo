@@ -1,5 +1,4 @@
-#ifndef PPX_DEMO_APP_HPP
-#define PPX_DEMO_APP_HPP
+#pragma once
 
 #include "ppx-app/app/app.hpp"
 #include "ppx-demo/utility/selection_manager.hpp"
@@ -31,5 +30,3 @@ class demo_app : public app
     bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
-
-#endif

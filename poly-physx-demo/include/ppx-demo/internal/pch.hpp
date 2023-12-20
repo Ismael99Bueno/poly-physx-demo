@@ -1,5 +1,4 @@
-#ifndef PPX_DEMO_PCH_HPP
-#define PPX_DEMO_PCH_HPP
+#pragma once
 
 #include "ppx-app/internal/pch.hpp"
 #ifdef LYNX_ENABLE_IMGUI
@@ -10,5 +9,3 @@
 #endif
 #include <filesystem>
 #include <glm/gtc/type_ptr.hpp>
-
-#endif

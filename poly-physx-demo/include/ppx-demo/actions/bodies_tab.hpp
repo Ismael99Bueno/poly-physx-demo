@@ -1,5 +1,4 @@
-#ifndef PPX_BODIES_TAB_HPP
-#define PPX_BODIES_TAB_HPP
+#pragma once
 
 #include "lynx/app/window.hpp"
 #include "ppx/body2D.hpp"
@@ -29,5 +28,3 @@ class bodies_tab
     void render_groups() const;
 };
 } // namespace ppx::demo
-
-#endif

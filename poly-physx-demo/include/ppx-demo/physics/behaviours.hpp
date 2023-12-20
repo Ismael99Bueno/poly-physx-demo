@@ -1,5 +1,4 @@
-#ifndef PPX_BEHAVIOURS_HPP
-#define PPX_BEHAVIOURS_HPP
+#pragma once
 
 #include "ppx/behaviours/force2D.hpp"
 #include "ppx/behaviours/interaction2D.hpp"
@@ -77,5 +76,3 @@ class exponential : public interaction2D
 };
 
 } // namespace ppx::demo
-
-#endif

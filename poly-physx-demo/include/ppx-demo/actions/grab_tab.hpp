@@ -1,5 +1,4 @@
-#ifndef GRAB_TAB_HPP
-#define GRAB_TAB_HPP
+#pragma once
 
 #include "ppx-app/lines/spring_line.hpp"
 #include "ppx/body2D.hpp"
@@ -36,5 +35,3 @@ class grab_tab
 };
 
 } // namespace ppx::demo
-
-#endif

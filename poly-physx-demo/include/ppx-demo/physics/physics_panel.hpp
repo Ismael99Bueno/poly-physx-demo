@@ -1,5 +1,4 @@
-#ifndef PPX_PHYSICS_PANEL_HPP
-#define PPX_PHYSICS_PANEL_HPP
+#pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "ppx-demo/physics/behaviours.hpp"
@@ -35,5 +34,3 @@ class physics_panel : public demo_layer
     void update_potential_data();
 };
 } // namespace ppx::demo
-
-#endif
