@@ -73,7 +73,6 @@ void engine_panel::render_collision_parameters()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
-    ImGui::Checkbox("Build contact manifold over time", &collision_detection2D::build_contact_manifold_over_time);
 
     render_collision_detection_list();
     render_collision_resolution_list();
