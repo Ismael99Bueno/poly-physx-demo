@@ -277,8 +277,8 @@ void spawn_tab::render_custom_shape_canvas()
     std::vector<ImVec2> points(poly.size());
     for (std::size_t i = 0; i < poly.size(); i++)
     {
-        const glm::vec2 p1 = origin + poly.globals(i) * scale_factor + canvas_hdim,
-                        p2 = origin + poly.globals(i + 1) * scale_factor + canvas_hdim;
+        const glm::vec2 p1 = origin + poly.global(i) * scale_factor + canvas_hdim,
+                        p2 = origin + poly.global(i + 1) * scale_factor + canvas_hdim;
         const float thickness = 3.f;
         draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
         points[i] = {p1.x, p1.y};

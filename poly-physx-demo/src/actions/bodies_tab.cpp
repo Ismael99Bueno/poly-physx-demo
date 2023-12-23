@@ -103,8 +103,8 @@ void bodies_tab::render_single_body_properties(body2D &body)
         {
             for (std::size_t i = 0; i < poly->size(); i++)
             {
-                const glm::vec2 local = poly->locals(i);
-                const glm::vec2 global = poly->globals(i);
+                const glm::vec2 local = poly->local(i);
+                const glm::vec2 global = poly->global(i);
                 ImGui::Text("%lu: Local: (%.1f, %.1f), Global: (%.1f, %.1f)", i + 1, local.x, local.y, global.x,
                             global.y);
             }
