@@ -170,8 +170,8 @@ void spawn_tab::begin_body_spawn()
     else
     {
         const geo::polygon poly{m_current_body_template.specs.vertices};
-        const auto &local_vertices = poly.locals();
-        m_preview = kit::make_scope<lynx::polygon2D>(local_vertices, lynx::color(m_current_body_template.color, 120u));
+        m_preview = kit::make_scope<lynx::polygon2D>(poly.locals().as_vector(),
+                                                     lynx::color(m_current_body_template.color, 120u));
     }
 
     m_starting_mouse_pos = m_app->world_mouse_position();
@@ -229,7 +229,7 @@ void spawn_tab::render_custom_shape_canvas()
     static constexpr float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
-    auto vertices = poly.globals();
+    auto vertices = poly.globals().as_vector();
     std::size_t to_edit = vertices.size() - 1;
     static constexpr float thres_distance = 2.f;
     float min_distance = FLT_MAX;
