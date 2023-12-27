@@ -2,6 +2,7 @@
 #include "ppx-demo/actions/spawn_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "lynx/app/window.hpp"
+#include "kit/serialization/yaml/glm.hpp"
 
 namespace ppx::demo
 {

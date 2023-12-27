@@ -73,7 +73,7 @@ void physics_panel::render_energy_plot() const
 {
     static constexpr std::size_t buffer_size = 3000;
     static constexpr float broad = 4.f;
-    const float time = m_app->world.elapsed();
+    const float time = m_app->world.integrator.elapsed;
 
     static std::size_t current_size = 0;
     static std::size_t offset = 0;

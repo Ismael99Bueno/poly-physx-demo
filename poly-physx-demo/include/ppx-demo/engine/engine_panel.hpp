@@ -42,7 +42,7 @@ class engine_panel : public demo_layer
     std::size_t m_qt_active_partitions = 0;
 
     bool m_draw_collisions = false;
-    std::vector<std::array<thick_line, collision2D::MANIFOLD_SIZE>> m_collision_lines;
+    std::vector<std::array<thick_line, manifold2D::CAPACITY>> m_collision_lines;
 
     void on_attach() override;
     void on_render(float ts) override;

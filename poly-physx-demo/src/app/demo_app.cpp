@@ -9,7 +9,8 @@
 
 namespace ppx::demo
 {
-demo_app::demo_app() : selector(*this), grouper(*this)
+demo_app::demo_app()
+    : app("poly-physx-demo", rk::timestep<float>(1.e-3f, 0.0002f, 0.002f)), selector(*this), grouper(*this)
 {
     push_layer<actions_panel>();
     push_layer<engine_panel>();

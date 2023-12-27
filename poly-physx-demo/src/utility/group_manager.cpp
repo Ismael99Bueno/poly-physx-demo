@@ -2,6 +2,9 @@
 #include "ppx-demo/utility/group_manager.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 
+#include "kit/serialization/yaml/glm.hpp"
+#include "ppx/serialization/serialization.hpp"
+
 namespace ppx::demo
 {
 group_manager::group_manager(demo_app &app) : m_app(app)

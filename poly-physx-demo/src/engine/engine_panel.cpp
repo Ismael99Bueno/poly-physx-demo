@@ -20,11 +20,12 @@ void engine_panel::on_update(const float ts)
         update_bounding_boxes();
     if (m_draw_collisions)
         update_collisions();
-    if (m_visualize_qtree &&
-        m_app->world.collisions.detection_method() == collision_manager2D::detection_type::QUAD_TREE)
+
+    auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
+    if (m_visualize_qtree && qtdet)
     {
         m_qt_active_partitions = 0;
-        update_quad_tree_lines(m_app->world.collisions.detection<quad_tree_detection2D>()->qtree());
+        update_quad_tree_lines(qtdet->qtree());
     }
 }
 
@@ -45,12 +46,11 @@ void engine_panel::on_render(const float ts)
 
 void engine_panel::render_integrator_parameters()
 {
-    ImGui::Text("Simulation time: %.2f", m_app->world.elapsed());
+    ImGui::Text("Simulation time: %.2f", m_app->world.integrator.elapsed);
     ImGui::SameLine();
-    ImGui::Checkbox("Reversed", &m_app->world.integrator.reversed);
 
     ImGui::Checkbox("Paused", &m_app->paused);
-    if (m_app->world.integrator.tableau().embedded())
+    if (m_app->world.integrator.tableau().embedded)
     {
         const float error = m_app->world.integrator.error();
         static float max_error = error;
@@ -73,6 +73,8 @@ void engine_panel::render_collision_parameters()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
+    ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
+                       ImGuiSliderFlags_Logarithmic);
 
     render_collision_detection_list();
     render_collision_resolution_list();
@@ -98,21 +100,21 @@ void engine_panel::render_collision_list()
     if (ImGui::TreeNode("Collisions"))
     {
         for (const collision2D &col : m_app->world.collisions)
-            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.current->id).c_str(),
-                                kit::uuid::name_from_id(col.incoming->id).c_str()))
+            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.body1->id).c_str(),
+                                kit::uuid::name_from_id(col.body2->id).c_str()))
             {
-                ImGui::Text("Contact points: %u", col.size);
-                ImGui::Text("Normal - x: %.2f, y: %.2f", col.normal.x, col.normal.y);
+                ImGui::Text("Contact points: %u", col.manifold.size);
+                ImGui::Text("Normal - x: %.2f, y: %.2f", col.mtv.x, col.mtv.y);
                 ImGui::Spacing();
 
-                for (std::size_t i = 0; i < col.size; i++)
-                    if (ImGui::TreeNode(&col.manifold[i], "Contact point %zu", i + 1))
+                for (std::size_t i = 0; i < col.manifold.size; i++)
+                    if (ImGui::TreeNode(&col.manifold.contacts[i], "Contact point %zu", i + 1))
                     {
                         const glm::vec2 &touch1 = col.touch1(i);
                         const glm::vec2 touch2 = col.touch2(i);
 
-                        const glm::vec2 anchor1 = touch1 - col.current->position();
-                        const glm::vec2 anchor2 = touch2 - col.incoming->position();
+                        const glm::vec2 anchor1 = touch1 - col.body1->position();
+                        const glm::vec2 anchor2 = touch2 - col.body2->position();
                         ImGui::Text("Touch 1 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch1.x, touch1.y, anchor1.x,
                                     anchor1.y);
                         ImGui::Text("Touch 2 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch2.x, touch2.y, anchor2.x,
@@ -128,24 +130,49 @@ void engine_panel::render_collision_list()
 void engine_panel::render_collision_detection_list()
 {
     static const char *coldet_methods[3] = {"Brute force", "Quad tree", "Sort and sweep"};
-    auto det_method = m_app->world.collisions.detection_method();
-    if (ImGui::ListBox("Collision detection", (int *)&det_method, coldet_methods, 3))
-        m_app->world.collisions.detection(det_method);
+    int det_method;
+    if (m_app->world.collisions.detection<quad_tree_detection2D>())
+        det_method = 0;
+    else if (m_app->world.collisions.detection<sort_sweep_detection2D>())
+        det_method = 1;
+    else if (m_app->world.collisions.detection<brute_force_detection2D>())
+        det_method = 2;
+
+    if (ImGui::ListBox("Collision detection", &det_method, coldet_methods, 3))
+    {
+        if (det_method == 0)
+            m_app->world.collisions.set_detection<quad_tree_detection2D>();
+        else if (det_method == 1)
+            m_app->world.collisions.set_detection<sort_sweep_detection2D>();
+        else if (det_method == 2)
+            m_app->world.collisions.set_detection<brute_force_detection2D>();
+    }
 }
 
 void engine_panel::render_collision_resolution_list()
 {
     static const char *res_methods[2] = {"Spring driven", "Constraint driven"};
-    auto res_method = m_app->world.collisions.resolution_method();
-    if (ImGui::ListBox("Collision resolution", (int *)&res_method, res_methods, 2))
-        m_app->world.collisions.resolution(res_method);
+    int res_method;
+    if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
+        res_method = 0;
+    if (m_app->world.collisions.resolution<constraint_driven_resolution2D>())
+        res_method = 1;
+    if (ImGui::ListBox("Collision resolution", &res_method, res_methods, 2))
+    {
+        if (res_method == 0)
+            m_app->world.collisions.set_resolution<spring_driven_resolution2D>();
+        else if (res_method == 1)
+            m_app->world.collisions.set_resolution<constraint_driven_resolution2D>();
+    }
 }
 
 void engine_panel::render_quad_tree_parameters()
 {
     if (ImGui::TreeNode("Quad tree parameters"))
     {
-        ImGui::Checkbox("Force square shape", &quad_tree_detection2D::force_square_shape);
+        if (auto qtres = m_app->world.collisions.detection<quad_tree_detection2D>())
+            ImGui::Checkbox("Force square shape", &qtres->force_square_shape);
+
         ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_bodies, 2, 20);
         ImGui::SliderInt("Max tree depth", (int *)&quad_tree::max_depth, 2, 20);
         ImGui::SliderFloat("Min quadrant size", &quad_tree::min_size, 4.f, 50.f);
@@ -161,9 +188,10 @@ void engine_panel::render_spring_driven_parameters()
 {
     if (ImGui::TreeNode("Spring driven parameters"))
     {
-        ImGui::SliderFloat("Rigidity", &spring_driven_resolution2D::rigidity, 0.f, 5000.f);
-        ImGui::SliderFloat("Normal damping", &spring_driven_resolution2D::normal_damping, 0.f, 50.f);
-        ImGui::SliderFloat("Tangent damping", &spring_driven_resolution2D::tangent_damping, 0.f, 50.f);
+        auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>();
+        ImGui::SliderFloat("Rigidity", &spres->rigidity, 0.f, 5000.f);
+        ImGui::SliderFloat("Normal damping", &spres->normal_damping, 0.f, 50.f);
+        ImGui::SliderFloat("Tangent damping", &spres->tangent_damping, 0.f, 50.f);
         ImGui::TreePop();
     }
 }
@@ -172,8 +200,9 @@ void engine_panel::render_constraint_driven_parameters()
 {
     if (ImGui::TreeNode("Constraint driven parameters"))
     {
-        ImGui::SliderFloat("Friction", &constraint_driven_resolution2D::friction, 0.f, 1.f);
-        ImGui::SliderFloat("Restitution", &constraint_driven_resolution2D::restitution, 0.f, 1.f);
+        auto ctrres = m_app->world.collisions.resolution<constraint_driven_resolution2D>();
+        ImGui::SliderFloat("Friction", &ctrres->friction, 0.f, 1.f);
+        ImGui::SliderFloat("Restitution", &ctrres->restitution, 0.f, 1.f);
         ImGui::TreePop();
     }
 }
@@ -222,10 +251,10 @@ void engine_panel::update_collisions()
         if (i >= m_collision_lines.size())
         {
             auto &lines = m_collision_lines.emplace_back();
-            for (std::size_t j = 0; j < collision2D::MANIFOLD_SIZE; j++)
+            for (std::size_t j = 0; j < manifold2D::CAPACITY; j++)
                 lines[j] = {lynx::color::green, 0.2f};
         }
-        for (std::size_t j = 0; j < col.size; j++)
+        for (std::size_t j = 0; j < col.manifold.size; j++)
         {
             m_collision_lines[i][j].p1(col.touch1(j));
             m_collision_lines[i][j].p2(col.touch2(j));
@@ -242,7 +271,7 @@ void engine_panel::render_bounding_boxes() const
 void engine_panel::render_collisions()
 {
     for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
-        for (std::size_t j = 0; j < m_app->world.collisions[i].size; j++)
+        for (std::size_t j = 0; j < m_app->world.collisions[i].manifold.size; j++)
             m_window->draw(m_collision_lines[i][j]);
 }
 
@@ -267,15 +296,14 @@ static void timestep_slider_with_hertz(const char *label, float *value, const fl
 void engine_panel::render_timestep_settings() const
 {
     ImGui::Checkbox("Synchronize timestep with framerate", &m_app->sync_timestep);
+    rk::timestep<float> &ts = m_app->world.integrator.ts;
+
     if (m_app->sync_timestep)
-        ImGui::Text("Timestep: %.4f (%u hz)", m_app->timestep, to_hertz(m_app->timestep));
+        ImGui::Text("Timestep: %.4f (%u hz)", ts.value, to_hertz(ts.value));
     else
-        timestep_slider_with_hertz("Timestep", &m_app->timestep, m_app->world.integrator.min_timestep,
-                                   m_app->world.integrator.max_timestep);
-    timestep_slider_with_hertz("Minimum timestep", &m_app->world.integrator.min_timestep, 0.0001f,
-                               m_app->world.integrator.max_timestep * 0.95f);
-    timestep_slider_with_hertz("Maximum timestep", &m_app->world.integrator.max_timestep,
-                               m_app->world.integrator.min_timestep * 1.05f, 0.012f);
+        timestep_slider_with_hertz("Timestep", &ts.value, ts.min, ts.max);
+    timestep_slider_with_hertz("Minimum timestep", &ts.min, 0.0001f, ts.max * 0.95f);
+    timestep_slider_with_hertz("Maximum timestep", &ts.max, ts.min * 1.05f, 0.012f);
 }
 
 void engine_panel::render_integration_method()
@@ -288,32 +316,32 @@ void engine_panel::render_integration_method()
 
 void engine_panel::update_integration_method() const
 {
-    rk::integrator &integ = m_app->world.integrator;
+    rk::integrator<float> &integ = m_app->world.integrator;
     switch (m_integration_method)
     {
     case integration_method::RK1:
-        integ.tableau(rk::butcher_tableau::rk1);
+        integ.tableau(rk::butcher_tableau<float>::rk1);
         break;
     case integration_method::RK2:
-        integ.tableau(rk::butcher_tableau::rk2);
+        integ.tableau(rk::butcher_tableau<float>::rk2);
         break;
     case integration_method::RK4:
-        integ.tableau(rk::butcher_tableau::rk4);
+        integ.tableau(rk::butcher_tableau<float>::rk4);
         break;
     case integration_method::RK38:
-        integ.tableau(rk::butcher_tableau::rk38);
+        integ.tableau(rk::butcher_tableau<float>::rk38);
         break;
     case integration_method::RKF12:
-        integ.tableau(rk::butcher_tableau::rkf12);
+        integ.tableau(rk::butcher_tableau<float>::rkf12);
         break;
     case integration_method::RKF45:
-        integ.tableau(rk::butcher_tableau::rkf45);
+        integ.tableau(rk::butcher_tableau<float>::rkf45);
         break;
     case integration_method::RKFCK45:
-        integ.tableau(rk::butcher_tableau::rkfck45);
+        integ.tableau(rk::butcher_tableau<float>::rkfck45);
         break;
     case integration_method::RKF78:
-        integ.tableau(rk::butcher_tableau::rkf78);
+        integ.tableau(rk::butcher_tableau<float>::rkf78);
         break;
     }
 }

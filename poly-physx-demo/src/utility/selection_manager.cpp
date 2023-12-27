@@ -1,7 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/utility/selection_manager.hpp"
 #include "ppx-demo/app/demo_app.hpp"
-#include "geo/intersection.hpp"
+#include "geo/algorithm/intersection.hpp"
 #include "kit/utility/utils.hpp"
 
 namespace ppx::demo
@@ -51,7 +51,7 @@ void selection_manager::update()
     if (!m_selecting)
     {
         for (const body2D::ptr &body : m_selected_bodies)
-            m_app.shapes()[body->index]->outline_thickness = oscillating_thickness(m_app.world.elapsed());
+            m_app.shapes()[body->index]->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
 
         return;
     }
@@ -60,7 +60,7 @@ void selection_manager::update()
         const body2D::ptr body = m_app.world.bodies.ptr(i);
         const auto &shape = m_app.shapes()[i];
         if (is_selecting(body))
-            shape->outline_thickness = oscillating_thickness(m_app.world.elapsed());
+            shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
         else if (!kit::approaches_zero(shape->outline_thickness))
             shape->outline_thickness = 0.f;
     }
