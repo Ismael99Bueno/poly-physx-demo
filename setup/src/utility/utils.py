@@ -5,7 +5,7 @@ def download_file(url: str, path: Path) -> None:
     from tqdm import tqdm
     import requests
 
-    path.mkdir(exist_ok=True)
+    path.parent.mkdir(exist_ok=True, parents=True)
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"
     }
