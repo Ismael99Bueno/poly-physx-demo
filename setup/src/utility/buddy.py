@@ -15,17 +15,16 @@ class Buddy:
         return cls.__instance
 
     def __init(self) -> Buddy:
-        self.__root_path = Path(
-            os.path.dirname(os.path.realpath(__file__))
-        ).parent.parent.parent.absolute()
+        self.__root_path = Path(__file__).parent.parent.parent.parent.resolve()
 
         if not self.__root_path.exists():
             raise PathNotFoundError(f"Root path '{self.__root_path}' was not found")
 
-        self.__windows_mingw_path = Path(
+        self.windows_mingw_path = Path(
             "C:", "mingw", "32" if self.os_architecture == "x86" else "64"
         )
         self.__accept_all_prompts = False
+        self.all_yes = False
         return self
 
     def add_to_premake_path(self, path: str) -> None:
@@ -89,11 +88,3 @@ class Buddy:
             return similars[platform.machine().lower()]
         except KeyError:
             return platform.machine().lower()
-
-    @property
-    def windows_mingw_path(self) -> Path:
-        return self.__windows_mingw_path
-
-    @windows_mingw_path.setter
-    def windows_mingw_path(self, windows_mingw_path: Path) -> None:
-        self.__windows_mingw_path = windows_mingw_path
