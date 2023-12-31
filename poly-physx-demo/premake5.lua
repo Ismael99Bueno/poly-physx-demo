@@ -45,10 +45,6 @@ includedirs {
 
 links {
    "glfw",
-   "Cocoa.framework",
-   "IOKit.framework",
-   "CoreFoundation.framework",
-   "vulkan",
    "yaml-cpp",
    "rk-integrator",
    "geometry",
@@ -57,6 +53,20 @@ links {
    "imgui",
    "implot",
    "poly-physx-app",
-   "lynx",
+   "lynx"
 }
+
+filter "system:windows"
+   includedirs "%{VULKAN_SDK}/include"
+   libdirs "%{VULKAN_SDK}/Lib"
+   links "vulkan-1"
+
+filter "system:macosx"
+   links {
+      "Cocoa.framework",
+      "IOKit.framework",
+      "CoreFoundation.framework",
+      "vulkan"
+   }
+
 
