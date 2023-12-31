@@ -5,6 +5,7 @@ validate_python_version()
 from pathlib import Path
 from utility.arguments import build_and_retrieve_arguments
 from utility.buddy import Buddy
+from validation.exceptions import GeneratorNotSupportedError
 
 import subprocess
 
@@ -13,13 +14,15 @@ def build(generator: str) -> None:
     print("\n==== BUILD FILES GENERATION ====")
     bud = Buddy()
 
-    export_compile_commands_path = bud.root_path / Path(
-        "vendor", "premake-export-compile-commands"
+    export_compile_commands_path = (
+        bud.root_path / "vendor" / "premake-export-compile-commands"
     )
-    premake_windows_executable_path = bud.root_path / Path(
-        "vendor", "premake", "bin", "premake5.exe"
+
+    premake_windows_executable_path = (
+        bud.root_path / "vendor" / "premake" / "bin" / "premake5.exe"
     )
-    premake_file_path = bud.root_path / Path("premake5.lua")
+
+    premake_file_path = bud.root_path / "premake5.lua"
 
     bud.add_to_premake_path(export_compile_commands_path)
     subprocess.run(
@@ -38,6 +41,10 @@ def clean(generator: str) -> None:
 
     is_gmake = generator.startswith("gmake")
     is_vs = generator.startswith("vs")
+    if not is_vs and not is_gmake:
+        raise GeneratorNotSupportedError(
+            f"The generator '{generator}' is not supported"
+        )
 
     bud = Buddy()
     vendor_folder = bud.root_path / Path("vendor")

@@ -20,7 +20,7 @@ class Buddy:
         ).parent.parent.parent.absolute()
 
         if not self.__root_path.exists():
-            raise PathNotFoundError(f"Root path {self.__root_path} was not found")
+            raise PathNotFoundError(f"Root path '{self.__root_path}' was not found")
 
         self.__windows_mingw_path = Path(
             "C:", "mingw", "32" if self.os_architecture == "x86" else "64"
@@ -50,7 +50,7 @@ class Buddy:
 
     def prompt_to_install(self, to_be_installed: str) -> bool:
         return self.prompt(
-            f"{to_be_installed} installation not found. Do you wish to install?"
+            f"'{to_be_installed}' installation not found. Do you wish to install?"
         )
 
     def accept_all_prompts(self) -> None:
@@ -91,7 +91,7 @@ class Buddy:
             return platform.machine().lower()
 
     @property
-    def windows_mingw_path(self) -> str:
+    def windows_mingw_path(self) -> Path:
         return self.__windows_mingw_path
 
     @windows_mingw_path.setter

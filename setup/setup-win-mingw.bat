@@ -1,5 +1,5 @@
 @echo off
-python setup_win.py --generator gmake2
+python src/setup_win.py --generator gmake2
 IF %ERRORLEVEL%==0 (
     cd ..
     cmd /k

@@ -1,22 +1,29 @@
-from setup_py import validate_python_version, validate_python_packages
-from setup_win_premake import validate_premake
-from setup_win_cmake import validate_cmake
-from exceptions import BadOSError
-import subprocess
-from utils import Buddy
+from validation.python_validation import (
+    validate_python_version,
+    validate_python_packages,
+)
+from validation.premake_validation import validate_premake
+from validation.mingw_validation import validate_mingw
+
+validate_python_version()
+
+from utility.buddy import Buddy
+from validation.exceptions import BadOSError
+
 import sys
+import subprocess
 
 
 def main() -> None:
     bud = Buddy()
     if not bud.is_windows:
-        raise BadOSError("Windows", bud.current_os)
-
-    validate_python_version()
+        raise BadOSError(
+            f"This setup can only be run if the current OS is windows, but the current OS is '{bud.current_os}'"
+        )
     validate_python_packages(["requests", "tqdm"])
-
     validate_premake()
-    validate_cmake()
+    if sys.argv[2].startswith("gmake"):
+        validate_mingw()
 
     subprocess.run(
         [

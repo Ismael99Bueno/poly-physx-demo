@@ -25,13 +25,13 @@ def validate_python_version(
     ):
         if current < required:
             raise PythonVersionError(
-                f"Python version required: {req_major}.{req_minor}.{req_micro}",
-                f"Python version found: {major}.{minor}.{micro}",
+                f"Python version required: '{req_major}.{req_minor}.{req_micro}'",
+                f"Python version found: '{major}.{minor}.{micro}'",
             )
         elif current > required:
-            print(f"Valid python version detected: {major}.{minor}.{micro}")
+            print(f"Valid python version detected: '{major}.{minor}.{micro}'")
             return
-    print(f"Valid python version detected: {major}.{minor}.{micro}")
+    print(f"Valid python version detected: '{major}.{minor}.{micro}'")
 
 
 def validate_python_packages(package_names: Union[str, list[str]]) -> None:
@@ -58,7 +58,7 @@ def __validate_package(package_name: str) -> bool:
         return True
 
     if not __install_python_package(package_name):
-        raise PackageNotFoundError(f"The package '{package_name} was not found'")
+        raise PackageNotFoundError(f"The package '{package_name}' was not found")
 
     print(f"Package '{package_name}' installed\n")
     return False

@@ -23,8 +23,7 @@ def build_and_retrieve_arguments() -> tuple[str, bool]:
         "-c",
         "--clean",
         dest="clean",
-        action="store_const",
-        const=True,
+        action="store_true",
         default=False,
         help="Clears all build files for the selected project component and generator, specified with '--which', and '--generator'. If all generators are to be cleaned, you can specify '--generator all'.",
     )
@@ -33,8 +32,7 @@ def build_and_retrieve_arguments() -> tuple[str, bool]:
         "-y",
         "--yes",
         dest="all_prompts_accepted",
-        action="store_const",
-        const=True,
+        action="store_true",
         default=False,
         help="Confirms all installations by default.",
     )
