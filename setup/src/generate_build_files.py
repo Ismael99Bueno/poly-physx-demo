@@ -60,8 +60,9 @@ def clean(generator: str) -> None:
                     print(f"Removing {vcxproj.absolute()}")
                     vcxproj.unlink()
             for sln in folder.rglob("*.sln"):
-                print(f"Removing {sln.absolute()}")
-                sln.unlink()
+                if "example" not in str(sln):
+                    print(f"Removing {sln.absolute()}")
+                    sln.unlink()
     print("Done")
 
 

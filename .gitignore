@@ -18,6 +18,8 @@
 *env/
 
 # Project files
+*.idb
+*.pdb
 *.xcworkspace/
 **.xcodeproj
 *.sln
