@@ -38,7 +38,7 @@ def main() -> None:
         check=True,
     )
     print(
-        "Run generate_build_files.py with python to have further detain on how the project can be built. Use the -h flag to display the options available"
+        "Run generate_build_files.py with python to have further detail on how the project can be built. Use the -h flag to display the options available"
     )
 
     print("\nSetup completed successfully!")
