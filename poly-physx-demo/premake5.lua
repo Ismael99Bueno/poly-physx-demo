@@ -56,6 +56,7 @@ links {
    "lynx"
 }
 
+VULKAN_SDK = os.getenv("VULKAN_SDK")
 filter "system:windows"
    includedirs "%{VULKAN_SDK}/Include"
    libdirs "%{VULKAN_SDK}/Lib"
