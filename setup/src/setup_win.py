@@ -3,7 +3,9 @@ from validation.python_validation import (
     validate_python_packages,
 )
 from validation.premake_validation import validate_premake
+from validation.vulkan_validation import validate_vulkan
 from validation.mingw_validation import validate_mingw
+
 
 validate_python_version()
 
@@ -22,13 +24,14 @@ def main() -> None:
         )
     validate_python_packages(["requests", "tqdm"])
     validate_premake()
+    validate_vulkan()
     if sys.argv[2].startswith("gmake"):
         validate_mingw()
 
     subprocess.run(
         [
             "python",
-            f"{bud.root_path}/scripts/generate_build_files.py",
+            f"{bud.root_path}/setup/src/generate_build_files.py",
             sys.argv[1],
             sys.argv[2],
         ],
