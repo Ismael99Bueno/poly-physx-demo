@@ -35,7 +35,7 @@ def __install_premake(premake_dir: Path) -> bool:
     print(f"\nExtracting {zip_path} to {premake_dir}...")
     unzip_file(zip_path, premake_dir)
     print(f"\nDownloading premake license from {license_url}...")
-    download_file(license_url, f"{premake_dir}/LICENSE.txt")
+    download_file(license_url, premake_dir / "LICENSE.TXT")
     print(
         f"\nPremake has been successfully installed at {premake_dir}. This installation is local. Removing the project or executing generate_build_files.py --clean will get rid of the installation."
     )
