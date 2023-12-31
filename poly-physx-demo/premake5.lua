@@ -57,7 +57,7 @@ links {
 }
 
 filter "system:windows"
-   includedirs "%{VULKAN_SDK}/include"
+   includedirs "%{VULKAN_SDK}/Include"
    libdirs "%{VULKAN_SDK}/Lib"
    links "vulkan-1"
 
