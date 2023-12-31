@@ -8,8 +8,9 @@ from utility.utils import download_file, unzip_file
 def validate_vulkan() -> None:
     print("\n==== VULKAN VALIDATION ====")
 
-    if __is_vulkan_installed() and not __install_vulkan():
+    if not __is_vulkan_installed() and not __install_vulkan():
         raise DependencyNotFoundError("The dependency 'Vulkan' was not found")
+    print("Vulkan installed")
 
 
 def __is_vulkan_installed() -> bool:
