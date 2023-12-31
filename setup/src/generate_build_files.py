@@ -50,14 +50,16 @@ def clean(generator: str) -> None:
     vendor_folder = bud.root_path / Path("vendor")
     for folder in [bud.root_path, vendor_folder]:
         if is_gmake:
-            for makefile in folder.glob("*/Makefile"):
-                print(f"Removing {makefile.absolute()}")
-                makefile.unlink()
+            for makefile in folder.rglob("*Makefile"):
+                if "example" not in str(makefile):
+                    print(f"Removing {makefile.absolute()}")
+                    makefile.unlink()
         elif is_vs:
-            for vcxproj in folder.glob("**.vcxproj*"):
-                print(f"Removing {vcxproj.absolute()}")
-                vcxproj.unlink()
-            for sln in folder.glob("**.sln"):
+            for vcxproj in folder.rglob("*.vcxproj*"):
+                if "example" not in str(vcxproj):
+                    print(f"Removing {vcxproj.absolute()}")
+                    vcxproj.unlink()
+            for sln in folder.rglob("*.sln"):
                 print(f"Removing {sln.absolute()}")
                 sln.unlink()
     print("Done")
