@@ -227,9 +227,9 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
 
 kit::time performance_panel::evaluate_max_hierarchy_measurement(const char *name, kit::time duration)
 {
-    if (m_max_time_hierarchy_measurements.find(name) != m_max_time_hierarchy_measurements.end() &&
-        duration <= m_max_time_hierarchy_measurements.at(name))
-        return m_max_time_hierarchy_measurements.at(name);
+    const auto max_measure = m_max_time_hierarchy_measurements.find(name);
+    if (max_measure != m_max_time_hierarchy_measurements.end() && duration <= max_measure->second)
+        return max_measure->second;
 
     m_max_time_hierarchy_measurements[name] = duration;
     return duration;

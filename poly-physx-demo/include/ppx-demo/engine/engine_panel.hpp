@@ -2,9 +2,11 @@
 
 #include "ppx-demo/app/demo_layer.hpp"
 #include "ppx-app/lines/thick_line.hpp"
+
 #include "ppx/collision/detection/brute_force_detection2D.hpp"
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
+
 #include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
 #include "ppx/collision/resolution/constraint_driven_resolution2D.hpp"
 
@@ -52,9 +54,9 @@ class engine_panel : public demo_layer
     void render_collision_parameters();
     void render_constraint_parameters();
 
-    void render_quad_tree_parameters();
-    void render_spring_driven_parameters();
-    void render_constraint_driven_parameters();
+    void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
+    void render_spring_driven_parameters(spring_driven_resolution2D &spres);
+    void render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres);
 
     void render_timestep_settings() const;
     void render_integration_method();
@@ -64,9 +66,14 @@ class engine_panel : public demo_layer
     void update_collisions();
     void update_quad_tree_lines(const quad_tree &qt);
 
-    void render_collision_detection_list();
-    void render_collision_list();
-    void render_collision_resolution_list();
+    void render_collision_detection_list() const;
+    void render_collision_list() const;
+    void render_collision_resolution_list() const;
+
+    void render_cc_manifold_list() const;
+    void render_cp_manifold_list() const;
+    void render_pp_manifold_list() const;
+
     void render_bounding_boxes() const;
     void render_collisions();
     void render_quad_tree_lines() const;

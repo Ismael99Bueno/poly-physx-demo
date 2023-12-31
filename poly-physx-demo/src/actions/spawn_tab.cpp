@@ -18,7 +18,8 @@ void spawn_tab::update()
         return;
 
     const glm::vec2 velocity = (m_starting_mouse_pos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
-    m_current_body_template.specs.velocity = velocity;
+    if (m_current_body_template.specs.kinematic)
+        m_current_body_template.specs.velocity = velocity;
 
     const float angle = std::atan2f(velocity.y, velocity.x);
     m_preview->transform.rotation = angle;
@@ -50,8 +51,15 @@ void spawn_tab::render_body_shape_types_and_properties()
 
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
+
+    if (ImGui::Checkbox("Kinematic", &m_current_body_template.specs.kinematic))
+    {
+        m_current_body_template.specs.velocity = {0.f, 0.f};
+        m_current_body_template.specs.angular_velocity = 0.f;
+    }
     ImGui::DragFloat("Mass", &m_current_body_template.specs.mass, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Charge", &m_current_body_template.specs.charge, drag_speed, 0.f, FLT_MAX, format);
+
     switch (m_current_body_template.type)
     {
     case shape_type::RECT: {
