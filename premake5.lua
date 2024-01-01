@@ -10,7 +10,6 @@ configurations {
 startproject "poly-physx-demo"
 
 defines {
-   "PPX_MULTITHREADED",
    "YAML_CPP_STATIC_DEFINE",
    "KIT_USE_SPDLOG",
    -- "KIT_USE_CUSTOM_ALLOC",
