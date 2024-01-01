@@ -48,11 +48,11 @@ def main() -> None:
 
 def __compile_lynx_shaders() -> None:
     print("\nCompiling lynx shaders...")
-    sys.path.append(Buddy().root_path)
+    sys.path.append(str(Buddy().root_path))
     from lynx.scripts.win_compile_shaders import main
 
     main()
 
 
 if __name__ == "__main__":
-    main()
+    __compile_lynx_shaders()
