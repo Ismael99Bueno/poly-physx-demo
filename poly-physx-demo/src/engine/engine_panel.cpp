@@ -78,25 +78,35 @@ void engine_panel::render_collision_parameters()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
-    ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
-                       ImGuiSliderFlags_Logarithmic);
-
-    render_collision_detection_list();
-    render_collision_resolution_list();
-
-    if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
-        render_quad_tree_parameters(*qtdet);
-    if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
-        render_spring_driven_parameters(*spres);
-    if (auto ctrres = m_app->world.collisions.resolution<constraint_driven_resolution2D>())
-        render_constraint_driven_parameters(*ctrres);
-
-    render_cc_manifold_list();
-    render_cp_manifold_list();
-    render_pp_manifold_list();
-
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collision_list();
+
+    if (ImGui::TreeNode("Collision detection"))
+    {
+        ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
+
+        ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->multithreaded);
+        render_collision_detection_list();
+
+        if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
+            render_quad_tree_parameters(*qtdet);
+        render_cc_manifold_list();
+        render_cp_manifold_list();
+        render_pp_manifold_list();
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Collision resolution"))
+    {
+        ImGui::Checkbox("Multithreading", &m_app->world.collisions.resolution()->multithreaded);
+        render_collision_resolution_list();
+
+        if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
+            render_spring_driven_parameters(*spres);
+        if (auto ctrres = m_app->world.collisions.resolution<constraint_driven_resolution2D>())
+            render_constraint_driven_parameters(*ctrres);
+        ImGui::TreePop();
+    }
 }
 
 void engine_panel::render_constraint_parameters()
