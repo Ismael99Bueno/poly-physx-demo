@@ -36,4 +36,4 @@ def __install_vulkan() -> bool:
     )
     input("Press any key to begin installation...")
     os.startfile(installer_path)
-    exit(0)
+    quit()

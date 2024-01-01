@@ -49,7 +49,7 @@ def restart_to_apply_changes(path_to_script_to_rerun: Path) -> None:
     print("Script will now execute again for the changes to take effect")
     time.sleep(2.0)
     os.startfile(path_to_script_to_rerun)
-    exit()
+    quit()
 
 
 def __validate_package(package_name: str) -> bool:

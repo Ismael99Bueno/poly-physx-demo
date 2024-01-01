@@ -28,6 +28,8 @@ def main() -> None:
     if sys.argv[2].startswith("gmake"):
         validate_mingw()
 
+    __compile_lynx_shaders()
+
     subprocess.run(
         [
             "python",
@@ -42,6 +44,14 @@ def main() -> None:
     )
 
     print("\nSetup completed successfully!")
+
+
+def __compile_lynx_shaders() -> None:
+    print("\nCompiling lynx shaders...")
+    sys.path.append(Buddy().root_path)
+    from lynx.scripts.win_compile_shaders import main
+
+    main()
 
 
 if __name__ == "__main__":
