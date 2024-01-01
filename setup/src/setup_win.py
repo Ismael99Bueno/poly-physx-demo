@@ -55,4 +55,4 @@ def __compile_lynx_shaders() -> None:
 
 
 if __name__ == "__main__":
-    __compile_lynx_shaders()
+    main()
