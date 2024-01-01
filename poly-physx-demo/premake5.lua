@@ -15,6 +15,7 @@ filter "system:macosx"
       "-Wno-unused-parameter",
       "-Wno-sign-conversion"
    }
+filter{}
 
 pchheader "ppx-demo/internal/pch.hpp"
 pchsource "src/internal/pch.cpp"
