@@ -98,7 +98,6 @@ void engine_panel::render_collision_parameters()
     }
     if (ImGui::TreeNode("Collision resolution"))
     {
-        ImGui::Checkbox("Multithreading", &m_app->world.collisions.resolution()->multithreaded);
         render_collision_resolution_list();
 
         if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
