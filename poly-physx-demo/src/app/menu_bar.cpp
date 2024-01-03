@@ -12,6 +12,8 @@ menu_bar::menu_bar() : demo_layer("Menu bar")
 
 static bool any_user_file_present(const char *path)
 {
+    if (!std::filesystem::exists(path))
+        return false;
     for (const auto &entry : std::filesystem::directory_iterator(path))
     {
         const std::string filename = entry.path().filename().string();
