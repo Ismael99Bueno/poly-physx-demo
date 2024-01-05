@@ -25,9 +25,9 @@ void physics_panel::on_attach()
     m_attractive->exponent = 1;
     m_attractive->magnitude = -20.f;
 
-    const kit::callback<const body2D::ptr &> include_behaviour{[this](const body2D::ptr &body) {
+    const kit::callback<body2D &> include_behaviour{[this](body2D &body) {
         for (behaviour2D *bhv : m_behaviours)
-            bhv->add(body);
+            bhv->add(body.as_ptr());
     }};
     m_app->world.events.on_body_addition += include_behaviour;
 }

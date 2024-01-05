@@ -221,7 +221,7 @@ void group_manager::paste_group()
     {
         body2D::specs specs = btemplate.specs;
         specs.position += offset_pos;
-        old_id_to_new_body[btemplate.id] = m_app.world.bodies.add(specs);
+        old_id_to_new_body[btemplate.id] = m_app.world.bodies.add(specs).as_ptr();
     }
 
     for (spring_template &sptemplate : m_current_group.spring_templates)

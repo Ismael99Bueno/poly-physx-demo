@@ -28,7 +28,7 @@ void joints_tab::update()
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
-    const body2D::ptr body2 = m_app->world.bodies[mpos];
+    const body2D *body2 = m_app->world.bodies[mpos];
 
     m_preview->p2((!center_anchor2 && body2) ? body2->position() : mpos);
 }
@@ -45,7 +45,7 @@ float joints_tab::current_joint_length() const
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
-    const body2D::ptr body2 = m_app->world.bodies[mpos];
+    const body2D *body2 = m_app->world.bodies[mpos];
 
     const glm::vec2 p2 = (!center_anchor2 && body2) ? body2->position() : mpos;
     return glm::distance(p1, p2);
@@ -265,13 +265,13 @@ void joints_tab::render_imgui_tab()
 void joints_tab::begin_joint_attach()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_body1 = m_app->world.bodies[mpos];
-    if (!m_body1)
+    body2D *body1 = m_app->world.bodies[mpos];
+    if (!body1)
         return;
 
     const bool center_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
-    m_anchor1 = center_anchor1 ? (mpos - m_body1->position()) : glm::vec2(0.f);
-    m_rotation1 = m_body1->rotation();
+    m_anchor1 = center_anchor1 ? (mpos - body1->position()) : glm::vec2(0.f);
+    m_rotation1 = body1->rotation();
 
     switch (m_joint_type)
     {
@@ -282,13 +282,14 @@ void joints_tab::begin_joint_attach()
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
         break;
     }
+    m_body1 = body1->as_ptr();
 }
 
 template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    const body2D::ptr body2 = m_app->world.bodies[mpos];
-    if (!body2 || m_body1 == body2)
+    body2D *body2 = m_app->world.bodies[mpos];
+    if (!body2 || *m_body1 == *body2)
         return false;
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
@@ -297,7 +298,7 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
     specs.joint.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
 
     specs.joint.body1 = m_body1;
-    specs.joint.body2 = body2;
+    specs.joint.body2 = body2->as_ptr();
 
     return true;
 }

@@ -54,11 +54,13 @@ void grab_tab::render_imgui_tab()
 void grab_tab::begin_grab()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_body = m_app->world.bodies[mpos];
-    if (!m_body)
+    body2D *body = m_app->world.bodies[mpos];
+    if (!body)
         return;
-    m_anchor = mpos - m_body->position();
-    m_rotation = m_body->rotation();
+
+    m_anchor = mpos - body->position();
+    m_rotation = body->rotation();
+    m_body = body->as_ptr();
 }
 
 void grab_tab::end_grab()
