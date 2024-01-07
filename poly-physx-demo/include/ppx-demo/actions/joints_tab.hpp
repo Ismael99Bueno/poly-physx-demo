@@ -24,6 +24,9 @@ class joints_tab
 
     bool first_is_selected() const;
 
+    void increase_joint_type();
+    void decrease_joint_type();
+
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
 
@@ -31,7 +34,8 @@ class joints_tab
     enum class joint_type
     {
         SPRING,
-        DISTANCE
+        DISTANCE,
+        SIZE
     };
 
     demo_app *m_app;

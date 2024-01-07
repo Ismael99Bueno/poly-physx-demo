@@ -237,11 +237,11 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
 void joints_tab::render_imgui_tab()
 {
     ImGui::BeginTabBar("Joints tab bar");
+    static const char *names[2] = {"Spring", "Distance joint"};
+    ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
 
     if (ImGui::BeginTabItem("Spring"))
     {
-        if (!m_body1)
-            m_joint_type = joint_type::SPRING;
         render_joint_properties(m_spring_specs);
         render_selected_spring_properties();
         if (ImGui::CollapsingHeader("Springs"))
@@ -250,8 +250,6 @@ void joints_tab::render_imgui_tab()
     }
     if (ImGui::BeginTabItem("Distance joint"))
     {
-        if (!m_body1)
-            m_joint_type = joint_type::DISTANCE;
         render_joint_properties(m_dist_joint_specs);
         render_selected_dist_joint_properties();
         if (ImGui::CollapsingHeader("Distance joints"))
@@ -280,6 +278,8 @@ void joints_tab::begin_joint_attach()
         break;
     case joint_type::DISTANCE:
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
+        break;
+    default:
         break;
     }
     m_body1 = body1->as_ptr();
@@ -317,6 +317,8 @@ void joints_tab::end_joint_attach()
         if (attach_bodies_to_joint_specs(m_dist_joint_specs))
             m_app->world.constraints.add<distance_joint2D>(m_dist_joint_specs);
         break;
+    default:
+        break;
     }
     m_body1 = nullptr;
 }
@@ -329,6 +331,20 @@ void joints_tab::cancel_joint_attach()
 bool joints_tab::first_is_selected() const
 {
     return m_body1;
+}
+
+void joints_tab::increase_joint_type()
+{
+    const std::uint32_t idx = ((std::uint32_t)m_joint_type + 1) % (std::uint32_t)joint_type::SIZE;
+    m_joint_type = (joint_type)idx;
+}
+void joints_tab::decrease_joint_type()
+{
+    const std::uint32_t idx = (std::uint32_t)m_joint_type;
+    if (idx == 0)
+        m_joint_type = (joint_type)((std::uint32_t)joint_type::SIZE - 1);
+    else
+        m_joint_type = (joint_type)(idx - 1);
 }
 
 YAML::Node joints_tab::encode() const

@@ -18,8 +18,11 @@ class spawn_tab
     void render_imgui_tab();
 
     void begin_body_spawn();
-    void end_body_spawn();
+    void end_body_spawn(bool avoid_overlap = false);
     void cancel_body_spawn();
+
+    void increase_body_type();
+    void decrease_body_type();
 
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
@@ -30,7 +33,8 @@ class spawn_tab
         RECT,
         CIRCLE,
         NGON,
-        CUSTOM
+        CUSTOM,
+        SIZE
     };
     struct body_template
     {
@@ -49,7 +53,11 @@ class spawn_tab
     glm::vec2 m_starting_mouse_pos{0.f};
     float m_speed_spawn_multiplier = 0.6f;
     body_template m_current_body_template{};
-    bool m_previewing = false;
+
+    bool m_spawning = false;
+    bool m_bulk_spawn = false;
+
+    body2D::ptr m_last_added = nullptr;
 
     std::unordered_map<std::string, body_template> m_templates;
 
@@ -60,7 +68,9 @@ class spawn_tab
 
     void render_body_shape_types_and_properties();
     void render_menu_bar();
-    void render_custom_shape_canvas();
+    void render_and_update_custom_shape_canvas();
+
+    void update_shape_from_type();
 
     static YAML::Node encode_template(const body_template &btemplate);
     static body_template decode_template(const YAML::Node &node);

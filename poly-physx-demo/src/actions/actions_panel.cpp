@@ -55,8 +55,15 @@ void actions_panel::on_render(const float ts)
 
 bool actions_panel::on_event(const lynx::event2D &event)
 {
+    const bool spawning = lynx::input2D::key_pressed(lynx::input2D::key::SPACE);
     const bool attaching = lynx::input2D::key_pressed(lynx::input2D::key::F);
-    const bool grabbing = lynx::input2D::key_pressed(lynx::input2D::key::G) && !attaching;
+    const bool grabbing = lynx::input2D::key_pressed(lynx::input2D::key::G);
+    if (!spawning)
+        m_spawn_tab.cancel_body_spawn();
+    if (!attaching)
+        m_joints_tab.cancel_joint_attach();
+    if (!grabbing)
+        m_grab_tab.end_grab();
     switch (event.type)
     {
     case lynx::event2D::KEY_PRESSED:
@@ -64,11 +71,18 @@ bool actions_panel::on_event(const lynx::event2D &event)
             return false;
         switch (event.key)
         {
-        case lynx::input2D::key::BACKSPACE:
-            m_spawn_tab.cancel_body_spawn();
-            m_joints_tab.cancel_joint_attach();
-            m_grab_tab.end_grab();
-            return true;
+        case lynx::input2D::key::LEFT:
+            m_joints_tab.decrease_joint_type();
+            break;
+        case lynx::input2D::key::RIGHT:
+            m_joints_tab.increase_joint_type();
+            break;
+        case lynx::input2D::key::UP:
+            m_spawn_tab.decrease_body_type();
+            break;
+        case lynx::input2D::key::DOWN:
+            m_spawn_tab.increase_body_type();
+            break;
         default:
             break;
         }
@@ -79,7 +93,9 @@ bool actions_panel::on_event(const lynx::event2D &event)
         switch (event.mouse.button)
         {
         case lynx::input2D::mouse::BUTTON_1:
-            if (attaching)
+            if (spawning)
+                m_spawn_tab.begin_body_spawn();
+            else if (attaching)
             {
                 if (m_joints_tab.first_is_selected())
                     m_joints_tab.end_joint_attach();
@@ -88,8 +104,7 @@ bool actions_panel::on_event(const lynx::event2D &event)
             }
             else if (grabbing)
                 m_grab_tab.begin_grab();
-            else
-                m_spawn_tab.begin_body_spawn();
+
             return true;
 
         default:
@@ -103,10 +118,10 @@ bool actions_panel::on_event(const lynx::event2D &event)
         switch (event.mouse.button)
         {
         case lynx::input2D::mouse::BUTTON_1: {
-            if (grabbing)
-                m_grab_tab.end_grab();
-            else
+            if (spawning)
                 m_spawn_tab.end_body_spawn();
+            else if (grabbing)
+                m_grab_tab.end_grab();
             return true;
         }
         default:

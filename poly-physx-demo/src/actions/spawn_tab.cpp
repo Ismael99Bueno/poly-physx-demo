@@ -3,6 +3,7 @@
 #include "ppx-demo/app/demo_app.hpp"
 #include "lynx/app/window.hpp"
 #include "kit/serialization/yaml/glm.hpp"
+#include "geo/algorithm/intersection.hpp"
 
 namespace ppx::demo
 {
@@ -14,7 +15,7 @@ spawn_tab::spawn_tab(demo_app *app) : m_app(app)
 
 void spawn_tab::update()
 {
-    if (!m_previewing)
+    if (!m_spawning)
         return;
 
     const glm::vec2 velocity = (m_starting_mouse_pos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
@@ -24,34 +25,57 @@ void spawn_tab::update()
     const float angle = std::atan2f(velocity.y, velocity.x);
     m_preview->transform.rotation = angle;
     m_current_body_template.specs.rotation = angle;
+    if (m_bulk_spawn)
+    {
+        end_body_spawn(true);
+        m_spawning = true;
+    }
 }
 
 void spawn_tab::render()
 {
-    if (m_previewing)
+    if (m_spawning)
         m_window->draw(*m_preview);
 }
 
 void spawn_tab::render_imgui_tab()
 {
-    ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_menu_bar();
+    ImGui::Text("Switch shape type with UP and DOWN");
+    ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_body_shape_types_and_properties();
+}
+
+void spawn_tab::update_shape_from_type()
+{
+    m_current_body_template.specs.shape =
+        m_current_body_template.type == shape_type::CIRCLE ? body2D::shape_type::CIRCLE : body2D::shape_type::POLYGON;
+    switch (m_current_body_template.type)
+    {
+    case shape_type::RECT: {
+        m_current_body_template.specs.vertices =
+            geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
+        break;
+    }
+    case shape_type::NGON: {
+        m_current_body_template.specs.vertices =
+            geo::polygon::ngon(m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void spawn_tab::render_body_shape_types_and_properties()
 {
     static const char *shape_types[4] = {"Rect", "Circle", "NGon", "Custom"};
-    const bool needs_update = ImGui::ListBox("Body shape", (int *)&m_current_body_template.type, shape_types, 4);
-
-    if (needs_update)
-        m_current_body_template.specs.shape = m_current_body_template.type == shape_type::CIRCLE
-                                                  ? body2D::shape_type::CIRCLE
-                                                  : body2D::shape_type::POLYGON;
+    bool needs_update = ImGui::ListBox("Body shape", (int *)&m_current_body_template.type, shape_types, 4);
 
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
 
+    ImGui::Checkbox("Bulk spawning", &m_bulk_spawn);
     if (ImGui::Checkbox("Kinematic", &m_current_body_template.specs.kinematic))
     {
         m_current_body_template.specs.velocity = {0.f, 0.f};
@@ -65,12 +89,9 @@ void spawn_tab::render_body_shape_types_and_properties()
     case shape_type::RECT: {
         const bool w = ImGui::DragFloat("Width", &m_current_body_template.width, drag_speed, 0.f, FLT_MAX, format);
         const bool h = ImGui::DragFloat("Height", &m_current_body_template.height, drag_speed, 0.f, FLT_MAX, format);
-        if (needs_update || w || h)
-            m_current_body_template.specs.vertices =
-                geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
+        needs_update |= w || h;
         break;
     }
-
     case shape_type::CIRCLE:
         ImGui::DragFloat("Radius", &m_current_body_template.specs.radius, drag_speed, 0.f, FLT_MAX, format);
         break;
@@ -79,17 +100,18 @@ void spawn_tab::render_body_shape_types_and_properties()
         const bool r =
             ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
         const bool s = ImGui::DragInt("Sides", &m_current_body_template.ngon_sides, drag_speed, 3, 30);
-        if (needs_update || r || s)
-            m_current_body_template.specs.vertices = geo::polygon::ngon(
-                m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
+        needs_update |= r || s;
         break;
     }
-
     case shape_type::CUSTOM:
-        render_custom_shape_canvas();
+        render_and_update_custom_shape_canvas();
+        break;
+    default:
         break;
     }
     ImGui::ColorPicker3("Color", m_current_body_template.color.ptr());
+    if (needs_update)
+        update_shape_from_type();
 }
 
 bool spawn_tab::is_current_template_registered() const
@@ -168,9 +190,9 @@ void spawn_tab::render_menu_bar()
 
 void spawn_tab::begin_body_spawn()
 {
-    if (m_previewing)
+    if (m_spawning)
         return;
-    m_previewing = true;
+    m_spawning = true;
     m_app->body_color = m_current_body_template.color;
 
     if (m_current_body_template.type == shape_type::CIRCLE)
@@ -188,21 +210,46 @@ void spawn_tab::begin_body_spawn()
     m_current_body_template.specs.position = m_starting_mouse_pos;
 }
 
-void spawn_tab::end_body_spawn()
+void spawn_tab::end_body_spawn(const bool avoid_overlap)
 {
-    if (!m_previewing)
+    if (!m_spawning)
         return;
-    m_previewing = false;
+    m_spawning = false;
 
-    m_app->world.bodies.add(m_current_body_template.specs);
+    if (avoid_overlap && m_last_added)
+    {
+        const body2D proxy = body2D(m_current_body_template.specs);
+        if (!geo::intersects(m_last_added->shape().bounding_box(), proxy.shape().bounding_box()))
+            m_last_added = m_app->world.bodies.add(m_current_body_template.specs).as_ptr();
+    }
+    else
+        m_last_added = m_app->world.bodies.add(m_current_body_template.specs).as_ptr();
 }
 
 void spawn_tab::cancel_body_spawn()
 {
-    m_previewing = false;
+    m_spawning = false;
 }
 
-void spawn_tab::render_custom_shape_canvas()
+void spawn_tab::increase_body_type()
+{
+    auto &tp = m_current_body_template.type;
+    const std::uint32_t idx = ((std::uint32_t)tp + 1) % (std::uint32_t)shape_type::SIZE;
+    tp = (shape_type)idx;
+    update_shape_from_type();
+}
+void spawn_tab::decrease_body_type()
+{
+    auto &tp = m_current_body_template.type;
+    const std::uint32_t idx = (std::uint32_t)tp;
+    if (idx == 0)
+        tp = (shape_type)((std::uint32_t)shape_type::SIZE - 1);
+    else
+        tp = (shape_type)(idx - 1);
+    update_shape_from_type();
+}
+
+void spawn_tab::render_and_update_custom_shape_canvas()
 {
     const geo::polygon poly{m_current_body_template.specs.vertices};
     const bool is_convex = poly.is_convex();
@@ -376,6 +423,7 @@ YAML::Node spawn_tab::encode() const
     for (const auto &[name, btemplate] : m_templates)
         node["Saved templates"].push_back(encode_template(btemplate));
     node["Spawn speed"] = m_speed_spawn_multiplier;
+    node["Bulk spawn"] = m_bulk_spawn;
     return node;
 }
 void spawn_tab::decode(const YAML::Node &node)
@@ -385,5 +433,6 @@ void spawn_tab::decode(const YAML::Node &node)
         for (const auto &n : node["Saved templates"])
             m_templates[n["Name"].as<std::string>()] = decode_template(n);
     m_speed_spawn_multiplier = node["Spawn speed"].as<float>();
+    m_bulk_spawn = node["Bulk spawn"].as<bool>();
 }
 } // namespace ppx::demo
