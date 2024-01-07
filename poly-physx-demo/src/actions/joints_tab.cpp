@@ -159,8 +159,7 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
                 kit::uuid::name_from_id(dj.joint.body2()->id).c_str());
 
     ImGui::Spacing();
-    ImGui::Text("CValue: %.2f", dj.constraint_value());
-    ImGui::Text("CVelocity: %.2f", dj.constraint_velocity());
+    ImGui::Text("Stress: %.5f", dj.constraint_value());
     ImGui::DragFloat("Length", &dj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
 
