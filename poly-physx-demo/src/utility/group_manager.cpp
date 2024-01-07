@@ -131,7 +131,11 @@ YAML::Node group_manager::group::encode() const
     for (const spring_template &sptemplate : spring_templates)
     {
         YAML::Node spnode = encode_joint_template(sptemplate);
+        spnode["Stiffness"] = sptemplate.specs.stiffness;
+        spnode["Damping"] = sptemplate.specs.damping;
         spnode["Length"] = sptemplate.specs.length;
+        spnode["Non linear terms"] = sptemplate.specs.non_linear_terms;
+        spnode["Non linear contribution"] = sptemplate.specs.non_linear_contribution;
         node["Spring templates"].push_back(spnode);
     }
 
@@ -160,7 +164,11 @@ void group_manager::group::decode(const YAML::Node &node)
         {
             spring_template &sptemplate = spring_templates.emplace_back();
             decode_joint_template(sptemplate, n);
+            sptemplate.specs.stiffness = n["Stiffness"].as<float>();
+            sptemplate.specs.damping = n["Damping"].as<float>();
             sptemplate.specs.length = n["Length"].as<float>();
+            sptemplate.specs.non_linear_terms = n["Non linear terms"].as<std::uint32_t>();
+            sptemplate.specs.non_linear_contribution = n["Non linear contribution"].as<float>();
         }
 
     if (node["Distance joint templates"])

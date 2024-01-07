@@ -68,6 +68,9 @@ void joints_tab::render_single_spring_properties(spring2D &sp)
     ImGui::DragFloat("Stiffness##Single", &sp.stiffness, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Damping##Single", &sp.damping, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Length##Single", &sp.length, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::SliderInt("Non linear terms##Single", (int *)&sp.non_linear_terms, 0, 8);
+    ImGui::SliderFloat("Non linear contribution##Single", &sp.non_linear_contribution, 0.f, 1.f, "%.4f",
+                       ImGuiSliderFlags_Logarithmic);
 }
 
 void joints_tab::render_selected_spring_properties()
@@ -97,16 +100,22 @@ void joints_tab::render_selected_spring_properties()
         float stiffness = 0.f;
         float damping = 0.f;
         float length = 0.f;
+        std::uint32_t non_linear_terms = UINT32_MAX;
+        float non_linear_contribution = 0.f;
 
         for (const spring2D::ptr &sp : selected)
         {
             stiffness += sp->stiffness;
             damping += sp->damping;
             length += sp->length;
+            non_linear_contribution += sp->non_linear_contribution;
+            if (non_linear_terms > sp->non_linear_terms)
+                non_linear_terms = sp->non_linear_terms;
         }
         stiffness /= selected.size();
         damping /= selected.size();
         length /= selected.size();
+        non_linear_contribution /= selected.size();
 
         if (ImGui::DragFloat("Stiffness##Multiple", &stiffness, drag_speed, 0.f, FLT_MAX, format))
             for (const spring2D::ptr &sp : selected)
@@ -117,6 +126,13 @@ void joints_tab::render_selected_spring_properties()
         if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
             for (const spring2D::ptr &sp : selected)
                 sp->length = length;
+        if (ImGui::SliderInt("Non linear terms##Multiple", (int *)&non_linear_terms, 0, 8))
+            for (const spring2D::ptr &sp : selected)
+                sp->non_linear_terms = non_linear_terms;
+        if (ImGui::SliderFloat("Non linear contribution##Multiple", &non_linear_contribution, 0.f, 1.f, "%.4f",
+                               ImGuiSliderFlags_Logarithmic))
+            for (const spring2D::ptr &sp : selected)
+                sp->non_linear_contribution = non_linear_contribution;
         ImGui::TreePop();
     }
 }
@@ -236,10 +252,9 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
 
 void joints_tab::render_imgui_tab()
 {
-    ImGui::BeginTabBar("Joints tab bar");
     static const char *names[2] = {"Spring", "Distance joint"};
     ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
-
+    ImGui::BeginTabBar("Joints tab bar");
     if (ImGui::BeginTabItem("Spring"))
     {
         render_joint_properties(m_spring_specs);

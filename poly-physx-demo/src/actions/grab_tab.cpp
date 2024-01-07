@@ -73,6 +73,7 @@ YAML::Node grab_tab::encode() const
     YAML::Node node;
     node["Stiffness"] = m_stiffness;
     node["Damping"] = m_damping;
+    return node;
 }
 void grab_tab::decode(const YAML::Node &node)
 {
