@@ -67,4 +67,16 @@ void grab_tab::end_grab()
 {
     m_body = nullptr;
 }
+
+YAML::Node grab_tab::encode() const
+{
+    YAML::Node node;
+    node["Stiffness"] = m_stiffness;
+    node["Damping"] = m_damping;
+}
+void grab_tab::decode(const YAML::Node &node)
+{
+    m_stiffness = node["Stiffness"].as<float>();
+    m_damping = node["Damping"].as<float>();
+}
 } // namespace ppx::demo

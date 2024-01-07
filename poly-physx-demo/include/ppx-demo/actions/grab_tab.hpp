@@ -19,6 +19,9 @@ class grab_tab
     void begin_grab();
     void end_grab();
 
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
+
   private:
     demo_app *m_app;
     lynx::window2D *m_window;

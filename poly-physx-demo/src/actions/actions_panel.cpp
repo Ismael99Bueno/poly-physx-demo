@@ -140,12 +140,14 @@ YAML::Node actions_panel::encode() const
     YAML::Node node;
     node["Spawn tab"] = m_spawn_tab.encode();
     node["Joints tab"] = m_joints_tab.encode();
+    node["Grab tab"] = m_grab_tab.encode();
     return node;
 }
 bool actions_panel::decode(const YAML::Node &node)
 {
     m_spawn_tab.decode(node["Spawn tab"]);
     m_joints_tab.decode(node["Joints tab"]);
+    m_grab_tab.decode(node["Grab tab"]);
     return true;
 }
 } // namespace ppx::demo
