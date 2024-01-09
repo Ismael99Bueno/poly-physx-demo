@@ -112,7 +112,14 @@ void engine_panel::render_constraint_parameters()
 {
     ImGui::SliderInt("Iterations", (int *)&m_app->world.constraints.iterations, 1, 20);
     ImGui::Checkbox("Warmup", &m_app->world.constraints.warmup);
-    ImGui::Checkbox("Position corrections", &m_app->world.constraints.position_corrections);
+    ImGui::Checkbox("Baumgarte correction", &m_app->world.constraints.baumgarte_correction);
+    if (m_app->world.constraints.baumgarte_correction)
+    {
+        ImGui::SliderFloat("Baumgarte coefficient", &m_app->world.constraints.baumgarte_coef, 0.01f, 0.5f, "%.3f",
+                           ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("Baumgarte Threshold", &m_app->world.constraints.baumgarte_coef, 0.01f, 0.5f, "%.3f",
+                           ImGuiSliderFlags_Logarithmic);
+    }
 }
 
 void engine_panel::render_collision_list() const
@@ -265,6 +272,7 @@ void engine_panel::render_constraint_driven_parameters(constraint_driven_resolut
     {
         ImGui::SliderFloat("Friction", &ctrres.friction, 0.f, 1.f);
         ImGui::SliderFloat("Restitution", &ctrres.restitution, 0.f, 1.f);
+        ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
         ImGui::TreePop();
     }
 }
