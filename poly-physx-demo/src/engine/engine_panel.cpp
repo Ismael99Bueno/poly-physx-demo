@@ -52,16 +52,20 @@ void engine_panel::on_render(const float ts)
 YAML::Node engine_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
-    node["Collision tab"] = m_collision_tab.encode();
+
     node["Integration tab"] = m_integration_tab.encode();
+    node["Collision tab"] = m_collision_tab.encode();
+
     return node;
 }
 bool engine_panel::decode(const YAML::Node &node)
 {
     if (!demo_layer::decode(node))
         return false;
-    m_collision_tab.decode(node);
-    m_integration_tab.decode(node);
+
+    m_integration_tab.decode(node["Integration tab"]);
+    m_collision_tab.decode(node["Collision tab"]);
+
     return true;
 }
 } // namespace ppx::demo

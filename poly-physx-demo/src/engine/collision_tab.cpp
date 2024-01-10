@@ -42,7 +42,7 @@ void collision_tab::render_imgui_tab()
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collision_list();
 
-    if (ImGui::TreeNode("Collision detection"))
+    if (ImGui::CollapsingHeader("Detection"))
     {
         ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
@@ -52,12 +52,14 @@ void collision_tab::render_imgui_tab()
 
         if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
             render_quad_tree_parameters(*qtdet);
+    }
+    if (ImGui::CollapsingHeader("Contact manifold algorithms"))
+    {
         render_cc_manifold_list();
         render_cp_manifold_list();
         render_pp_manifold_list();
-        ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Collision resolution"))
+    if (ImGui::CollapsingHeader("Resolution"))
     {
         render_collision_resolution_list();
 
@@ -65,7 +67,6 @@ void collision_tab::render_imgui_tab()
             render_spring_driven_parameters(*spres);
         if (auto ctrres = m_app->world.collisions.resolution<constraint_driven_resolution2D>())
             render_constraint_driven_parameters(*ctrres);
-        ImGui::TreePop();
     }
 }
 
