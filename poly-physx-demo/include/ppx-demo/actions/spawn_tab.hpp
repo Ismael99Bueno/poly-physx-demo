@@ -18,7 +18,7 @@ class spawn_tab
     void render_imgui_tab();
 
     void begin_body_spawn();
-    void end_body_spawn(bool avoid_overlap = false);
+    void end_body_spawn();
     void cancel_body_spawn();
 
     void increase_body_type();

@@ -27,7 +27,7 @@ void spawn_tab::update()
     m_current_body_template.specs.rotation = angle;
     if (m_bulk_spawn)
     {
-        end_body_spawn(true);
+        end_body_spawn();
         m_spawning = true;
     }
 }
@@ -210,13 +210,13 @@ void spawn_tab::begin_body_spawn()
     m_current_body_template.specs.position = m_starting_mouse_pos;
 }
 
-void spawn_tab::end_body_spawn(const bool avoid_overlap)
+void spawn_tab::end_body_spawn()
 {
     if (!m_spawning)
         return;
     m_spawning = false;
 
-    if (avoid_overlap && m_last_added)
+    if (m_bulk_spawn && m_last_added)
     {
         const body2D proxy = body2D(m_current_body_template.specs);
         if (!geo::intersects(m_last_added->shape().bounding_box(), proxy.shape().bounding_box()))
