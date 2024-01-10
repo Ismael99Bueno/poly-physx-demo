@@ -1,17 +1,12 @@
 #pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
-#include "ppx-app/lines/thick_line.hpp"
 
-#include "ppx/collision/detection/brute_force_detection2D.hpp"
-#include "ppx/collision/detection/quad_tree_detection2D.hpp"
-#include "ppx/collision/detection/sort_sweep_detection2D.hpp"
-
-#include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
-#include "ppx/collision/resolution/constraint_driven_resolution2D.hpp"
+#include "ppx-demo/engine/integration_tab.hpp"
+#include "ppx-demo/engine/collision_tab.hpp"
+#include "ppx-demo/engine/constraints_tab.hpp"
 
 #include "lynx/app/window.hpp"
-#include "lynx/drawing/line.hpp"
 
 namespace ppx::demo
 {
@@ -21,62 +16,14 @@ class engine_panel : public demo_layer
     engine_panel();
 
   private:
-    enum class integration_method
-    {
-        RK1,
-        RK2,
-        RK4,
-        RK38,
-        RKF12,
-        RKF45,
-        RKFCK45,
-        RKF78
-    };
-
     lynx::window2D *m_window;
-    integration_method m_integration_method = integration_method::RK4;
-
-    bool m_draw_bounding_boxes = false;
-    bool m_visualize_qtree = false;
-
-    std::vector<lynx::line_strip2D> m_bbox_lines;
-    std::vector<lynx::line_strip2D> m_qt_lines;
-    std::size_t m_qt_active_partitions = 0;
-
-    bool m_draw_collisions = false;
-    std::vector<std::array<thick_line, manifold2D::CAPACITY>> m_collision_lines;
+    integration_tab m_integration_tab;
+    collision_tab m_collision_tab;
+    constraints_tab m_constraints_tab;
 
     void on_attach() override;
     void on_render(float ts) override;
     void on_update(float ts) override;
-
-    void render_integrator_parameters();
-    void render_collision_parameters();
-    void render_constraint_parameters();
-
-    void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
-    void render_spring_driven_parameters(spring_driven_resolution2D &spres);
-    void render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres);
-
-    void render_timestep_settings() const;
-    void render_integration_method();
-
-    void update_integration_method() const;
-    void update_bounding_boxes();
-    void update_collisions();
-    void update_quad_tree_lines(const quad_tree &qt);
-
-    void render_collision_detection_list() const;
-    void render_collision_list() const;
-    void render_collision_resolution_list() const;
-
-    void render_cc_manifold_list() const;
-    void render_cp_manifold_list() const;
-    void render_pp_manifold_list() const;
-
-    void render_bounding_boxes() const;
-    void render_collisions();
-    void render_quad_tree_lines() const;
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;
