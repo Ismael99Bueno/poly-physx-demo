@@ -188,41 +188,29 @@ void collision_tab::render_pp_manifold_list() const
 
 void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
 {
-    if (ImGui::TreeNode("Quad tree parameters"))
-    {
-        ImGui::Checkbox("Force square shape", &qtdet.force_square_shape);
+    ImGui::Checkbox("Force square shape", &qtdet.force_square_shape);
 
-        ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_bodies, 2, 20);
-        ImGui::SliderInt("Max tree depth", (int *)&quad_tree::max_depth, 2, 20);
-        ImGui::SliderFloat("Min quadrant size", &quad_tree::min_size, 4.f, 50.f);
+    ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_bodies, 2, 20);
+    ImGui::SliderInt("Max tree depth", (int *)&quad_tree::max_depth, 2, 20);
+    ImGui::SliderFloat("Min quadrant size", &quad_tree::min_size, 4.f, 50.f);
 
-        ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
-        if (m_visualize_qtree)
-            render_quad_tree_lines();
-        ImGui::TreePop();
-    }
+    ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
+    if (m_visualize_qtree)
+        render_quad_tree_lines();
 }
 
 void collision_tab::render_spring_driven_parameters(spring_driven_resolution2D &spres)
 {
-    if (ImGui::TreeNode("Spring driven parameters"))
-    {
-        ImGui::SliderFloat("Rigidity", &spres.rigidity, 0.f, 5000.f);
-        ImGui::SliderFloat("Normal damping", &spres.normal_damping, 0.f, 50.f);
-        ImGui::SliderFloat("Tangent damping", &spres.tangent_damping, 0.f, 50.f);
-        ImGui::TreePop();
-    }
+    ImGui::SliderFloat("Rigidity", &spres.rigidity, 0.f, 5000.f);
+    ImGui::SliderFloat("Normal damping", &spres.normal_damping, 0.f, 50.f);
+    ImGui::SliderFloat("Tangent damping", &spres.tangent_damping, 0.f, 50.f);
 }
 
 void collision_tab::render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres)
 {
-    if (ImGui::TreeNode("Constraint driven parameters"))
-    {
-        ImGui::SliderFloat("Friction", &ctrres.friction, 0.f, 1.f);
-        ImGui::SliderFloat("Restitution", &ctrres.restitution, 0.f, 1.f);
-        ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
-        ImGui::TreePop();
-    }
+    ImGui::SliderFloat("Friction", &ctrres.friction, 0.f, 1.f);
+    ImGui::SliderFloat("Restitution", &ctrres.restitution, 0.f, 1.f);
+    ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
 }
 
 static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
