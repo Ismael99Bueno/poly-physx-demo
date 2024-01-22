@@ -54,12 +54,12 @@ void spawn_tab::update_shape_from_type()
     {
     case shape_type::RECT: {
         m_current_body_template.specs.vertices =
-            geo::polygon::rect(m_current_body_template.width, m_current_body_template.height);
+            geo::polygon<8>::rect(m_current_body_template.width, m_current_body_template.height);
         break;
     }
     case shape_type::NGON: {
-        m_current_body_template.specs.vertices =
-            geo::polygon::ngon(m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
+        m_current_body_template.specs.vertices = geo::polygon<8>::ngon(
+            m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
         break;
     }
     default:
@@ -200,9 +200,9 @@ void spawn_tab::begin_body_spawn()
                                                      lynx::color(m_current_body_template.color, 120u));
     else
     {
-        const geo::polygon poly{m_current_body_template.specs.vertices};
-        m_preview = kit::make_scope<lynx::polygon2D>(poly.locals().as_vector(),
-                                                     lynx::color(m_current_body_template.color, 120u));
+        const geo::polygon<8> poly{m_current_body_template.specs.vertices};
+        const std::vector<glm::vec2> vertices{poly.locals.begin(), poly.locals.end()};
+        m_preview = kit::make_scope<lynx::polygon2D>(vertices, lynx::color(m_current_body_template.color, 120u));
     }
 
     m_starting_mouse_pos = m_app->world_mouse_position();
@@ -251,7 +251,7 @@ void spawn_tab::decrease_body_type()
 
 void spawn_tab::render_and_update_custom_shape_canvas()
 {
-    const geo::polygon poly{m_current_body_template.specs.vertices};
+    const geo::polygon<8> poly{m_current_body_template.specs.vertices};
     const bool is_convex = poly.is_convex();
     if (!is_convex)
     {
@@ -285,7 +285,7 @@ void spawn_tab::render_and_update_custom_shape_canvas()
     static constexpr float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
-    auto vertices = poly.globals().as_vector();
+    kit::dynarray<glm::vec2, 8> vertices = poly.globals;
     std::size_t to_edit = vertices.size() - 1;
     static constexpr float thres_distance = 2.f;
     float min_distance = FLT_MAX;
@@ -333,8 +333,8 @@ void spawn_tab::render_and_update_custom_shape_canvas()
     std::vector<ImVec2> points(poly.size());
     for (std::size_t i = 0; i < poly.size(); i++)
     {
-        const glm::vec2 p1 = origin + poly.global(i) * scale_factor + canvas_hdim,
-                        p2 = origin + poly.global(i + 1) * scale_factor + canvas_hdim;
+        const glm::vec2 p1 = origin + poly.globals[i] * scale_factor + canvas_hdim,
+                        p2 = origin + poly.globals[i + 1] * scale_factor + canvas_hdim;
         const float thickness = 3.f;
         draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
         points[i] = {p1.x, p1.y};
@@ -364,7 +364,8 @@ YAML::Node spawn_tab::encode_template(const body_template &btemplate)
     node["Mass"] = btemplate.specs.mass;
     node["Charge"] = btemplate.specs.charge;
     node["Radius"] = btemplate.specs.radius;
-    node["Vertices"] = btemplate.specs.vertices;
+    for (const glm::vec2 &v : btemplate.specs.vertices)
+        node["Vertices"].push_back(v);
 
     node["Color"] = btemplate.color.normalized;
     node["Type"] = (int)btemplate.type;
@@ -393,6 +394,7 @@ spawn_tab::body_template spawn_tab::decode_template(const YAML::Node &node)
     btemplate.specs.mass = node["Mass"].as<float>();
     btemplate.specs.charge = node["Charge"].as<float>();
     btemplate.specs.radius = node["Radius"].as<float>();
+
     btemplate.specs.vertices.clear();
     for (const YAML::Node &n : node["Vertices"])
         btemplate.specs.vertices.push_back(n.as<glm::vec2>());

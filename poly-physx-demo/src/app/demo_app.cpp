@@ -140,10 +140,10 @@ void demo_app::add_walls()
     body3.position = glm::vec2(0.f, -size.y - 0.5f * thck);
     body4.position = glm::vec2(0.f, size.y + 0.5f * thck);
 
-    body1.vertices = geo::polygon::rect(thck, 2.f * (size.y + thck));
-    body2.vertices = geo::polygon::rect(thck, 2.f * (size.y + thck));
-    body3.vertices = geo::polygon::rect(2.f * size.x, thck);
-    body4.vertices = geo::polygon::rect(2.f * size.x, thck);
+    body1.vertices = geo::polygon<8>::rect(thck, 2.f * (size.y + thck));
+    body2.vertices = geo::polygon<8>::rect(thck, 2.f * (size.y + thck));
+    body3.vertices = geo::polygon<8>::rect(2.f * size.x, thck);
+    body4.vertices = geo::polygon<8>::rect(2.f * size.x, thck);
 
     body1.kinematic = false;
     body2.kinematic = false;
@@ -160,15 +160,15 @@ void demo_app::add_walls()
     body2D::specs wall2;
 
     floor.position = {0.f, -250.f};
-    floor.vertices = geo::polygon::rect(2600.f, 3.f * thck);
+    floor.vertices = geo::polygon<8>::rect(2600.f, 3.f * thck);
     floor.kinematic = false;
 
     wall1.position = {1300.f - 1.5f * thck, -225.f};
-    wall1.vertices = geo::polygon::rect(3.f * thck, 50.f);
+    wall1.vertices = geo::polygon<8>::rect(3.f * thck, 50.f);
     wall1.kinematic = false;
 
     wall2.position = {1.5f * thck - 1300.f, -225.f};
-    wall2.vertices = geo::polygon::rect(3.f * thck, 50.f);
+    wall2.vertices = geo::polygon<8>::rect(3.f * thck, 50.f);
     wall2.kinematic = false;
 
     world.bodies.add(floor);

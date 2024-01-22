@@ -73,8 +73,10 @@ void group_manager::update_preview_from_current_group()
 
     for (const body_template &btemplate : m_current_group.body_templates)
         if (btemplate.specs.shape == body2D::shape_type::POLYGON)
-            m_group_shapes_preview.emplace_back(
-                kit::make_scope<lynx::polygon2D>(btemplate.specs.vertices, btemplate.color));
+        {
+            const std::vector<glm::vec2> vertices{btemplate.specs.vertices.begin(), btemplate.specs.vertices.end()};
+            m_group_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, btemplate.color));
+        }
         else
             m_group_shapes_preview.emplace_back(
                 kit::make_scope<lynx::ellipse2D>(btemplate.specs.radius, btemplate.color));
