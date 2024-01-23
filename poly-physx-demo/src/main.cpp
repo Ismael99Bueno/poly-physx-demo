@@ -1,5 +1,4 @@
 #include "ppx-demo/internal/pch.hpp"
-#include "ppx-app/app/app.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 
 int main()

@@ -99,7 +99,7 @@ void spawn_tab::render_body_shape_types_and_properties()
     case shape_type::NGON: {
         const bool r =
             ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
-        const bool s = ImGui::DragInt("Sides", &m_current_body_template.ngon_sides, drag_speed, 3, 30);
+        const bool s = ImGui::SliderInt("Sides", &m_current_body_template.ngon_sides, 3, 8);
         needs_update |= r || s;
         break;
     }
