@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lynx/app/window.hpp"
-#include "ppx/body2D.hpp"
+#include "ppx/entities/body2D.hpp"
 
 namespace ppx::demo
 {

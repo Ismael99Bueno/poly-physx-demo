@@ -2,7 +2,7 @@
 
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
-#include "ppx/body2D.hpp"
+#include "ppx/entities/body2D.hpp"
 #include "ppx/constraints/constraint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include <unordered_set>

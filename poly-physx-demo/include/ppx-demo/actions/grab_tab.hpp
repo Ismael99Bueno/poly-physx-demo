@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ppx-app/lines/spring_line.hpp"
-#include "ppx/body2D.hpp"
+#include "ppx/entities/body2D.hpp"
 
 namespace ppx::demo
 {
