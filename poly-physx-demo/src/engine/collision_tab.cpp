@@ -213,7 +213,7 @@ void collision_tab::render_constraint_driven_parameters(constraint_driven_resolu
     ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
 }
 
-static std::vector<glm::vec2> get_bbox_points(const geo::aabb2D &aabb)
+static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 {
     const glm::vec2 &mm = aabb.min;
     const glm::vec2 &mx = aabb.max;

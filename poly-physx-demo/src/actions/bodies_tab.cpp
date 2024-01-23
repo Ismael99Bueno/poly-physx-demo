@@ -97,7 +97,7 @@ void bodies_tab::render_single_body_properties(body2D &body)
     ImGui::Text("Area: %.1f", body.shape().area());
     ImGui::Text("Inertia: %.1f", body.real_inertia());
 
-    if (const auto *poly = body.shape_if<geo::polygon<8>>())
+    if (const auto *poly = body.shape_if<polygon>())
     {
         if (ImGui::TreeNode("Vertices"))
         {
@@ -112,7 +112,7 @@ void bodies_tab::render_single_body_properties(body2D &body)
         }
     }
     else
-        ImGui::Text("Radius: %.1f", body.shape<geo::circle>().radius);
+        ImGui::Text("Radius: %.1f", body.shape<circle>().radius);
 }
 
 void bodies_tab::render_selected_bodies_properties()

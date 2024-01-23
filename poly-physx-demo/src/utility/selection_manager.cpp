@@ -75,7 +75,7 @@ void selection_manager::update()
     const glm::vec2 min = {glm::min(mpos.x, static_outline_point.x), glm::min(mpos.y, static_outline_point.y)};
     const glm::vec2 max = {glm::max(mpos.x, static_outline_point.x), glm::max(mpos.y, static_outline_point.y)};
 
-    m_selection_boundaries = geo::aabb2D(min, max);
+    m_selection_boundaries = aabb2D(min, max);
 }
 void selection_manager::render() const
 {

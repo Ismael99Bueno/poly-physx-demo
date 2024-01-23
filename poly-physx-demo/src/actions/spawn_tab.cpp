@@ -54,12 +54,12 @@ void spawn_tab::update_shape_from_type()
     {
     case shape_type::RECT: {
         m_current_body_template.specs.vertices =
-            geo::polygon<8>::rect(m_current_body_template.width, m_current_body_template.height);
+            polygon::rect(m_current_body_template.width, m_current_body_template.height);
         break;
     }
     case shape_type::NGON: {
-        m_current_body_template.specs.vertices = geo::polygon<8>::ngon(
-            m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
+        m_current_body_template.specs.vertices =
+            polygon::ngon(m_current_body_template.ngon_radius, (std::uint32_t)m_current_body_template.ngon_sides);
         break;
     }
     default:
@@ -99,7 +99,7 @@ void spawn_tab::render_body_shape_types_and_properties()
     case shape_type::NGON: {
         const bool r =
             ImGui::DragFloat("Radius", &m_current_body_template.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
-        const bool s = ImGui::SliderInt("Sides", &m_current_body_template.ngon_sides, 3, 8);
+        const bool s = ImGui::SliderInt("Sides", &m_current_body_template.ngon_sides, 3, PPX_MAX_VERTICES);
         needs_update |= r || s;
         break;
     }
@@ -200,7 +200,7 @@ void spawn_tab::begin_body_spawn()
                                                      lynx::color(m_current_body_template.color, 120u));
     else
     {
-        const geo::polygon<8> poly{m_current_body_template.specs.vertices};
+        const polygon poly{m_current_body_template.specs.vertices};
         const std::vector<glm::vec2> vertices{poly.locals.begin(), poly.locals.end()};
         m_preview = kit::make_scope<lynx::polygon2D>(vertices, lynx::color(m_current_body_template.color, 120u));
     }
@@ -251,7 +251,7 @@ void spawn_tab::decrease_body_type()
 
 void spawn_tab::render_and_update_custom_shape_canvas()
 {
-    const geo::polygon<8> poly{m_current_body_template.specs.vertices};
+    const polygon poly{m_current_body_template.specs.vertices};
     const bool is_convex = poly.is_convex();
     if (!is_convex)
     {
@@ -285,7 +285,7 @@ void spawn_tab::render_and_update_custom_shape_canvas()
     static constexpr float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
-    kit::dynarray<glm::vec2, 8> vertices = poly.globals;
+    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.globals;
     std::size_t to_edit = vertices.size() - 1;
     static constexpr float thres_distance = 2.f;
     float min_distance = FLT_MAX;

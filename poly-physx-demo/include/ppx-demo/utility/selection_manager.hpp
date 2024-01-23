@@ -40,7 +40,7 @@ class selection_manager
     lynx::window2D *m_window;
 
     bool m_selecting = false;
-    geo::aabb2D m_selection_boundaries;
+    aabb2D m_selection_boundaries;
 
     lynx::line_strip2D m_selection_outline;
     std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> m_selected_bodies;
