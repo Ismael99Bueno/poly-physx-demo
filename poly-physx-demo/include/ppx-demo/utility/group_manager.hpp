@@ -78,8 +78,8 @@ class group_manager
         std::vector<spring_template> spring_templates;
         std::vector<dist_joint_template> dist_joint_templates;
 
-        YAML::Node encode() const;
-        void decode(const YAML::Node &node);
+        YAML::Node encode(world2D &world) const;
+        void decode(const YAML::Node &node, world2D &world);
     };
 
   public:

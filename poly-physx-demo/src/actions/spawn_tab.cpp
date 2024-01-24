@@ -218,7 +218,7 @@ void spawn_tab::end_body_spawn()
 
     if (m_bulk_spawn && m_last_added)
     {
-        const body2D proxy = body2D(m_current_body_template.specs);
+        const body2D proxy = body2D(m_app->world, m_current_body_template.specs); // Im just lazy
         if (!geo::intersects(m_last_added->shape().bounding_box(), proxy.shape().bounding_box()))
             m_last_added = m_app->world.bodies.add(m_current_body_template.specs).as_ptr();
     }

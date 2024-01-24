@@ -116,7 +116,7 @@ template <typename T> static void decode_joint_template(T &jtemplate, const YAML
     jtemplate.specs.joint.anchor2 = node["Anchor2"].as<glm::vec2>();
 }
 
-YAML::Node group_manager::group::encode() const
+YAML::Node group_manager::group::encode(world2D &world) const
 {
     YAML::Node node;
     node["Mean position"] = mean_position;
@@ -126,7 +126,7 @@ YAML::Node group_manager::group::encode() const
         YAML::Node btnode;
         btnode["ID"] = (std::uint64_t)btemplate.id;
         btnode["Color"] = btemplate.color.normalized;
-        btnode["Body"] = body2D(btemplate.specs);
+        btnode["Body"] = body2D(world, btemplate.specs);
         node["Body templates"].push_back(btnode);
     }
 
@@ -146,7 +146,7 @@ YAML::Node group_manager::group::encode() const
 
     return node;
 }
-void group_manager::group::decode(const YAML::Node &node)
+void group_manager::group::decode(const YAML::Node &node, world2D &world)
 {
     body_templates.clear();
     spring_templates.clear();
@@ -159,7 +159,10 @@ void group_manager::group::decode(const YAML::Node &node)
             body_template &btemplate = body_templates.emplace_back();
             btemplate.id = kit::uuid(n["ID"].as<std::uint64_t>());
             btemplate.color.normalized = n["Color"].as<glm::vec4>();
-            btemplate.specs = body2D::specs::from_body(n["Body"].as<body2D>());
+
+            body2D body{world};
+            n["Body"].as<body2D>(body);
+            btemplate.specs = body2D::specs::from_body(body);
         }
     if (node["Spring templates"])
         for (const YAML::Node &n : node["Spring templates"])
@@ -182,7 +185,7 @@ YAML::Node group_manager::encode() const
 {
     YAML::Node node;
     for (const auto &[name, group] : m_groups)
-        node[name] = group.encode();
+        node[name] = group.encode(m_app.world);
     return node;
 }
 void group_manager::decode(const YAML::Node &node)
@@ -190,7 +193,7 @@ void group_manager::decode(const YAML::Node &node)
     for (auto it = node.begin(); it != node.end(); ++it)
     {
         group g;
-        g.decode(it->second);
+        g.decode(it->second, m_app.world);
         m_groups.emplace(it->first.as<std::string>(), g);
     }
 }
