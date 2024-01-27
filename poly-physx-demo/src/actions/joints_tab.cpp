@@ -303,7 +303,8 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     body2D *body2 = m_app->world.bodies[mpos];
-    if (!body2 || *m_body1 == *body2)
+    if (!body2 || *m_body1 == *body2 ||
+        !(m_body1->type == body2D::btype::DYNAMIC || body2->type == body2D::btype::DYNAMIC))
         return false;
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);

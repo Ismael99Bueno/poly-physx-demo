@@ -70,7 +70,10 @@ void bodies_tab::render_single_body_properties(body2D &body)
     float mass = body.real_mass();
     kit::transform2D tr = body.transform();
 
-    ImGui::Checkbox("Kinematic", &body.kinematic);
+    static const std::array<const char *, 3> body_types = {"Dynamic", "Kinematic", "Static"};
+    const char *current = body_types[(std::size_t)body.type];
+    ImGui::SliderInt("Type", (int *)&body.type, 0, 2, current);
+
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         body.mass(mass);
 
@@ -142,20 +145,14 @@ void bodies_tab::render_selected_bodies_properties()
 
         float mass = 0.f;
         float charge = 0.f;
-        bool kinematic = false;
 
         for (const body2D::ptr &body : selected)
         {
             mass += body->real_mass();
             charge += body->charge;
-            kinematic |= body->kinematic;
         }
         mass /= selected.size();
         charge /= selected.size();
-
-        if (ImGui::Checkbox("Kinematic", &kinematic))
-            for (const body2D::ptr &body : selected)
-                body->kinematic = kinematic;
 
         if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
             for (const body2D::ptr &body : selected)

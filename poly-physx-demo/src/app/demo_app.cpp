@@ -145,10 +145,10 @@ void demo_app::add_walls()
     body3.vertices = polygon::rect(2.f * size.x, thck);
     body4.vertices = polygon::rect(2.f * size.x, thck);
 
-    body1.kinematic = false;
-    body2.kinematic = false;
-    body3.kinematic = false;
-    body4.kinematic = false;
+    body1.type = body2D::btype::STATIC;
+    body2.type = body2D::btype::STATIC;
+    body3.type = body2D::btype::STATIC;
+    body4.type = body2D::btype::STATIC;
 
     world.bodies.add(body1);
     world.bodies.add(body2);
@@ -161,15 +161,15 @@ void demo_app::add_walls()
 
     floor.position = {0.f, -250.f};
     floor.vertices = polygon::rect(2600.f, 3.f * thck);
-    floor.kinematic = false;
+    floor.type = body2D::btype::STATIC;
 
     wall1.position = {1300.f - 1.5f * thck, -225.f};
     wall1.vertices = polygon::rect(3.f * thck, 50.f);
-    wall1.kinematic = false;
+    wall1.type = body2D::btype::STATIC;
 
     wall2.position = {1.5f * thck - 1300.f, -225.f};
     wall2.vertices = polygon::rect(3.f * thck, 50.f);
-    wall2.kinematic = false;
+    wall2.type = body2D::btype::STATIC;
 
     world.bodies.add(floor);
     world.bodies.add(wall1);
