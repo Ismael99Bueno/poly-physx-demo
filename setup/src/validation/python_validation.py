@@ -6,7 +6,6 @@ import os
 
 from validation.exceptions import PythonVersionError, PackageNotFoundError
 from utility.buddy import Buddy
-from typing import Union
 from pathlib import Path
 
 
@@ -34,7 +33,7 @@ def validate_python_version(
     print(f"Valid python version detected: '{major}.{minor}.{micro}'")
 
 
-def validate_python_packages(package_names: Union[str, list[str]]) -> None:
+def validate_python_packages(package_names: str | list[str]) -> None:
     if isinstance(package_names, str):
         package_names = [package_names]
     needs_restart = False
