@@ -11,17 +11,18 @@ actions_panel::actions_panel() : demo_layer("Actions panel")
 void actions_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_spawn_tab = spawn_tab(m_app);
+    m_collider_tab = collider_tab(m_app);
+    m_body_tab = body_tab(m_app, &m_collider_tab);
     m_joints_tab = joints_tab(m_app);
     m_grab_tab = grab_tab(m_app);
-    m_bodies_tab = bodies_tab(m_app);
+    m_entities_tab = entities_tab(m_app);
 }
 void actions_panel::on_update(float ts)
 {
-    m_spawn_tab.update();
+    m_body_tab.update();
     m_joints_tab.update();
     m_grab_tab.update();
-    m_bodies_tab.update();
+    m_entities_tab.update();
 }
 
 template <typename T> static void render_imgui_tab(const char *name, const char *tooltip, T &tab)
@@ -38,16 +39,17 @@ template <typename T> static void render_imgui_tab(const char *name, const char 
 
 void actions_panel::on_render(const float ts)
 {
-    m_spawn_tab.render();
+    m_body_tab.render();
     m_joints_tab.render();
     m_grab_tab.render();
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
-        render_imgui_tab("Spawn", "Spawn bodies", m_spawn_tab);
+        render_imgui_tab("Body", "Edit bodies", m_body_tab);
+        render_imgui_tab("Colliders", "Edit colliders", m_collider_tab);
         render_imgui_tab("Joints", "Attach bodies with joints", m_joints_tab);
         render_imgui_tab("Grab", "Grab bodies", m_grab_tab);
-        render_imgui_tab("Bodies", "Bodies overview", m_bodies_tab);
+        render_imgui_tab("Entities", "Entities overview", m_entities_tab);
         ImGui::EndTabBar();
     }
     ImGui::End();
@@ -59,7 +61,7 @@ bool actions_panel::on_event(const lynx::event2D &event)
     const bool attaching = lynx::input2D::key_pressed(lynx::input2D::key::F);
     const bool grabbing = lynx::input2D::key_pressed(lynx::input2D::key::G);
     if (!spawning)
-        m_spawn_tab.cancel_body_spawn();
+        m_body_tab.cancel_body_spawn();
     if (!attaching)
         m_joints_tab.cancel_joint_attach();
     if (!grabbing)
@@ -77,12 +79,6 @@ bool actions_panel::on_event(const lynx::event2D &event)
         case lynx::input2D::key::RIGHT:
             m_joints_tab.increase_joint_type();
             break;
-        case lynx::input2D::key::UP:
-            m_spawn_tab.decrease_body_type();
-            break;
-        case lynx::input2D::key::DOWN:
-            m_spawn_tab.increase_body_type();
-            break;
         default:
             break;
         }
@@ -94,7 +90,7 @@ bool actions_panel::on_event(const lynx::event2D &event)
         {
         case lynx::input2D::mouse::BUTTON_1:
             if (spawning)
-                m_spawn_tab.begin_body_spawn();
+                m_body_tab.begin_body_spawn();
             else if (attaching)
             {
                 if (m_joints_tab.first_is_selected())
@@ -119,7 +115,7 @@ bool actions_panel::on_event(const lynx::event2D &event)
         {
         case lynx::input2D::mouse::BUTTON_1: {
             if (spawning)
-                m_spawn_tab.end_body_spawn();
+                m_body_tab.end_body_spawn();
             else if (grabbing)
                 m_grab_tab.end_grab();
             return true;
@@ -138,14 +134,14 @@ bool actions_panel::on_event(const lynx::event2D &event)
 YAML::Node actions_panel::encode() const
 {
     YAML::Node node;
-    node["Spawn tab"] = m_spawn_tab.encode();
+    node["Spawn tab"] = m_body_tab.encode();
     node["Joints tab"] = m_joints_tab.encode();
     node["Grab tab"] = m_grab_tab.encode();
     return node;
 }
 bool actions_panel::decode(const YAML::Node &node)
 {
-    m_spawn_tab.decode(node["Spawn tab"]);
+    m_body_tab.decode(node["Spawn tab"]);
     m_joints_tab.decode(node["Joints tab"]);
     m_grab_tab.decode(node["Grab tab"]);
     return true;

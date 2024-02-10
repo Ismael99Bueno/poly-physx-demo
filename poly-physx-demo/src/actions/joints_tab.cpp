@@ -4,9 +4,8 @@
 
 namespace ppx::demo
 {
-joints_tab::joints_tab(demo_app *app) : m_app(app)
+joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window())
 {
-    m_window = app->window();
 }
 
 void joints_tab::update()
@@ -15,7 +14,7 @@ void joints_tab::update()
         if (sp)
             m_app->world.springs.remove(*sp);
     for (const constraint2D *ctr : m_to_remove_ctrs)
-        m_app->world.constraints.remove(ctr);
+        m_app->world.constraints.remove(*ctr);
 
     m_to_remove_springs.clear();
     m_to_remove_ctrs.clear();
@@ -303,8 +302,7 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     body2D *body2 = m_app->world.bodies[mpos];
-    if (!body2 || *m_body1 == *body2 ||
-        !(m_body1->type == body2D::btype::DYNAMIC || body2->type == body2D::btype::DYNAMIC))
+    if (!body2 || *m_body1 == *body2 || !(m_body1->is_dynamic() || body2->is_dynamic()))
         return false;
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
@@ -312,8 +310,8 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
     specs.joint.anchor1 = m_anchor1;
     specs.joint.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
 
-    specs.joint.body1 = m_body1;
-    specs.joint.body2 = body2->as_ptr();
+    specs.joint.body1 = m_body1.raw();
+    specs.joint.body2 = body2;
 
     return true;
 }

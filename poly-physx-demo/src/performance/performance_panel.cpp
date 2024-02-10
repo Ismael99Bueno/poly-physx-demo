@@ -1,7 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/demo_app.hpp"
-#include "kit/profile/perf.hpp"
+#include "kit/profile/instrumentor.hpp"
 
 namespace ppx::demo
 {

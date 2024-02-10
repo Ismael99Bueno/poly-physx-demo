@@ -34,49 +34,32 @@ class group_manager
     void decode(const YAML::Node &node);
 
   private:
-    struct body_template
+    struct body_proxy
     {
-        body_template() = default;
-        body_template(const kit::uuid id, const lynx::color &color, const body2D::specs &specs)
-            : id(id), color(color), specs(specs)
-        {
-        }
         kit::uuid id;
         lynx::color color;
         body2D::specs specs;
     };
-    struct spring_template
+    struct spring_proxy
     {
-        spring_template() = default;
-        spring_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
-                        const lynx::color &color, const spring2D::specs &specs)
-            : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
-        {
-        }
-        std::size_t btemplate_index1;
-        std::size_t btemplate_index2;
+        std::size_t bproxy_index1;
+        std::size_t bproxy_index2;
         lynx::color color;
         spring2D::specs specs;
     };
-    struct dist_joint_template
+    struct dist_joint_proxy
     {
-        dist_joint_template() = default;
-        dist_joint_template(const std::size_t btemplate_index1, const std::size_t btemplate_index2,
-                            const lynx::color &color, const distance_joint2D::specs &specs)
-            : btemplate_index1(btemplate_index1), btemplate_index2(btemplate_index2), color(color), specs(specs)
-        {
-        }
-        std::size_t btemplate_index1;
-        std::size_t btemplate_index2;
+        std::size_t bproxy_index1;
+        std::size_t bproxy_index2;
         lynx::color color;
         distance_joint2D::specs specs;
     };
     struct group
     {
-        glm::vec2 mean_position{0.f};
-        std::vector<body_template> body_templates;
-        std::vector<spring_template> spring_templates;
-        std::vector<dist_joint_template> dist_joint_templates;
+        glm::vec2 mean_centroid{0.f};
+        std::vector<body_proxy> body_proxies;
+        std::vector<spring_proxy> spring_proxies;
+        std::vector<dist_joint_proxy> dist_joint_proxies;
 
         YAML::Node encode(world2D &world) const;
         void decode(const YAML::Node &node, world2D &world);

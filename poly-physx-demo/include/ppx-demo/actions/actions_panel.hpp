@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
-#include "ppx-demo/actions/spawn_tab.hpp"
+#include "ppx-demo/actions/body_tab.hpp"
 #include "ppx-demo/actions/joints_tab.hpp"
 #include "ppx-demo/actions/grab_tab.hpp"
-#include "ppx-demo/actions/bodies_tab.hpp"
+#include "ppx-demo/actions/entities_tab.hpp"
 
 namespace ppx::demo
 {
@@ -14,10 +14,11 @@ class actions_panel : public demo_layer
     actions_panel();
 
   private:
-    spawn_tab m_spawn_tab;
+    collider_tab m_collider_tab;
+    body_tab m_body_tab;
     joints_tab m_joints_tab;
     grab_tab m_grab_tab;
-    bodies_tab m_bodies_tab;
+    entities_tab m_entities_tab;
 
     void on_attach() override;
     void on_update(float ts) override;

@@ -77,8 +77,10 @@ bool demo_app::on_event(const lynx::event2D &event)
         case lynx::input2D::key::BACKSPACE:
             if (grouper.ongoing_group())
                 grouper.cancel_group();
-            else
+            else if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT))
                 remove_selected_bodies();
+            else
+                remove_selected_colliders();
             return true;
         default:
             return false;
@@ -122,6 +124,13 @@ void demo_app::remove_selected_bodies()
         if (body)
             world.bodies.remove(*body);
 }
+void demo_app::remove_selected_colliders()
+{
+    const auto selected = selector.selected_colliders();
+    for (const collider2D::ptr &collider : selected)
+        if (collider)
+            world.colliders.remove(*collider);
+}
 
 void demo_app::add_walls()
 {
@@ -130,50 +139,45 @@ void demo_app::add_walls()
     const glm::vec2 size = cam->transform.scale;
     const float thck = 5.f;
 
-    body2D::specs body1;
-    body2D::specs body2;
-    body2D::specs body3;
-    body2D::specs body4;
+    collider2D::specs collider1;
+    collider2D::specs collider2;
+    collider2D::specs collider3;
+    collider2D::specs collider4;
 
-    body1.position = glm::vec2(-size.x - 0.5f * thck, 0.f);
-    body2.position = glm::vec2(size.x + 0.5f * thck, 0.f);
-    body3.position = glm::vec2(0.f, -size.y - 0.5f * thck);
-    body4.position = glm::vec2(0.f, size.y + 0.5f * thck);
+    collider1.position = glm::vec2(-size.x - 0.5f * thck, 0.f);
+    collider2.position = glm::vec2(size.x + 0.5f * thck, 0.f);
+    collider3.position = glm::vec2(0.f, -size.y - 0.5f * thck);
+    collider4.position = glm::vec2(0.f, size.y + 0.5f * thck);
 
-    body1.vertices = polygon::rect(thck, 2.f * (size.y + thck));
-    body2.vertices = polygon::rect(thck, 2.f * (size.y + thck));
-    body3.vertices = polygon::rect(2.f * size.x, thck);
-    body4.vertices = polygon::rect(2.f * size.x, thck);
+    collider1.vertices = polygon::rect(thck, 2.f * (size.y + thck));
+    collider2.vertices = polygon::rect(thck, 2.f * (size.y + thck));
+    collider3.vertices = polygon::rect(2.f * size.x, thck);
+    collider4.vertices = polygon::rect(2.f * size.x, thck);
 
-    body1.type = body2D::btype::STATIC;
-    body2.type = body2D::btype::STATIC;
-    body3.type = body2D::btype::STATIC;
-    body4.type = body2D::btype::STATIC;
+    body2D::specs wall;
+    wall.colliders = {collider1, collider2, collider3, collider4};
+    wall.type = body2D::btype::STATIC;
 
-    world.bodies.add(body1);
-    world.bodies.add(body2);
-    world.bodies.add(body3);
-    world.bodies.add(body4);
+    world.bodies.add(wall);
+
+    collider2D::specs bottom;
+    collider2D::specs right;
+    collider2D::specs left;
+
+    bottom.position = {0.f, -250.f};
+    bottom.vertices = polygon::rect(2600.f, 3.f * thck);
+
+    right.position = {1300.f - 1.5f * thck, -225.f};
+    right.vertices = polygon::rect(3.f * thck, 50.f);
+
+    left.position = {1.5f * thck - 1300.f, -225.f};
+    left.vertices = polygon::rect(3.f * thck, 50.f);
 
     body2D::specs floor;
-    body2D::specs wall1;
-    body2D::specs wall2;
-
-    floor.position = {0.f, -250.f};
-    floor.vertices = polygon::rect(2600.f, 3.f * thck);
+    floor.colliders = {bottom, right, left};
     floor.type = body2D::btype::STATIC;
 
-    wall1.position = {1300.f - 1.5f * thck, -225.f};
-    wall1.vertices = polygon::rect(3.f * thck, 50.f);
-    wall1.type = body2D::btype::STATIC;
-
-    wall2.position = {1.5f * thck - 1300.f, -225.f};
-    wall2.vertices = polygon::rect(3.f * thck, 50.f);
-    wall2.type = body2D::btype::STATIC;
-
     world.bodies.add(floor);
-    world.bodies.add(wall1);
-    world.bodies.add(wall2);
 }
 
 YAML::Node demo_app::encode() const

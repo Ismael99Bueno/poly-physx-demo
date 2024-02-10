@@ -3,6 +3,7 @@
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
 #include "ppx/entities/body2D.hpp"
+#include "ppx/entities/collider2D.hpp"
 #include "ppx/constraints/constraint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include <unordered_set>
@@ -26,9 +27,16 @@ class selection_manager
     bool is_selecting(const body2D::ptr &body) const;
     bool is_selected(const body2D::ptr &body) const;
 
+    void select(const collider2D::ptr &body);
+    void deselect(const collider2D::ptr &body);
+    bool is_selecting(const collider2D::ptr &body) const;
+    bool is_selected(const collider2D::ptr &body) const;
+
     void update_selected_joints();
 
-    const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selected_bodies() const;
+    const std::unordered_set<body2D::ptr> &selected_bodies() const;
+    const std::unordered_set<collider2D::ptr> &selected_colliders() const;
+
     const std::vector<spring2D::ptr> &selected_springs() const;
     const std::vector<constraint2D *> &selected_constraints() const;
 
@@ -43,7 +51,9 @@ class selection_manager
     aabb2D m_selection_boundaries;
 
     lynx::line_strip2D m_selection_outline;
-    std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> m_selected_bodies;
+    std::unordered_set<body2D::ptr> m_selected_bodies;
+    std::unordered_set<collider2D::ptr> m_selected_colliders;
+
     std::vector<spring2D::ptr> m_selected_springs;
     std::vector<constraint2D *> m_selected_constraints;
 };

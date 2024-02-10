@@ -10,32 +10,31 @@ selection_manager::selection_manager(demo_app &app)
     : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
 {
     m_window = m_app.window();
-    const kit::callback<std::size_t> remove_body{[this](const std::size_t index) {
+    app.world.bodies.events.on_late_removal += [this](const std::size_t index) {
         for (auto it = m_selected_bodies.begin(); it != m_selected_bodies.end();)
             if (!(*it))
                 it = m_selected_bodies.erase(it);
             else
                 ++it;
-    }};
-    const kit::callback<std::size_t> remove_spring{[this](const std::size_t index) {
+    };
+
+    // same callbacks but directly using += operator (no kit callback wrapper)
+    app.world.springs.events.on_late_removal += [this](const std::size_t index) {
         for (auto it = m_selected_springs.begin(); it != m_selected_springs.end();)
             if (!(*it))
                 it = m_selected_springs.erase(it);
             else
                 ++it;
-    }};
-    const kit::callback<const constraint2D &> remove_ctr{[this](const constraint2D &ctr) {
+    };
+
+    app.world.constraints.events.on_removal += [this](const constraint2D &ctr) {
         for (auto it = m_selected_constraints.begin(); it != m_selected_constraints.end(); ++it)
             if (**it == ctr)
             {
                 m_selected_constraints.erase(it);
                 return;
             }
-    }};
-
-    app.world.events.on_late_body_removal += remove_body;
-    app.world.events.on_late_spring_removal += remove_spring;
-    app.world.events.on_constraint_removal += remove_ctr;
+    };
 }
 
 static float oscillating_thickness(const float time)
@@ -93,7 +92,10 @@ void selection_manager::begin_selection(const bool override_current)
     m_selection_outline[4].position = mpos;
 
     if (override_current)
+    {
         m_selected_bodies.clear();
+        m_selected_colliders.clear();
+    }
 
     m_selecting = true;
 }
@@ -102,8 +104,11 @@ void selection_manager::end_selection()
 {
     if (!m_selecting)
         return;
-    const std::vector<body2D::ptr> bodies = m_app.world.bodies[m_selection_boundaries];
-    m_selected_bodies.insert(bodies.begin(), bodies.end());
+    for (body2D *body : m_app.world.bodies[m_selection_boundaries])
+        m_selected_bodies.insert(body->as_ptr());
+    for (collider2D *collider : m_app.world.colliders[m_selection_boundaries])
+        m_selected_colliders.insert(collider->as_ptr());
+
     m_selecting = false;
     update_selected_joints();
 }
@@ -116,17 +121,35 @@ void selection_manager::select(const body2D::ptr &body)
 void selection_manager::deselect(const body2D::ptr &body)
 {
     m_selected_bodies.erase(body);
-    m_app.shapes()[body->index]->outline_thickness = 0.f;
     update_selected_joints();
 }
 bool selection_manager::is_selecting(const body2D::ptr &body) const
 {
-    return (m_selecting && geo::intersects(m_selection_boundaries, body->shape().bounding_box())) ||
+    return (m_selecting && geo::intersects(m_selection_boundaries, body->centroid())) ||
            m_selected_bodies.find(body) != m_selected_bodies.end();
 }
 bool selection_manager::is_selected(const body2D::ptr &body) const
 {
     return m_selected_bodies.find(body) != m_selected_bodies.end();
+}
+
+void selection_manager::select(const collider2D::ptr &collider)
+{
+    m_selected_colliders.insert(collider);
+}
+void selection_manager::deselect(const collider2D::ptr &collider)
+{
+    m_selected_colliders.erase(collider);
+    m_app.shapes()[collider->index]->outline_thickness = 0.f;
+}
+bool selection_manager::is_selecting(const collider2D::ptr &collider) const
+{
+    return (m_selecting && geo::intersects(m_selection_boundaries, collider->bounding_box())) ||
+           m_selected_colliders.find(collider) != m_selected_colliders.end();
+}
+bool selection_manager::is_selected(const collider2D::ptr &collider) const
+{
+    return m_selected_colliders.find(collider) != m_selected_colliders.end();
 }
 
 void selection_manager::update_selected_joints()
@@ -148,10 +171,15 @@ void selection_manager::update_selected_joints()
     }
 }
 
-const std::unordered_set<body2D::ptr, std::hash<kit::identifiable<>>> &selection_manager::selected_bodies() const
+const std::unordered_set<body2D::ptr> &selection_manager::selected_bodies() const
 {
     return m_selected_bodies;
 }
+const std::unordered_set<collider2D::ptr> &selection_manager::selected_colliders() const
+{
+    return m_selected_colliders;
+}
+
 const std::vector<spring2D::ptr> &selection_manager::selected_springs() const
 {
     return m_selected_springs;

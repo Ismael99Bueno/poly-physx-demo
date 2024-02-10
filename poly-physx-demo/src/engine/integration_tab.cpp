@@ -55,9 +55,8 @@ void integration_tab::render_timestep_settings() const
 
 void integration_tab::render_integration_method()
 {
-    static constexpr std::array<const char *, 8> method_names = {"RK1",   "RK2",   "RK4",     "RK38",
-                                                                 "RKF12", "RKF45", "RKFCK45", "RKF78"};
-    if (ImGui::ListBox("Integration method", (int *)&m_integration_method, method_names.data(), 8))
+    if (ImGui::Combo("Integration method", (int *)&m_integration_method,
+                     "RK1\0RK2\0RK4\0RK38\0RKF12\0RKF45\0RKFCK45\0RKF78\0\0"))
         update_integration_method();
 }
 
