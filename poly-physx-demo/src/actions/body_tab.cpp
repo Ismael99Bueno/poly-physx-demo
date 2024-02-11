@@ -22,7 +22,7 @@ void body_tab::begin_body_spawn()
             break;
         case collider2D::stype::POLYGON: {
             const polygon poly{cprx.specs.vertices};
-            const std::vector<glm::vec2> vertices{poly.locals.begin(), poly.locals.end()};
+            const std::vector<glm::vec2> vertices{poly.vertices.model.begin(), poly.vertices.model.end()};
             m_preview.push_back(kit::make_scope<lynx::polygon2D>(vertices, lynx::color(cprx.color, 120u)));
             break;
         }

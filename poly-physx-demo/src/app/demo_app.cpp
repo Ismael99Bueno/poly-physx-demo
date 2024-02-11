@@ -177,7 +177,7 @@ void demo_app::add_walls()
     floor.colliders = {bottom, right, left};
     floor.type = body2D::btype::STATIC;
 
-    world.bodies.add(floor);
+    // world.bodies.add(floor);
 }
 
 YAML::Node demo_app::encode() const

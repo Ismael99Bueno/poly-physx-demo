@@ -173,7 +173,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
     static constexpr float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
-    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.globals;
+    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.vertices.globals;
     std::size_t to_edit = vertices.size() - 1;
     static constexpr float thres_distance = 2.f;
     float min_distance = FLT_MAX;
@@ -218,18 +218,18 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
     const auto col = poly.convex() ? IM_COL32(poly_color.r(), poly_color.g(), poly_color.b(), poly_color.a())
                                    : IM_COL32(255, 0, 0, 255);
 
-    std::vector<ImVec2> points(poly.size());
-    for (std::size_t i = 0; i < poly.size(); i++)
+    std::vector<ImVec2> points(poly.vertices.size());
+    for (std::size_t i = 0; i < poly.vertices.size(); i++)
     {
-        const glm::vec2 p1 = origin + poly.globals[i] * scale_factor + canvas_hdim,
-                        p2 = origin + poly.globals[i + 1] * scale_factor + canvas_hdim;
+        const glm::vec2 p1 = origin + poly.vertices.globals[i] * scale_factor + canvas_hdim,
+                        p2 = origin + poly.vertices.globals[i + 1] * scale_factor + canvas_hdim;
         const float thickness = 3.f;
         draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
         points[i] = {p1.x, p1.y};
     }
 
     if (poly.convex())
-        draw_list->AddConvexPolyFilled(points.data(), (int)poly.size(),
+        draw_list->AddConvexPolyFilled(points.data(), (int)poly.vertices.size(),
                                        IM_COL32(poly_color.r(), poly_color.g(), poly_color.b(), 120));
     if (valid_to_add)
     {

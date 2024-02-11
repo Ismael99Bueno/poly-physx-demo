@@ -46,7 +46,7 @@ void actions_panel::on_render(const float ts)
     {
         ImGui::BeginTabBar("Actions tab bar");
         render_imgui_tab("Body", "Edit bodies", m_body_tab);
-        render_imgui_tab("Colliders", "Edit colliders", m_collider_tab);
+        render_imgui_tab("Collider", "Edit colliders", m_collider_tab);
         render_imgui_tab("Joints", "Attach bodies with joints", m_joints_tab);
         render_imgui_tab("Grab", "Grab bodies", m_grab_tab);
         render_imgui_tab("Entities", "Entities overview", m_entities_tab);
