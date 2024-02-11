@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/actions/collider_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx/serialization/serialization.hpp"
 
 #include "lynx/app/window.hpp"
 
@@ -142,10 +143,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
 {
     const polygon poly{prx.specs.vertices};
     if (!poly.convex())
-    {
-        ImGui::SameLine(ImGui::GetWindowWidth() - 575.f);
         ImGui::Text("The polygon is not convex!");
-    }
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -173,7 +171,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
     static constexpr float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
-    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.vertices.globals;
+    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.vertices.locals;
     std::size_t to_edit = vertices.size() - 1;
     static constexpr float thres_distance = 2.f;
     float min_distance = FLT_MAX;
@@ -221,8 +219,8 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
     std::vector<ImVec2> points(poly.vertices.size());
     for (std::size_t i = 0; i < poly.vertices.size(); i++)
     {
-        const glm::vec2 p1 = origin + poly.vertices.globals[i] * scale_factor + canvas_hdim,
-                        p2 = origin + poly.vertices.globals[i + 1] * scale_factor + canvas_hdim;
+        const glm::vec2 p1 = origin + poly.vertices.locals[i] * scale_factor + canvas_hdim,
+                        p2 = origin + poly.vertices.locals[i + 1] * scale_factor + canvas_hdim;
         const float thickness = 3.f;
         draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
         points[i] = {p1.x, p1.y};
@@ -266,15 +264,7 @@ YAML::Node collider_tab::encode_proxy(const proxy &prx)
         node["Name"] = prx.name;
     node["Type"] = (int)prx.type;
     node["Color"] = prx.color.normalized;
-    node["Density"] = prx.specs.density;
-    node["Charge Density"] = prx.specs.charge_density;
-    node["Friction"] = prx.specs.friction;
-    node["Restitution"] = prx.specs.restitution;
-    node["Radius"] = prx.specs.radius;
-    node["Shape"] = (int)prx.specs.shape;
-
-    for (const glm::vec2 &v : prx.specs.vertices)
-        node["Vertices"].push_back(v);
+    node["Specs"] = prx.specs;
 
     switch (prx.type)
     {
@@ -298,16 +288,7 @@ collider_tab::proxy collider_tab::decode_proxy(const YAML::Node &node)
         prx.name = node["Name"].as<std::string>();
     prx.type = (proxy_type)node["Type"].as<int>();
     prx.color.normalized = node["Color"].as<glm::vec4>();
-    prx.specs.density = node["Density"].as<float>();
-    prx.specs.charge_density = node["Charge Density"].as<float>();
-    prx.specs.friction = node["Friction"].as<float>();
-    prx.specs.restitution = node["Restitution"].as<float>();
-    prx.specs.radius = node["Radius"].as<float>();
-    prx.specs.shape = (collider2D::stype)node["Shape"].as<int>();
-
-    prx.specs.vertices.clear();
-    for (const YAML::Node &v : node["Vertices"])
-        prx.specs.vertices.push_back(v.as<glm::vec2>());
+    prx.specs = node["Specs"].as<collider2D::specs>();
 
     switch (prx.type)
     {

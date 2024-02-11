@@ -36,7 +36,6 @@ class group_manager
   private:
     struct body_proxy
     {
-        kit::uuid id;
         lynx::color color;
         body2D::specs specs;
     };

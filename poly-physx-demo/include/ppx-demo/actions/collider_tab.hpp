@@ -3,6 +3,7 @@
 #include "lynx/drawing/shape.hpp"
 #include "lynx/app/window.hpp"
 #include "ppx/entities/collider2D.hpp"
+#include "ppx-app/app/app.hpp"
 
 namespace ppx::demo
 {
@@ -32,7 +33,7 @@ class collider_tab
         float width = 5.f, height = 5.f, ngon_radius = 3.f;
         std::uint32_t ngon_sides = 3;
         proxy_type type = proxy_type::RECT;
-        lynx::color color;
+        lynx::color color = app::DEFAULT_COLLIDER_COLOR;
     };
 
   private:

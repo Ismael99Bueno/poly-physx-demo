@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/actions/body_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx/serialization/serialization.hpp"
 
 namespace ppx::demo
 {
@@ -38,7 +39,10 @@ void body_tab::end_body_spawn()
     if (!m_spawning)
         return;
     m_spawning = false;
-    m_app->world.bodies.add(m_current_proxy.specs);
+    body2D::specs specs = m_current_proxy.specs;
+    for (collider_tab::proxy &cprx : m_current_proxy.cproxies)
+        specs.colliders.push_back(cprx.specs);
+    m_app->world.bodies.add(specs);
 }
 
 void body_tab::cancel_body_spawn()
@@ -58,6 +62,8 @@ void body_tab::update()
     const float angle = std::atan2f(velocity.y, velocity.x);
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
+    for (const auto &prv : m_preview)
+        prv->transform = m_preview_transform;
 }
 
 void body_tab::render()
@@ -153,11 +159,30 @@ void body_tab::render_colliders_and_properties()
         if (ImGui::Button("Add"))
             m_current_proxy.cproxies.push_back(m_ctab->m_current_proxy);
         for (collider_tab::proxy &cprx : m_current_proxy.cproxies)
-            if (ImGui::TreeNode(&cprx, "%s", cprx.name.c_str()))
+        {
+            const char *name = cprx.name.c_str();
+            if (cprx.name.empty())
+                switch (cprx.type)
+                {
+                case collider_tab::proxy_type::RECT:
+                    name = "Rectangle";
+                    break;
+                case collider_tab::proxy_type::CIRCLE:
+                    name = "Circle";
+                    break;
+                case collider_tab::proxy_type::NGON:
+                    name = "NGon";
+                    break;
+                case collider_tab::proxy_type::CUSTOM:
+                    name = "Custom";
+                    break;
+                }
+            if (ImGui::TreeNode(&cprx, "%s", name))
             {
                 collider_tab::render_shape_types_and_properties(cprx);
                 ImGui::TreePop();
             }
+        }
         ImGui::TreePop();
     }
 }
@@ -215,10 +240,7 @@ YAML::Node body_tab::encode_proxy(const proxy &prx)
     if (!prx.name.empty())
         node["Name"] = prx.name;
 
-    node["Mass"] = prx.specs.mass;
-    node["Charge"] = prx.specs.charge;
-    node["Type"] = (int)prx.specs.type;
-
+    node["Specs"] = prx.specs;
     node["Collider proxies"] = YAML::Node{};
     for (const collider_tab::proxy &cprx : prx.cproxies)
         node["Collider proxies"].push_back(collider_tab::encode_proxy(cprx));
@@ -231,9 +253,7 @@ body_tab::proxy body_tab::decode_proxy(const YAML::Node &node)
     if (node["Name"])
         prx.name = node["Name"].as<std::string>();
 
-    prx.specs.mass = node["Mass"].as<float>();
-    prx.specs.charge = node["Charge"].as<float>();
-    prx.specs.type = (body2D::btype)node["Type"].as<int>();
+    prx.specs = node["Specs"].as<body2D::specs>();
 
     prx.cproxies.clear();
     for (const auto &cprx_node : node["Collider proxies"])

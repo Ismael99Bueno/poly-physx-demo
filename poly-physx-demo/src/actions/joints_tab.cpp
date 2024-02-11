@@ -310,8 +310,8 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
     specs.joint.anchor1 = m_anchor1;
     specs.joint.anchor2 = center_anchor2 ? (mpos - body2->position()) : glm::vec2(0.f);
 
-    specs.joint.body1 = m_body1.raw();
-    specs.joint.body2 = body2;
+    specs.joint.bindex1 = m_body1->index;
+    specs.joint.bindex2 = body2->index;
 
     return true;
 }

@@ -107,7 +107,7 @@ void entities_tab::render_single_body_properties(body2D &body)
     ImGui::DragFloat2("Velocity", glm::value_ptr(body.velocity), drag_speed, 0.f, 0.f, format);
 
     float rotation = body.rotation();
-    if (ImGui::DragFloat("Rotation", &rotation, drag_speed, 0.f, 0.f, format))
+    if (ImGui::DragFloat("Rotation", &rotation, 0.1f * drag_speed, 0.f, 0.f, format))
         body.rotation(rotation);
 
     ImGui::DragFloat("Angular velocity", &body.angular_velocity, drag_speed, 0.f, 0.f, format);
@@ -180,7 +180,7 @@ void entities_tab::render_single_collider_properties(collider2D &collider)
         collider.gcentroid(gcentroid);
 
     float lrotation = collider.lrotation();
-    if (ImGui::DragFloat("Local rotation", &lrotation, drag_speed, 0.f, 0.f, format))
+    if (ImGui::DragFloat("Local rotation", &lrotation, 0.1f * drag_speed, 0.f, 0.f, format))
         collider.lrotation(lrotation);
 
     ImGui::Text("Area: %.1f", collider.area());

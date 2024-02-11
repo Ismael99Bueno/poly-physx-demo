@@ -29,7 +29,7 @@ class body_tab
     struct proxy
     {
         body2D::specs specs;
-        std::vector<collider_tab::proxy> cproxies;
+        std::vector<collider_tab::proxy> cproxies{1};
         std::string name;
     };
 

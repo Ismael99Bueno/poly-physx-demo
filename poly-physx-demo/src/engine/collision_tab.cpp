@@ -280,7 +280,7 @@ void collision_tab::update_collisions()
 
 void collision_tab::render_bounding_boxes() const
 {
-    for (std::size_t i = 0; i < m_app->world.bodies.size(); i++)
+    for (std::size_t i = 0; i < m_app->world.colliders.size(); i++)
         m_window->draw(m_bbox_lines[i]);
 }
 
