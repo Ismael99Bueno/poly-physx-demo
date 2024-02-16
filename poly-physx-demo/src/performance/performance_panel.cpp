@@ -1,7 +1,6 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/demo_app.hpp"
-#include "kit/profile/instrumentor.hpp"
 
 namespace ppx::demo
 {
@@ -22,10 +21,10 @@ void performance_panel::on_render(const float ts)
     if (ImGui::Begin("Performance"))
     {
         render_unit_slider();
-        render_smoothness_slider();
+        ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");
         render_fps();
 #ifdef KIT_PROFILE
-        render_measurements_hierarchy();
+        render_profile_hierarchy();
 #else
         render_summary();
 #endif
@@ -36,48 +35,53 @@ void performance_panel::on_render(const float ts)
 void performance_panel::render_summary()
 {
     if (ImGui::Button("Reset maximums"))
-        for (kit::time &max : m_max_time_measurements)
-            max = kit::time();
+        for (kit::perf::time &max : m_max_time_measurements)
+            max = kit::perf::time();
 
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        render_measurements_summary<kit::time::nanoseconds, long long>("%s: %lld ns (max: %lld ns)");
+        render_measurements_summary<kit::perf::time::nanoseconds, long long>("%s: %lld ns (max: %lld ns)");
         if (ImGui::CollapsingHeader("Execution time plot (ns)"))
-            render_time_plot<kit::time::nanoseconds>("ns");
+            render_time_plot<kit::perf::time::nanoseconds>("ns");
         break;
     case time_unit::MICROSECONDS:
-        render_measurements_summary<kit::time::microseconds, long long>("%s: %lld us (max: %lld us)");
+        render_measurements_summary<kit::perf::time::microseconds, long long>("%s: %lld us (max: %lld us)");
         if (ImGui::CollapsingHeader("Execution time plot (us)"))
-            render_time_plot<kit::time::microseconds>("us");
+            render_time_plot<kit::perf::time::microseconds>("us");
         break;
     case time_unit::MILLISECONDS:
-        render_measurements_summary<kit::time::milliseconds, long>("%s: %lld ms (max: %lld ms)");
+        render_measurements_summary<kit::perf::time::milliseconds, long>("%s: %lld ms (max: %lld ms)");
         if (ImGui::CollapsingHeader("Execution time plot (ms)"))
-            render_time_plot<kit::time::milliseconds>("ms");
+            render_time_plot<kit::perf::time::milliseconds>("ms");
         break;
     case time_unit::SECONDS:
-        render_measurements_summary<kit::time::seconds, float>("%s: %.2f s (max: %.2f s)");
+        render_measurements_summary<kit::perf::time::seconds, float>("%s: %.2f s (max: %.2f s)");
         if (ImGui::CollapsingHeader("Execution time plot (s)"))
-            render_time_plot<kit::time::seconds>("s");
+            render_time_plot<kit::perf::time::seconds>("s");
         break;
     default:
         break;
     }
 }
 
-static void render_performance_pie_plot(const kit::measurement &measure)
+void performance_panel::render_performance_pie_plot(const kit::perf::node &parent,
+                                                    const std::unordered_set<std::string> &children)
 {
-    const std::size_t partitions = measure.children.size();
+    const std::size_t partitions = children.size();
+
     std::vector<const char *> labels(partitions + 1);
     std::vector<float> usage_percents(partitions + 1);
     float unprofiled_percent = 100.f;
 
     std::size_t index = 0;
-    for (const auto &[name, child] : measure.children)
+    for (const std::string &child : children)
     {
-        labels[index] = child.name;
-        usage_percents[index] = child.parent_relative_percent * 100.f;
+        const kit::perf::node node = parent[child];
+        labels[index] = node.name();
+        const kit::perf::measurement::metrics metrics = smooth_out_average_metrics(node);
+
+        usage_percents[index] = metrics.relative_percent * 100.f;
         unprofiled_percent -= usage_percents[index++];
     }
     labels[partitions] = "Unprofiled";
@@ -89,62 +93,87 @@ static void render_performance_pie_plot(const kit::measurement &measure)
 }
 
 template <typename TimeUnit>
-void performance_panel::render_hierarchy_recursive(const kit::measurement &measure, const char *unit)
+void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, const char *unit,
+                                                   const std::size_t parent_calls)
 {
-    const float over_calls = measure.duration_over_calls.as<TimeUnit, float>();
-    const float max_over_calls =
-        evaluate_max_hierarchy_measurement(measure.name, measure.duration_over_calls).as<TimeUnit, float>();
+    const std::size_t calls = node.size() * parent_calls;
+    const kit::perf::measurement::metrics metrics = smooth_out_average_metrics(node);
+    const char *name = node.name();
 
-    if (!ImGui::TreeNode(measure.name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", measure.name, over_calls, unit,
-                         measure.parent_relative_percent * 100.f, max_over_calls, unit))
-        return;
+    const float per_call = metrics.elapsed.as<TimeUnit, float>();
+    const float max_per_call = take_max_hierarchy_elapsed(name, metrics.elapsed).as<TimeUnit, float>();
 
-    if (ImGui::CollapsingHeader("Details"))
+    if (ImGui::TreeNode(name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", name, per_call, unit,
+                        metrics.relative_percent * 100.f, max_per_call, unit))
     {
-        const float per_call = measure.duration_per_call.as<TimeUnit, float>();
-        const float max_per_call = max_over_calls / measure.total_calls;
-
-        ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
-        ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
-                    measure.total_percent * 100.f, max_over_calls, unit);
-        ImGui::Text("Calls (current process): %u", measure.parent_relative_calls);
-        ImGui::Text("Calls (overall): %u", measure.total_calls);
-
-        ImGui::PushID(measure.name);
-        if (ImPlot::BeginPlot("##Performance pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
+        const auto children = node.children();
+        if (ImGui::CollapsingHeader("Details"))
         {
-            render_performance_pie_plot(measure);
-            ImPlot::EndPlot();
-        }
-        ImGui::PopID();
-    }
-    for (const auto &[name, child] : measure.children)
-        render_hierarchy_recursive<TimeUnit>(child, unit);
+            const float over_calls = per_call * calls;
+            const float max_over_calls = max_per_call * calls;
 
-    ImGui::TreePop();
+            ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
+            ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
+                        metrics.total_percent * 100.f, max_over_calls, unit);
+            ImGui::Text("Calls (current process): %zu", node.size());
+            ImGui::Text("Calls (overall): %zu", calls);
+
+            ImGui::PushID(name);
+            if (ImPlot::BeginPlot("##Performance pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
+            {
+                render_performance_pie_plot(node, children);
+                ImPlot::EndPlot();
+            }
+            ImGui::PopID();
+        }
+        for (const std::string &child : children)
+            render_hierarchy_recursive<TimeUnit>(node[child], unit, calls);
+
+        ImGui::TreePop();
+    }
+    m_hierarchy_metrics[node.name_hash()] = metrics;
 }
 
-void performance_panel::render_measurements_hierarchy()
+kit::perf::measurement::metrics performance_panel::smooth_out_average_metrics(const kit::perf::node &node)
 {
-    if (!kit::instrumentor::has_hierarchy_measurement("ppx-demo-app"))
-        return;
-    if (ImGui::Button("Reset maximums"))
-        m_max_time_hierarchy_measurements.clear();
+    auto metrics = node.average_metrics();
+    if (kit::approaches_zero(m_smoothness))
+        return metrics;
+    const auto it = m_hierarchy_metrics.find(node.name_hash());
+    if (it == m_hierarchy_metrics.end())
+        return metrics;
 
-    const kit::measurement &measure = kit::instrumentor::hierarchy_measurement("ppx-demo-app");
+    const auto &last_metrics = it->second;
+    metrics.elapsed = m_smoothness * last_metrics.elapsed + (1.f - m_smoothness) * metrics.elapsed;
+    metrics.relative_percent =
+        m_smoothness * last_metrics.relative_percent + (1.f - m_smoothness) * metrics.relative_percent;
+    metrics.total_percent = m_smoothness * last_metrics.total_percent + (1.f - m_smoothness) * metrics.total_percent;
+    return metrics;
+}
+
+void performance_panel::render_profile_hierarchy()
+{
+    const char *session = kit::perf::instrumentor::current_session();
+    if (!kit::perf::instrumentor::has_measurements(session))
+        return;
+
+    if (ImGui::Button("Reset maximums"))
+        m_hierarchy_max_elapsed.clear();
+
+    const kit::perf::node head = kit::perf::instrumentor::head_node(session);
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        render_hierarchy_recursive<kit::time::nanoseconds>(measure, "ns");
+        render_hierarchy_recursive<kit::perf::time::nanoseconds>(head, "ns");
         break;
     case time_unit::MICROSECONDS:
-        render_hierarchy_recursive<kit::time::microseconds>(measure, "us");
+        render_hierarchy_recursive<kit::perf::time::microseconds>(head, "us");
         break;
     case time_unit::MILLISECONDS:
-        render_hierarchy_recursive<kit::time::milliseconds>(measure, "ms");
+        render_hierarchy_recursive<kit::perf::time::milliseconds>(head, "ms");
         break;
     case time_unit::SECONDS:
-        render_hierarchy_recursive<kit::time::seconds>(measure, "s");
+        render_hierarchy_recursive<kit::perf::time::seconds>(head, "s");
         break;
     default:
         break;
@@ -158,18 +187,12 @@ void performance_panel::render_unit_slider()
     ImGui::SliderInt("Unit", (int *)&m_time_unit, 0, 3, unit_name);
 }
 
-void performance_panel::render_smoothness_slider()
-{
-    if (ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f"))
-        kit::instrumentor::measurement_smoothness(m_smoothness);
-}
-
 void performance_panel::render_fps() const
 {
-    const float frame_time = m_time_measurements[0].as<kit::time::seconds, float>();
+    const float frame_time = m_time_measurements[0].as<kit::perf::time::seconds, float>();
     if (kit::approaches_zero(frame_time))
         return;
-    const std::uint32_t fps = (std::uint32_t)(1.f / m_time_measurements[0].as<kit::time::seconds, float>());
+    const std::uint32_t fps = (std::uint32_t)(1.f / m_time_measurements[0].as<kit::perf::time::seconds, float>());
     ImGui::Text("FPS: %u", fps);
 }
 
@@ -179,8 +202,8 @@ template <typename TimeUnit, typename T> void performance_panel::render_measurem
                                                                   "PPX-APP:Physics"};
     for (std::size_t i = 0; i < 4; i++)
     {
-        const kit::time &current = m_time_measurements[i];
-        kit::time &max = m_max_time_measurements[i];
+        const kit::perf::time &current = m_time_measurements[i];
+        kit::perf::time &max = m_max_time_measurements[i];
 
         max = std::max(max, current);
         ImGui::Text(format, measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
@@ -225,14 +248,14 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     time += m_time_plot_speed;
 }
 
-kit::time performance_panel::evaluate_max_hierarchy_measurement(const char *name, kit::time duration)
+kit::perf::time performance_panel::take_max_hierarchy_elapsed(const char *name, kit::perf::time elapsed)
 {
-    const auto max_measure = m_max_time_hierarchy_measurements.find(name);
-    if (max_measure != m_max_time_hierarchy_measurements.end() && duration <= max_measure->second)
+    const auto max_measure = m_hierarchy_max_elapsed.find(name);
+    if (max_measure != m_hierarchy_max_elapsed.end() && elapsed <= max_measure->second)
         return max_measure->second;
 
-    m_max_time_hierarchy_measurements[name] = duration;
-    return duration;
+    m_hierarchy_max_elapsed[name] = elapsed;
+    return elapsed;
 }
 
 YAML::Node performance_panel::encode() const
@@ -252,8 +275,6 @@ bool performance_panel::decode(const YAML::Node &node)
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();
     m_time_plot_speed = node["Time plot speed"].as<float>();
-
-    kit::instrumentor::measurement_smoothness(m_smoothness);
 
     return true;
 }
