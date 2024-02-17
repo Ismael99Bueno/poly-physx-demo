@@ -45,21 +45,46 @@ static float oscillating_thickness(const float time)
     return min_amplitude + 0.5f * (max_amplitude - min_amplitude) * (1.f - cosf(freq * time));
 }
 
+static bool compare_colors(const lynx::color &c1, const lynx::color &c2)
+{
+    const glm::vec4 &v1 = c1.normalized;
+    const glm::vec4 &v2 = c2.normalized;
+    return kit::approximately(v1.r, v2.r) && kit::approximately(v1.g, v2.g) && kit::approximately(v1.b, v2.b);
+}
+
 void selection_manager::update()
 {
     if (!m_selecting)
     {
-        for (const body2D::ptr &body : m_selected_bodies)
-            m_app.shapes()[body->index]->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
-
+        for (const collider2D::ptr &collider : m_selected_colliders)
+        {
+            const auto &shape = m_app.shapes()[collider->index];
+            shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
+            if (is_selected(collider->parent()))
+            {
+                if (!compare_colors(shape->outline_color(), body_selection_color))
+                    shape->outline_color(body_selection_color);
+            }
+            else if (!compare_colors(shape->outline_color(), collider_selection_color))
+                shape->outline_color(collider_selection_color);
+        }
         return;
     }
-    for (std::size_t i = 0; i < m_app.world.bodies.size(); i++)
+    for (std::size_t i = 0; i < m_app.world.colliders.size(); i++)
     {
-        const body2D::ptr body = m_app.world.bodies.ptr(i);
+        const collider2D::ptr collider = m_app.world.colliders.ptr(i);
         const auto &shape = m_app.shapes()[i];
-        if (is_selecting(body))
+        if (is_selecting(collider))
+        {
             shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
+            if (is_selecting(collider->parent()))
+            {
+                if (!compare_colors(shape->outline_color(), body_selection_color))
+                    shape->outline_color(body_selection_color);
+            }
+            else if (!compare_colors(shape->outline_color(), collider_selection_color))
+                shape->outline_color(collider_selection_color);
+        }
         else if (!kit::approaches_zero(shape->outline_thickness))
             shape->outline_thickness = 0.f;
     }
@@ -125,8 +150,16 @@ void selection_manager::deselect(const body2D::ptr &body)
 }
 bool selection_manager::is_selecting(const body2D::ptr &body) const
 {
-    return (m_selecting && geo::intersects(m_selection_boundaries, body->centroid())) ||
-           m_selected_bodies.find(body) != m_selected_bodies.end();
+    if (!m_selecting)
+        return false;
+    if (body->empty())
+        return geo::intersects(m_selection_boundaries, body->centroid());
+    if (m_selected_bodies.find(body) != m_selected_bodies.end())
+        return true;
+    for (const collider2D &collider : *body)
+        if (!geo::intersects(m_selection_boundaries, collider.bounding_box()))
+            return false;
+    return true;
 }
 bool selection_manager::is_selected(const body2D::ptr &body) const
 {
