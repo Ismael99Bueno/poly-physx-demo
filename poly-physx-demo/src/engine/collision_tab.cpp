@@ -47,7 +47,9 @@ void collision_tab::render_imgui_tab()
         ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
 
+#ifndef KIT_PROFILE
         ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->multithreaded);
+#endif
         render_collision_detection_list();
 
         if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())

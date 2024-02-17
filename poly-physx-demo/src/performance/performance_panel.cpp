@@ -103,15 +103,15 @@ void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, 
     const float per_call = metrics.elapsed.as<TimeUnit, float>();
     const float max_per_call = take_max_hierarchy_elapsed(name, metrics.elapsed).as<TimeUnit, float>();
 
-    if (ImGui::TreeNode(name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", name, per_call, unit,
-                        metrics.relative_percent * 100.f, max_per_call, unit))
+    const float over_calls = per_call * calls;
+    const float max_over_calls = max_per_call * calls;
+
+    if (ImGui::TreeNode(name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", name, over_calls, unit,
+                        metrics.relative_percent * 100.f, max_over_calls, unit))
     {
         const auto children = node.children();
         if (ImGui::CollapsingHeader("Details"))
         {
-            const float over_calls = per_call * calls;
-            const float max_over_calls = max_per_call * calls;
-
             ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
             ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
                         metrics.total_percent * 100.f, max_over_calls, unit);
