@@ -24,8 +24,7 @@ class demo_app : public app
     void on_render(float ts) override;
     bool on_event(const lynx::event2D &event) override;
 
-    void remove_selected_bodies();
-    void remove_selected_colliders();
+    void remove_selected();
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;

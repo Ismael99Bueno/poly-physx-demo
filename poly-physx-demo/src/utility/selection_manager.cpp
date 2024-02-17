@@ -17,6 +17,13 @@ selection_manager::selection_manager(demo_app &app)
             else
                 ++it;
     };
+    app.world.colliders.events.on_late_removal += [this](const std::size_t index) {
+        for (auto it = m_selected_colliders.begin(); it != m_selected_colliders.end();)
+            if (!(*it))
+                it = m_selected_colliders.erase(it);
+            else
+                ++it;
+    };
 
     // same callbacks but directly using += operator (no kit callback wrapper)
     app.world.springs.events.on_late_removal += [this](const std::size_t index) {

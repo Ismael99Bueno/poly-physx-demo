@@ -77,10 +77,8 @@ bool demo_app::on_event(const lynx::event2D &event)
         case lynx::input2D::key::BACKSPACE:
             if (grouper.ongoing_group())
                 grouper.cancel_group();
-            else if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT))
-                remove_selected_bodies();
             else
-                remove_selected_colliders();
+                remove_selected();
             return true;
         default:
             return false;
@@ -117,17 +115,14 @@ bool demo_app::on_event(const lynx::event2D &event)
     return false;
 }
 
-void demo_app::remove_selected_bodies()
+void demo_app::remove_selected()
 {
-    const auto selected = selector.selected_bodies();
-    for (const body2D::ptr &body : selected)
+    const auto selected_bodies = selector.selected_bodies();
+    for (const body2D::ptr &body : selected_bodies)
         if (body)
             world.bodies.remove(*body);
-}
-void demo_app::remove_selected_colliders()
-{
-    const auto selected = selector.selected_colliders();
-    for (const collider2D::ptr &collider : selected)
+    const auto selected_colliders = selector.selected_colliders();
+    for (const collider2D::ptr &collider : selected_colliders)
         if (collider)
             world.colliders.remove(*collider);
 }

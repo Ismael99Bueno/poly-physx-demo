@@ -30,8 +30,11 @@ void entities_tab::render_imgui_tab()
 {
     render_general_options();
     render_selected_bodies_properties();
+    render_selected_colliders_properties();
     if (ImGui::CollapsingHeader("Bodies"))
         render_bodies_list();
+    if (ImGui::CollapsingHeader("Colliders"))
+        render_colliders_list();
     if (ImGui::CollapsingHeader("Saved body presets"))
         render_groups();
 }
