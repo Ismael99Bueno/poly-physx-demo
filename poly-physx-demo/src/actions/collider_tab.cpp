@@ -102,7 +102,7 @@ void collider_tab::render_shape_types_and_properties(proxy &prx)
         needs_update |= ImGui::DragFloat("Height", &prx.height, drag_speed, 0.f, FLT_MAX, format);
         break;
     case proxy_type::CIRCLE:
-        needs_update |= ImGui::DragFloat("Radius", &prx.width, drag_speed, 0.f, FLT_MAX, format);
+        needs_update |= ImGui::DragFloat("Radius", &prx.specs.radius, drag_speed, 0.f, FLT_MAX, format);
         break;
     case proxy_type::NGON:
         needs_update |= ImGui::DragFloat("Radius", &prx.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
@@ -142,8 +142,7 @@ bool collider_tab::is_current_proxy_saved() const
 void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
 {
     const polygon poly{prx.specs.vertices};
-    if (!poly.convex())
-        ImGui::Text("The polygon is not convex!");
+    const bool max_vertices_reached = poly.vertices.size() == PPX_MAX_VERTICES;
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -151,6 +150,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
 
     // Draw border and background color
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
+    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
     draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
     draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
 
@@ -161,19 +161,19 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
     static glm::vec2 scrolling{0.f};
 
     const ImGuiIO &io = ImGui::GetIO();
-    static constexpr float scale_factor = 10.f;
+    const float scale_factor = 10.f;
 
     const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
     const glm::vec2 imgui_mpos = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor;
 
     const glm::vec2 towards_poly = poly.closest_direction_from(imgui_mpos);
 
-    static constexpr float max_dist = 5.f;
+    const float max_dist = 5.f;
     const bool valid_to_add = is_hovered && glm::length2(towards_poly) < max_dist;
 
     kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.vertices.locals;
     std::size_t to_edit = vertices.size() - 1;
-    static constexpr float thres_distance = 2.f;
+    const float thres_distance = 2.f;
     float min_distance = FLT_MAX;
 
     for (std::size_t i = 0; i < vertices.size(); i++)
@@ -186,7 +186,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
         }
     }
 
-    const bool create_vertex = min_distance >= thres_distance;
+    const bool create_vertex = !max_vertices_reached && min_distance >= thres_distance;
     bool updated_vertices = false;
     if (create_vertex)
     {
@@ -203,7 +203,6 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
         updated_vertices = true;
     }
 
-    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
     const float grid_step = 64.f;
     for (float x = fmodf(scrolling.x, grid_step); x < canvas_sz.x; x += grid_step)
         draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y),
@@ -236,9 +235,13 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
         const float radius = 8.f;
         draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
     }
-    draw_list->PopClipRect();
     if (updated_vertices)
         prx.specs.vertices = vertices;
+    draw_list->PopClipRect();
+    if (!poly.convex())
+        ImGui::Text("The polygon is not convex!");
+    if (max_vertices_reached)
+        ImGui::Text("Maximum vertices reached! (%d)", PPX_MAX_VERTICES);
 }
 
 YAML::Node collider_tab::encode() const

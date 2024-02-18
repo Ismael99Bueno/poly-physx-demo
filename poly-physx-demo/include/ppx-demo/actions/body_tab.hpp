@@ -49,7 +49,8 @@ class body_tab
     bool m_spawning = false;
 
     void render_menu_bar();
-    void render_colliders_and_properties();
+    void render_properties();
+    void render_colliders();
     void render_body_canvas();
 
     bool is_current_proxy_saved() const;

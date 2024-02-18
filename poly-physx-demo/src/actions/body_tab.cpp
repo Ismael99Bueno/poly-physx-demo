@@ -2,6 +2,7 @@
 #include "ppx-demo/actions/body_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx/serialization/serialization.hpp"
+#include "geo/algorithm/intersection.hpp"
 
 namespace ppx::demo
 {
@@ -16,18 +17,28 @@ void body_tab::begin_body_spawn()
     m_spawning = true;
     m_preview.clear();
     for (const collider_tab::proxy &cprx : m_current_proxy.cproxies)
+    {
+        lynx::shape2D *prev;
         switch (cprx.specs.shape)
         {
-        case collider2D::stype::CIRCLE:
-            m_preview.push_back(kit::make_scope<lynx::ellipse2D>(cprx.specs.radius, lynx::color(cprx.color, 120u)));
+        case collider2D::stype::CIRCLE: {
+            prev = m_preview
+                       .emplace_back(kit::make_scope<lynx::ellipse2D>(cprx.specs.radius, lynx::color(cprx.color, 120u)))
+                       .get();
             break;
+        }
         case collider2D::stype::POLYGON: {
             const polygon poly{cprx.specs.vertices};
             const std::vector<glm::vec2> vertices{poly.vertices.model.begin(), poly.vertices.model.end()};
-            m_preview.push_back(kit::make_scope<lynx::polygon2D>(vertices, lynx::color(cprx.color, 120u)));
+            prev =
+                m_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, lynx::color(cprx.color, 120u))).get();
             break;
         }
         }
+        prev->transform.position = cprx.specs.position;
+        prev->transform.rotation = cprx.specs.rotation;
+        prev->transform.parent = &m_preview_transform;
+    }
 
     m_starting_mouse_pos = m_app->world_mouse_position();
     m_preview_transform.position = m_starting_mouse_pos;
@@ -62,8 +73,6 @@ void body_tab::update()
     const float angle = std::atan2f(velocity.y, velocity.x);
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
-    for (const auto &prv : m_preview)
-        prv->transform = m_preview_transform;
 }
 
 void body_tab::render()
@@ -77,15 +86,16 @@ void body_tab::render_imgui_tab()
 {
     render_menu_bar();
     ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
-    render_colliders_and_properties();
+    render_properties();
     render_body_canvas();
+    render_colliders();
 }
 
 void body_tab::render_menu_bar()
 {
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::BeginMenu("Colliders"))
+        if (ImGui::BeginMenu("Bodies"))
         {
             const bool saved = is_current_proxy_saved();
             if (ImGui::MenuItem("New", nullptr, nullptr))
@@ -144,7 +154,7 @@ void body_tab::render_load_proxy_and_removal_prompts()
     }
 }
 
-void body_tab::render_colliders_and_properties()
+void body_tab::render_properties()
 {
     ImGui::Combo("Type", (int *)&m_current_proxy.specs.type, "Dynamic\0Kinematic\0Static\0\0");
 
@@ -153,13 +163,19 @@ void body_tab::render_colliders_and_properties()
 
     ImGui::DragFloat("Mass", &m_current_proxy.specs.mass, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Charge", &m_current_proxy.specs.charge, drag_speed, -FLT_MAX, FLT_MAX, format);
+}
 
+void body_tab::render_colliders()
+{
+    if (ImGui::Button("Add"))
+        m_current_proxy.cproxies.push_back(m_ctab->m_current_proxy);
+    ImGui::SameLine();
     if (ImGui::TreeNode("Colliders"))
     {
-        if (ImGui::Button("Add"))
-            m_current_proxy.cproxies.push_back(m_ctab->m_current_proxy);
-        for (collider_tab::proxy &cprx : m_current_proxy.cproxies)
+        std::size_t to_remove = SIZE_MAX;
+        for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
         {
+            auto &cprx = m_current_proxy.cproxies[i];
             const char *name = cprx.name.c_str();
             if (cprx.name.empty())
                 switch (cprx.type)
@@ -177,6 +193,12 @@ void body_tab::render_colliders_and_properties()
                     name = "Custom";
                     break;
                 }
+            ImGui::PushID(&cprx);
+            if (ImGui::Button("X"))
+                to_remove = i;
+            ImGui::PopID();
+
+            ImGui::SameLine();
             if (ImGui::TreeNode(&cprx, "%s", name))
             {
                 collider_tab::render_shape_types_and_properties(cprx);
@@ -184,6 +206,8 @@ void body_tab::render_colliders_and_properties()
             }
         }
         ImGui::TreePop();
+        if (to_remove != SIZE_MAX)
+            m_current_proxy.cproxies.erase(m_current_proxy.cproxies.begin() + to_remove);
     }
 }
 
@@ -195,6 +219,7 @@ void body_tab::render_body_canvas()
 
     // Draw border and background color
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
+    draw_list->PushClipRect(canvas_p0, canvas_p1, true);
     draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 255));
     draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 255));
 
@@ -205,10 +230,104 @@ void body_tab::render_body_canvas()
     static glm::vec2 scrolling{0.f};
 
     const ImGuiIO &io = ImGui::GetIO();
-    static constexpr float scale_factor = 10.f;
+    const float scale_factor = 10.f;
+    const float thickness = 3.f;
 
     const glm::vec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
     const glm::vec2 imgui_mpos = (glm::vec2(io.MousePos.x, io.MousePos.y) - canvas_hdim - origin) / scale_factor;
+
+    const float grid_step = 64.f;
+    for (float x = fmodf(scrolling.x, grid_step); x < canvas_sz.x; x += grid_step)
+        draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y),
+                           IM_COL32(200, 200, 200, 40));
+    for (float y = fmodf(scrolling.y, grid_step); y < canvas_sz.y; y += grid_step)
+        draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y),
+                           IM_COL32(200, 200, 200, 40));
+
+    static std::size_t grab_index = SIZE_MAX;
+    glm::vec2 centroid{0.f};
+    float artificial_mass = 0.f;
+
+    for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
+    {
+        auto &cproxy = m_current_proxy.cproxies[i];
+        collider2D::specs &spc = cproxy.specs;
+
+        const auto col = IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), cproxy.color.a());
+
+        const bool is_grabbed = grab_index == i;
+        bool can_be_grabbed;
+        std::uint8_t alpha = is_grabbed ? 160 : 120;
+
+        shape2D *shape;
+        switch (spc.shape)
+        {
+        case collider2D::stype::POLYGON: {
+            polygon poly{spc.vertices};
+            shape = &poly;
+
+            poly.lposition(spc.position);
+            can_be_grabbed = geo::intersects(poly.bounding_box(), imgui_mpos);
+            if (can_be_grabbed)
+                alpha += 40;
+
+            std::vector<ImVec2> points(poly.vertices.size());
+
+            for (std::size_t i = 0; i < poly.vertices.size(); i++)
+            {
+                const glm::vec2 p1 = origin + poly.vertices.locals[i] * scale_factor + canvas_hdim,
+                                p2 = origin + poly.vertices.locals[i + 1] * scale_factor + canvas_hdim;
+
+                draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
+                points[i] = {p1.x, p1.y};
+            }
+            draw_list->AddConvexPolyFilled(points.data(), (int)poly.vertices.size(),
+                                           IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), alpha));
+            break;
+        }
+        case collider2D::stype::CIRCLE:
+            circle circ{spc.radius};
+            shape = &circ;
+
+            circ.lposition(spc.position);
+            can_be_grabbed = geo::intersects(circ.bounding_box(), imgui_mpos);
+            if (can_be_grabbed)
+                alpha += 40;
+
+            const glm::vec2 center = spc.position * scale_factor + origin + canvas_hdim;
+
+            draw_list->AddCircle({center.x, center.y}, spc.radius * scale_factor, col, 0, thickness);
+            draw_list->AddCircleFilled({center.x, center.y}, spc.radius * scale_factor,
+                                       IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), alpha));
+            break;
+        }
+
+        const float cmass = spc.density * shape->area();
+        centroid += cmass * shape->gcentroid();
+        artificial_mass += cmass;
+
+        const bool free_to_grab = grab_index == SIZE_MAX;
+        const bool trying_to_grab = ImGui::IsMouseDown(ImGuiMouseButton_Left);
+        const bool ready_to_grab = trying_to_grab && can_be_grabbed;
+
+        if (is_hovered && ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
+        {
+            spc.position = imgui_mpos;
+            grab_index = i;
+        }
+        else if (!trying_to_grab)
+            grab_index = SIZE_MAX;
+    }
+    const glm::vec2 body_origin = origin + canvas_hdim;
+    draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 8.f, IM_COL32(207, 185, 151, 180));
+    if (!m_current_proxy.cproxies.empty())
+    {
+        centroid /= artificial_mass;
+        const glm::vec2 imgui_centroid = centroid * scale_factor + body_origin;
+        draw_list->AddCircleFilled({imgui_centroid.x, imgui_centroid.y}, 8.f, IM_COL32(155, 207, 83, 180));
+    }
+
+    draw_list->PopClipRect();
 }
 
 bool body_tab::is_current_proxy_saved() const

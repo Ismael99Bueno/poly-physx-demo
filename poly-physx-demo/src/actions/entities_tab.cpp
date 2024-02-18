@@ -309,6 +309,8 @@ void entities_tab::render_selected_colliders_properties()
         restitution /= selected.size();
         area /= selected.size();
         inertia /= selected.size();
+        density /= selected.size();
+        charge_density /= selected.size();
 
         if (ImGui::SliderFloat("Friction", &friction, 0.f, 1.f, format))
             for (const collider2D::ptr &collider : selected)
