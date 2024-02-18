@@ -14,7 +14,6 @@ class actions_panel : public demo_layer
     actions_panel();
 
   private:
-    collider_tab m_collider_tab;
     body_tab m_body_tab;
     joints_tab m_joints_tab;
     grab_tab m_grab_tab;

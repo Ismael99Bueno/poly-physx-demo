@@ -1,5 +1,5 @@
 #include "ppx-demo/internal/pch.hpp"
-#include "ppx-demo/actions/collider_tab.hpp"
+#include "ppx-demo/actions/collider_utils.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx/serialization/serialization.hpp"
 
@@ -7,85 +7,9 @@
 
 namespace ppx::demo
 {
-collider_tab::collider_tab(demo_app *app) : m_app(app), m_window(app->window())
+void collider_utils::render_shape_types_and_properties(proxy &prx)
 {
-    m_current_proxy.color = app->collider_color;
-}
-
-void collider_tab::render_imgui_tab()
-{
-    render_menu_bar();
-    render_shape_types_and_properties(m_current_proxy);
-}
-
-void collider_tab::render_menu_bar()
-{
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("Colliders"))
-        {
-            const bool saved = is_current_proxy_saved();
-            if (ImGui::MenuItem("New", nullptr, nullptr))
-            {
-                m_current_proxy = {};
-                m_current_proxy.color = app::DEFAULT_COLLIDER_COLOR;
-            }
-            if (ImGui::MenuItem("Save", nullptr, nullptr, saved))
-                m_proxies[m_current_proxy.name] = m_current_proxy;
-            if (ImGui::MenuItem("Load", nullptr, nullptr, saved))
-                m_current_proxy = m_proxies[m_current_proxy.name];
-
-            if (ImGui::BeginMenu("Save as..."))
-            {
-                render_save_proxy_prompt();
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Load..."))
-            {
-                render_load_proxy_and_removal_prompts();
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-}
-
-void collider_tab::render_save_proxy_prompt()
-{
-    static char buffer[24] = "\0";
-    if (ImGui::InputTextWithHint("##Collider name input", "Collider name", buffer, 24,
-                                 ImGuiInputTextFlags_EnterReturnsTrue) &&
-        buffer[0] != '\0')
-    {
-        std::string name = buffer;
-        std::replace(name.begin(), name.end(), ' ', '-');
-        m_current_proxy.name = name;
-        m_proxies[name] = m_current_proxy;
-        buffer[0] = '\0';
-    }
-}
-void collider_tab::render_load_proxy_and_removal_prompts()
-{
-    for (const auto &[name, proxy] : m_proxies)
-    {
-        if (ImGui::Button("X"))
-        {
-            m_proxies.erase(name);
-            return;
-        }
-        ImGui::SameLine();
-        if (ImGui::MenuItem(name.c_str()))
-        {
-            m_current_proxy = proxy;
-            return;
-        }
-    }
-}
-
-void collider_tab::render_shape_types_and_properties(proxy &prx)
-{
-    bool needs_update = ImGui::Combo("Collider shape", (int *)&prx.type, "Rectangle\0Circle\0Ngon\0Custom\0");
+    bool needs_update = ImGui::Combo("Collider shape", (int *)&prx.type, "Rectangle\0Circle\0Ngon\0\0");
 
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
@@ -106,10 +30,7 @@ void collider_tab::render_shape_types_and_properties(proxy &prx)
         break;
     case proxy_type::NGON:
         needs_update |= ImGui::DragFloat("Radius", &prx.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
-        needs_update |= ImGui::DragInt("Sides", (int *)&prx.ngon_sides, 1, 3, 100);
-        break;
-    case proxy_type::CUSTOM:
-        render_and_update_custom_polygon_canvas(prx);
+        needs_update |= ImGui::SliderInt("Sides", (int *)&prx.ngon_sides, 3, PPX_MAX_VERTICES);
         break;
     }
     ImGui::ColorPicker3("Color", prx.color.ptr());
@@ -117,7 +38,7 @@ void collider_tab::render_shape_types_and_properties(proxy &prx)
         update_shape_from_current_type(prx);
 }
 
-void collider_tab::update_shape_from_current_type(proxy &prx)
+void collider_utils::update_shape_from_current_type(proxy &prx)
 {
     auto &specs = prx.specs;
     specs.shape = prx.type == proxy_type::CIRCLE ? collider2D::stype::CIRCLE : collider2D::stype::POLYGON;
@@ -134,12 +55,7 @@ void collider_tab::update_shape_from_current_type(proxy &prx)
     }
 }
 
-bool collider_tab::is_current_proxy_saved() const
-{
-    return m_proxies.find(m_current_proxy.name) != m_proxies.end();
-}
-
-void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
+void collider_utils::render_and_update_custom_polygon_canvas(proxy &prx)
 {
     const polygon poly{prx.specs.vertices};
     const bool max_vertices_reached = poly.vertices.size() == PPX_MAX_VERTICES;
@@ -244,23 +160,7 @@ void collider_tab::render_and_update_custom_polygon_canvas(proxy &prx)
         ImGui::Text("Maximum vertices reached! (%d)", PPX_MAX_VERTICES);
 }
 
-YAML::Node collider_tab::encode() const
-{
-    YAML::Node node;
-    node["Current proxy"] = encode_proxy(m_current_proxy);
-    for (const auto &[name, proxy] : m_proxies)
-        node["Proxies"][name] = encode_proxy(proxy);
-    return node;
-}
-void collider_tab::decode(const YAML::Node &node)
-{
-    m_proxies.clear();
-    m_current_proxy = decode_proxy(node["Current proxy"]);
-    for (const YAML::Node &n : node["Proxies"])
-        m_proxies[n["Name"].as<std::string>()] = decode_proxy(n);
-}
-
-YAML::Node collider_tab::encode_proxy(const proxy &prx)
+YAML::Node collider_utils::encode_proxy(const proxy &prx)
 {
     YAML::Node node;
     if (!prx.name.empty())
@@ -284,7 +184,7 @@ YAML::Node collider_tab::encode_proxy(const proxy &prx)
     }
     return node;
 }
-collider_tab::proxy collider_tab::decode_proxy(const YAML::Node &node)
+collider_utils::proxy collider_utils::decode_proxy(const YAML::Node &node)
 {
     proxy prx;
     if (node["Name"])

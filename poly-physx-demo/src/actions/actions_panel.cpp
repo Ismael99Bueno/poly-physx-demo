@@ -11,8 +11,7 @@ actions_panel::actions_panel() : demo_layer("Actions panel")
 void actions_panel::on_attach()
 {
     demo_layer::on_attach();
-    m_collider_tab = collider_tab(m_app);
-    m_body_tab = body_tab(m_app, &m_collider_tab);
+    m_body_tab = body_tab(m_app);
     m_joints_tab = joints_tab(m_app);
     m_grab_tab = grab_tab(m_app);
     m_entities_tab = entities_tab(m_app);
@@ -46,7 +45,6 @@ void actions_panel::on_render(const float ts)
     {
         ImGui::BeginTabBar("Actions tab bar");
         render_imgui_tab("Body", "Edit bodies", m_body_tab);
-        render_imgui_tab("Collider", "Edit colliders", m_collider_tab);
         render_imgui_tab("Joints", "Attach bodies with joints", m_joints_tab);
         render_imgui_tab("Grab", "Grab bodies", m_grab_tab);
         render_imgui_tab("Entities", "Entities overview", m_entities_tab);

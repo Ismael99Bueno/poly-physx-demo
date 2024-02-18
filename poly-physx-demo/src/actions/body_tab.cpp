@@ -6,7 +6,7 @@
 
 namespace ppx::demo
 {
-body_tab::body_tab(demo_app *app, const collider_tab *ctab) : m_app(app), m_window(app->window()), m_ctab(ctab)
+body_tab::body_tab(demo_app *app) : m_app(app), m_window(app->window())
 {
 }
 
@@ -16,7 +16,7 @@ void body_tab::begin_body_spawn()
         return;
     m_spawning = true;
     m_preview.clear();
-    for (const collider_tab::proxy &cprx : m_current_proxy.cproxies)
+    for (const collider_utils::proxy &cprx : m_current_proxy.cproxies)
     {
         lynx::shape2D *prev;
         switch (cprx.specs.shape)
@@ -51,7 +51,7 @@ void body_tab::end_body_spawn()
         return;
     m_spawning = false;
     body2D::specs specs = m_current_proxy.specs;
-    for (collider_tab::proxy &cprx : m_current_proxy.cproxies)
+    for (collider_utils::proxy &cprx : m_current_proxy.cproxies)
         specs.colliders.push_back(cprx.specs);
     m_app->world.bodies.add(specs);
 }
@@ -167,9 +167,6 @@ void body_tab::render_properties()
 
 void body_tab::render_colliders()
 {
-    if (ImGui::Button("Add"))
-        m_current_proxy.cproxies.push_back(m_ctab->m_current_proxy);
-    ImGui::SameLine();
     if (ImGui::TreeNode("Colliders"))
     {
         std::size_t to_remove = SIZE_MAX;
@@ -180,17 +177,14 @@ void body_tab::render_colliders()
             if (cprx.name.empty())
                 switch (cprx.type)
                 {
-                case collider_tab::proxy_type::RECT:
+                case collider_utils::proxy_type::RECT:
                     name = "Rectangle";
                     break;
-                case collider_tab::proxy_type::CIRCLE:
+                case collider_utils::proxy_type::CIRCLE:
                     name = "Circle";
                     break;
-                case collider_tab::proxy_type::NGON:
+                case collider_utils::proxy_type::NGON:
                     name = "NGon";
-                    break;
-                case collider_tab::proxy_type::CUSTOM:
-                    name = "Custom";
                     break;
                 }
             ImGui::PushID(&cprx);
@@ -201,7 +195,7 @@ void body_tab::render_colliders()
             ImGui::SameLine();
             if (ImGui::TreeNode(&cprx, "%s", name))
             {
-                collider_tab::render_shape_types_and_properties(cprx);
+                collider_utils::render_shape_types_and_properties(cprx);
                 ImGui::TreePop();
             }
         }
@@ -213,6 +207,16 @@ void body_tab::render_colliders()
 
 void body_tab::render_body_canvas()
 {
+    static collider_utils::proxy_type current_type = collider_utils::proxy_type::RECT;
+    if (ImGui::Button("Add"))
+    {
+        auto &cproxy = m_current_proxy.cproxies.emplace_back();
+        cproxy.type = current_type;
+        collider_utils::update_shape_from_current_type(cproxy);
+    }
+    ImGui::SameLine();
+    ImGui::Combo("Collider shape", (int *)&current_type, "Rectangle\0Circle\0Ngon\0\0");
+
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
     const glm::vec2 canvas_hdim = glm::vec2(canvas_sz.x, canvas_sz.y) * 0.5f;
@@ -245,6 +249,8 @@ void body_tab::render_body_canvas()
                            IM_COL32(200, 200, 200, 40));
 
     static std::size_t grab_index = SIZE_MAX;
+    static glm::vec2 grab_offset{0.f};
+
     glm::vec2 centroid{0.f};
     float artificial_mass = 0.f;
 
@@ -312,19 +318,21 @@ void body_tab::render_body_canvas()
 
         if (is_hovered && ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
         {
-            spc.position = imgui_mpos;
+            if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                grab_offset = spc.position - imgui_mpos;
+            spc.position = imgui_mpos + grab_offset;
             grab_index = i;
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
     }
     const glm::vec2 body_origin = origin + canvas_hdim;
-    draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 8.f, IM_COL32(207, 185, 151, 180));
+    draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 6.f, IM_COL32(145, 149, 246, 180));
     if (!m_current_proxy.cproxies.empty())
     {
         centroid /= artificial_mass;
         const glm::vec2 imgui_centroid = centroid * scale_factor + body_origin;
-        draw_list->AddCircleFilled({imgui_centroid.x, imgui_centroid.y}, 8.f, IM_COL32(155, 207, 83, 180));
+        draw_list->AddCircleFilled({imgui_centroid.x, imgui_centroid.y}, 6.f, IM_COL32(155, 207, 83, 180));
     }
 
     draw_list->PopClipRect();
@@ -361,8 +369,8 @@ YAML::Node body_tab::encode_proxy(const proxy &prx)
 
     node["Specs"] = prx.specs;
     node["Collider proxies"] = YAML::Node{};
-    for (const collider_tab::proxy &cprx : prx.cproxies)
-        node["Collider proxies"].push_back(collider_tab::encode_proxy(cprx));
+    for (const collider_utils::proxy &cprx : prx.cproxies)
+        node["Collider proxies"].push_back(collider_utils::encode_proxy(cprx));
     return node;
 }
 
@@ -376,7 +384,7 @@ body_tab::proxy body_tab::decode_proxy(const YAML::Node &node)
 
     prx.cproxies.clear();
     for (const auto &cprx_node : node["Collider proxies"])
-        prx.cproxies.push_back(collider_tab::decode_proxy(cprx_node));
+        prx.cproxies.push_back(collider_utils::decode_proxy(cprx_node));
     return prx;
 }
 

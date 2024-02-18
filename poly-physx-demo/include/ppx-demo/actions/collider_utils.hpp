@@ -7,24 +7,13 @@
 
 namespace ppx::demo
 {
-class demo_app;
-class collider_tab
+struct collider_utils
 {
-  public:
-    collider_tab() = default;
-    collider_tab(demo_app *app);
-
-    void render_imgui_tab();
-
-    YAML::Node encode() const;
-    void decode(const YAML::Node &node);
-
     enum class proxy_type
     {
         RECT,
         CIRCLE,
-        NGON,
-        CUSTOM
+        NGON
     };
     struct proxy
     {
@@ -36,27 +25,12 @@ class collider_tab
         lynx::color color = app::DEFAULT_COLLIDER_COLOR;
     };
 
-  private:
-    demo_app *m_app;
-    lynx::window2D *m_window;
-
-    proxy m_current_proxy{};
-    std::unordered_map<std::string, proxy> m_proxies;
-
-    void render_menu_bar();
     static void render_shape_types_and_properties(proxy &prx);
     static void render_and_update_custom_polygon_canvas(proxy &prx);
 
     static void update_shape_from_current_type(proxy &prx);
 
-    bool is_current_proxy_saved() const;
-
-    void render_save_proxy_prompt();
-    void render_load_proxy_and_removal_prompts();
-
     static YAML::Node encode_proxy(const proxy &prx);
     static proxy decode_proxy(const YAML::Node &node);
-
-    friend class body_tab;
 };
 } // namespace ppx::demo

@@ -3,7 +3,7 @@
 #include "lynx/drawing/shape.hpp"
 #include "lynx/app/window.hpp"
 #include "ppx/entities/body2D.hpp"
-#include "ppx-demo/actions/collider_tab.hpp"
+#include "ppx-demo/actions/collider_utils.hpp"
 
 namespace ppx::demo
 {
@@ -12,7 +12,7 @@ class body_tab
 {
   public:
     body_tab() = default;
-    body_tab(demo_app *app, const collider_tab *ctab);
+    body_tab(demo_app *app);
 
     void update();
     void render();
@@ -29,13 +29,12 @@ class body_tab
     struct proxy
     {
         body2D::specs specs;
-        std::vector<collider_tab::proxy> cproxies{1};
+        std::vector<collider_utils::proxy> cproxies{1};
         std::string name;
     };
 
     demo_app *m_app;
     lynx::window2D *m_window;
-    const collider_tab *m_ctab;
 
     kit::transform2D<float> m_preview_transform;
     std::vector<kit::scope<lynx::shape2D>> m_preview;
