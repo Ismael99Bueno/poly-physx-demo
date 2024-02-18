@@ -29,7 +29,8 @@ struct collider_utils
     static void render_and_update_custom_polygon_canvas(proxy &prx);
     static kit::dynarray<glm::vec2, PPX_MAX_VERTICES> render_polygon_editor(
         const polygon &poly, const glm::vec2 &imgui_mpos, ImDrawList *draw_list, const glm::vec2 &canvas_hdim,
-        const glm::vec2 &origin, const float scale_factor);
+        const glm::vec2 &origin, const float scale_factor, bool sticky_vertices, const std::vector<proxy> &proxies,
+        std::size_t selected_proxy_index);
 
     static void update_shape_from_current_type(proxy &prx);
 

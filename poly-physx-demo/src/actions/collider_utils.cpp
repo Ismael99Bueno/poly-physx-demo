@@ -57,7 +57,8 @@ void collider_utils::update_shape_from_current_type(proxy &prx)
 
 kit::dynarray<glm::vec2, PPX_MAX_VERTICES> collider_utils::render_polygon_editor(
     const polygon &poly, const glm::vec2 &imgui_mpos, ImDrawList *draw_list, const glm::vec2 &canvas_hdim,
-    const glm::vec2 &origin, const float scale_factor)
+    const glm::vec2 &origin, const float scale_factor, const bool sticky_vertices, const std::vector<proxy> &proxies,
+    const std::size_t selected_proxy_index)
 {
     const glm::vec2 towards_poly = poly.closest_direction_from(imgui_mpos);
 
@@ -94,7 +95,31 @@ kit::dynarray<glm::vec2, PPX_MAX_VERTICES> collider_utils::render_polygon_editor
         to_edit = vertices.size() - 1;
     }
     if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
-        vertices[to_edit] = imgui_mpos;
+    {
+        glm::vec2 closest_vertex = imgui_mpos;
+        if (sticky_vertices && !create_vertex)
+        {
+            min_distance = FLT_MAX;
+            for (std::size_t i = 0; i < proxies.size(); i++)
+            {
+                if (i == selected_proxy_index || proxies[i].specs.shape != collider2D::stype::POLYGON)
+                    continue;
+                polygon other_poly{proxies[i].specs.vertices};
+                other_poly.lposition(proxies[i].specs.position);
+                for (const glm::vec2 &other_v : other_poly.vertices.locals)
+                {
+                    const float dist = glm::distance2(other_v, imgui_mpos);
+                    if (dist < min_distance)
+                    {
+                        min_distance = dist;
+                        if (dist < thres_distance * 0.5f)
+                            closest_vertex = other_v;
+                    }
+                }
+            }
+        }
+        vertices[to_edit] = closest_vertex;
+    }
 
     const glm::vec2 center = create_vertex ? origin + (imgui_mpos + towards_poly) * scale_factor + canvas_hdim
                                            : origin + vertices[to_edit] * scale_factor + canvas_hdim;

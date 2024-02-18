@@ -216,6 +216,8 @@ void body_tab::render_body_canvas()
     }
     ImGui::SameLine();
     ImGui::Combo("Collider shape", (int *)&current_type, "Rectangle\0Circle\0Ngon\0\0");
+    static bool sticky_vertices = false;
+    ImGui::Checkbox("Sticky vertices", &sticky_vertices);
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -275,15 +277,16 @@ void body_tab::render_body_canvas()
             polygon poly{spc.vertices};
             shape = &poly;
 
-            poly.lcentroid(spc.position);
+            poly.lposition(spc.position);
             can_be_grabbed = poly.convex() && poly.contains_point(imgui_mpos);
 
             trying_to_edit |= ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftShift));
             float outline_thickness = thickness;
             if (trying_to_edit && last_grabbed == i)
             {
-                spc.vertices = collider_utils::render_polygon_editor(poly, imgui_mpos, draw_list, canvas_hdim, origin,
-                                                                     scale_factor);
+                spc.vertices =
+                    collider_utils::render_polygon_editor(poly, imgui_mpos, draw_list, canvas_hdim, origin,
+                                                          scale_factor, sticky_vertices, m_current_proxy.cproxies, i);
                 spc.position = polygon(spc.vertices).lcentroid();
                 alpha = 120;
                 outline_thickness += 1.f;
