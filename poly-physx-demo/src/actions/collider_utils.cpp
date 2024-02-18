@@ -55,6 +55,54 @@ void collider_utils::update_shape_from_current_type(proxy &prx)
     }
 }
 
+kit::dynarray<glm::vec2, PPX_MAX_VERTICES> collider_utils::render_polygon_editor(
+    const polygon &poly, const glm::vec2 &imgui_mpos, ImDrawList *draw_list, const glm::vec2 &canvas_hdim,
+    const glm::vec2 &origin, const float scale_factor)
+{
+    const glm::vec2 towards_poly = poly.closest_direction_from(imgui_mpos);
+
+    const float max_dist = 5.f;
+    kit::dynarray<glm::vec2, PPX_MAX_VERTICES> vertices = poly.vertices.locals;
+    if (glm::length2(towards_poly) >= max_dist)
+        return vertices;
+
+    std::size_t to_edit = vertices.size() - 1;
+    const float thres_distance = 2.f;
+    float min_distance = FLT_MAX;
+
+    for (std::size_t i = 0; i < vertices.size(); i++)
+    {
+        const float dist = glm::distance2(vertices[i], imgui_mpos);
+        if (dist < min_distance)
+        {
+            min_distance = dist;
+            to_edit = i;
+        }
+    }
+
+    const bool create_vertex = vertices.size() < PPX_MAX_VERTICES && min_distance >= thres_distance;
+    if (!create_vertex &&
+        (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
+    {
+        vertices.erase(vertices.begin() + to_edit);
+        return vertices;
+    }
+    if (create_vertex)
+    {
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            vertices.push_back(imgui_mpos);
+        to_edit = vertices.size() - 1;
+    }
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+        vertices[to_edit] = imgui_mpos;
+
+    const glm::vec2 center = create_vertex ? origin + (imgui_mpos + towards_poly) * scale_factor + canvas_hdim
+                                           : origin + vertices[to_edit] * scale_factor + canvas_hdim;
+    const float radius = 8.f;
+    draw_list->AddCircleFilled({center.x, center.y}, radius, IM_COL32(207, 185, 151, 180));
+    return vertices;
+}
+
 void collider_utils::render_and_update_custom_polygon_canvas(proxy &prx)
 {
     const polygon poly{prx.specs.vertices};

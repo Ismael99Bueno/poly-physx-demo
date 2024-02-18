@@ -249,6 +249,7 @@ void body_tab::render_body_canvas()
                            IM_COL32(200, 200, 200, 40));
 
     static std::size_t grab_index = SIZE_MAX;
+    static std::size_t last_grabbed = SIZE_MAX;
     static glm::vec2 grab_offset{0.f};
 
     glm::vec2 centroid{0.f};
@@ -259,10 +260,12 @@ void body_tab::render_body_canvas()
         auto &cproxy = m_current_proxy.cproxies[i];
         collider2D::specs &spc = cproxy.specs;
 
-        const auto col = IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), cproxy.color.a());
+        auto col = IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), cproxy.color.a());
 
         const bool is_grabbed = grab_index == i;
         bool can_be_grabbed;
+        bool trying_to_edit = false;
+
         std::uint8_t alpha = is_grabbed ? 160 : 120;
 
         shape2D *shape;
@@ -272,23 +275,37 @@ void body_tab::render_body_canvas()
             polygon poly{spc.vertices};
             shape = &poly;
 
-            poly.lposition(spc.position);
-            can_be_grabbed = geo::intersects(poly.bounding_box(), imgui_mpos);
-            if (can_be_grabbed)
+            poly.lcentroid(spc.position);
+            can_be_grabbed = poly.convex() && poly.contains_point(imgui_mpos);
+
+            trying_to_edit |= ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftShift));
+            float outline_thickness = thickness;
+            if (trying_to_edit && last_grabbed == i)
+            {
+                spc.vertices = collider_utils::render_polygon_editor(poly, imgui_mpos, draw_list, canvas_hdim, origin,
+                                                                     scale_factor);
+                spc.position = polygon(spc.vertices).lcentroid();
+                alpha = 120;
+                outline_thickness += 1.f;
+            }
+            else if (can_be_grabbed)
                 alpha += 40;
 
             std::vector<ImVec2> points(poly.vertices.size());
+            if (!poly.convex())
+                col = IM_COL32(255, 0, 0, 255);
 
             for (std::size_t i = 0; i < poly.vertices.size(); i++)
             {
                 const glm::vec2 p1 = origin + poly.vertices.locals[i] * scale_factor + canvas_hdim,
                                 p2 = origin + poly.vertices.locals[i + 1] * scale_factor + canvas_hdim;
 
-                draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, thickness);
+                draw_list->AddLine({p1.x, p1.y}, {p2.x, p2.y}, col, outline_thickness);
                 points[i] = {p1.x, p1.y};
             }
-            draw_list->AddConvexPolyFilled(points.data(), (int)poly.vertices.size(),
-                                           IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), alpha));
+            if (poly.convex())
+                draw_list->AddConvexPolyFilled(points.data(), (int)poly.vertices.size(),
+                                               IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), alpha));
             break;
         }
         case collider2D::stype::CIRCLE:
@@ -296,7 +313,7 @@ void body_tab::render_body_canvas()
             shape = &circ;
 
             circ.lposition(spc.position);
-            can_be_grabbed = geo::intersects(circ.bounding_box(), imgui_mpos);
+            can_be_grabbed = circ.contains_point(imgui_mpos);
             if (can_be_grabbed)
                 alpha += 40;
 
@@ -316,12 +333,13 @@ void body_tab::render_body_canvas()
         const bool trying_to_grab = ImGui::IsMouseDown(ImGuiMouseButton_Left);
         const bool ready_to_grab = trying_to_grab && can_be_grabbed;
 
-        if (is_hovered && ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
+        if (is_hovered && !trying_to_edit && ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
         {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 grab_offset = spc.position - imgui_mpos;
             spc.position = imgui_mpos + grab_offset;
             grab_index = i;
+            last_grabbed = i;
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
