@@ -46,6 +46,7 @@ class body_tab
     proxy m_current_proxy{};
 
     bool m_spawning = false;
+    bool m_sticky_vertices = true;
 
     void render_menu_bar();
     void render_properties();

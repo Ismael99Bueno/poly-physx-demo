@@ -216,8 +216,7 @@ void body_tab::render_body_canvas()
     }
     ImGui::SameLine();
     ImGui::Combo("Collider shape", (int *)&current_type, "Rectangle\0Circle\0Ngon\0\0");
-    static bool sticky_vertices = false;
-    ImGui::Checkbox("Sticky vertices", &sticky_vertices);
+    ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -253,10 +252,23 @@ void body_tab::render_body_canvas()
     static std::size_t grab_index = SIZE_MAX;
     static std::size_t last_grabbed = SIZE_MAX;
     static glm::vec2 grab_offset{0.f};
+    static glm::vec2 body_pos{0.f}; // bc position in specs is updated when adding body
 
     glm::vec2 centroid{0.f};
     float artificial_mass = 0.f;
+    const bool trying_to_move_body = ImGui::IsKeyDown(ImGui::GetKeyIndex(ImGuiKey_LeftCtrl));
+    const bool trying_to_grab = ImGui::IsMouseDown(ImGuiMouseButton_Left);
 
+    if (is_hovered && trying_to_move_body && trying_to_grab)
+    {
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+            grab_offset = body_pos - imgui_mpos;
+        const glm::vec2 dpos = imgui_mpos + grab_offset - body_pos;
+        m_current_proxy.specs.position = imgui_mpos + grab_offset;
+        body_pos = m_current_proxy.specs.position;
+        for (auto &cprx : m_current_proxy.cproxies)
+            cprx.specs.position += dpos;
+    }
     for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
     {
         auto &cproxy = m_current_proxy.cproxies[i];
@@ -286,7 +298,7 @@ void body_tab::render_body_canvas()
             {
                 spc.vertices =
                     collider_utils::render_polygon_editor(poly, imgui_mpos, draw_list, canvas_hdim, origin,
-                                                          scale_factor, sticky_vertices, m_current_proxy.cproxies, i);
+                                                          scale_factor, m_sticky_vertices, m_current_proxy.cproxies, i);
                 spc.position = polygon(spc.vertices).lcentroid();
                 alpha = 120;
                 outline_thickness += 1.f;
@@ -329,14 +341,14 @@ void body_tab::render_body_canvas()
         }
 
         const float cmass = spc.density * shape->area();
-        centroid += cmass * shape->gcentroid();
+        centroid += cmass * shape->lcentroid();
         artificial_mass += cmass;
 
         const bool free_to_grab = grab_index == SIZE_MAX;
-        const bool trying_to_grab = ImGui::IsMouseDown(ImGuiMouseButton_Left);
         const bool ready_to_grab = trying_to_grab && can_be_grabbed;
 
-        if (is_hovered && !trying_to_edit && ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
+        if (is_hovered && !trying_to_edit && !trying_to_move_body &&
+            ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
         {
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 grab_offset = spc.position - imgui_mpos;
@@ -347,12 +359,13 @@ void body_tab::render_body_canvas()
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
     }
-    const glm::vec2 body_origin = origin + canvas_hdim;
+
+    const glm::vec2 body_origin = origin + canvas_hdim + body_pos * scale_factor;
     draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 6.f, IM_COL32(145, 149, 246, 180));
     if (!m_current_proxy.cproxies.empty())
     {
         centroid /= artificial_mass;
-        const glm::vec2 imgui_centroid = centroid * scale_factor + body_origin;
+        const glm::vec2 imgui_centroid = centroid * scale_factor + origin + canvas_hdim;
         draw_list->AddCircleFilled({imgui_centroid.x, imgui_centroid.y}, 6.f, IM_COL32(155, 207, 83, 180));
     }
 
@@ -369,6 +382,7 @@ YAML::Node body_tab::encode() const
     YAML::Node node;
     node["Speed spawn multiplier"] = m_speed_spawn_multiplier;
     node["Current proxy"] = encode_proxy(m_current_proxy);
+    node["Sticky vertices"] = m_sticky_vertices;
     for (const auto &[name, proxy] : m_proxies)
         node["Proxies"][name] = encode_proxy(proxy);
     return node;
@@ -377,6 +391,7 @@ void body_tab::decode(const YAML::Node &node)
 {
     m_speed_spawn_multiplier = node["Speed spawn multiplier"].as<float>();
     m_current_proxy = decode_proxy(node["Current proxy"]);
+    m_sticky_vertices = node["Sticky vertices"].as<bool>();
     m_proxies.clear();
     for (const YAML::Node &n : node["Proxies"])
         m_proxies[n["Name"].as<std::string>()] = decode_proxy(n);
