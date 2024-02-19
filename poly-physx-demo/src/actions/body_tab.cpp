@@ -36,7 +36,6 @@ void body_tab::begin_body_spawn()
         }
         }
         prev->transform.position = cprx.specs.position;
-        prev->transform.rotation = cprx.specs.rotation;
         prev->transform.parent = &m_preview_transform;
     }
 
@@ -70,7 +69,7 @@ void body_tab::update()
     if (m_current_proxy.specs.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 
-    const float angle = std::atan2f(velocity.y, velocity.x);
+    const float angle = std::atan2f(velocity.y, velocity.x) + 0.5f * (float)M_PI;
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
 }
@@ -87,6 +86,7 @@ void body_tab::render_imgui_tab()
     render_menu_bar();
     ImGui::DragFloat("Release speed multiplier", &m_speed_spawn_multiplier, 0.02f, 0.1f, 5.f);
     render_properties();
+    render_collider_to_be_added_properties();
     render_body_canvas();
     render_colliders();
 }
@@ -205,17 +205,24 @@ void body_tab::render_colliders()
     }
 }
 
+void body_tab::render_collider_to_be_added_properties()
+{
+    ImGui::Spacing();
+    if (ImGui::Button("Add collider"))
+        m_current_proxy.cproxies.push_back(m_cproxy_to_add);
+    ImGui::SameLine();
+    if (ImGui::Button("Clear colliders"))
+        m_current_proxy.cproxies.clear();
+
+    if (ImGui::TreeNode("Collider to be added"))
+    {
+        collider_utils::render_shape_types_and_properties(m_cproxy_to_add);
+        ImGui::TreePop();
+    }
+}
+
 void body_tab::render_body_canvas()
 {
-    static collider_utils::proxy_type current_type = collider_utils::proxy_type::RECT;
-    if (ImGui::Button("Add"))
-    {
-        auto &cproxy = m_current_proxy.cproxies.emplace_back();
-        cproxy.type = current_type;
-        collider_utils::update_shape_from_current_type(cproxy);
-    }
-    ImGui::SameLine();
-    ImGui::Combo("Collider shape", (int *)&current_type, "Rectangle\0Circle\0Ngon\0\0");
     ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
@@ -263,16 +270,14 @@ void body_tab::render_body_canvas()
     {
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             grab_offset = body_pos - imgui_mpos;
-        const glm::vec2 dpos = imgui_mpos + grab_offset - body_pos;
         m_current_proxy.specs.position = imgui_mpos + grab_offset;
         body_pos = m_current_proxy.specs.position;
-        for (auto &cprx : m_current_proxy.cproxies)
-            cprx.specs.position += dpos;
     }
     for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
     {
         auto &cproxy = m_current_proxy.cproxies[i];
         collider2D::specs &spc = cproxy.specs;
+        spc.position += body_pos;
 
         auto col = IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), cproxy.color.a());
 
@@ -358,6 +363,7 @@ void body_tab::render_body_canvas()
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
+        spc.position -= body_pos;
     }
 
     const glm::vec2 body_origin = origin + canvas_hdim + body_pos * scale_factor;
@@ -382,6 +388,7 @@ YAML::Node body_tab::encode() const
     YAML::Node node;
     node["Speed spawn multiplier"] = m_speed_spawn_multiplier;
     node["Current proxy"] = encode_proxy(m_current_proxy);
+    node["Collider to be added"] = collider_utils::encode_proxy(m_cproxy_to_add);
     node["Sticky vertices"] = m_sticky_vertices;
     for (const auto &[name, proxy] : m_proxies)
         node["Proxies"][name] = encode_proxy(proxy);
@@ -391,6 +398,7 @@ void body_tab::decode(const YAML::Node &node)
 {
     m_speed_spawn_multiplier = node["Speed spawn multiplier"].as<float>();
     m_current_proxy = decode_proxy(node["Current proxy"]);
+    m_cproxy_to_add = collider_utils::decode_proxy(node["Collider to be added"]);
     m_sticky_vertices = node["Sticky vertices"].as<bool>();
     m_proxies.clear();
     for (const YAML::Node &n : node["Proxies"])

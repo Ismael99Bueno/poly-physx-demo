@@ -44,6 +44,7 @@ class body_tab
     glm::vec2 m_starting_mouse_pos{0.f};
     float m_speed_spawn_multiplier = 0.6f;
     proxy m_current_proxy{};
+    collider_utils::proxy m_cproxy_to_add{};
 
     bool m_spawning = false;
     bool m_sticky_vertices = true;
@@ -51,6 +52,7 @@ class body_tab
     void render_menu_bar();
     void render_properties();
     void render_colliders();
+    void render_collider_to_be_added_properties();
     void render_body_canvas();
 
     bool is_current_proxy_saved() const;
