@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ppx/entities/body2D.hpp"
+#include "ppx/entities/collider2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 
@@ -34,31 +35,36 @@ class group_manager
     void decode(const YAML::Node &node);
 
   private:
-    struct body_proxy
+    struct collider_proxy
     {
         lynx::color color;
+        collider2D::specs specs;
+    };
+    struct body_proxy
+    {
         body2D::specs specs;
+        std::vector<collider_proxy> cproxies;
     };
     struct spring_proxy
     {
-        std::size_t bproxy_index1;
-        std::size_t bproxy_index2;
+        std::size_t bindex1;
+        std::size_t bindex2;
         lynx::color color;
         spring2D::specs specs;
     };
     struct dist_joint_proxy
     {
-        std::size_t bproxy_index1;
-        std::size_t bproxy_index2;
+        std::size_t bindex1;
+        std::size_t bindex2;
         lynx::color color;
         distance_joint2D::specs specs;
     };
     struct group
     {
-        glm::vec2 mean_centroid{0.f};
-        std::vector<body_proxy> body_proxies;
-        std::vector<spring_proxy> spring_proxies;
-        std::vector<dist_joint_proxy> dist_joint_proxies;
+        glm::vec2 mean_position{0.f};
+        std::vector<body_proxy> bproxies;
+        std::vector<spring_proxy> sproxies;
+        std::vector<dist_joint_proxy> djproxies;
 
         YAML::Node encode(world2D &world) const;
         void decode(const YAML::Node &node, world2D &world);
@@ -74,6 +80,9 @@ class group_manager
     group m_current_group;
 
     std::unordered_map<std::string, group> m_groups;
+
+    kit::transform2D<float> m_preview_transform;
+    std::vector<kit::transform2D<float>> m_bodies_preview_transforms;
     std::vector<kit::scope<lynx::shape2D>> m_group_shapes_preview;
     std::vector<spring_line> m_group_springs_preview;
     std::vector<thick_line> m_group_dist_joints_preview;
