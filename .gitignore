@@ -18,6 +18,8 @@
 *env/
 
 # Project files
+*.idb
+*.pdb
 *.xcworkspace/
 **.xcodeproj
 *.sln
@@ -26,7 +28,7 @@
 #ImGui artifacts
 imgui.ini
 
-*temp*
+*ignore*
 **/__pycache__
 
 
@@ -34,3 +36,7 @@ imgui.ini
 profile-results/
 fonts/
 saves/
+
+
+# Scripts
+scripts/

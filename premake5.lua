@@ -1,3 +1,5 @@
+require "export-compile-commands"
+
 workspace "poly-physx-demo"
 configurations {
    "release",
@@ -8,14 +10,13 @@ configurations {
 startproject "poly-physx-demo"
 
 defines {
-   "HAS_GLM",
-   "HAS_YAML_CPP",
-   "HAS_IMPLOT",
-   "HAS_DEBUG_LOG_TOOLS",
-   "HAS_PROFILE_TOOLS",
-   "HAS_ALLOCATORS",
-   "PPX_MULTITHREADED",
-   "YAML_CPP_STATIC_DEFINE"
+   "YAML_CPP_STATIC_DEFINE",
+   "KIT_USE_SPDLOG",
+   -- "KIT_USE_CUSTOM_ALLOC",
+   "KIT_USE_YAML_CPP",
+   "KIT_AKNOWLEDGE_PROFILE_THREAD_UNSAFETY",
+   "LYNX_ENABLE_IMGUI",
+   "LYNX_ENABLE_IMPLOT",
 }
 
 function script_path()
@@ -26,9 +27,6 @@ end
 rootpath = script_path()
 
 filter "system:macosx"
-   rpath = "-Wl,-rpath," .. rootpath .. "vendor/SFML/build-gmake/lib"
-   linkoptions {rpath}
-
    platforms {
       "arm64",
       "x86_64"
@@ -55,7 +53,7 @@ filter {}
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 
 filter "configurations:debug*"
-   defines "DEBUG"
+   defines {"DEBUG", "KIT_LOG"}
    runtime "Debug"
    symbols "On"
 
@@ -65,17 +63,17 @@ filter "configurations:release*"
    optimize "On"
 
 filter "configurations:*profile"
-   defines "PERF"
+   defines "KIT_PROFILE"
 filter {}
 
 include "rk-integrator"
-include "shapes-2D"
-include "vendor/yaml-cpp"
-include "profile-tools"
+include "geometry"
 include "poly-physx"
-include "vendor/imgui"
-include "vendor/imgui-sfml"
-include "vendor/implot"
+include "lynx"
 include "poly-physx-app"
-include "sfml-primitives"
 include "poly-physx-demo"
+include "cpp-kit"
+include "vendor/yaml-cpp"
+include "vendor/imgui"
+include "vendor/implot"
+include "vendor/glfw"
