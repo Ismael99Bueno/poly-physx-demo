@@ -33,7 +33,7 @@ def validate_python_version(
     print(f"Valid python version detected: '{major}.{minor}.{micro}'")
 
 
-def validate_python_packages(package_names: str | list[str]) -> None:
+def validate_python_packages(package_names: str | list[str]) -> bool:
     if isinstance(package_names, str):
         package_names = [package_names]
     needs_restart = False

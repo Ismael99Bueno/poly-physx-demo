@@ -22,7 +22,11 @@ def main() -> None:
         raise BadOSError(
             f"This setup can only be run if the current OS is windows, but the current OS is '{bud.current_os}'"
         )
-    validate_python_packages(["requests", "tqdm"])
+    if validate_python_packages(["requests", "tqdm"]):
+        print(
+            "Python packages had to be installed. Re run this script for the changes to take effect"
+        )
+        quit()
     validate_premake()
     validate_vulkan()
     if sys.argv[2].startswith("gmake"):
