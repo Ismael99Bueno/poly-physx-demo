@@ -273,11 +273,12 @@ void body_tab::render_body_canvas()
         m_current_proxy.specs.position = imgui_mpos + grab_offset;
         body_pos = m_current_proxy.specs.position;
     }
+    for (auto &cproxy : m_current_proxy.cproxies)
+        cproxy.specs.position += body_pos;
     for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
     {
         auto &cproxy = m_current_proxy.cproxies[i];
         collider2D::specs &spc = cproxy.specs;
-        spc.position += body_pos;
 
         auto col = IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), cproxy.color.a());
 
@@ -363,8 +364,9 @@ void body_tab::render_body_canvas()
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
-        spc.position -= body_pos;
     }
+    for (auto &cproxy : m_current_proxy.cproxies)
+        cproxy.specs.position -= body_pos;
 
     const glm::vec2 body_origin = origin + canvas_hdim + body_pos * scale_factor;
     draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 6.f, IM_COL32(145, 149, 246, 180));
