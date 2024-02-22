@@ -4,6 +4,10 @@
 #include "ppx/serialization/serialization.hpp"
 #include "geo/algorithm/intersection.hpp"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
 namespace ppx::demo
 {
 body_tab::body_tab(demo_app *app) : m_app(app), m_window(app->window())
