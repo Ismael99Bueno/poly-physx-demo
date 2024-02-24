@@ -50,7 +50,10 @@ def main() -> None:
     print(
         "\nIf you are on a laptop and vulkan is unable to find a suitable physical device, try setting the DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 environment variable to 1"
     )
-    print("Setup completed successfully!")
+    print(
+        "If running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project"
+    )
+    print("\nSetup completed successfully!")
 
 
 def __compile_lynx_shaders() -> None:
