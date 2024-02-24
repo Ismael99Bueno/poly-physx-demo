@@ -55,12 +55,12 @@ def main() -> None:
     )
 
     print(
-        f"If running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project. If the command fails, make sure to have MinGW binaries in your path by running 'set PATH=%PATH%;{bud.windows_mingw_path / "bin"}' in the command prompt before running the build command. If the GLFW fails as well, manually set the C compiler using 'set CC=gcc'"
+        f"\nIf running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project. If the command fails, make sure to have MinGW binaries in your path by running 'set PATH=%PATH%;{bud.windows_mingw_path / "bin"}' in the command prompt before running the build command. If the GLFW fails as well, manually set the C compiler using 'set CC=gcc'"
     )
 
     if is_mingw:
         input(
-            "As MinGW (gmake) has been selected as the generator, this script will also automatically build the default configuration. Press any key to continue..."
+            "\nAs MinGW (gmake) has been selected as the generator, this script will also automatically build the default configuration. Press any key to continue..."
         )
         os.environ["CC"] = "gcc"
         os.chdir(bud.root_path)
