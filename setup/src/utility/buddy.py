@@ -21,19 +21,19 @@ class Buddy:
             raise PathNotFoundError(f"Root path '{self.__root_path}' was not found")
 
         self.windows_mingw_path = Path(
-            "C:", f"mingw{32 if self.os_architecture == 'x86' else 64}"
+            f"C:/mingw{32 if self.os_architecture == 'x86' else 64}"
         )
         self.__accept_all_prompts = False
         self.all_yes = False
         return self
 
-    def add_to_premake_path(self, path: str) -> None:
+    def add_to_premake_path(self, path: str | Path) -> None:
         if "PREMAKE_PATH" in os.environ:
             os.environ["PREMAKE_PATH"] += f";{path}"
         else:
             os.environ["PREMAKE_PATH"] = path.__str__()
 
-    def add_to_path_with_binaries(self, path: str) -> None:
+    def add_to_path_with_binaries(self, path: str | Path) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
         os.environ["PATH"] += f"{os.pathsep}{path}/bin"
 
