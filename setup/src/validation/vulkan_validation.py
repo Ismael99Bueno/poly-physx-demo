@@ -32,7 +32,7 @@ def __install_vulkan() -> bool:
     installer_url = "https://sdk.lunarg.com/sdk/download/1.3.250.1/windows/VulkanSDK-1.3.250.1-Installer.exe"
     download_file(installer_url, installer_path)
     print(
-        "\nVulkan installer will now be executed. Once the installation finishes, re-run the script"
+        "\nVulkan installer will now be executed. Once the installation finishes, re-run the script. You will only need the base installation for the demo to work"
     )
     input("Press any key to begin installation...")
     os.startfile(installer_path)

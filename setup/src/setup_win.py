@@ -47,7 +47,10 @@ def main() -> None:
         "Run generate_build_files.py with python to have further detail on how the project can be built. Use the -h flag to display the options available"
     )
 
-    print("\nSetup completed successfully!")
+    print(
+        "\nIf you are on a laptop and vulkan is unable to find a suitable physical device, try setting the DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 environment variable to 1"
+    )
+    print("Setup completed successfully!")
 
 
 def __compile_lynx_shaders() -> None:
