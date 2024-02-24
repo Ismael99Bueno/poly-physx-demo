@@ -35,6 +35,9 @@ def main() -> None:
         subprocess.run(
             ["set", f"PATH=%PATH%;{bud.windows_mingw_path}"], shell=True, check=True
         )
+        subprocess.run(
+            ["set", f"PATH=%PATH%;{bud.windows_mingw_path / "bin"}"], shell=True, check=True
+        )
 
     __compile_lynx_shaders()
 
@@ -55,7 +58,7 @@ def main() -> None:
         "\nIf you are on a laptop and vulkan is unable to find a suitable physical device, try setting the DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 environment variable to 1"
     )
     print(
-        f"If running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project. If the command fails, make sure to have MinGW binaries in your path by running 'set PATH=%PATH%;{bud.windows_mingw_path}' in the command prompt before running the build command"
+        f"If running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project. If the command fails, make sure to have MinGW binaries in your path by running 'set PATH=%PATH%;{bud.windows_mingw_path / "bin"}' in the command prompt before running the build command"
     )
     print("\nSetup completed successfully!")
 
