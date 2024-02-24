@@ -32,9 +32,7 @@ def main() -> None:
     if sys.argv[2].startswith("gmake"):
         validate_mingw()
         print("Attempting to add MinGW binaries to path...")
-        subprocess.run(
-            ["set" f"PATH=%PATH%;{bud.windows_mingw_path}"], shell=True, check=True
-        )
+        subprocess.run(["set", f"PATH=%PATH%;{bud.windows_mingw_path}"], check=True)
 
     __compile_lynx_shaders()
 
