@@ -386,7 +386,7 @@ void body_tab::render_body_canvas()
 
 bool body_tab::is_current_proxy_saved() const
 {
-    return m_proxies.find(m_current_proxy.name) != m_proxies.end();
+    return m_proxies.contains(m_current_proxy.name);
 }
 
 YAML::Node body_tab::encode() const

@@ -161,7 +161,7 @@ bool selection_manager::is_selecting(const body2D::ptr &body) const
         return false;
     if (body->empty())
         return geo::intersects(m_selection_boundaries, body->centroid());
-    if (m_selected_bodies.find(body) != m_selected_bodies.end())
+    if (m_selected_bodies.contains(body))
         return true;
     for (const collider2D &collider : *body)
         if (!geo::intersects(m_selection_boundaries, collider.bounding_box()))
@@ -170,7 +170,7 @@ bool selection_manager::is_selecting(const body2D::ptr &body) const
 }
 bool selection_manager::is_selected(const body2D::ptr &body) const
 {
-    return m_selected_bodies.find(body) != m_selected_bodies.end();
+    return m_selected_bodies.contains(body);
 }
 
 void selection_manager::select(const collider2D::ptr &collider)
@@ -185,11 +185,11 @@ void selection_manager::deselect(const collider2D::ptr &collider)
 bool selection_manager::is_selecting(const collider2D::ptr &collider) const
 {
     return (m_selecting && geo::intersects(m_selection_boundaries, collider->bounding_box())) ||
-           m_selected_colliders.find(collider) != m_selected_colliders.end();
+           m_selected_colliders.contains(collider);
 }
 bool selection_manager::is_selected(const collider2D::ptr &collider) const
 {
-    return m_selected_colliders.find(collider) != m_selected_colliders.end();
+    return m_selected_colliders.contains(collider);
 }
 
 void selection_manager::update_selected_joints()
@@ -198,15 +198,13 @@ void selection_manager::update_selected_joints()
     m_selected_constraints.clear();
 
     for (spring2D &sp : m_app.world.springs)
-        if (m_selected_bodies.find(sp.joint.body1()) != m_selected_bodies.end() &&
-            m_selected_bodies.find(sp.joint.body2()) != m_selected_bodies.end())
+        if (m_selected_bodies.contains(sp.joint.body1()) && m_selected_bodies.contains(sp.joint.body2()))
             m_selected_springs.push_back(sp.as_ptr());
 
     for (const auto &ctr : m_app.world.constraints)
     {
         distance_joint2D *dj = dynamic_cast<distance_joint2D *>(ctr.get());
-        if (dj && m_selected_bodies.find(dj->joint.body1()) != m_selected_bodies.end() &&
-            m_selected_bodies.find(dj->joint.body2()) != m_selected_bodies.end())
+        if (dj && m_selected_bodies.contains(dj->joint.body1()) && m_selected_bodies.contains(dj->joint.body2()))
             m_selected_constraints.push_back(ctr.get());
     }
 }
