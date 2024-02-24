@@ -21,7 +21,7 @@ class Buddy:
             raise PathNotFoundError(f"Root path '{self.__root_path}' was not found")
 
         self.windows_mingw_path = Path(
-            "C:", "mingw", "32" if self.os_architecture == "x86" else "64"
+            "C:", f"mingw{32 if self.os_architecture == 'x86' else 64}"
         )
         self.__accept_all_prompts = False
         self.all_yes = False
