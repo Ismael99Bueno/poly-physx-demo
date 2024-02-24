@@ -73,7 +73,7 @@ void body_tab::update()
     if (m_current_proxy.specs.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 
-    const float angle = std::atan2f(velocity.y, velocity.x) + 0.5f * (float)M_PI;
+    const float angle = atan2f(velocity.y, velocity.x) + 0.5f * (float)M_PI;
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
 }
