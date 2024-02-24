@@ -45,16 +45,16 @@ includedirs {
 }
 
 links {
+   "poly-physx-app",
+   "lynx",
+   "poly-physx",
+   "geometry",
+   "rk-integrator",
+   "cpp-kit",
+   "implot",
+   "imgui",
    "glfw",
    "yaml-cpp",
-   "rk-integrator",
-   "geometry",
-   "poly-physx",
-   "cpp-kit",
-   "imgui",
-   "implot",
-   "poly-physx-app",
-   "lynx"
 }
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
@@ -65,10 +65,10 @@ filter "system:windows"
 
 filter "system:macosx"
    links {
+      "vulkan",
       "Cocoa.framework",
       "IOKit.framework",
-      "CoreFoundation.framework",
-      "vulkan"
+      "CoreFoundation.framework"
    }
 
 
