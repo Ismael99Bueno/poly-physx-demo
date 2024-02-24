@@ -59,12 +59,12 @@ def main() -> None:
     )
 
     if is_mingw:
-        input(
-            "\nAs MinGW (gmake) has been selected as the generator, this script will also automatically build the default configuration. Press any key to continue..."
+        commands = input(
+            "\nAs MinGW (gmake) has been selected as the generator, this script will also automatically build the project. Enter any arguments to pass to the build command (makefile) or press enter to continue with the default configuration"
         )
         os.environ["CC"] = "gcc"
         os.chdir(bud.root_path)
-        subprocess.run(["mingw32-make", "-j", "16"], check=True)
+        subprocess.run(["mingw32-make"] + commands.split(" "), check=True)
 
     print("\nSetup completed successfully!")
 
