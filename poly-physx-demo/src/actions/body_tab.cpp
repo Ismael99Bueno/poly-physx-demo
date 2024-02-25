@@ -4,10 +4,6 @@
 #include "ppx/serialization/serialization.hpp"
 #include "geo/algorithm/intersection.hpp"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f
-#endif
-
 namespace ppx::demo
 {
 body_tab::body_tab(demo_app *app) : m_app(app), m_window(app->window())
@@ -74,7 +70,7 @@ void body_tab::update()
     if (m_current_proxy.specs.props.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 
-    const float angle = atan2f(velocity.y, velocity.x) + 0.5f * (float)M_PI;
+    const float angle = atan2f(velocity.y, velocity.x) + 0.5f * glm::pi<float>();
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
 }
