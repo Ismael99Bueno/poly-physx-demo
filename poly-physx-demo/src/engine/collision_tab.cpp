@@ -2,6 +2,8 @@
 #include "ppx-demo/engine/collision_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 
+#include "ppx/collision/detection/narrow/gjk_epa_detection2D.hpp"
+
 #include "ppx/collision/manifold/clipping_algorithm_manifold2D.hpp"
 #include "ppx/collision/manifold/mtv_support_manifold2D.hpp"
 #include "ppx/collision/manifold/radius_distance_manifold2D.hpp"
@@ -40,17 +42,21 @@ void collision_tab::render_imgui_tab()
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw collisions", &m_draw_collisions);
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
-    render_collision_list();
+    render_collisions_list();
 
     if (ImGui::CollapsingHeader("Detection"))
     {
-        ImGui::SliderFloat("EPA Threshold", &m_app->world.collisions.detection()->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic);
+        render_collision_detection_list();
+        if (ImGui::TreeNode("Narrow detection"))
+        {
+            render_cp_narrow_list();
+            render_pp_narrow_list();
+            ImGui::TreePop();
+        }
 
 #ifndef KIT_PROFILE
         ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->multithreaded);
 #endif
-        render_collision_detection_list();
 
         if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
             render_quad_tree_parameters(*qtdet);
@@ -72,7 +78,7 @@ void collision_tab::render_imgui_tab()
     }
 }
 
-void collision_tab::render_collision_list() const
+void collision_tab::render_collisions_list() const
 {
     if (ImGui::TreeNode("Collisions"))
     {
@@ -139,6 +145,38 @@ void collision_tab::render_collision_resolution_list() const
         else if (res_method == 1)
             m_app->world.collisions.set_resolution<spring_driven_resolution2D>();
     }
+}
+
+void collision_tab::render_cp_narrow_list() const
+{
+    int alg;
+    gjk_epa_detection2D *gjk;
+    if ((gjk = m_app->world.collisions.detection()->cp_narrow_detection<gjk_epa_detection2D>()))
+        alg = 0;
+    if (ImGui::Combo("C-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
+    {
+        if (alg == 0)
+            m_app->world.collisions.detection()->set_cp_narrow_detection<gjk_epa_detection2D>();
+    }
+    if (gjk)
+        ImGui::SliderFloat("C-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
+}
+
+void collision_tab::render_pp_narrow_list() const
+{
+    int alg;
+    gjk_epa_detection2D *gjk;
+    if ((gjk = m_app->world.collisions.detection()->pp_narrow_detection<gjk_epa_detection2D>()))
+        alg = 0;
+    if (ImGui::Combo("P-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
+    {
+        if (alg == 0)
+            m_app->world.collisions.detection()->set_pp_narrow_detection<gjk_epa_detection2D>();
+    }
+    if (gjk)
+        ImGui::SliderFloat("P-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
 }
 
 void collision_tab::render_cc_manifold_list() const

@@ -50,8 +50,11 @@ class collision_tab
     void update_quad_tree_lines(const quad_tree &qt);
 
     void render_collision_detection_list() const;
-    void render_collision_list() const;
+    void render_collisions_list() const;
     void render_collision_resolution_list() const;
+
+    void render_cp_narrow_list() const;
+    void render_pp_narrow_list() const;
 
     void render_cc_manifold_list() const;
     void render_cp_manifold_list() const;
