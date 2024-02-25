@@ -48,6 +48,7 @@ class body_tab
 
     bool m_spawning = false;
     bool m_sticky_vertices = true;
+    bool m_sticky_colliders = true;
 
     void render_menu_bar();
     void render_properties();

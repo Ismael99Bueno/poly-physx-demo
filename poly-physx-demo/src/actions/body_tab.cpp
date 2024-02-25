@@ -225,6 +225,7 @@ void body_tab::render_collider_to_be_added_properties()
 void body_tab::render_body_canvas()
 {
     ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
+    ImGui::Checkbox("Sticky colliders", &m_sticky_colliders);
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -357,11 +358,35 @@ void body_tab::render_body_canvas()
         if (is_hovered && !trying_to_edit && !trying_to_move_body &&
             ((is_grabbed && trying_to_grab) || (free_to_grab && ready_to_grab)))
         {
+            grab_index = i;
+            last_grabbed = i;
             if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 grab_offset = spc.position - imgui_mpos;
             spc.position = imgui_mpos + grab_offset;
-            grab_index = i;
-            last_grabbed = i;
+
+            if (m_sticky_colliders && spc.props.shape == collider2D::stype::POLYGON)
+            {
+                const float max_distance = 1.f;
+                glm::vec2 min_offset{FLT_MAX};
+                polygon poly{spc.props.vertices};
+                poly.lposition(spc.position);
+                for (std::size_t j = 0; j < m_current_proxy.cproxies.size(); j++)
+                    if (i != j && m_current_proxy.cproxies[j].specs.props.shape == collider2D::stype::POLYGON)
+                    {
+                        const auto &other_specs = m_current_proxy.cproxies[j].specs;
+                        polygon other_poly{other_specs.props.vertices};
+                        other_poly.lposition(other_specs.position);
+                        for (std::size_t k = 0; k < poly.vertices.size(); k++)
+                            for (std::size_t l = 0; l < other_poly.vertices.size(); l++)
+                            {
+                                const glm::vec2 offset = other_poly.vertices.locals[l] - poly.vertices.locals[k];
+                                if (glm::length2(offset) < glm::length2(min_offset))
+                                    min_offset = offset;
+                            }
+                    }
+                if (glm::length2(min_offset) < max_distance)
+                    spc.position += min_offset;
+            }
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
