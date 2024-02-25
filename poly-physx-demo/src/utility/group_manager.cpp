@@ -23,7 +23,7 @@ void group_manager::render() const
     if (!m_ongoing_group)
         return;
 
-    for (const auto &shape : m_group_shapes_preview)
+    for (const auto &shape : m_shapes_preview)
         m_window->draw(*shape);
     for (const spring_line &spline : m_group_springs_preview)
         m_window->draw(spline);
@@ -42,7 +42,7 @@ void group_manager::begin_group_from_selected()
 
 void group_manager::update_preview_from_current_group()
 {
-    m_group_shapes_preview.clear();
+    m_shapes_preview.clear();
     m_group_springs_preview.clear();
     m_group_dist_joints_preview.clear();
     m_bodies_preview_transforms.clear();
@@ -62,11 +62,10 @@ void group_manager::update_preview_from_current_group()
             {
                 const std::vector<glm::vec2> vertices{cproxy.specs.props.vertices.begin(),
                                                       cproxy.specs.props.vertices.end()};
-                shape =
-                    m_group_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, cproxy.color)).get();
+                shape = m_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, cproxy.color)).get();
             }
             else
-                shape = m_group_shapes_preview
+                shape = m_shapes_preview
                             .emplace_back(kit::make_scope<lynx::ellipse2D>(cproxy.specs.props.radius, cproxy.color))
                             .get();
             shape->transform.position = cproxy.specs.position;

@@ -107,21 +107,21 @@ void collision_tab::render_collision_list() const
 void collision_tab::render_collision_detection_list() const
 {
     int det_method;
-    if (m_app->world.collisions.detection<quad_tree_detection2D>())
+    if (m_app->world.collisions.detection<brute_force_detection2D>())
         det_method = 0;
-    else if (m_app->world.collisions.detection<sort_sweep_detection2D>())
+    else if (m_app->world.collisions.detection<quad_tree_detection2D>())
         det_method = 1;
-    else if (m_app->world.collisions.detection<brute_force_detection2D>())
+    else if (m_app->world.collisions.detection<sort_sweep_detection2D>())
         det_method = 2;
 
-    if (ImGui::Combo("Collision detection", &det_method, "Quad tree\0Sort and sweep\0Brute force\0\0"))
+    if (ImGui::Combo("Collision detection", &det_method, "Brute force\0Quad tree\0Sort and sweep\0\0"))
     {
         if (det_method == 0)
-            m_app->world.collisions.set_detection<quad_tree_detection2D>();
-        else if (det_method == 1)
-            m_app->world.collisions.set_detection<sort_sweep_detection2D>();
-        else if (det_method == 2)
             m_app->world.collisions.set_detection<brute_force_detection2D>();
+        else if (det_method == 1)
+            m_app->world.collisions.set_detection<quad_tree_detection2D>();
+        else if (det_method == 2)
+            m_app->world.collisions.set_detection<sort_sweep_detection2D>();
     }
 }
 

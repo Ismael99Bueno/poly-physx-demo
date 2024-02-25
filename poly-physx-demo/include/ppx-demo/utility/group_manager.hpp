@@ -83,7 +83,7 @@ class group_manager
 
     kit::transform2D<float> m_preview_transform;
     std::vector<kit::transform2D<float>> m_bodies_preview_transforms;
-    std::vector<kit::scope<lynx::shape2D>> m_group_shapes_preview;
+    std::vector<kit::scope<lynx::shape2D>> m_shapes_preview;
     std::vector<spring_line> m_group_springs_preview;
     std::vector<thick_line> m_group_dist_joints_preview;
 
