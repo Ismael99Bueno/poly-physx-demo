@@ -232,6 +232,9 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
     {
         ImGui::DragFloat("Stiffness", &specs.props.stiffness, drag_speed, 0.f, FLT_MAX, format);
         ImGui::DragFloat("Damping", &specs.props.damping, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::SliderInt("Non linear terms", (int *)&specs.props.non_linear_terms, 0, 8);
+        ImGui::SliderFloat("Non linear contribution", &specs.props.non_linear_contribution, 0.f, 1.f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
         ImGui::Checkbox("Auto-length", &m_auto_spring_length);
         if (m_auto_spring_length && m_body1)
         {
