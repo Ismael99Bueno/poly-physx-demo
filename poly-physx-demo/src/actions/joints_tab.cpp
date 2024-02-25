@@ -230,16 +230,16 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
     constexpr const char *format = "%.1f";
     if constexpr (std::is_same_v<T, spring2D::specs>)
     {
-        ImGui::DragFloat("Stiffness", &specs.stiffness, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragFloat("Damping", &specs.damping, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Stiffness", &specs.props.stiffness, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Damping", &specs.props.damping, drag_speed, 0.f, FLT_MAX, format);
         ImGui::Checkbox("Auto-length", &m_auto_spring_length);
         if (m_auto_spring_length && m_body1)
         {
-            specs.length = current_joint_length();
-            ImGui::Text("Length: %.1f", specs.length);
+            specs.props.length = current_joint_length();
+            ImGui::Text("Length: %.1f", specs.props.length);
         }
         else if (!m_auto_spring_length)
-            ImGui::DragFloat("Length", &specs.length, drag_speed, 0.f, FLT_MAX, format);
+            ImGui::DragFloat("Length", &specs.props.length, drag_speed, 0.f, FLT_MAX, format);
     }
     else if (m_body1)
     {
@@ -365,10 +365,10 @@ YAML::Node joints_tab::encode() const
     YAML::Node node;
     node["Joint type"] = (int)m_joint_type;
 
-    node["Spring stiffness"] = m_spring_specs.stiffness;
-    node["Spring damping"] = m_spring_specs.damping;
+    node["Spring stiffness"] = m_spring_specs.props.stiffness;
+    node["Spring damping"] = m_spring_specs.props.damping;
     if (!m_auto_spring_length)
-        node["Spring length"] = m_spring_specs.length;
+        node["Spring length"] = m_spring_specs.props.length;
 
     return node;
 }
@@ -376,11 +376,11 @@ void joints_tab::decode(const YAML::Node &node)
 {
     m_joint_type = (joint_type)node["Joint type"].as<int>();
 
-    m_spring_specs.stiffness = node["Spring stiffness"].as<float>();
-    m_spring_specs.damping = node["Spring damping"].as<float>();
+    m_spring_specs.props.stiffness = node["Spring stiffness"].as<float>();
+    m_spring_specs.props.damping = node["Spring damping"].as<float>();
     m_auto_spring_length = !node["Spring length"];
 
     if (!m_auto_spring_length)
-        m_spring_specs.length = node["Spring length"].as<float>();
+        m_spring_specs.props.length = node["Spring length"].as<float>();
 }
 } // namespace ppx::demo

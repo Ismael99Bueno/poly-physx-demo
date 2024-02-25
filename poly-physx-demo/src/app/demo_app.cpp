@@ -144,14 +144,14 @@ void demo_app::add_walls()
     collider3.position = glm::vec2(0.f, -size.y - 0.5f * thck);
     collider4.position = glm::vec2(0.f, size.y + 0.5f * thck);
 
-    collider1.vertices = polygon::rect(thck, 2.f * (size.y + thck));
-    collider2.vertices = polygon::rect(thck, 2.f * (size.y + thck));
-    collider3.vertices = polygon::rect(2.f * size.x, thck);
-    collider4.vertices = polygon::rect(2.f * size.x, thck);
+    collider1.props.vertices = polygon::rect(thck, 2.f * (size.y + thck));
+    collider2.props.vertices = polygon::rect(thck, 2.f * (size.y + thck));
+    collider3.props.vertices = polygon::rect(2.f * size.x, thck);
+    collider4.props.vertices = polygon::rect(2.f * size.x, thck);
 
     body2D::specs wall;
-    wall.colliders = {collider1, collider2, collider3, collider4};
-    wall.type = body2D::btype::STATIC;
+    wall.props.colliders = {collider1, collider2, collider3, collider4};
+    wall.props.type = body2D::btype::STATIC;
 
     world.bodies.add(wall);
 
@@ -160,17 +160,17 @@ void demo_app::add_walls()
     collider2D::specs left;
 
     bottom.position = {0.f, -250.f};
-    bottom.vertices = polygon::rect(2600.f, 3.f * thck);
+    bottom.props.vertices = polygon::rect(2600.f, 3.f * thck);
 
     right.position = {1300.f - 1.5f * thck, -225.f};
-    right.vertices = polygon::rect(3.f * thck, 50.f);
+    right.props.vertices = polygon::rect(3.f * thck, 50.f);
 
     left.position = {1.5f * thck - 1300.f, -225.f};
-    left.vertices = polygon::rect(3.f * thck, 50.f);
+    left.props.vertices = polygon::rect(3.f * thck, 50.f);
 
     body2D::specs floor;
-    floor.colliders = {bottom, right, left};
-    floor.type = body2D::btype::STATIC;
+    floor.props.colliders = {bottom, right, left};
+    floor.props.type = body2D::btype::STATIC;
 
     world.bodies.add(floor);
 }

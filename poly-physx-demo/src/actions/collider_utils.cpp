@@ -14,10 +14,10 @@ void collider_utils::render_shape_types_and_properties(proxy &prx)
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
 
-    ImGui::DragFloat("Density", &prx.specs.density, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Charge density", &prx.specs.charge_density, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Friction", &prx.specs.friction, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Restitution", &prx.specs.restitution, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Density", &prx.specs.props.density, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Charge density", &prx.specs.props.charge_density, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Friction", &prx.specs.props.friction, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Restitution", &prx.specs.props.restitution, drag_speed, 0.f, FLT_MAX, format);
 
     switch (prx.type)
     {
@@ -26,7 +26,7 @@ void collider_utils::render_shape_types_and_properties(proxy &prx)
         needs_update |= ImGui::DragFloat("Height", &prx.height, drag_speed, 0.f, FLT_MAX, format);
         break;
     case proxy_type::CIRCLE:
-        needs_update |= ImGui::DragFloat("Radius", &prx.specs.radius, drag_speed, 0.f, FLT_MAX, format);
+        needs_update |= ImGui::DragFloat("Radius", &prx.specs.props.radius, drag_speed, 0.f, FLT_MAX, format);
         break;
     case proxy_type::NGON:
         needs_update |= ImGui::DragFloat("Radius", &prx.ngon_radius, drag_speed, 0.f, FLT_MAX, format);
@@ -41,14 +41,14 @@ void collider_utils::render_shape_types_and_properties(proxy &prx)
 void collider_utils::update_shape_from_current_type(proxy &prx)
 {
     auto &specs = prx.specs;
-    specs.shape = prx.type == proxy_type::CIRCLE ? collider2D::stype::CIRCLE : collider2D::stype::POLYGON;
+    specs.props.shape = prx.type == proxy_type::CIRCLE ? collider2D::stype::CIRCLE : collider2D::stype::POLYGON;
     switch (prx.type)
     {
     case proxy_type::RECT:
-        specs.vertices = polygon::rect(prx.width, prx.height);
+        specs.props.vertices = polygon::rect(prx.width, prx.height);
         break;
     case proxy_type::NGON:
-        specs.vertices = polygon::ngon(prx.ngon_radius, prx.ngon_sides);
+        specs.props.vertices = polygon::ngon(prx.ngon_radius, prx.ngon_sides);
         break;
     default:
         break;
@@ -102,9 +102,9 @@ kit::dynarray<glm::vec2, PPX_MAX_VERTICES> collider_utils::render_polygon_editor
             min_distance = FLT_MAX;
             for (std::size_t i = 0; i < proxies.size(); i++)
             {
-                if (i == selected_proxy_index || proxies[i].specs.shape != collider2D::stype::POLYGON)
+                if (i == selected_proxy_index || proxies[i].specs.props.shape != collider2D::stype::POLYGON)
                     continue;
-                polygon other_poly{proxies[i].specs.vertices};
+                polygon other_poly{proxies[i].specs.props.vertices};
                 other_poly.lposition(proxies[i].specs.position);
                 for (const glm::vec2 &other_v : other_poly.vertices.locals)
                 {

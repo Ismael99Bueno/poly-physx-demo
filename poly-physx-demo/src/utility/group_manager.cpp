@@ -58,15 +58,16 @@ void group_manager::update_preview_from_current_group()
         for (const collider_proxy &cproxy : bproxy.cproxies)
         {
             lynx::shape2D *shape;
-            if (cproxy.specs.shape == collider2D::stype::POLYGON)
+            if (cproxy.specs.props.shape == collider2D::stype::POLYGON)
             {
-                const std::vector<glm::vec2> vertices{cproxy.specs.vertices.begin(), cproxy.specs.vertices.end()};
+                const std::vector<glm::vec2> vertices{cproxy.specs.props.vertices.begin(),
+                                                      cproxy.specs.props.vertices.end()};
                 shape =
                     m_group_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, cproxy.color)).get();
             }
             else
                 shape = m_group_shapes_preview
-                            .emplace_back(kit::make_scope<lynx::ellipse2D>(cproxy.specs.radius, cproxy.color))
+                            .emplace_back(kit::make_scope<lynx::ellipse2D>(cproxy.specs.props.radius, cproxy.color))
                             .get();
             shape->transform.position = cproxy.specs.position;
             shape->transform.rotation = cproxy.specs.rotation;
@@ -78,9 +79,9 @@ void group_manager::update_preview_from_current_group()
     for (const spring_proxy &spproxy : m_current_group.sproxies)
     {
         auto &prv = m_group_springs_preview.emplace_back(spproxy.color);
-        prv.p1(m_current_group.bproxies[spproxy.bindex1].specs.position + spproxy.specs.joint.anchor1 -
+        prv.p1(m_current_group.bproxies[spproxy.bprox_index1].specs.position + spproxy.specs.joint.anchor1 -
                m_current_group.mean_position);
-        prv.p2(m_current_group.bproxies[spproxy.bindex2].specs.position + spproxy.specs.joint.anchor2 -
+        prv.p2(m_current_group.bproxies[spproxy.bprox_index2].specs.position + spproxy.specs.joint.anchor2 -
                m_current_group.mean_position);
         prv.parent(&m_preview_transform);
     }
@@ -88,9 +89,9 @@ void group_manager::update_preview_from_current_group()
     for (const dist_joint_proxy &rjproxy : m_current_group.djproxies)
     {
         auto &prv = m_group_dist_joints_preview.emplace_back(rjproxy.color);
-        prv.p1(m_current_group.bproxies[rjproxy.bindex1].specs.position + rjproxy.specs.joint.anchor1 -
+        prv.p1(m_current_group.bproxies[rjproxy.bprox_index1].specs.position + rjproxy.specs.joint.anchor1 -
                m_current_group.mean_position);
-        prv.p2(m_current_group.bproxies[rjproxy.bindex2].specs.position + rjproxy.specs.joint.anchor2 -
+        prv.p2(m_current_group.bproxies[rjproxy.bprox_index2].specs.position + rjproxy.specs.joint.anchor2 -
                m_current_group.mean_position);
         prv.parent(&m_preview_transform);
     }
@@ -146,15 +147,15 @@ void group_manager::paste_group()
 
     for (spring_proxy &spproxy : m_current_group.sproxies)
     {
-        spproxy.specs.joint.bindex1 = added_indices[spproxy.bindex1];
-        spproxy.specs.joint.bindex2 = added_indices[spproxy.bindex2];
+        spproxy.specs.joint.bindex1 = added_indices[spproxy.bprox_index1];
+        spproxy.specs.joint.bindex2 = added_indices[spproxy.bprox_index2];
         m_app.world.springs.add(spproxy.specs);
     }
 
     for (dist_joint_proxy &rjproxy : m_current_group.djproxies)
     {
-        rjproxy.specs.joint.bindex1 = added_indices[rjproxy.bindex1];
-        rjproxy.specs.joint.bindex2 = added_indices[rjproxy.bindex2];
+        rjproxy.specs.joint.bindex1 = added_indices[rjproxy.bprox_index1];
+        rjproxy.specs.joint.bindex2 = added_indices[rjproxy.bprox_index2];
         m_app.world.constraints.add<distance_joint2D>(rjproxy.specs);
     }
 }
@@ -189,8 +190,8 @@ group_manager::group group_manager::create_group_from_selected()
                 {
                     const lynx::color color{m_app.spring_lines()[sp->index].color(), alpha};
                     const bool reversed = id1 != sp->joint.body1()->id;
-                    fresh_group.sproxies.push_back({.bindex1 = reversed ? j : i,
-                                                    .bindex2 = reversed ? i : j,
+                    fresh_group.sproxies.push_back({.bprox_index1 = reversed ? j : i,
+                                                    .bprox_index2 = reversed ? i : j,
                                                     .color = color,
                                                     .specs = spring2D::specs::from_spring(*sp)});
                 }
@@ -200,8 +201,8 @@ group_manager::group group_manager::create_group_from_selected()
                     const distance_joint2D *dj = dynamic_cast<const distance_joint2D *>(ctr);
                     const lynx::color color{m_app.dist_joint_lines().at(dj).color(), alpha};
                     const bool reversed = id1 != dj->joint.body1()->id;
-                    fresh_group.djproxies.push_back({.bindex1 = reversed ? j : i,
-                                                     .bindex2 = reversed ? i : j,
+                    fresh_group.djproxies.push_back({.bprox_index1 = reversed ? j : i,
+                                                     .bprox_index2 = reversed ? i : j,
                                                      .color = color,
                                                      .specs = distance_joint2D::specs::from_distance_joint(*dj)});
                 }
@@ -212,24 +213,17 @@ group_manager::group group_manager::create_group_from_selected()
 template <typename T> static YAML::Node encode_joint_proxy(const T &jproxy)
 {
     YAML::Node node;
-    node["Index 1"] = jproxy.bindex1;
-    node["Index 2"] = jproxy.bindex2;
+    node["Index 1"] = jproxy.bprox_index1;
+    node["Index 2"] = jproxy.bprox_index2;
     node["Color"] = jproxy.color.normalized;
-
-    node["Anchor1"] = jproxy.specs.joint.anchor1;
-    node["Anchor2"] = jproxy.specs.joint.anchor2;
-
     return node;
 }
 
 template <typename T> static void decode_joint_proxy(T &jproxy, const YAML::Node &node)
 {
-    jproxy.bindex1 = node["Index 1"].as<std::size_t>();
-    jproxy.bindex2 = node["Index 2"].as<std::size_t>();
+    jproxy.bprox_index1 = node["Index 1"].as<std::size_t>();
+    jproxy.bprox_index2 = node["Index 2"].as<std::size_t>();
     jproxy.color.normalized = node["Color"].as<glm::vec4>();
-
-    jproxy.specs.joint.anchor1 = node["Anchor1"].as<glm::vec2>();
-    jproxy.specs.joint.anchor2 = node["Anchor2"].as<glm::vec2>();
 }
 
 YAML::Node group_manager::group::encode(world2D &world) const
@@ -254,11 +248,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
     for (const spring_proxy &spproxy : sproxies)
     {
         YAML::Node spnode = encode_joint_proxy(spproxy);
-        spnode["Stiffness"] = spproxy.specs.stiffness;
-        spnode["Damping"] = spproxy.specs.damping;
-        spnode["Length"] = spproxy.specs.length;
-        spnode["Non linear terms"] = spproxy.specs.non_linear_terms;
-        spnode["Non linear contribution"] = spproxy.specs.non_linear_contribution;
+        spnode["Specs"] = spproxy.specs;
         node["Spring proxies"].push_back(spnode);
     }
 
@@ -295,11 +285,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
         {
             spring_proxy spproxy;
             decode_joint_proxy(spproxy, n);
-            spproxy.specs.stiffness = n["Stiffness"].as<float>();
-            spproxy.specs.damping = n["Damping"].as<float>();
-            spproxy.specs.length = n["Length"].as<float>();
-            spproxy.specs.non_linear_terms = n["Non linear terms"].as<std::uint32_t>();
-            spproxy.specs.non_linear_contribution = n["Non linear contribution"].as<float>();
+            spproxy.specs = n["Specs"].as<spring2D::specs>();
             sproxies.push_back(spproxy);
         }
 

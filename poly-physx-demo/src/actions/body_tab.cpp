@@ -23,16 +23,17 @@ void body_tab::begin_body_spawn()
     for (const collider_utils::proxy &cprx : m_current_proxy.cproxies)
     {
         lynx::shape2D *prev;
-        switch (cprx.specs.shape)
+        switch (cprx.specs.props.shape)
         {
         case collider2D::stype::CIRCLE: {
             prev = m_preview
-                       .emplace_back(kit::make_scope<lynx::ellipse2D>(cprx.specs.radius, lynx::color(cprx.color, 120u)))
+                       .emplace_back(
+                           kit::make_scope<lynx::ellipse2D>(cprx.specs.props.radius, lynx::color(cprx.color, 120u)))
                        .get();
             break;
         }
         case collider2D::stype::POLYGON: {
-            const polygon poly{cprx.specs.vertices};
+            const polygon poly{cprx.specs.props.vertices};
             const std::vector<glm::vec2> vertices{poly.vertices.model.begin(), poly.vertices.model.end()};
             prev =
                 m_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, lynx::color(cprx.color, 120u))).get();
@@ -55,7 +56,7 @@ void body_tab::end_body_spawn()
     m_spawning = false;
     body2D::specs specs = m_current_proxy.specs;
     for (collider_utils::proxy &cprx : m_current_proxy.cproxies)
-        specs.colliders.push_back(cprx.specs);
+        specs.props.colliders.push_back(cprx.specs);
     m_app->world.bodies.add(specs);
 }
 
@@ -70,7 +71,7 @@ void body_tab::update()
         return;
 
     const glm::vec2 velocity = (m_starting_mouse_pos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
-    if (m_current_proxy.specs.type != body2D::btype::STATIC)
+    if (m_current_proxy.specs.props.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 
     const float angle = atan2f(velocity.y, velocity.x) + 0.5f * (float)M_PI;
@@ -160,13 +161,13 @@ void body_tab::render_load_proxy_and_removal_prompts()
 
 void body_tab::render_properties()
 {
-    ImGui::Combo("Type", (int *)&m_current_proxy.specs.type, "Dynamic\0Kinematic\0Static\0\0");
+    ImGui::Combo("Type", (int *)&m_current_proxy.specs.props.type, "Dynamic\0Kinematic\0Static\0\0");
 
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
 
-    ImGui::DragFloat("Mass", &m_current_proxy.specs.mass, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Charge", &m_current_proxy.specs.charge, drag_speed, -FLT_MAX, FLT_MAX, format);
+    ImGui::DragFloat("Mass", &m_current_proxy.specs.props.mass, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Charge", &m_current_proxy.specs.props.charge, drag_speed, -FLT_MAX, FLT_MAX, format);
 }
 
 void body_tab::render_colliders()
@@ -293,10 +294,10 @@ void body_tab::render_body_canvas()
         std::uint8_t alpha = is_grabbed ? 160 : 120;
 
         shape2D *shape;
-        switch (spc.shape)
+        switch (spc.props.shape)
         {
         case collider2D::stype::POLYGON: {
-            polygon poly{spc.vertices};
+            polygon poly{spc.props.vertices};
             shape = &poly;
 
             poly.lposition(spc.position);
@@ -306,10 +307,10 @@ void body_tab::render_body_canvas()
             float outline_thickness = thickness;
             if (trying_to_edit && last_grabbed == i)
             {
-                spc.vertices =
+                spc.props.vertices =
                     collider_utils::render_polygon_editor(poly, imgui_mpos, draw_list, canvas_hdim, origin,
                                                           scale_factor, m_sticky_vertices, m_current_proxy.cproxies, i);
-                spc.position = polygon(spc.vertices).lcentroid();
+                spc.position = polygon(spc.props.vertices).lcentroid();
                 alpha = 120;
                 outline_thickness += 1.f;
             }
@@ -334,7 +335,7 @@ void body_tab::render_body_canvas()
             break;
         }
         case collider2D::stype::CIRCLE:
-            circle circ{spc.radius};
+            circle circ{spc.props.radius};
             shape = &circ;
 
             circ.lposition(spc.position);
@@ -344,13 +345,13 @@ void body_tab::render_body_canvas()
 
             const glm::vec2 center = spc.position * scale_factor + origin + canvas_hdim;
 
-            draw_list->AddCircle({center.x, center.y}, spc.radius * scale_factor, col, 0, thickness);
-            draw_list->AddCircleFilled({center.x, center.y}, spc.radius * scale_factor,
+            draw_list->AddCircle({center.x, center.y}, spc.props.radius * scale_factor, col, 0, thickness);
+            draw_list->AddCircleFilled({center.x, center.y}, spc.props.radius * scale_factor,
                                        IM_COL32(cproxy.color.r(), cproxy.color.g(), cproxy.color.b(), alpha));
             break;
         }
 
-        const float cmass = spc.density * shape->area();
+        const float cmass = spc.props.density * shape->area();
         centroid += cmass * shape->lcentroid();
         artificial_mass += cmass;
 

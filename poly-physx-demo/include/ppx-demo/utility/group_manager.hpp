@@ -47,15 +47,15 @@ class group_manager
     };
     struct spring_proxy
     {
-        std::size_t bindex1;
-        std::size_t bindex2;
+        std::size_t bprox_index1;
+        std::size_t bprox_index2;
         lynx::color color;
         spring2D::specs specs;
     };
     struct dist_joint_proxy
     {
-        std::size_t bindex1;
-        std::size_t bindex2;
+        std::size_t bprox_index1;
+        std::size_t bprox_index2;
         lynx::color color;
         distance_joint2D::specs specs;
     };
