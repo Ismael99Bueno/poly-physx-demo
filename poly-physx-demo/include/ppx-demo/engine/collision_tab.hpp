@@ -6,8 +6,8 @@
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
 
-#include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
 #include "ppx/collision/resolution/constraint_driven_resolution2D.hpp"
+#include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
 
 #include "lynx/drawing/line.hpp"
 #include "ppx-app/lines/thick_line.hpp"
@@ -42,8 +42,8 @@ class collision_tab
     std::vector<std::array<thick_line, manifold2D::CAPACITY>> m_collision_lines;
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
-    void render_spring_driven_parameters(spring_driven_resolution2D &spres);
     void render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres);
+    void render_spring_driven_parameters(spring_driven_resolution2D &spres);
 
     void update_bounding_boxes();
     void update_collisions();
