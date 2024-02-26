@@ -229,7 +229,7 @@ void body_tab::render_body_canvas()
 {
     ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
     ImGui::Checkbox("Sticky colliders", &m_sticky_colliders);
-    const bool reset_body_pos = ImGui::Button("Reset position");
+    const bool reset_body_pos = ImGui::Button("Match centroid");
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
