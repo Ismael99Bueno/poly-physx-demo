@@ -229,6 +229,7 @@ void body_tab::render_body_canvas()
 {
     ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
     ImGui::Checkbox("Sticky colliders", &m_sticky_colliders);
+    const bool reset_body_pos = ImGui::Button("Reset position");
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -394,9 +395,6 @@ void body_tab::render_body_canvas()
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
     }
-    for (auto &cproxy : m_current_proxy.cproxies)
-        cproxy.specs.position -= body_pos;
-
     const glm::vec2 body_origin = origin + canvas_hdim + body_pos * scale_factor;
     draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 6.f, IM_COL32(145, 149, 246, 180));
     if (!m_current_proxy.cproxies.empty())
@@ -405,6 +403,14 @@ void body_tab::render_body_canvas()
         const glm::vec2 imgui_centroid = centroid * scale_factor + origin + canvas_hdim;
         draw_list->AddCircleFilled({imgui_centroid.x, imgui_centroid.y}, 6.f, IM_COL32(155, 207, 83, 180));
     }
+
+    if (reset_body_pos)
+    {
+        body_pos = centroid;
+        m_current_proxy.specs.position = centroid;
+    }
+    for (auto &cproxy : m_current_proxy.cproxies)
+        cproxy.specs.position -= body_pos;
 
     draw_list->PopClipRect();
 }
