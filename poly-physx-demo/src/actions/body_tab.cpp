@@ -191,6 +191,9 @@ void body_tab::render_colliders()
             ImGui::PushID(&cprx);
             if (ImGui::Button("X"))
                 to_remove = i;
+            ImGui::SameLine();
+            if (ImGui::Button("Add copy"))
+                m_current_proxy.cproxies.push_back(cprx);
             ImGui::PopID();
 
             ImGui::SameLine();
