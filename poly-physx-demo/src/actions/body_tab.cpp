@@ -230,6 +230,7 @@ void body_tab::render_body_canvas()
     ImGui::Checkbox("Sticky vertices", &m_sticky_vertices);
     ImGui::Checkbox("Sticky colliders", &m_sticky_colliders);
     const bool reset_body_pos = ImGui::Button("Match centroid");
+    ImGui::Text("Hold shift to edit polygons, ctrl to move bodies and C to copy last clicked collider");
 
     const ImVec2 canvas_p0 = ImGui::GetCursorScreenPos(), canvas_sz = ImGui::GetContentRegionAvail(),
                  canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
@@ -394,6 +395,8 @@ void body_tab::render_body_canvas()
         }
         else if (!trying_to_grab)
             grab_index = SIZE_MAX;
+        if (is_hovered && last_grabbed == i && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+            m_current_proxy.cproxies.push_back(cproxy);
     }
     const glm::vec2 body_origin = origin + canvas_hdim + body_pos * scale_factor;
     draw_list->AddCircleFilled({body_origin.x, body_origin.y}, 6.f, IM_COL32(145, 149, 246, 180));
