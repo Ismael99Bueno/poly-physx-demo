@@ -96,7 +96,7 @@ template <typename TimeUnit>
 void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, const char *unit,
                                                    const std::size_t parent_calls)
 {
-    const std::size_t calls = node.size() * parent_calls;
+    const std::size_t calls = node.size();
     const kit::perf::measurement::metrics metrics = smooth_out_average_metrics(node);
     const char *name = node.name();
 
@@ -115,7 +115,7 @@ void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, 
             ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
             ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
                         metrics.total_percent * 100.f, max_over_calls, unit);
-            ImGui::Text("Calls (current process): %zu", node.size());
+            ImGui::Text("Calls (current process): %zu", calls / parent_calls);
             ImGui::Text("Calls (overall): %zu", calls);
 
             ImGui::PushID(name);
