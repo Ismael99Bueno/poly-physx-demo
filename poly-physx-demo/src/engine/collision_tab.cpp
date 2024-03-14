@@ -93,8 +93,8 @@ void collision_tab::render_collisions_list() const
                 for (std::size_t i = 0; i < col.manifold.size; i++)
                     if (ImGui::TreeNode(&col.manifold.contacts[i], "Contact point %zu", i + 1))
                     {
-                        const glm::vec2 &touch1 = col.touch1(i);
-                        const glm::vec2 touch2 = col.touch2(i);
+                        const glm::vec2 &touch1 = col.manifold.contacts[i];
+                        const glm::vec2 touch2 = col.manifold.contacts[i] - col.mtv;
 
                         const glm::vec2 anchor1 = touch1 - col.collider1->gcentroid();
                         const glm::vec2 anchor2 = touch2 - col.collider2->gcentroid();
@@ -312,8 +312,8 @@ void collision_tab::update_collisions()
         }
         for (std::size_t j = 0; j < col.manifold.size; j++)
         {
-            m_collision_lines[i][j].p1(col.touch1(j));
-            m_collision_lines[i][j].p2(col.touch2(j));
+            m_collision_lines[i][j].p1(col.manifold.contacts[j]);
+            m_collision_lines[i][j].p2(col.manifold.contacts[j] - col.mtv);
         }
     }
 }

@@ -45,26 +45,20 @@ class group_manager
         body2D::specs specs;
         std::vector<collider_proxy> cproxies;
     };
-    struct spring_proxy
+
+    template <typename Specs> struct joint_proxy
     {
         std::size_t bprox_index1;
         std::size_t bprox_index2;
         lynx::color color;
-        spring2D::specs specs;
-    };
-    struct dist_joint_proxy
-    {
-        std::size_t bprox_index1;
-        std::size_t bprox_index2;
-        lynx::color color;
-        distance_joint2D::specs specs;
+        Specs specs;
     };
     struct group
     {
         glm::vec2 mean_position{0.f};
         std::vector<body_proxy> bproxies;
-        std::vector<spring_proxy> sproxies;
-        std::vector<dist_joint_proxy> djproxies;
+        std::vector<joint_proxy<spring2D::specs>> sproxies;
+        std::vector<joint_proxy<distance_joint2D::specs>> djproxies;
 
         YAML::Node encode(world2D &world) const;
         void decode(const YAML::Node &node, world2D &world);
@@ -84,12 +78,24 @@ class group_manager
     kit::transform2D<float> m_preview_transform;
     std::vector<kit::transform2D<float>> m_bodies_preview_transforms;
     std::vector<kit::scope<lynx::shape2D>> m_shapes_preview;
-    std::vector<spring_line> m_group_springs_preview;
-    std::vector<thick_line> m_group_dist_joints_preview;
+
+    std::vector<spring_line> m_springs_preview;
+    std::vector<thick_line> m_dist_joints_preview;
 
     bool m_ongoing_group = false;
 
+    template <typename Joint>
+    void paste_joints(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
+                      const std::vector<std::size_t> &added_indices);
+
+    template <typename Joint>
+    void add_joints_to_group(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
+                             const std::vector<kit::uuid> &selected_ids, std::size_t idx1, std::size_t idx2);
+
     void update_preview_from_current_group();
+    template <typename Specs, typename Line>
+    void update_preview_from_joint_proxies(const std::vector<joint_proxy<Specs>> &jproxies, std::vector<Line> &preview);
+
     group create_group_from_selected();
 };
 } // namespace ppx::demo

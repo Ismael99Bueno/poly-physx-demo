@@ -42,8 +42,7 @@ class joints_tab
     lynx::window2D *m_window;
 
     body2D::ptr m_body1;
-    glm::vec2 m_anchor1;
-    float m_rotation1;
+    glm::vec2 m_lanchor1;
 
     joint_type m_joint_type = joint_type::SPRING;
     kit::scope<lynx::line2D> m_preview;
@@ -53,15 +52,22 @@ class joints_tab
     bool m_auto_spring_length = false;
 
     std::vector<spring2D::const_ptr> m_to_remove_springs;
-    std::vector<const constraint2D *> m_to_remove_ctrs;
+    std::vector<distance_joint2D::const_ptr> m_to_remove_djoints;
+
+    template <typename Joint>
+    void render_single_properties(Joint &joint, std::vector<typename Joint::const_ptr> &to_remove);
+
+    template <typename Joint>
+    const std::vector<typename Joint::ptr> *render_selected_properties(
+        std::vector<typename Joint::const_ptr> &to_remove);
+
+    template <typename Joint> void render_joints_list();
 
     void render_single_spring_properties(spring2D &sp);
     void render_selected_spring_properties();
-    void render_springs_list();
 
     void render_single_dist_joint_properties(distance_joint2D &rj);
     void render_selected_dist_joint_properties();
-    void render_dist_joints_list();
 
     template <typename T> void render_joint_properties(T &specs);
     template <typename T> bool attach_bodies_to_joint_specs(T &specs) const;

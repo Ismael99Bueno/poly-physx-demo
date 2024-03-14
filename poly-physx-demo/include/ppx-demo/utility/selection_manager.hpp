@@ -6,6 +6,7 @@
 #include "ppx/entities/collider2D.hpp"
 #include "ppx/constraints/constraint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
+#include "ppx/joints/distance_joint2D.hpp"
 #include <unordered_set>
 
 namespace ppx::demo
@@ -35,13 +36,16 @@ class selection_manager
     bool is_selecting(const collider2D::ptr &body) const;
     bool is_selected(const collider2D::ptr &body) const;
 
-    void update_selected_joints();
-
     const std::unordered_set<body2D::ptr> &selected_bodies() const;
     const std::unordered_set<collider2D::ptr> &selected_colliders() const;
 
-    const std::vector<spring2D::ptr> &selected_springs() const;
-    const std::vector<constraint2D *> &selected_constraints() const;
+    template <typename Joint> const std::vector<typename Joint::ptr> &selected_joints() const
+    {
+        if constexpr (std::is_same_v<Joint, spring2D>)
+            return m_selected_springs;
+        else if constexpr (std::is_same_v<Joint, distance_joint2D>)
+            return m_selected_djoints;
+    }
 
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
@@ -58,6 +62,10 @@ class selection_manager
     std::unordered_set<collider2D::ptr> m_selected_colliders;
 
     std::vector<spring2D::ptr> m_selected_springs;
-    std::vector<constraint2D *> m_selected_constraints;
+    std::vector<distance_joint2D::ptr> m_selected_djoints;
+
+    template <typename Joint> void add_joint_on_remove_callback(std::vector<typename Joint::ptr> &selected);
+    template <typename Joint> void update_selected_joints(std::vector<typename Joint::ptr> &selected);
+    void update_selected_joints();
 };
 } // namespace ppx::demo

@@ -25,22 +25,19 @@ selection_manager::selection_manager(demo_app &app)
                 ++it;
     };
 
-    // same callbacks but directly using += operator (no kit callback wrapper)
-    app.world.springs.events.on_late_removal += [this](const std::size_t index) {
-        for (auto it = m_selected_springs.begin(); it != m_selected_springs.end();)
+    add_joint_on_remove_callback<spring2D>(m_selected_springs);
+    add_joint_on_remove_callback<distance_joint2D>(m_selected_djoints);
+}
+
+template <typename Joint>
+void selection_manager::add_joint_on_remove_callback(std::vector<typename Joint::ptr> &selected)
+{
+    m_app.world.joints.manager<Joint>()->events.on_late_removal += [&selected](const std::size_t index) {
+        for (auto it = selected.begin(); it != selected.end();)
             if (!(*it))
-                it = m_selected_springs.erase(it);
+                it = selected.erase(it);
             else
                 ++it;
-    };
-
-    app.world.constraints.events.on_removal += [this](const constraint2D &ctr) {
-        for (auto it = m_selected_constraints.begin(); it != m_selected_constraints.end(); ++it)
-            if (**it == ctr)
-            {
-                m_selected_constraints.erase(it);
-                return;
-            }
     };
 }
 
@@ -192,21 +189,19 @@ bool selection_manager::is_selected(const collider2D::ptr &collider) const
     return m_selected_colliders.contains(collider);
 }
 
+template <typename Joint> void selection_manager::update_selected_joints(std::vector<typename Joint::ptr> &selected)
+{
+    selected.clear();
+    joint_container2D<Joint> *joints = m_app.world.joints.manager<Joint>();
+    for (Joint &joint : *joints)
+        if (m_selected_bodies.contains(joint.body1()) && m_selected_bodies.contains(joint.body2()))
+            selected.push_back(joint.as_ptr());
+}
+
 void selection_manager::update_selected_joints()
 {
-    m_selected_springs.clear();
-    m_selected_constraints.clear();
-
-    for (spring2D &sp : m_app.world.springs)
-        if (m_selected_bodies.contains(sp.joint.body1()) && m_selected_bodies.contains(sp.joint.body2()))
-            m_selected_springs.push_back(sp.as_ptr());
-
-    for (const auto &ctr : m_app.world.constraints)
-    {
-        distance_joint2D *dj = dynamic_cast<distance_joint2D *>(ctr.get());
-        if (dj && m_selected_bodies.contains(dj->joint.body1()) && m_selected_bodies.contains(dj->joint.body2()))
-            m_selected_constraints.push_back(ctr.get());
-    }
+    update_selected_joints<spring2D>(m_selected_springs);
+    update_selected_joints<distance_joint2D>(m_selected_djoints);
 }
 
 const std::unordered_set<body2D::ptr> &selection_manager::selected_bodies() const
@@ -216,15 +211,6 @@ const std::unordered_set<body2D::ptr> &selection_manager::selected_bodies() cons
 const std::unordered_set<collider2D::ptr> &selection_manager::selected_colliders() const
 {
     return m_selected_colliders;
-}
-
-const std::vector<spring2D::ptr> &selection_manager::selected_springs() const
-{
-    return m_selected_springs;
-}
-const std::vector<constraint2D *> &selection_manager::selected_constraints() const
-{
-    return m_selected_constraints;
 }
 
 YAML::Node selection_manager::encode() const

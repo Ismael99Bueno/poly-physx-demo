@@ -99,9 +99,12 @@ void entities_tab::render_single_body_properties(body2D &body)
     ImGui::DragFloat("Charge", &body.charge, drag_speed, 0.f, 0.f, format);
     ImGui::Text("Inertia: %.1f", body.props().nondynamic.inertia);
 
-    glm::vec2 pos = body.position();
-    if (ImGui::DragFloat2("Position", glm::value_ptr(pos), drag_speed, 0.f, 0.f, format))
-        body.position(pos);
+    const glm::vec2 &lpos = body.lposition();
+    ImGui::Text("Local position: (%.1f, %.1f)", lpos.x, lpos.y);
+
+    glm::vec2 gpos = body.gposition();
+    if (ImGui::DragFloat2("Global position", glm::value_ptr(gpos), drag_speed, 0.f, 0.f, format))
+        body.gposition(gpos);
 
     glm::vec2 centroid = body.centroid();
     if (ImGui::DragFloat2("Centroid", glm::value_ptr(centroid), drag_speed, 0.f, 0.f, format))

@@ -27,14 +27,13 @@ class grab_tab
     lynx::window2D *m_window;
 
     body2D::ptr m_body;
-    glm::vec2 m_anchor;
-    float m_rotation;
+    glm::vec2 m_lanchor;
     spring_line m_spring_line;
 
     float m_stiffness = 15.f;
     float m_damping = 6.f;
 
-    void apply_force_to_body(const glm::vec2 &rotanchor, const glm::vec2 &mpos) const;
+    void apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mpos) const;
 };
 
 } // namespace ppx::demo
