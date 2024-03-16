@@ -18,7 +18,7 @@ void constraints_tab::render_imgui_tab()
     {
         ImGui::SliderFloat("Baumgarte coefficient", &m_app->world.constraints.baumgarte_coef, 0.01f, 0.5f, "%.3f",
                            ImGuiSliderFlags_Logarithmic);
-        ImGui::SliderFloat("Baumgarte Threshold", &m_app->world.constraints.baumgarte_threshold, 0.01f, 0.5f, "%.3f",
+        ImGui::SliderFloat("Baumgarte threshold", &m_app->world.constraints.baumgarte_threshold, 0.f, 0.5f, "%.3f",
                            ImGuiSliderFlags_Logarithmic);
     }
 }

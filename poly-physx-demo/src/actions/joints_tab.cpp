@@ -23,7 +23,7 @@ void joints_tab::update()
     if (!m_body1)
         return;
 
-    const glm::vec2 ganchor = m_body1->local_position_point(m_lanchor1);
+    const glm::vec2 ganchor = m_body1->global_position_point(m_lanchor1);
     m_preview->p1(ganchor);
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
