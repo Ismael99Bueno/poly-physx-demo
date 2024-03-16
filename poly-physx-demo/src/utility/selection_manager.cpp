@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/utility/selection_manager.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx/serialization/serialization.hpp"
 #include "geo/algorithm/intersection.hpp"
 #include "kit/utility/utils.hpp"
 
