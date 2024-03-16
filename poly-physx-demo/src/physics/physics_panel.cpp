@@ -27,11 +27,12 @@ void physics_panel::on_attach()
 
     m_app->world.bodies.events.on_addition += [this](body2D &body) {
         for (behaviour2D *bhv : m_behaviours)
-            bhv->add(body.as_ptr());
+            if ((!body.is_kinematic() || !m_exclude_kinematic) && (!body.is_static() || !m_exclude_static))
+                bhv->add(body.as_ptr());
     };
 }
 
-template <typename T> static bool render_behaviour(T *bhv)
+template <typename T> bool physics_panel::render_behaviour(T *bhv, const float magdrag)
 {
     ImGui::PushID(bhv);
     bool changed = ImGui::Checkbox("##Behaviour enabled", &bhv->enabled);
@@ -39,16 +40,43 @@ template <typename T> static bool render_behaviour(T *bhv)
     ImGui::SameLine();
     if (ImGui::TreeNode(bhv, "%s", bhv->id.c_str()))
     {
-        changed |= ImGui::DragFloat("Magnitude", &bhv->magnitude, 0.3f, -FLT_MAX, FLT_MAX, "%.1f");
+        changed |= ImGui::DragFloat("Magnitude", &bhv->magnitude, magdrag, -FLT_MAX, FLT_MAX, "%.1f");
+        if constexpr (std::is_same_v<T, electrical>)
+            changed |= ImGui::SliderInt("Exponent", (int *)&bhv->exponent, 0, 10);
+        else if constexpr (std::is_same_v<T, drag>)
+            changed |= ImGui::DragFloat("Angular magnitude", &bhv->angular_magnitude, 0.3f, -FLT_MAX, FLT_MAX, "%.1f");
+        else if constexpr (std::is_same_v<T, exponential>)
+        {
+            ImGui::Checkbox("Logarithmic", &m_exp_mag_log);
+            int flags = m_exp_mag_log ? ImGuiSliderFlags_Logarithmic : 0;
+            changed |= ImGui::SliderFloat("Exponent magnitude", &bhv->exponent_magnitude, -1.f, 0.05f, "%.4f", flags);
+        }
         ImGui::TreePop();
     }
     return changed;
+}
+
+void physics_panel::render_exclude(const char *name, bool &exclude, const body2D::btype type)
+{
+    if (ImGui::Checkbox(name, &exclude))
+        for (body2D &body : m_app->world.bodies)
+            if (body.type() == type)
+            {
+                for (behaviour2D *bhv : m_behaviours)
+                    if (exclude)
+                        bhv->remove(body.as_ptr());
+                    else
+                        bhv->add(body.as_ptr());
+            }
 }
 
 void physics_panel::on_render(const float ts)
 {
     if (ImGui::Begin("Physics"))
     {
+        render_exclude("Exclude static", m_exclude_static, body2D::btype::STATIC);
+        render_exclude("Exclude kinematic", m_exclude_kinematic, body2D::btype::KINEMATIC);
+
         render_behaviour(m_gravity);
         render_behaviour(m_drag);
         if (render_behaviour(m_gravitational))
@@ -57,7 +85,7 @@ void physics_panel::on_render(const float ts)
             update_potential_data();
         if (render_behaviour(m_attractive))
             update_potential_data();
-        if (render_behaviour(m_exponential))
+        if (render_behaviour(m_exponential, 0.01f))
             update_potential_data();
 
         if (ImGui::CollapsingHeader("System's energy plot"))
@@ -156,4 +184,21 @@ void physics_panel::update_potential_data()
                     interaction->potential(unit, {m_potential_data[j].x, 0.f}) - potential_preference;
         }
 }
+
+YAML::Node physics_panel::encode() const
+{
+    YAML::Node node;
+    node["Exclude kinematic"] = m_exclude_kinematic;
+    node["Exclude static"] = m_exclude_static;
+    node["Logarithmic magnitude"] = m_exp_mag_log;
+    return node;
+}
+bool physics_panel::decode(const YAML::Node &node)
+{
+    m_exclude_kinematic = node["Exclude kinematic"].as<bool>();
+    m_exclude_static = node["Exclude static"].as<bool>();
+    m_exp_mag_log = node["Logarithmic magnitude"].as<bool>();
+    return true;
+}
+
 } // namespace ppx::demo

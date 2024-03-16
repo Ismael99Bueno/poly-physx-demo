@@ -65,8 +65,8 @@ class exponential : public interaction2D
   public:
     using interaction2D::interaction2D;
 
-    float magnitude = 200.f;
-    float exponent_magnitude = 1.f;
+    float magnitude = 1.f;
+    float exponent_magnitude = 0.01f;
 
     glm::vec3 force_pair(const body2D &body1, const body2D &body2) const override;
     float potential_energy_pair(const body2D &body1, const body2D &body2) const override;

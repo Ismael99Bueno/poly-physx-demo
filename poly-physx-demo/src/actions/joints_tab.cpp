@@ -101,9 +101,9 @@ const std::vector<typename Joint::ptr> *joints_tab::render_selected_properties(
 
         if (ImGui::Button("Remove selected"))
             to_remove.insert(to_remove.end(), selected.begin(), selected.end());
-        ImGui::TreePop();
+        return &selected;
     }
-    return &selected;
+    return nullptr;
 }
 
 void joints_tab::render_selected_spring_properties()
@@ -240,7 +240,6 @@ void joints_tab::render_imgui_tab()
             render_joints_list<distance_joint2D>();
         ImGui::EndTabItem();
     }
-
     ImGui::EndTabBar();
 }
 

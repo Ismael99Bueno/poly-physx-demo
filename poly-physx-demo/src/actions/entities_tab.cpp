@@ -102,6 +102,9 @@ void entities_tab::render_single_body_properties(body2D &body)
     const glm::vec2 &lpos = body.lposition();
     ImGui::Text("Local position: (%.1f, %.1f)", lpos.x, lpos.y);
 
+    const glm::vec2 &charge_centroid = body.charge_centroid();
+    ImGui::Text("Charge centroid: (%.1f, %.1f)", charge_centroid.x, charge_centroid.y);
+
     glm::vec2 gpos = body.gposition();
     if (ImGui::DragFloat2("Global position", glm::value_ptr(gpos), drag_speed, 0.f, 0.f, format))
         body.gposition(gpos);

@@ -43,7 +43,9 @@ glm::vec3 electrical::force_pair(const body2D &body1, const body2D &body2) const
         denominator *= dist;
 
     const glm::vec2 force = cte * (body1.charge_centroid() - body2.charge_centroid()) / denominator;
-    return glm::vec3(force, 0.f);
+    const glm::vec2 offset = body1.charge_centroid() - body1.centroid();
+    const float torque = kit::cross2D(offset, force);
+    return glm::vec3(force, torque);
 }
 float electrical::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
@@ -66,7 +68,9 @@ glm::vec3 exponential::force_pair(const body2D &body1, const body2D &body2) cons
 
     const glm::vec2 force =
         cte * glm::normalize(body1.charge_centroid() - body2.charge_centroid()) * expf(exponent_magnitude * dist);
-    return glm::vec3(force, 0.f);
+    const glm::vec2 offset = body1.charge_centroid() - body1.centroid();
+    const float torque = kit::cross2D(offset, force);
+    return glm::vec3(force, torque);
 }
 float exponential::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {

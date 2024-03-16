@@ -24,6 +24,10 @@ class physics_panel : public demo_layer
     glm::vec2 m_x_limits{-20.f, 20.f};
     std::array<glm::vec2, POTENTIAL_PLOT_POINTS_COUNT> m_potential_data;
 
+    bool m_exclude_kinematic = true;
+    bool m_exclude_static = true;
+    bool m_exp_mag_log = false;
+
     void on_attach() override;
     void on_render(float ts) override;
 
@@ -32,5 +36,11 @@ class physics_panel : public demo_layer
 
     void compare_and_update_x_limits(const glm::vec2 &new_x_limits);
     void update_potential_data();
+
+    template <typename T> bool render_behaviour(T *bhv, const float magdrag = 0.3f);
+    void render_exclude(const char *name, bool &exclude, body2D::btype type);
+
+    YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 };
 } // namespace ppx::demo
