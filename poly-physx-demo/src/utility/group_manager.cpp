@@ -60,6 +60,7 @@ void group_manager::update_preview_from_current_group()
 {
     m_shapes_preview.clear();
     m_bodies_preview_transforms.clear();
+    m_bodies_preview_transforms.reserve(m_current_group.bproxies.size()); // avoid realloc and pointer invalidation
 
     for (const body_proxy &bproxy : m_current_group.bproxies)
     {
