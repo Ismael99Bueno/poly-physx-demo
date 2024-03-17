@@ -22,14 +22,18 @@ demo_app::demo_app()
 void demo_app::on_late_start()
 {
     if (!std::filesystem::exists(menu_bar::SAVES_DIRECTORY))
-    {
         std::filesystem::create_directory(menu_bar::SAVES_DIRECTORY);
+
+    const bool default_exists = std::filesystem::exists(menu_bar::DEFAULT_SAVE_FILEPATH);
+    const bool last_exists = std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH);
+    if (!default_exists)
+    {
         add_walls();
         serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
     }
-    else if (std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH))
+    if (last_exists)
         deserialize(menu_bar::LAST_SAVE_FILEPATH);
-    else
+    else if (default_exists)
         add_walls();
 }
 

@@ -45,6 +45,11 @@ void menu_bar::on_render(const float ts)
         {
             if (ImGui::MenuItem("New", "Ctrl + N"))
                 new_session();
+            if (ImGui::BeginMenu("Examples", any_user_file_present(EXAMPLES_DIRECTORY)))
+            {
+                render_load_prompts(EXAMPLES_DIRECTORY);
+                ImGui::EndMenu();
+            }
 
             const bool active_session = has_active_session();
             if (ImGui::MenuItem("Save", "Ctrl + S", nullptr, active_session))
@@ -60,11 +65,6 @@ void menu_bar::on_render(const float ts)
             if (ImGui::BeginMenu("Load as...", any_user_file_present(SAVES_DIRECTORY)))
             {
                 load_as(SAVES_DIRECTORY);
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Examples", any_user_file_present(EXAMPLES_DIRECTORY)))
-            {
-                render_load_prompts(EXAMPLES_DIRECTORY);
                 ImGui::EndMenu();
             }
 
