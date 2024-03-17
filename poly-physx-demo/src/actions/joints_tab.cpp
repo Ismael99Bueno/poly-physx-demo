@@ -172,7 +172,8 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
     render_single_properties(dj, m_to_remove_djoints);
     ImGui::Spacing();
     ImGui::Text("Stress: %.5f", dj.constraint_value());
-    ImGui::DragFloat("Length", &dj.length, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::DragFloat("Min distance", &dj.min_distance, 0.3f, 0.f, dj.max_distance, "%.1f");
+    ImGui::DragFloat("Max distance", &dj.max_distance, 0.3f, dj.min_distance, FLT_MAX, "%.1f");
 }
 
 void joints_tab::render_selected_dist_joint_properties()
@@ -180,15 +181,23 @@ void joints_tab::render_selected_dist_joint_properties()
     auto selected = render_selected_properties<distance_joint2D>(m_to_remove_djoints);
     if (!selected)
         return;
-    float length = 0.f;
+    float min_distance = 0.f;
+    float max_distance = 0.f;
 
     for (const distance_joint2D::ptr &dj : *selected)
-        length += dj->length;
-    length /= selected->size();
+    {
+        min_distance += dj->min_distance;
+        max_distance += dj->max_distance;
+    }
+    min_distance /= selected->size();
+    max_distance /= selected->size();
 
-    if (ImGui::DragFloat("Length", &length, 0.3f, 0.f, FLT_MAX, "%.1f"))
+    if (ImGui::SliderFloat("Min distance", &min_distance, 0.f, max_distance, "%.1f"))
         for (const distance_joint2D::ptr &dj : *selected)
-            dj->length = length;
+            dj->min_distance = min_distance;
+    if (ImGui::SliderFloat("Max distance", &max_distance, min_distance, FLT_MAX, "%.1f"))
+        for (const distance_joint2D::ptr &dj : *selected)
+            dj->max_distance = max_distance;
     ImGui::TreePop();
 }
 
