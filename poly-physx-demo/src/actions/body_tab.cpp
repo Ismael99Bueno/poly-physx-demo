@@ -168,45 +168,41 @@ void body_tab::render_properties()
 
 void body_tab::render_colliders()
 {
-    if (ImGui::TreeNode("Colliders"))
+    std::size_t to_remove = SIZE_MAX;
+    for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
     {
-        std::size_t to_remove = SIZE_MAX;
-        for (std::size_t i = 0; i < m_current_proxy.cproxies.size(); i++)
-        {
-            auto &cprx = m_current_proxy.cproxies[i];
-            const char *name = cprx.name.c_str();
-            if (cprx.name.empty())
-                switch (cprx.type)
-                {
-                case collider_utils::proxy_type::RECT:
-                    name = "Rectangle";
-                    break;
-                case collider_utils::proxy_type::CIRCLE:
-                    name = "Circle";
-                    break;
-                case collider_utils::proxy_type::NGON:
-                    name = "NGon";
-                    break;
-                }
-            ImGui::PushID(&cprx);
-            if (ImGui::Button("X"))
-                to_remove = i;
-            ImGui::SameLine();
-            if (ImGui::Button("Add copy"))
-                m_current_proxy.cproxies.push_back(cprx);
-            ImGui::PopID();
-
-            ImGui::SameLine();
-            if (ImGui::TreeNode(&cprx, "%s", name))
+        auto &cprx = m_current_proxy.cproxies[i];
+        const char *name = cprx.name.c_str();
+        if (cprx.name.empty())
+            switch (cprx.type)
             {
-                collider_utils::render_shape_types_and_properties(cprx);
-                ImGui::TreePop();
+            case collider_utils::proxy_type::RECT:
+                name = "Rectangle";
+                break;
+            case collider_utils::proxy_type::CIRCLE:
+                name = "Circle";
+                break;
+            case collider_utils::proxy_type::NGON:
+                name = "NGon";
+                break;
             }
+        ImGui::PushID(&cprx);
+        if (ImGui::Button("X"))
+            to_remove = i;
+        ImGui::SameLine();
+        if (ImGui::Button("Add copy"))
+            m_current_proxy.cproxies.push_back(cprx);
+        ImGui::PopID();
+
+        ImGui::SameLine();
+        if (ImGui::TreeNode(&cprx, "%s", name))
+        {
+            collider_utils::render_shape_types_and_properties(cprx);
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
-        if (to_remove != SIZE_MAX)
-            m_current_proxy.cproxies.erase(m_current_proxy.cproxies.begin() + to_remove);
     }
+    if (to_remove != SIZE_MAX)
+        m_current_proxy.cproxies.erase(m_current_proxy.cproxies.begin() + to_remove);
 }
 
 void body_tab::render_collider_to_be_added_properties()
