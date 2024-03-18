@@ -286,7 +286,7 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
 
     specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
-    specs.ganchor2 = center_anchor2 ? mpos : body2->global_position_point(body2->centroid());
+    specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
 
     specs.bindex1 = m_body1->index;
     specs.bindex2 = body2->index;

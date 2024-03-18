@@ -16,8 +16,8 @@ void collider_utils::render_shape_types_and_properties(proxy &prx)
 
     ImGui::DragFloat("Density", &prx.specs.props.density, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Charge density", &prx.specs.props.charge_density, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Friction", &prx.specs.props.friction, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Restitution", &prx.specs.props.restitution, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::SliderFloat("Friction", &prx.specs.props.friction, 0.f, 1.f, format);
+    ImGui::SliderFloat("Restitution", &prx.specs.props.restitution, 0.f, 1.f, format);
 
     switch (prx.type)
     {
