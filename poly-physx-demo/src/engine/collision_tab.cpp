@@ -26,7 +26,7 @@ void collision_tab::update()
     if (m_visualize_qtree && qtdet)
     {
         m_qt_active_partitions = 0;
-        update_quad_tree_lines(qtdet->qtree());
+        update_quad_tree_lines(qtdet->quad_tree().root());
     }
 }
 
@@ -225,9 +225,9 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
 {
     ImGui::Checkbox("Force square shape", &qtdet.force_square_shape);
 
-    ImGui::SliderInt("Max bodies per quadrant", (int *)&quad_tree::max_colliders, 2, 20);
-    ImGui::SliderInt("Max tree depth", (int *)&quad_tree::max_depth, 2, 20);
-    ImGui::SliderFloat("Min quadrant size", &quad_tree::min_size, 4.f, 50.f);
+    auto &props = qtdet.quad_tree().props();
+    ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
+    ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
 
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
     if (m_visualize_qtree)
@@ -270,14 +270,14 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
     return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
 }
 
-void collision_tab::update_quad_tree_lines(const quad_tree &qt)
+void collision_tab::update_quad_tree_lines(const kit::quad_tree<collider2D *>::node &qtnode)
 {
-    if (qt.partitioned())
-        for (const auto &child : qt.children())
+    if (qtnode.partitioned)
+        for (auto child : qtnode.quads())
             update_quad_tree_lines(*child);
     else
     {
-        const std::vector<glm::vec2> points = get_bbox_points(qt.aabb);
+        const std::vector<glm::vec2> points = get_bbox_points(qtnode.aabb);
         if (m_qt_active_partitions < m_qt_lines.size())
             for (std::size_t i = 0; i < points.size(); i++)
                 m_qt_lines[m_qt_active_partitions][i].position = points[i];
