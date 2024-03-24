@@ -11,35 +11,16 @@ selection_manager::selection_manager(demo_app &app)
     : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
 {
     m_window = m_app.window();
-    app.world.bodies.events.on_late_removal += [this](const std::size_t index) {
-        for (auto it = m_selected_bodies.begin(); it != m_selected_bodies.end();)
-            if (!(*it))
-                it = m_selected_bodies.erase(it);
-            else
-                ++it;
-    };
-    app.world.colliders.events.on_late_removal += [this](const std::size_t index) {
-        for (auto it = m_selected_colliders.begin(); it != m_selected_colliders.end();)
-            if (!(*it))
-                it = m_selected_colliders.erase(it);
-            else
-                ++it;
-    };
+    app.world.bodies.events.on_removal += [this](body2D &body) { m_selected_bodies.erase(&body); };
+    app.world.colliders.events.on_removal += [this](collider2D &collider) { m_selected_colliders.erase(&collider); };
 
     add_joint_on_remove_callback<spring2D>(m_selected_springs);
     add_joint_on_remove_callback<distance_joint2D>(m_selected_djoints);
 }
 
-template <typename Joint>
-void selection_manager::add_joint_on_remove_callback(std::vector<typename Joint::ptr> &selected)
+template <typename Joint> void selection_manager::add_joint_on_remove_callback(std::unordered_set<Joint *> &selected)
 {
-    m_app.world.joints.manager<Joint>()->events.on_late_removal += [&selected](const std::size_t index) {
-        for (auto it = selected.begin(); it != selected.end();)
-            if (!(*it))
-                it = selected.erase(it);
-            else
-                ++it;
-    };
+    m_app.world.joints.manager<Joint>()->events.on_removal += [&selected](Joint &joint) { selected.erase(&joint); };
 }
 
 static float oscillating_thickness(const float time)
@@ -61,11 +42,11 @@ void selection_manager::update()
 {
     if (!m_selecting)
     {
-        for (const collider2D::ptr &collider : m_selected_colliders)
+        for (collider2D *collider : m_selected_colliders)
         {
-            const auto &shape = m_app.shapes()[collider->index];
+            const auto &shape = m_app.shapes().at(collider);
             shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
-            if (is_selected(collider->parent()))
+            if (is_selected(collider->body()))
             {
                 if (!compare_colors(shape->outline_color(), body_selection_color))
                     shape->outline_color(body_selection_color);
@@ -75,14 +56,13 @@ void selection_manager::update()
         }
         return;
     }
-    for (std::size_t i = 0; i < m_app.world.colliders.size(); i++)
+    for (collider2D *collider : m_app.world.colliders)
     {
-        const collider2D::ptr collider = m_app.world.colliders.ptr(i);
-        const auto &shape = m_app.shapes()[i];
+        const auto &shape = m_app.shapes().at(collider);
         if (is_selecting(collider))
         {
             shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
-            if (is_selecting(collider->parent()))
+            if (is_selecting(collider->body()))
             {
                 if (!compare_colors(shape->outline_color(), body_selection_color))
                     shape->outline_color(body_selection_color);
@@ -135,25 +115,25 @@ void selection_manager::end_selection()
     if (!m_selecting)
         return;
     for (body2D *body : m_app.world.bodies[m_selection_boundaries])
-        m_selected_bodies.insert(body->as_ptr());
+        m_selected_bodies.insert(body);
     for (collider2D *collider : m_app.world.colliders[m_selection_boundaries])
-        m_selected_colliders.insert(collider->as_ptr());
+        m_selected_colliders.insert(collider);
 
     m_selecting = false;
     update_selected_joints();
 }
 
-void selection_manager::select(const body2D::ptr &body)
+void selection_manager::select(body2D *body)
 {
     m_selected_bodies.insert(body);
     update_selected_joints();
 }
-void selection_manager::deselect(const body2D::ptr &body)
+void selection_manager::deselect(body2D *body)
 {
     m_selected_bodies.erase(body);
     update_selected_joints();
 }
-bool selection_manager::is_selecting(const body2D::ptr &body) const
+bool selection_manager::is_selecting(body2D *body) const
 {
     if (!m_selecting)
         return false;
@@ -161,42 +141,42 @@ bool selection_manager::is_selecting(const body2D::ptr &body) const
         return geo::intersects(m_selection_boundaries, body->centroid());
     if (m_selected_bodies.contains(body))
         return true;
-    for (const collider2D &collider : *body)
-        if (!geo::intersects(m_selection_boundaries, collider.bounding_box()))
+    for (const collider2D *collider : *body)
+        if (!geo::intersects(m_selection_boundaries, collider->bounding_box()))
             return false;
     return true;
 }
-bool selection_manager::is_selected(const body2D::ptr &body) const
+bool selection_manager::is_selected(body2D *body) const
 {
     return m_selected_bodies.contains(body);
 }
 
-void selection_manager::select(const collider2D::ptr &collider)
+void selection_manager::select(collider2D *collider)
 {
     m_selected_colliders.insert(collider);
 }
-void selection_manager::deselect(const collider2D::ptr &collider)
+void selection_manager::deselect(collider2D *collider)
 {
     m_selected_colliders.erase(collider);
-    m_app.shapes()[collider->index]->outline_thickness = 0.f;
+    m_app.shapes().at(collider)->outline_thickness = 0.f;
 }
-bool selection_manager::is_selecting(const collider2D::ptr &collider) const
+bool selection_manager::is_selecting(collider2D *collider) const
 {
     return (m_selecting && geo::intersects(m_selection_boundaries, collider->bounding_box())) ||
            m_selected_colliders.contains(collider);
 }
-bool selection_manager::is_selected(const collider2D::ptr &collider) const
+bool selection_manager::is_selected(collider2D *collider) const
 {
     return m_selected_colliders.contains(collider);
 }
 
-template <typename Joint> void selection_manager::update_selected_joints(std::vector<typename Joint::ptr> &selected)
+template <typename Joint> void selection_manager::update_selected_joints(std::unordered_set<Joint *> &selected)
 {
     selected.clear();
     joint_container2D<Joint> *joints = m_app.world.joints.manager<Joint>();
-    for (Joint &joint : *joints)
-        if (m_selected_bodies.contains(joint.body1()) && m_selected_bodies.contains(joint.body2()))
-            selected.push_back(joint.as_ptr());
+    for (Joint *joint : *joints)
+        if (m_selected_bodies.contains(joint->body1()) && m_selected_bodies.contains(joint->body2()))
+            selected.insert(joint);
 }
 
 void selection_manager::update_selected_joints()
@@ -205,11 +185,11 @@ void selection_manager::update_selected_joints()
     update_selected_joints<distance_joint2D>(m_selected_djoints);
 }
 
-const std::unordered_set<body2D::ptr> &selection_manager::selected_bodies() const
+const std::unordered_set<body2D *> &selection_manager::selected_bodies() const
 {
     return m_selected_bodies;
 }
-const std::unordered_set<collider2D::ptr> &selection_manager::selected_colliders() const
+const std::unordered_set<collider2D *> &selection_manager::selected_colliders() const
 {
     return m_selected_colliders;
 }
@@ -217,7 +197,7 @@ const std::unordered_set<collider2D::ptr> &selection_manager::selected_colliders
 YAML::Node selection_manager::encode() const
 {
     YAML::Node node;
-    for (const body2D::ptr &body : m_selected_bodies)
+    for (body2D *body : m_selected_bodies)
         node["Bodies"].push_back(body->index);
     node["Bodies"].SetStyle(YAML::EmitterStyle::Flow);
     return node;
@@ -230,7 +210,7 @@ void selection_manager::decode(const YAML::Node &node)
         for (const YAML::Node &n : node["Bodies"])
         {
             const std::size_t index = n.as<std::size_t>();
-            m_selected_bodies.insert(m_app.world.bodies.ptr(index));
+            m_selected_bodies.insert(m_app.world.bodies[index]);
         }
         update_selected_joints();
     }

@@ -90,7 +90,7 @@ class group_manager
 
     template <typename Joint>
     void add_joints_to_group(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
-                             const std::vector<kit::uuid> &selected_ids, std::size_t idx1, std::size_t idx2);
+                             const std::vector<const body2D *> &selected_bodies, std::size_t idx1, std::size_t idx2);
 
     void update_preview_from_current_group();
     template <typename Specs, typename Line>

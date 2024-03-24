@@ -83,8 +83,8 @@ void collision_tab::render_collisions_list() const
     if (ImGui::TreeNode("Collisions"))
     {
         for (const collision2D &col : m_app->world.collisions)
-            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.collider1->id).c_str(),
-                                kit::uuid::name_from_id(col.collider2->id).c_str()))
+            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
+                                kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
                 ImGui::Text("Contact points: %u", col.manifold.size);
                 ImGui::Text("Normal - x: %.2f, y: %.2f", col.mtv.x, col.mtv.y);
@@ -239,20 +239,20 @@ void collision_tab::render_constraint_driven_parameters(constraint_driven_resolu
     float friction = 0.f;
     float restitution = 0.f;
 
-    for (const collider2D &collider : m_app->world.colliders)
+    for (const collider2D *collider : m_app->world.colliders)
     {
-        friction += collider.friction;
-        restitution += collider.restitution;
+        friction += collider->friction;
+        restitution += collider->restitution;
     }
     friction /= m_app->world.colliders.size();
     restitution /= m_app->world.colliders.size();
 
     if (ImGui::SliderFloat("Friction", &friction, 0.f, 1.f))
-        for (collider2D &collider : m_app->world.colliders)
-            collider.friction = friction;
+        for (collider2D *collider : m_app->world.colliders)
+            collider->friction = friction;
     if (ImGui::SliderFloat("Restitution", &restitution, 0.f, 1.f))
-        for (collider2D &collider : m_app->world.colliders)
-            collider.restitution = restitution;
+        for (collider2D *collider : m_app->world.colliders)
+            collider->restitution = restitution;
     ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
 }
 
@@ -291,7 +291,7 @@ void collision_tab::update_bounding_boxes()
 {
     for (std::size_t i = 0; i < m_app->world.colliders.size(); i++)
     {
-        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.colliders[i].bounding_box());
+        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.colliders[i]->bounding_box());
         if (i < m_bbox_lines.size())
             for (std::size_t j = 0; j < points.size(); j++)
                 m_bbox_lines[i][j].position = points[j];

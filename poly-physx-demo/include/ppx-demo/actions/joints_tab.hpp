@@ -41,7 +41,7 @@ class joints_tab
     demo_app *m_app;
     lynx::window2D *m_window;
 
-    body2D::ptr m_body1;
+    body2D *m_body1 = nullptr;
     glm::vec2 m_lanchor1;
 
     joint_type m_joint_type = joint_type::SPRING;
@@ -51,22 +51,20 @@ class joints_tab
     distance_joint2D::specs m_dist_joint_specs;
     bool m_auto_spring_length = false;
 
-    std::vector<spring2D::const_ptr> m_to_remove_springs;
-    std::vector<distance_joint2D::const_ptr> m_to_remove_djoints;
+    std::vector<const spring2D *> m_to_remove_springs;
+    std::vector<const distance_joint2D *> m_to_remove_djoints;
+
+    template <typename Joint> void render_single_properties(Joint *joint, std::vector<const Joint *> &to_remove);
 
     template <typename Joint>
-    void render_single_properties(Joint &joint, std::vector<typename Joint::const_ptr> &to_remove);
-
-    template <typename Joint>
-    const std::vector<typename Joint::ptr> *render_selected_properties(
-        std::vector<typename Joint::const_ptr> &to_remove);
+    const std::unordered_set<Joint *> *render_selected_properties(std::vector<const Joint *> &to_remove);
 
     template <typename Joint> void render_joints_list();
 
-    void render_single_spring_properties(spring2D &sp);
+    void render_single_spring_properties(spring2D *sp);
     void render_selected_spring_properties();
 
-    void render_single_dist_joint_properties(distance_joint2D &rj);
+    void render_single_dist_joint_properties(distance_joint2D *dj);
     void render_selected_dist_joint_properties();
 
     template <typename T> void render_joint_properties(T &specs);

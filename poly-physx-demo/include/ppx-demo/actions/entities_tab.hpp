@@ -19,15 +19,15 @@ class entities_tab
   private:
     demo_app *m_app;
     lynx::window2D *m_window;
-    std::vector<body2D::const_ptr> m_bodies_to_remove; // Because bodies cannot be removed when rendering
-    std::vector<collider2D::const_ptr> m_colliders_to_remove;
+    std::vector<const body2D *> m_bodies_to_remove; // Because bodies cannot be removed when rendering
+    std::vector<const collider2D *> m_colliders_to_remove;
 
     bool m_signal_clear_bodies = false;
 
     void render_general_options();
 
-    void render_single_body_properties(body2D &body);
-    void render_single_collider_properties(collider2D &collider);
+    void render_single_body_properties(body2D *body);
+    void render_single_collider_properties(collider2D *collider);
 
     void render_selected_bodies_properties();
     void render_selected_colliders_properties();

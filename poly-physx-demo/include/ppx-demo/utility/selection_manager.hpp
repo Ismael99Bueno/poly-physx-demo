@@ -26,20 +26,20 @@ class selection_manager
     void begin_selection(bool override_current);
     void end_selection();
 
-    void select(const body2D::ptr &body);
-    void deselect(const body2D::ptr &body);
-    bool is_selecting(const body2D::ptr &body) const;
-    bool is_selected(const body2D::ptr &body) const;
+    void select(body2D *body);
+    void deselect(body2D *body);
+    bool is_selecting(body2D *body) const;
+    bool is_selected(body2D *body) const;
 
-    void select(const collider2D::ptr &body);
-    void deselect(const collider2D::ptr &body);
-    bool is_selecting(const collider2D::ptr &body) const;
-    bool is_selected(const collider2D::ptr &body) const;
+    void select(collider2D *collider);
+    void deselect(collider2D *collider);
+    bool is_selecting(collider2D *collider) const;
+    bool is_selected(collider2D *collider) const;
 
-    const std::unordered_set<body2D::ptr> &selected_bodies() const;
-    const std::unordered_set<collider2D::ptr> &selected_colliders() const;
+    const std::unordered_set<body2D *> &selected_bodies() const;
+    const std::unordered_set<collider2D *> &selected_colliders() const;
 
-    template <typename Joint> const std::vector<typename Joint::ptr> &selected_joints() const
+    template <typename Joint> const std::unordered_set<Joint *> &selected_joints() const
     {
         if constexpr (std::is_same_v<Joint, spring2D>)
             return m_selected_springs;
@@ -58,14 +58,14 @@ class selection_manager
     aabb2D m_selection_boundaries;
 
     lynx::line_strip2D m_selection_outline;
-    std::unordered_set<body2D::ptr> m_selected_bodies;
-    std::unordered_set<collider2D::ptr> m_selected_colliders;
+    std::unordered_set<body2D *> m_selected_bodies;
+    std::unordered_set<collider2D *> m_selected_colliders;
 
-    std::vector<spring2D::ptr> m_selected_springs;
-    std::vector<distance_joint2D::ptr> m_selected_djoints;
+    std::unordered_set<spring2D *> m_selected_springs;
+    std::unordered_set<distance_joint2D *> m_selected_djoints;
 
-    template <typename Joint> void add_joint_on_remove_callback(std::vector<typename Joint::ptr> &selected);
-    template <typename Joint> void update_selected_joints(std::vector<typename Joint::ptr> &selected);
+    template <typename Joint> void add_joint_on_remove_callback(std::unordered_set<Joint *> &selected);
+    template <typename Joint> void update_selected_joints(std::unordered_set<Joint *> &selected);
     void update_selected_joints();
 };
 } // namespace ppx::demo

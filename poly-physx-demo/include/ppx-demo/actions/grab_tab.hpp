@@ -26,7 +26,7 @@ class grab_tab
     demo_app *m_app;
     lynx::window2D *m_window;
 
-    body2D::ptr m_body;
+    body2D *m_body = nullptr;
     glm::vec2 m_lanchor;
     spring_line m_spring_line;
 

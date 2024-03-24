@@ -137,7 +137,7 @@ void group_manager::paste_group()
         specs.position += offset_pos;
         specs.velocity = glm::vec2{0.f};
         specs.angular_velocity = 0.f;
-        added_indices.push_back(m_app.world.bodies.add(specs).index);
+        added_indices.push_back(m_app.world.bodies.add(specs)->index);
     }
 
     paste_joints<spring2D>(m_current_group.sproxies, added_indices);
@@ -162,25 +162,25 @@ group_manager::group group_manager::create_group_from_selected()
     const auto &selected = m_app.selector.selected_bodies();
     constexpr std::uint32_t alpha = 120;
 
-    std::vector<kit::uuid> selected_ids;
-    for (const body2D::ptr &body : selected)
+    std::vector<const body2D *> selected_bodies;
+    for (body2D *body : selected)
     {
         body_proxy bproxy;
         bproxy.specs = body2D::specs::from_instance(*body);
-        for (const collider2D &collider : *body)
-            bproxy.cproxies.push_back({.color = lynx::color{m_app.shapes()[collider.index]->color(), alpha},
-                                       .specs = collider2D::specs::from_instance(collider)});
+        for (collider2D *collider : *body)
+            bproxy.cproxies.push_back({.color = lynx::color{m_app.shapes().at(collider)->color(), alpha},
+                                       .specs = collider2D::specs::from_instance(*collider)});
         fresh_group.bproxies.push_back(bproxy);
         fresh_group.mean_position += body->gposition();
-        selected_ids.push_back(body->id);
+        selected_bodies.push_back(body);
     }
     fresh_group.mean_position /= fresh_group.bproxies.size();
 
-    for (std::size_t i = 0; i < selected_ids.size(); i++)
-        for (std::size_t j = i + 1; j < selected_ids.size(); j++)
+    for (std::size_t i = 0; i < selected_bodies.size(); i++)
+        for (std::size_t j = i + 1; j < selected_bodies.size(); j++)
         {
-            add_joints_to_group<spring2D>(fresh_group.sproxies, selected_ids, i, j);
-            add_joints_to_group<distance_joint2D>(fresh_group.djproxies, selected_ids, i, j);
+            add_joints_to_group<spring2D>(fresh_group.sproxies, selected_bodies, i, j);
+            add_joints_to_group<distance_joint2D>(fresh_group.djproxies, selected_bodies, i, j);
         }
 
     return fresh_group;
@@ -188,16 +188,18 @@ group_manager::group group_manager::create_group_from_selected()
 
 template <typename Joint>
 void group_manager::add_joints_to_group(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
-                                        const std::vector<kit::uuid> &selected_ids, std::size_t idx1, std::size_t idx2)
+                                        const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
+                                        std::size_t idx2)
 {
     using Specs = typename Joint::specs;
-    const kit::uuid id1 = selected_ids[idx1];
-    const kit::uuid id2 = selected_ids[idx2];
+    const body2D *body1 = selected_bodies[idx1];
+    const body2D *body2 = selected_bodies[idx2];
+
     const joint_container2D<Joint> *jmanager = m_app.world.joints.manager<Joint>();
-    for (const Joint *joint : jmanager->from_body_ids(id1, id2))
+    for (const Joint *joint : jmanager->from_bodies(body1, body2))
     {
         const lynx::color color{m_app.joint_color, 120u};
-        const bool reversed = id1 != joint->body1()->id;
+        const bool reversed = body1 != joint->body1();
         jproxies.push_back({.bprox_index1 = reversed ? idx2 : idx1,
                             .bprox_index2 = reversed ? idx1 : idx2,
                             .color = color,

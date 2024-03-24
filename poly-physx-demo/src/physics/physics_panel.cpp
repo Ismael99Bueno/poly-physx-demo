@@ -25,10 +25,10 @@ void physics_panel::on_attach()
     m_attractive->exponent = 1;
     m_attractive->magnitude = -20.f;
 
-    m_app->world.bodies.events.on_addition += [this](body2D &body) {
+    m_app->world.bodies.events.on_addition += [this](body2D *body) {
         for (behaviour2D *bhv : m_behaviours)
-            if ((!body.is_kinematic() || !m_exclude_kinematic) && (!body.is_static() || !m_exclude_static))
-                bhv->add(body.as_ptr());
+            if ((!body->is_kinematic() || !m_exclude_kinematic) && (!body->is_static() || !m_exclude_static))
+                bhv->add(body);
     };
 }
 
@@ -59,14 +59,14 @@ template <typename T> bool physics_panel::render_behaviour(T *bhv, const float m
 void physics_panel::render_exclude(const char *name, bool &exclude, const body2D::btype type)
 {
     if (ImGui::Checkbox(name, &exclude))
-        for (body2D &body : m_app->world.bodies)
-            if (body.type() == type)
+        for (body2D *body : m_app->world.bodies)
+            if (body->type() == type)
             {
                 for (behaviour2D *bhv : m_behaviours)
                     if (exclude)
-                        bhv->remove(body.as_ptr());
+                        bhv->remove(body);
                     else
-                        bhv->add(body.as_ptr());
+                        bhv->add(body);
             }
 }
 

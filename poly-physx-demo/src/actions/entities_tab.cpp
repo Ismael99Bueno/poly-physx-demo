@@ -14,12 +14,12 @@ void entities_tab::update()
     if (m_signal_clear_bodies)
         m_app->world.bodies.clear();
     else
-        for (const body2D::const_ptr &body : m_bodies_to_remove)
+        for (const body2D *body : m_bodies_to_remove)
             if (body)
-                m_app->world.bodies.remove(*body);
-    for (const collider2D::const_ptr &collider : m_colliders_to_remove)
+                m_app->world.bodies.remove(body);
+    for (const collider2D *collider : m_colliders_to_remove)
         if (collider)
-            m_app->world.colliders.remove(*collider);
+            m_app->world.colliders.remove(collider);
 
     m_bodies_to_remove.clear();
     m_colliders_to_remove.clear();
@@ -43,9 +43,9 @@ void entities_tab::render_general_options()
 {
     m_signal_clear_bodies = ImGui::Button("Remove all");
     if (ImGui::Button("Remove empty"))
-        for (const body2D &body : m_app->world.bodies)
-            if (body.empty())
-                m_bodies_to_remove.push_back(body.as_ptr());
+        for (const body2D *body : m_app->world.bodies)
+            if (body->empty())
+                m_bodies_to_remove.push_back(body);
 
     ImGui::SameLine();
     if (ImGui::Button("Add walls"))
@@ -54,8 +54,8 @@ void entities_tab::render_general_options()
 
 void entities_tab::render_bodies_list()
 {
-    for (body2D &body : m_app->world.bodies)
-        if (ImGui::TreeNode(&body, "%s", kit::uuid::name_from_id(body.id).c_str()))
+    for (body2D *body : m_app->world.bodies)
+        if (ImGui::TreeNode(body, "%s", kit::uuid::name_from_ptr(body).c_str()))
         {
             render_single_body_properties(body);
             ImGui::TreePop();
@@ -63,76 +63,73 @@ void entities_tab::render_bodies_list()
 }
 void entities_tab::render_colliders_list()
 {
-    for (collider2D &collider : m_app->world.colliders)
-        if (ImGui::TreeNode(&collider, "%s", kit::uuid::name_from_id(collider.id).c_str()))
+    for (collider2D *collider : m_app->world.colliders)
+        if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
         {
             render_single_collider_properties(collider);
             ImGui::TreePop();
         }
 }
 
-void entities_tab::render_single_body_properties(body2D &body)
+void entities_tab::render_single_body_properties(body2D *body)
 {
-    const auto body_ptr = body.as_ptr();
-
-    if (m_app->selector.is_selected(body_ptr) && ImGui::Button("Deselect"))
-        m_app->selector.deselect(body_ptr);
-    if (!m_app->selector.is_selected(body_ptr) && ImGui::Button("Select"))
-        m_app->selector.select(body_ptr);
+    if (m_app->selector.is_selected(body) && ImGui::Button("Deselect"))
+        m_app->selector.deselect(body);
+    if (!m_app->selector.is_selected(body) && ImGui::Button("Select"))
+        m_app->selector.select(body);
 
     if (ImGui::Button("Remove"))
-        m_bodies_to_remove.push_back(body_ptr);
+        m_bodies_to_remove.push_back(body);
 
-    ImGui::Text("Name: %s", kit::uuid::name_from_id(body.id).c_str());
-    ImGui::Text("UUID: %llu", (std::uint64_t)body.id);
+    ImGui::Text("Name: %s", kit::uuid::name_from_ptr(body).c_str());
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    auto tp = body.type();
+    auto tp = body->type();
     if (ImGui::Combo("Type", (int *)&tp, "Dynamic\0Kinematic\0Static\0\0"))
-        body.type(tp);
+        body->type(tp);
 
-    float mass = body.props().nondynamic.mass;
+    float mass = body->props().nondynamic.mass;
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
-        body.mass(mass);
-    ImGui::DragFloat("Charge", &body.charge, drag_speed, 0.f, 0.f, format);
-    ImGui::Text("Inertia: %.1f", body.props().nondynamic.inertia);
+        body->mass(mass);
+    ImGui::DragFloat("Charge", &body->charge, drag_speed, 0.f, 0.f, format);
+    ImGui::Text("Inertia: %.1f", body->props().nondynamic.inertia);
 
-    const glm::vec2 &lpos = body.lposition();
+    const glm::vec2 &lpos = body->lposition();
     ImGui::Text("Local position: (%.1f, %.1f)", lpos.x, lpos.y);
 
-    const glm::vec2 &charge_centroid = body.charge_centroid();
+    const glm::vec2 &charge_centroid = body->charge_centroid();
     ImGui::Text("Charge centroid: (%.1f, %.1f)", charge_centroid.x, charge_centroid.y);
 
-    glm::vec2 gpos = body.gposition();
+    glm::vec2 gpos = body->gposition();
     if (ImGui::DragFloat2("Global position", glm::value_ptr(gpos), drag_speed, 0.f, 0.f, format))
-        body.gposition(gpos);
+        body->gposition(gpos);
 
-    glm::vec2 centroid = body.centroid();
+    glm::vec2 centroid = body->centroid();
     if (ImGui::DragFloat2("Centroid", glm::value_ptr(centroid), drag_speed, 0.f, 0.f, format))
-        body.centroid(centroid);
+        body->centroid(centroid);
 
-    ImGui::DragFloat2("Velocity", glm::value_ptr(body.velocity), drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat2("Velocity", glm::value_ptr(body->velocity), drag_speed, 0.f, 0.f, format);
 
-    float rotation = body.rotation();
+    float rotation = body->rotation();
     if (ImGui::DragFloat("Rotation", &rotation, 0.1f * drag_speed, 0.f, 0.f, format))
-        body.rotation(rotation);
+        body->rotation(rotation);
 
-    ImGui::DragFloat("Angular velocity", &body.angular_velocity, drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat("Angular velocity", &body->angular_velocity, drag_speed, 0.f, 0.f, format);
 
-    const glm::vec2 force = body.force();
+    const glm::vec2 force = body->force();
     ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
-    ImGui::DragFloat2("Force modifier", glm::value_ptr(body.persistent_force), drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat2("Force modifier", glm::value_ptr(body->persistent_force), drag_speed, 0.f, 0.f, format);
 
-    const float torque = body.torque();
+    const float torque = body->torque();
     ImGui::Text("Torque: %.1f", torque);
-    ImGui::DragFloat("Torque modifier", &body.persistent_torque, drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat("Torque modifier", &body->persistent_torque, drag_speed, 0.f, 0.f, format);
 
     if (ImGui::TreeNode("Colliders"))
     {
-        for (collider2D &collider : body)
-            if (ImGui::TreeNode(&collider, "%s", kit::uuid::name_from_id(collider.id).c_str()))
+        for (collider2D *collider : *body)
+            if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
             {
                 render_single_collider_properties(collider);
                 ImGui::TreePop();
@@ -151,51 +148,49 @@ static void display_vertices(const kit::dynarray<glm::vec2, PPX_MAX_VERTICES> &v
     }
 }
 
-void entities_tab::render_single_collider_properties(collider2D &collider)
+void entities_tab::render_single_collider_properties(collider2D *collider)
 {
-    const auto collider_ptr = collider.as_ptr();
-
-    if (m_app->selector.is_selected(collider_ptr) && ImGui::Button("Deselect"))
-        m_app->selector.deselect(collider_ptr);
-    if (!m_app->selector.is_selected(collider_ptr) && ImGui::Button("Select"))
-        m_app->selector.select(collider_ptr);
+    if (m_app->selector.is_selected(collider) && ImGui::Button("Deselect"))
+        m_app->selector.deselect(collider);
+    if (!m_app->selector.is_selected(collider) && ImGui::Button("Select"))
+        m_app->selector.select(collider);
 
     if (ImGui::Button("Remove"))
-        m_colliders_to_remove.push_back(collider_ptr);
+        m_colliders_to_remove.push_back(collider);
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    float density = collider.density();
+    float density = collider->density();
     if (ImGui::DragFloat("Density", &density, drag_speed, 0.f, 0.f, format))
-        collider.density(density);
+        collider->density(density);
 
-    float charge_density = collider.charge_density();
+    float charge_density = collider->charge_density();
     if (ImGui::DragFloat("Charge density", &charge_density, drag_speed, 0.f, 0.f, format))
-        collider.charge_density(charge_density);
+        collider->charge_density(charge_density);
 
-    ImGui::SliderFloat("Friction", &collider.friction, 0.f, 1.f, format);
-    ImGui::SliderFloat("Restitution", &collider.restitution, 1.f, 0.f, format);
+    ImGui::SliderFloat("Friction", &collider->friction, 0.f, 1.f, format);
+    ImGui::SliderFloat("Restitution", &collider->restitution, 1.f, 0.f, format);
 
-    glm::vec2 lpos = collider.lposition();
+    glm::vec2 lpos = collider->lposition();
     if (ImGui::DragFloat2("Local position", glm::value_ptr(lpos), drag_speed, 0.f, 0.f, format))
-        collider.lposition(lpos);
+        collider->lposition(lpos);
 
-    glm::vec2 lcentroid = collider.lcentroid();
+    glm::vec2 lcentroid = collider->lcentroid();
     if (ImGui::DragFloat2("Local centroid", glm::value_ptr(lcentroid), drag_speed, 0.f, 0.f, format))
-        collider.lcentroid(lcentroid);
-    glm::vec2 gcentroid = collider.gcentroid();
+        collider->lcentroid(lcentroid);
+    glm::vec2 gcentroid = collider->gcentroid();
     if (ImGui::DragFloat2("Global centroid", glm::value_ptr(gcentroid), drag_speed, 0.f, 0.f, format))
-        collider.gcentroid(gcentroid);
+        collider->gcentroid(gcentroid);
 
-    float lrotation = collider.lrotation();
+    float lrotation = collider->lrotation();
     if (ImGui::DragFloat("Local rotation", &lrotation, 0.1f * drag_speed, 0.f, 0.f, format))
-        collider.lrotation(lrotation);
+        collider->lrotation(lrotation);
 
-    ImGui::Text("Area: %.1f", collider.area());
-    ImGui::Text("Inertia: %.1f", collider.inertia());
+    ImGui::Text("Area: %.1f", collider->area());
+    ImGui::Text("Inertia: %.1f", collider->inertia());
 
-    if (const auto *poly = collider.shape_if<polygon>())
+    if (const auto *poly = collider->shape_if<polygon>())
     {
         if (ImGui::TreeNode("Vertices"))
         {
@@ -206,7 +201,7 @@ void entities_tab::render_single_collider_properties(collider2D &collider)
         }
     }
     else
-        ImGui::Text("Radius: %.1f", collider.shape<circle>().radius());
+        ImGui::Text("Radius: %.1f", collider->shape<circle>().radius());
 }
 
 void entities_tab::render_selected_bodies_properties()
@@ -223,7 +218,7 @@ void entities_tab::render_selected_bodies_properties()
         }
         if (selected.size() == 1)
         {
-            render_single_body_properties(**selected.begin());
+            render_single_body_properties(*selected.begin());
             ImGui::TreePop();
             return;
         }
@@ -237,7 +232,7 @@ void entities_tab::render_selected_bodies_properties()
         float mass = 0.f;
         float charge = 0.f;
 
-        for (const body2D::ptr &body : selected)
+        for (body2D *body : selected)
         {
             mass += body->props().nondynamic.mass;
             charge += body->charge;
@@ -246,11 +241,11 @@ void entities_tab::render_selected_bodies_properties()
         charge /= selected.size();
 
         if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
-            for (const body2D::ptr &body : selected)
+            for (body2D *body : selected)
                 body->mass(mass);
 
         if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
-            for (const body2D::ptr &body : selected)
+            for (body2D *body : selected)
                 body->charge = charge;
 
         static char buffer[24] = "\0";
@@ -282,7 +277,7 @@ void entities_tab::render_selected_colliders_properties()
         }
         if (selected.size() == 1)
         {
-            render_single_collider_properties(**selected.begin());
+            render_single_collider_properties(*selected.begin());
             ImGui::TreePop();
             return;
         }
@@ -302,7 +297,7 @@ void entities_tab::render_selected_colliders_properties()
         float area = 0.f;
         float inertia = 0.f;
 
-        for (const collider2D::ptr &collider : selected)
+        for (collider2D *collider : selected)
         {
             friction += collider->friction;
             restitution += collider->restitution;
@@ -319,19 +314,19 @@ void entities_tab::render_selected_colliders_properties()
         charge_density /= selected.size();
 
         if (ImGui::SliderFloat("Friction", &friction, 0.f, 1.f, format))
-            for (const collider2D::ptr &collider : selected)
+            for (collider2D *collider : selected)
                 collider->friction = friction;
 
         if (ImGui::SliderFloat("Restitution", &restitution, 0.f, 1.f, format))
-            for (const collider2D::ptr &collider : selected)
+            for (collider2D *collider : selected)
                 collider->restitution = restitution;
 
         if (ImGui::DragFloat("Density", &density, drag_speed, 0.f, 0.f, format))
-            for (const collider2D::ptr &collider : selected)
+            for (collider2D *collider : selected)
                 collider->density(density);
 
         if (ImGui::DragFloat("Charge density", &charge_density, drag_speed, 0.f, 0.f, format))
-            for (const collider2D::ptr &collider : selected)
+            for (collider2D *collider : selected)
                 collider->charge_density(charge_density);
 
         ImGui::Text("Area: %.1f", area);

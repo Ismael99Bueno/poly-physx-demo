@@ -51,12 +51,9 @@ void grab_tab::render_imgui_tab()
 void grab_tab::begin_grab()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    body2D *body = m_app->world.bodies[mpos];
-    if (!body)
-        return;
-
-    m_lanchor = body->local_centroid_point(mpos);
-    m_body = body->as_ptr();
+    m_body = m_app->world.bodies[mpos];
+    if (m_body)
+        m_lanchor = m_body->local_centroid_point(mpos);
 }
 
 void grab_tab::end_grab()

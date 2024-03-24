@@ -11,10 +11,10 @@ joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window())
 
 void joints_tab::update()
 {
-    for (const spring2D::const_ptr &sp : m_to_remove_springs)
+    for (const spring2D *sp : m_to_remove_springs)
         if (sp)
             m_app->world.joints.remove(*sp);
-    for (const distance_joint2D::const_ptr &dj : m_to_remove_djoints)
+    for (const distance_joint2D *dj : m_to_remove_djoints)
         if (dj)
             m_app->world.joints.remove(*dj);
 
@@ -52,36 +52,32 @@ float joints_tab::current_joint_length() const
     return glm::distance(ganchor1, ganchor2);
 }
 
-template <typename Joint>
-void joints_tab::render_single_properties(Joint &joint, std::vector<typename Joint::const_ptr> &to_remove)
+template <typename Joint> void joints_tab::render_single_properties(Joint *joint, std::vector<const Joint *> &to_remove)
 {
     if (ImGui::Button("Remove"))
-        to_remove.push_back(joint.as_ptr());
+        to_remove.push_back(joint);
 
-    ImGui::Text("Name: %s", kit::uuid::name_from_id(joint.id).c_str());
-    ImGui::Text("UUID: %llu", (std::uint64_t)joint.id);
-
-    ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_id(joint.body1()->id).c_str(),
-                kit::uuid::name_from_id(joint.body2()->id).c_str());
+    ImGui::Text("Name: %s", kit::uuid::name_from_ptr(joint).c_str());
+    ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
+                kit::uuid::name_from_ptr(joint->body2()).c_str());
 }
 
-void joints_tab::render_single_spring_properties(spring2D &sp)
+void joints_tab::render_single_spring_properties(spring2D *sp)
 {
     render_single_properties(sp, m_to_remove_springs);
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    ImGui::DragFloat("Stiffness##Single", &sp.stiffness, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Damping##Single", &sp.damping, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Length##Single", &sp.length, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::SliderInt("Non linear terms##Single", (int *)&sp.non_linear_terms, 0, 8);
-    ImGui::SliderFloat("Non linear contribution##Single", &sp.non_linear_contribution, 0.f, 1.f, "%.4f",
+    ImGui::DragFloat("Stiffness##Single", &sp->stiffness, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Damping##Single", &sp->damping, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Length##Single", &sp->length, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::SliderInt("Non linear terms##Single", (int *)&sp->non_linear_terms, 0, 8);
+    ImGui::SliderFloat("Non linear contribution##Single", &sp->non_linear_contribution, 0.f, 1.f, "%.4f",
                        ImGuiSliderFlags_Logarithmic);
 }
 
 template <typename Joint>
-const std::vector<typename Joint::ptr> *joints_tab::render_selected_properties(
-    std::vector<typename Joint::const_ptr> &to_remove)
+const std::unordered_set<Joint *> *joints_tab::render_selected_properties(std::vector<const Joint *> &to_remove)
 {
     auto &selected = m_app->selector.selected_joints<Joint>();
     if (ImGui::TreeNode(&selected, "Selected: %zu", selected.size()))
@@ -94,7 +90,7 @@ const std::vector<typename Joint::ptr> *joints_tab::render_selected_properties(
         }
         if (selected.size() == 1)
         {
-            render_single_properties(**selected.begin(), to_remove);
+            render_single_properties(*selected.begin(), to_remove);
             ImGui::TreePop();
             return nullptr;
         }
@@ -120,7 +116,7 @@ void joints_tab::render_selected_spring_properties()
     std::uint32_t non_linear_terms = UINT32_MAX;
     float non_linear_contribution = 0.f;
 
-    for (const spring2D::ptr &sp : *selected)
+    for (spring2D *sp : *selected)
     {
         stiffness += sp->stiffness;
         damping += sp->damping;
@@ -135,20 +131,20 @@ void joints_tab::render_selected_spring_properties()
     non_linear_contribution /= selected->size();
 
     if (ImGui::DragFloat("Stiffness##Multiple", &stiffness, drag_speed, 0.f, FLT_MAX, format))
-        for (const spring2D::ptr &sp : *selected)
+        for (spring2D *sp : *selected)
             sp->stiffness = stiffness;
     if (ImGui::DragFloat("Damping##Multiple", &damping, drag_speed, 0.f, FLT_MAX, format))
-        for (const spring2D::ptr &sp : *selected)
+        for (spring2D *sp : *selected)
             sp->damping = damping;
     if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
-        for (const spring2D::ptr &sp : *selected)
+        for (spring2D *sp : *selected)
             sp->length = length;
     if (ImGui::SliderInt("Non linear terms##Multiple", (int *)&non_linear_terms, 0, 8))
-        for (const spring2D::ptr &sp : *selected)
+        for (spring2D *sp : *selected)
             sp->non_linear_terms = non_linear_terms;
     if (ImGui::SliderFloat("Non linear contribution##Multiple", &non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic))
-        for (const spring2D::ptr &sp : *selected)
+        for (spring2D *sp : *selected)
             sp->non_linear_contribution = non_linear_contribution;
     ImGui::TreePop();
 }
@@ -156,8 +152,8 @@ void joints_tab::render_selected_spring_properties()
 template <typename Joint> void joints_tab::render_joints_list()
 {
     joint_container2D<Joint> *joints = m_app->world.joints.manager<Joint>();
-    for (Joint &joint : *joints)
-        if (ImGui::TreeNode(&joint, "%s", kit::uuid::name_from_id(joint.id).c_str()))
+    for (Joint *joint : *joints)
+        if (ImGui::TreeNode(joint, "%s", kit::uuid::name_from_ptr(joint).c_str()))
         {
             if constexpr (std::is_same_v<Joint, spring2D>)
                 render_single_spring_properties(joint);
@@ -167,13 +163,13 @@ template <typename Joint> void joints_tab::render_joints_list()
         }
 }
 
-void joints_tab::render_single_dist_joint_properties(distance_joint2D &dj)
+void joints_tab::render_single_dist_joint_properties(distance_joint2D *dj)
 {
     render_single_properties(dj, m_to_remove_djoints);
     ImGui::Spacing();
-    ImGui::Text("Stress: %.5f", dj.constraint_value());
-    ImGui::DragFloat("Min distance", &dj.min_distance, 0.3f, 0.f, dj.max_distance, "%.1f");
-    ImGui::DragFloat("Max distance", &dj.max_distance, 0.3f, dj.min_distance, FLT_MAX, "%.1f");
+    ImGui::Text("Stress: %.5f", dj->constraint_value());
+    ImGui::DragFloat("Min distance", &dj->min_distance, 0.3f, 0.f, dj->max_distance, "%.1f");
+    ImGui::DragFloat("Max distance", &dj->max_distance, 0.3f, dj->min_distance, FLT_MAX, "%.1f");
 }
 
 void joints_tab::render_selected_dist_joint_properties()
@@ -184,7 +180,7 @@ void joints_tab::render_selected_dist_joint_properties()
     float min_distance = 0.f;
     float max_distance = 0.f;
 
-    for (const distance_joint2D::ptr &dj : *selected)
+    for (distance_joint2D *dj : *selected)
     {
         min_distance += dj->min_distance;
         max_distance += dj->max_distance;
@@ -193,10 +189,10 @@ void joints_tab::render_selected_dist_joint_properties()
     max_distance /= selected->size();
 
     if (ImGui::SliderFloat("Min distance", &min_distance, 0.f, max_distance, "%.1f"))
-        for (const distance_joint2D::ptr &dj : *selected)
+        for (distance_joint2D *dj : *selected)
             dj->min_distance = min_distance;
     if (ImGui::SliderFloat("Max distance", &max_distance, min_distance, FLT_MAX, "%.1f"))
-        for (const distance_joint2D::ptr &dj : *selected)
+        for (distance_joint2D *dj : *selected)
             dj->max_distance = max_distance;
     ImGui::TreePop();
 }
@@ -255,12 +251,13 @@ void joints_tab::render_imgui_tab()
 void joints_tab::begin_joint_attach()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    body2D *body1 = m_app->world.bodies[mpos];
-    if (!body1)
+    m_body1 = m_app->world.bodies[mpos];
+    if (!m_body1)
         return;
 
     const bool center_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
-    m_lanchor1 = center_anchor1 ? body1->local_position_point(mpos) : body1->local_position_point(body1->centroid());
+    m_lanchor1 =
+        center_anchor1 ? m_body1->local_position_point(mpos) : m_body1->local_position_point(m_body1->centroid());
 
     switch (m_joint_type)
     {
@@ -273,14 +270,13 @@ void joints_tab::begin_joint_attach()
     default:
         break;
     }
-    m_body1 = body1->as_ptr();
 }
 
 template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     body2D *body2 = m_app->world.bodies[mpos];
-    if (!body2 || *m_body1 == *body2 || !(m_body1->is_dynamic() || body2->is_dynamic()))
+    if (!body2 || m_body1 == body2 || !(m_body1->is_dynamic() || body2->is_dynamic()))
         return false;
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);

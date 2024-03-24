@@ -122,13 +122,11 @@ bool demo_app::on_event(const lynx::event2D &event)
 void demo_app::remove_selected()
 {
     const auto selected_bodies = selector.selected_bodies();
-    for (const body2D::ptr &body : selected_bodies)
-        if (body)
-            world.bodies.remove(*body);
+    for (body2D *body : selected_bodies)
+        world.bodies.remove(body);
     const auto selected_colliders = selector.selected_colliders();
-    for (const collider2D::ptr &collider : selected_colliders)
-        if (collider)
-            world.colliders.remove(*collider);
+    for (collider2D *collider : selected_colliders)
+        world.colliders.remove(collider);
 }
 
 void demo_app::add_walls()
