@@ -50,10 +50,15 @@ void body_tab::end_body_spawn()
     if (!m_spawning)
         return;
     m_spawning = false;
-    body2D::specs specs = m_current_proxy.specs;
-    for (collider_utils::proxy &cprx : m_current_proxy.cproxies)
-        specs.props.colliders.push_back(cprx.specs);
-    m_app->world.bodies.add(specs);
+
+    body2D *body = m_app->world.bodies.add(m_current_proxy.specs);
+    body->begin_density_update();
+    for (const auto &cproxy : m_current_proxy.cproxies)
+    {
+        m_app->collider_color = cproxy.color;
+        body->add(cproxy.specs);
+    }
+    body->end_density_update();
 }
 
 void body_tab::cancel_body_spawn()
