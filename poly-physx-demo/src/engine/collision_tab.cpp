@@ -83,8 +83,8 @@ void collision_tab::render_collisions_list() const
     if (ImGui::TreeNode("Collisions"))
     {
         for (const collision2D &col : m_app->world.collisions)
-            if (col.collided && ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.collider1->id).c_str(),
-                                                kit::uuid::name_from_id(col.collider2->id).c_str()))
+            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_id(col.collider1->id).c_str(),
+                                kit::uuid::name_from_id(col.collider2->id).c_str()))
             {
                 ImGui::Text("Contact points: %u", col.manifold.size);
                 ImGui::Text("Normal - x: %.2f, y: %.2f", col.mtv.x, col.mtv.y);
