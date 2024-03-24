@@ -12,7 +12,6 @@ startproject "poly-physx-demo"
 defines {
    "YAML_CPP_STATIC_DEFINE",
    "KIT_USE_SPDLOG",
-   -- "KIT_USE_CUSTOM_ALLOC",
    "KIT_USE_YAML_CPP",
    "KIT_AKNOWLEDGE_PROFILE_THREAD_UNSAFETY",
    "LYNX_ENABLE_IMGUI",
