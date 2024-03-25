@@ -39,7 +39,9 @@ class collision_tab
     std::size_t m_qt_active_partitions = 0;
 
     bool m_draw_collisions = false;
-    std::vector<std::array<thick_line, manifold2D::CAPACITY>> m_collision_lines;
+    std::unordered_map<kit::non_commutative_tuple<const collider2D *, const collider2D *>,
+                       std::array<thick_line, manifold2D::CAPACITY>>
+        m_collision_lines;
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
     void render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres);

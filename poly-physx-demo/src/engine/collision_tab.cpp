@@ -82,7 +82,7 @@ void collision_tab::render_collisions_list() const
 {
     if (ImGui::TreeNode("Collisions"))
     {
-        for (const collision2D &col : m_app->world.collisions)
+        for (const auto &[hash, col] : m_app->world.collisions)
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
                                 kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
@@ -301,19 +301,19 @@ void collision_tab::update_bounding_boxes()
 }
 void collision_tab::update_collisions()
 {
-    for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
+    for (const auto &[hash, col] : m_app->world.collisions)
     {
-        const collision2D &col = m_app->world.collisions[i];
-        if (i >= m_collision_lines.size())
+        const auto &lines = m_collision_lines.find(hash);
+        if (lines == m_collision_lines.end())
         {
-            auto &lines = m_collision_lines.emplace_back();
-            for (std::size_t j = 0; j < manifold2D::CAPACITY; j++)
-                lines[j] = {lynx::color::green, 0.2f};
+            auto &new_lines = m_collision_lines[hash];
+            for (std::size_t i = 0; i < manifold2D::CAPACITY; i++)
+                new_lines[i] = {lynx::color::green, 0.2f};
         }
-        for (std::size_t j = 0; j < col.manifold.size; j++)
+        for (std::size_t i = 0; i < col.manifold.size; i++)
         {
-            m_collision_lines[i][j].p1(col.manifold.contacts[j]);
-            m_collision_lines[i][j].p2(col.manifold.contacts[j] - col.mtv);
+            lines->second[i].p1(col.manifold.contacts[i]);
+            lines->second[i].p2(col.manifold.contacts[i] - col.mtv);
         }
     }
 }
@@ -326,9 +326,9 @@ void collision_tab::render_bounding_boxes() const
 
 void collision_tab::render_collisions()
 {
-    for (std::size_t i = 0; i < m_app->world.collisions.size(); i++)
-        for (std::size_t j = 0; j < m_app->world.collisions[i].manifold.size; j++)
-            m_window->draw(m_collision_lines[i][j]);
+    for (const auto &[hash, lines] : m_collision_lines)
+        for (std::size_t i = 0; i < m_app->world.collisions[hash].manifold.size; i++)
+            m_window->draw(lines[i]);
 }
 
 void collision_tab::render_quad_tree_lines() const
