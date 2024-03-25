@@ -71,7 +71,7 @@ void collision_tab::render_imgui_tab()
     {
         render_collision_resolution_list();
 
-        if (auto ctrres = m_app->world.collisions.resolution<constraint_driven_resolution2D>())
+        if (auto ctrres = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
             render_constraint_driven_parameters(*ctrres);
         if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
             render_spring_driven_parameters(*spres);
@@ -134,14 +134,14 @@ void collision_tab::render_collision_detection_list() const
 void collision_tab::render_collision_resolution_list() const
 {
     int res_method;
-    if (m_app->world.collisions.resolution<constraint_driven_resolution2D>())
+    if (m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
         res_method = 0;
     else if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
         res_method = 1;
-    if (ImGui::Combo("Collision resolution", &res_method, "Constraint driven\0Spring driven\0\0"))
+    if (ImGui::Combo("Collision resolution", &res_method, "Sequential impulses\0Spring driven\0\0"))
     {
         if (res_method == 0)
-            m_app->world.collisions.set_resolution<constraint_driven_resolution2D>();
+            m_app->world.collisions.set_resolution<sequential_impulses_resolution2D>();
         else if (res_method == 1)
             m_app->world.collisions.set_resolution<spring_driven_resolution2D>();
     }
@@ -234,7 +234,7 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
         render_quad_tree_lines();
 }
 
-void collision_tab::render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres)
+void collision_tab::render_constraint_driven_parameters(sequential_impulses_resolution2D &ctrres)
 {
     float friction = 0.f;
     float restitution = 0.f;

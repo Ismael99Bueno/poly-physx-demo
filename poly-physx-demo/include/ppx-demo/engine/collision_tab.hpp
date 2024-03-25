@@ -6,7 +6,7 @@
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
 
-#include "ppx/collision/resolution/constraint_driven_resolution2D.hpp"
+#include "ppx/collision/resolution/sequential_impulses_resolution2D.hpp"
 #include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
 
 #include "lynx/drawing/line.hpp"
@@ -44,7 +44,7 @@ class collision_tab
         m_collision_lines;
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
-    void render_constraint_driven_parameters(constraint_driven_resolution2D &ctrres);
+    void render_constraint_driven_parameters(sequential_impulses_resolution2D &ctrres);
     void render_spring_driven_parameters(spring_driven_resolution2D &spres);
 
     void update_bounding_boxes();
