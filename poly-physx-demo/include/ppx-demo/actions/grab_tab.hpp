@@ -30,8 +30,8 @@ class grab_tab
     glm::vec2 m_lanchor;
     spring_line m_spring_line;
 
-    float m_stiffness = 15.f;
-    float m_damping = 6.f;
+    float m_frequency = 4.f;
+    float m_damping_ratio = 2.f;
 
     void apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mpos) const;
 };

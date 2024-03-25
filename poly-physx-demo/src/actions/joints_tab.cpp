@@ -68,8 +68,8 @@ void joints_tab::render_single_spring_properties(spring2D *sp)
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    ImGui::DragFloat("Stiffness##Single", &sp->stiffness, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Damping##Single", &sp->damping, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Frequency##Single", &sp->frequency, drag_speed, 0.f, FLT_MAX, format);
+    ImGui::DragFloat("Damping ratio##Single", &sp->damping_ratio, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Length##Single", &sp->length, drag_speed, 0.f, FLT_MAX, format);
     ImGui::SliderInt("Non linear terms##Single", (int *)&sp->non_linear_terms, 0, 8);
     ImGui::SliderFloat("Non linear contribution##Single", &sp->non_linear_contribution, 0.f, 1.f, "%.4f",
@@ -110,32 +110,32 @@ void joints_tab::render_selected_spring_properties()
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    float stiffness = 0.f;
-    float damping = 0.f;
+    float frequency = 0.f;
+    float damping_ratio = 0.f;
     float length = 0.f;
     std::uint32_t non_linear_terms = UINT32_MAX;
     float non_linear_contribution = 0.f;
 
     for (spring2D *sp : *selected)
     {
-        stiffness += sp->stiffness;
-        damping += sp->damping;
+        frequency += sp->frequency;
+        damping_ratio += sp->damping_ratio;
         length += sp->length;
         non_linear_contribution += sp->non_linear_contribution;
         if (non_linear_terms > sp->non_linear_terms)
             non_linear_terms = sp->non_linear_terms;
     }
-    stiffness /= selected->size();
-    damping /= selected->size();
+    frequency /= selected->size();
+    damping_ratio /= selected->size();
     length /= selected->size();
     non_linear_contribution /= selected->size();
 
-    if (ImGui::DragFloat("Stiffness##Multiple", &stiffness, drag_speed, 0.f, FLT_MAX, format))
+    if (ImGui::DragFloat("Frequency##Multiple", &frequency, drag_speed, 0.f, FLT_MAX, format))
         for (spring2D *sp : *selected)
-            sp->stiffness = stiffness;
-    if (ImGui::DragFloat("Damping##Multiple", &damping, drag_speed, 0.f, FLT_MAX, format))
+            sp->frequency = frequency;
+    if (ImGui::DragFloat("Damping ratio##Multiple", &damping_ratio, drag_speed, 0.f, FLT_MAX, format))
         for (spring2D *sp : *selected)
-            sp->damping = damping;
+            sp->damping_ratio = damping_ratio;
     if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
         for (spring2D *sp : *selected)
             sp->length = length;
@@ -203,8 +203,8 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
     constexpr const char *format = "%.1f";
     if constexpr (std::is_same_v<T, spring2D::specs>)
     {
-        ImGui::DragFloat("Stiffness", &specs.props.stiffness, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragFloat("Damping", &specs.props.damping, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Stiffness", &specs.props.frequency, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::DragFloat("Damping", &specs.props.damping_ratio, drag_speed, 0.f, FLT_MAX, format);
         ImGui::SliderInt("Non linear terms", (int *)&specs.props.non_linear_terms, 0, 8);
         ImGui::SliderFloat("Non linear contribution", &specs.props.non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
@@ -339,8 +339,8 @@ YAML::Node joints_tab::encode() const
     YAML::Node node;
     node["Joint type"] = (int)m_joint_type;
 
-    node["Spring stiffness"] = m_spring_specs.props.stiffness;
-    node["Spring damping"] = m_spring_specs.props.damping;
+    node["Spring frequency"] = m_spring_specs.props.frequency;
+    node["Spring damping ratio"] = m_spring_specs.props.damping_ratio;
     if (!m_auto_spring_length)
         node["Spring length"] = m_spring_specs.props.length;
 
@@ -350,8 +350,8 @@ void joints_tab::decode(const YAML::Node &node)
 {
     m_joint_type = (joint_type)node["Joint type"].as<int>();
 
-    m_spring_specs.props.stiffness = node["Spring stiffness"].as<float>();
-    m_spring_specs.props.damping = node["Spring damping"].as<float>();
+    m_spring_specs.props.frequency = node["Spring frequency"].as<float>();
+    m_spring_specs.props.damping_ratio = node["Spring damping ratio"].as<float>();
     m_auto_spring_length = !node["Spring length"];
 
     if (!m_auto_spring_length)

@@ -32,7 +32,9 @@ void grab_tab::apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mp
     const glm::vec2 direction = glm::normalize(relpos);
     const glm::vec2 relvel = -direction * glm::dot(m_body->velocity, direction);
 
-    m_body->gadd_force_at(m_stiffness * relpos + m_damping * relvel, ganchor);
+    const auto [stiffness, damping] =
+        spring2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_body->props().nondynamic.mass);
+    m_body->gadd_force_at(stiffness * relpos + damping * relvel, ganchor);
 }
 
 void grab_tab::render()
@@ -44,8 +46,8 @@ void grab_tab::render()
 
 void grab_tab::render_imgui_tab()
 {
-    ImGui::DragFloat("Stiffness", &m_stiffness, 0.3f, 0.f, FLT_MAX, "%.1f");
-    ImGui::DragFloat("Damping", &m_damping, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::DragFloat("Frequency", &m_frequency, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::DragFloat("Damping ratio", &m_damping_ratio, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
 
 void grab_tab::begin_grab()
@@ -64,13 +66,13 @@ void grab_tab::end_grab()
 YAML::Node grab_tab::encode() const
 {
     YAML::Node node;
-    node["Stiffness"] = m_stiffness;
-    node["Damping"] = m_damping;
+    node["Frequency"] = m_frequency;
+    node["Damping ratio"] = m_damping_ratio;
     return node;
 }
 void grab_tab::decode(const YAML::Node &node)
 {
-    m_stiffness = node["Stiffness"].as<float>();
-    m_damping = node["Damping"].as<float>();
+    m_frequency = node["Frequency"].as<float>();
+    m_damping_ratio = node["Damping ratio"].as<float>();
 }
 } // namespace ppx::demo
