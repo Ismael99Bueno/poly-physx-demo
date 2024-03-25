@@ -273,7 +273,7 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 void collision_tab::update_quad_tree_lines(const kit::quad_tree<collider2D *>::node &qtnode)
 {
     if (qtnode.partitioned)
-        for (auto child : qtnode.quads())
+        for (auto child : qtnode.children)
             update_quad_tree_lines(*child);
     else
     {
