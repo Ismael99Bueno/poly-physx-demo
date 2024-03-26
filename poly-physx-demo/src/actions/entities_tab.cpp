@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/actions/entities_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx-demo/actions/collider_utils.hpp"
 
 namespace ppx::demo
 {
@@ -157,6 +158,13 @@ void entities_tab::render_single_collider_properties(collider2D *collider)
 
     if (ImGui::Button("Remove"))
         m_colliders_to_remove.push_back(collider);
+
+    if (ImGui::TreeNode("Collision groups"))
+    {
+        collider_utils::render_collision_matrix("Groups", "CGTable", collider->collision_filter.cgroups);
+        collider_utils::render_collision_matrix("Collides with", "CWTable", collider->collision_filter.collides_with);
+        ImGui::TreePop();
+    }
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";

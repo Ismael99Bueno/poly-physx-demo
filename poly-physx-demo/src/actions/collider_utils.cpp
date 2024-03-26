@@ -14,6 +14,13 @@ void collider_utils::render_shape_types_and_properties(proxy &prx)
     constexpr float drag_speed = 0.3f;
     constexpr const char *format = "%.1f";
 
+    if (ImGui::TreeNode("Collision groups"))
+    {
+        render_collision_matrix("Groups", "GTable", prx.specs.props.collision_filter.cgroups);
+        render_collision_matrix("Collides with", "CWTable", prx.specs.props.collision_filter.collides_with);
+        ImGui::TreePop();
+    }
+
     ImGui::DragFloat("Density", &prx.specs.props.density, drag_speed, 0.f, FLT_MAX, format);
     ImGui::DragFloat("Charge density", &prx.specs.props.charge_density, drag_speed, 0.f, FLT_MAX, format);
     ImGui::SliderFloat("Friction", &prx.specs.props.friction, 0.f, 1.f, format);
@@ -52,6 +59,25 @@ void collider_utils::update_shape_from_current_type(proxy &prx)
         break;
     default:
         break;
+    }
+}
+
+void collider_utils::render_collision_matrix(const char *filter_name, const char *table_name, std::uint32_t &flags)
+{
+    if (ImGui::TreeNode(filter_name))
+    {
+        if (ImGui::BeginTable(table_name, 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            for (std::uint32_t i = 0; i < 16; i++)
+            {
+                if (i % 4 == 0)
+                    ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(i % 4);
+                ImGui::CheckboxFlags(("G" + std::to_string(i)).c_str(), &flags, filter::group(i));
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
     }
 }
 

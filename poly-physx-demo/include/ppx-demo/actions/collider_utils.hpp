@@ -32,6 +32,7 @@ struct collider_utils
         std::size_t selected_proxy_index);
 
     static void update_shape_from_current_type(proxy &prx);
+    static void render_collision_matrix(const char *filter_name, const char *table_name, std::uint32_t &flags);
 
     static YAML::Node encode_proxy(const proxy &prx);
     static proxy decode_proxy(const YAML::Node &node);
