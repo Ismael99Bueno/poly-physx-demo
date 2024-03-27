@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ppx/entities/body2D.hpp"
-#include "ppx/entities/collider2D.hpp"
+#include "ppx/body/body2D.hpp"
+#include "ppx/collider/collider2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 

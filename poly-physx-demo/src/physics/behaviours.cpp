@@ -14,8 +14,8 @@ float gravity::potential_energy(const body2D &body) const
 
 glm::vec3 drag::force(const body2D &body) const
 {
-    const glm::vec2 force = -magnitude * body.velocity;
-    const float torque = -angular_magnitude * body.angular_velocity;
+    const glm::vec2 force = -magnitude * body.velocity();
+    const float torque = -angular_magnitude * body.angular_velocity();
     return glm::vec3(force, torque);
 }
 

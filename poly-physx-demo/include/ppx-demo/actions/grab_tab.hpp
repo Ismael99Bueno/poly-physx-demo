@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ppx-app/lines/spring_line.hpp"
-#include "ppx/entities/body2D.hpp"
+#include "ppx/body/body2D.hpp"
 
 namespace ppx::demo
 {
@@ -30,8 +30,8 @@ class grab_tab
     glm::vec2 m_lanchor;
     spring_line m_spring_line;
 
-    float m_frequency = 4.f;
-    float m_damping_ratio = 2.f;
+    float m_frequency = 1.f;
+    float m_damping_ratio = .4f;
 
     void apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mpos) const;
 };

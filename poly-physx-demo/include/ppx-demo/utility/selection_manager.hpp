@@ -2,9 +2,8 @@
 
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
-#include "ppx/entities/body2D.hpp"
-#include "ppx/entities/collider2D.hpp"
-#include "ppx/constraints/constraint2D.hpp"
+#include "ppx/body/body2D.hpp"
+#include "ppx/collider/collider2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include <unordered_set>

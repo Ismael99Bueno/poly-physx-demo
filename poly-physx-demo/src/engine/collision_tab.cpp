@@ -71,8 +71,8 @@ void collision_tab::render_imgui_tab()
     {
         render_collision_resolution_list();
 
-        if (auto ctrres = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
-            render_constraint_driven_parameters(*ctrres);
+        if (auto sires = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
+            render_constraint_driven_parameters(*sires);
         if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
             render_spring_driven_parameters(*spres);
     }
@@ -234,7 +234,7 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
         render_quad_tree_lines();
 }
 
-void collision_tab::render_constraint_driven_parameters(sequential_impulses_resolution2D &ctrres)
+void collision_tab::render_constraint_driven_parameters(sequential_impulses_resolution2D &sires)
 {
     float friction = 0.f;
     float restitution = 0.f;
@@ -253,7 +253,6 @@ void collision_tab::render_constraint_driven_parameters(sequential_impulses_reso
     if (ImGui::SliderFloat("Restitution", &restitution, 0.f, 1.f))
         for (collider2D *collider : m_app->world.colliders)
             collider->restitution = restitution;
-    ImGui::SliderFloat("Slop", &ctrres.slop, 0.f, 1.f, "%.3f", ImGuiSliderFlags_Logarithmic);
 }
 
 void collision_tab::render_spring_driven_parameters(spring_driven_resolution2D &spres)

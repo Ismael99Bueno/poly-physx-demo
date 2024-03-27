@@ -30,7 +30,7 @@ void grab_tab::apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mp
     if (kit::approaches_zero(glm::length2(relpos)))
         return;
     const glm::vec2 direction = glm::normalize(relpos);
-    const glm::vec2 relvel = -direction * glm::dot(m_body->velocity, direction);
+    const glm::vec2 relvel = -direction * glm::dot(m_body->velocity(), direction);
 
     const auto [stiffness, damping] =
         spring2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_body->props().nondynamic.mass);

@@ -2,7 +2,7 @@
 
 #include "lynx/drawing/shape.hpp"
 #include "lynx/app/window.hpp"
-#include "ppx/entities/collider2D.hpp"
+#include "ppx/collider/collider2D.hpp"
 #include "ppx-app/app/app.hpp"
 
 namespace ppx::demo

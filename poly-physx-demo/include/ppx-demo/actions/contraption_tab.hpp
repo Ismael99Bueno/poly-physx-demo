@@ -3,7 +3,7 @@
 #include "lynx/drawing/shape.hpp"
 #include "lynx/drawing/line.hpp"
 #include "lynx/app/window.hpp"
-#include "ppx/entities/specs2D.hpp"
+#include "ppx/common/specs2D.hpp"
 
 namespace ppx::demo
 {

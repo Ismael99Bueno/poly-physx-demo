@@ -111,13 +111,13 @@ void entities_tab::render_single_body_properties(body2D *body)
     if (ImGui::DragFloat2("Centroid", glm::value_ptr(centroid), drag_speed, 0.f, 0.f, format))
         body->centroid(centroid);
 
-    ImGui::DragFloat2("Velocity", glm::value_ptr(body->velocity), drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat2("Velocity", glm::value_ptr(body->velocity()), drag_speed, 0.f, 0.f, format);
 
     float rotation = body->rotation();
     if (ImGui::DragFloat("Rotation", &rotation, 0.1f * drag_speed, 0.f, 0.f, format))
         body->rotation(rotation);
 
-    ImGui::DragFloat("Angular velocity", &body->angular_velocity, drag_speed, 0.f, 0.f, format);
+    ImGui::DragFloat("Angular velocity", &body->angular_velocity(), drag_speed, 0.f, 0.f, format);
 
     const glm::vec2 force = body->force();
     ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);

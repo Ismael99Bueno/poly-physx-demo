@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lynx/app/window.hpp"
-#include "ppx/entities/body2D.hpp"
-#include "ppx/entities/collider2D.hpp"
+#include "ppx/body/body2D.hpp"
+#include "ppx/collider/collider2D.hpp"
 
 namespace ppx::demo
 {

@@ -13,10 +13,10 @@ void joints_tab::update()
 {
     for (const spring2D *sp : m_to_remove_springs)
         if (sp)
-            m_app->world.joints.remove(*sp);
+            m_app->world.joints.remove(sp);
     for (const distance_joint2D *dj : m_to_remove_djoints)
         if (dj)
-            m_app->world.joints.remove(*dj);
+            m_app->world.joints.remove(dj);
 
     m_to_remove_springs.clear();
     m_to_remove_djoints.clear();
@@ -167,7 +167,7 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D *dj)
 {
     render_single_properties(dj, m_to_remove_djoints);
     ImGui::Spacing();
-    ImGui::Text("Stress: %.5f", dj->constraint_value());
+    ImGui::Text("Stress: %.5f", dj->constraint_position());
     ImGui::DragFloat("Min distance", &dj->min_distance, 0.3f, 0.f, dj->max_distance, "%.1f");
     ImGui::DragFloat("Max distance", &dj->max_distance, 0.3f, dj->min_distance, FLT_MAX, "%.1f");
 }
