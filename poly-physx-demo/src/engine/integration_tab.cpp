@@ -50,7 +50,7 @@ void integration_tab::render_timestep_settings() const
     else
         timestep_slider_with_hertz("Timestep", &ts.value, ts.min, ts.max);
     timestep_slider_with_hertz("Minimum timestep", &ts.min, 0.0001f, ts.max * 0.95f);
-    timestep_slider_with_hertz("Maximum timestep", &ts.max, ts.min * 1.05f, 0.012f);
+    timestep_slider_with_hertz("Maximum timestep", &ts.max, ts.min * 1.05f, 0.02f);
 }
 
 void integration_tab::render_integration_method()

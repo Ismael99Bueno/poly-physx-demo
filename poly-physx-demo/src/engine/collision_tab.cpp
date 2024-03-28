@@ -227,6 +227,7 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
 
     auto &props = qtdet.quad_tree().props();
     ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
+    ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
     ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
 
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
