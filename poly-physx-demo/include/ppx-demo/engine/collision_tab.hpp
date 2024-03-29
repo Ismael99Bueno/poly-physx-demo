@@ -39,8 +39,13 @@ class collision_tab
     std::size_t m_qt_active_partitions = 0;
 
     bool m_draw_collisions = false;
-    std::unordered_map<kit::non_commutative_tuple<const collider2D *, const collider2D *>,
-                       std::array<thick_line, manifold2D::CAPACITY>>
+
+    struct collision_repr
+    {
+        kit::dynarray<lynx::ellipse2D, manifold2D::CAPACITY> contacts;
+        thick_line normal;
+    };
+    std::unordered_map<kit::commutative_tuple<const collider2D *, const collider2D *>, collision_repr>
         m_collision_lines;
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);

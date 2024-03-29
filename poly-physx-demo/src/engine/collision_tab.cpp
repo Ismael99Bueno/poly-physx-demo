@@ -66,6 +66,8 @@ void collision_tab::render_imgui_tab()
         render_cc_manifold_list();
         render_cp_manifold_list();
         render_pp_manifold_list();
+        if (auto clip = m_app->world.collisions.detection()->pp_manifold_algorithm<clipping_algorithm_manifold2D>())
+            ImGui::Checkbox("Allow intersections", &clip->allow_intersections);
     }
     if (ImGui::CollapsingHeader("Resolution"))
     {
@@ -86,15 +88,15 @@ void collision_tab::render_collisions_list() const
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
                                 kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
-                ImGui::Text("Contact points: %u", col.manifold.size);
+                ImGui::Text("Contact points: %zu", col.manifold.size());
                 ImGui::Text("Normal - x: %.2f, y: %.2f", col.mtv.x, col.mtv.y);
                 ImGui::Spacing();
 
-                for (std::size_t i = 0; i < col.manifold.size; i++)
-                    if (ImGui::TreeNode(&col.manifold.contacts[i], "Contact point %zu", i + 1))
+                for (std::size_t i = 0; i < col.manifold.size(); i++)
+                    if (ImGui::TreeNode(&col.manifold[i], "Contact point %zu", i + 1))
                     {
-                        const glm::vec2 &touch1 = col.manifold.contacts[i];
-                        const glm::vec2 touch2 = col.manifold.contacts[i] - col.mtv;
+                        const glm::vec2 &touch1 = col.manifold[i];
+                        const glm::vec2 touch2 = col.manifold[i] - col.mtv;
 
                         const glm::vec2 anchor1 = touch1 - col.collider1->gcentroid();
                         const glm::vec2 anchor2 = touch2 - col.collider2->gcentroid();
@@ -303,18 +305,24 @@ void collision_tab::update_collisions()
 {
     for (const auto &[hash, col] : m_app->world.collisions)
     {
-        const auto &lines = m_collision_lines.find(hash);
-        if (lines == m_collision_lines.end())
+        auto repr = m_collision_lines.find(hash);
+        if (repr == m_collision_lines.end())
         {
-            auto &new_lines = m_collision_lines[hash];
+            collision_repr new_repr;
             for (std::size_t i = 0; i < manifold2D::CAPACITY; i++)
-                new_lines[i] = {lynx::color::green, 0.2f};
+                new_repr.contacts.push_back(lynx::ellipse2D{.3f, lynx::color::green});
+            new_repr.normal = thick_line{lynx::color::magenta, .1f};
+            repr = m_collision_lines.emplace(hash, new_repr).first;
         }
-        for (std::size_t i = 0; i < col.manifold.size; i++)
+        glm::vec2 avg_point{0.f};
+        for (std::size_t i = 0; i < col.manifold.size(); i++)
         {
-            lines->second[i].p1(col.manifold.contacts[i]);
-            lines->second[i].p2(col.manifold.contacts[i] - col.mtv);
+            repr->second.contacts[i].transform.position = col.manifold[i];
+            avg_point += col.manifold[i];
         }
+        avg_point /= col.manifold.size();
+        repr->second.normal.p1(avg_point);
+        repr->second.normal.p2(avg_point + col.mtv * 100.f);
     }
 }
 
@@ -326,9 +334,19 @@ void collision_tab::render_bounding_boxes() const
 
 void collision_tab::render_collisions()
 {
-    for (const auto &[hash, lines] : m_collision_lines)
-        for (std::size_t i = 0; i < m_app->world.collisions[hash].manifold.size; i++)
-            m_window->draw(lines[i]);
+    for (auto it = m_collision_lines.begin(); it != m_collision_lines.end();)
+    {
+        const auto collision = m_app->world.collisions.find(it->first);
+        if (collision != m_app->world.collisions.end())
+        {
+            for (std::size_t i = 0; i < collision->second.manifold.size(); i++)
+                m_window->draw(it->second.contacts[i]);
+            m_window->draw(it->second.normal);
+            ++it;
+        }
+        else
+            it = m_collision_lines.erase(it);
+    }
 }
 
 void collision_tab::render_quad_tree_lines() const
