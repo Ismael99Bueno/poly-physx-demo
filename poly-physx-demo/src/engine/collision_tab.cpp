@@ -89,7 +89,7 @@ void collision_tab::render_collisions_list() const
                                 kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
                 ImGui::Text("Contact points: %zu", col.manifold.size());
-                ImGui::Text("Normal - x: %.2f, y: %.2f", col.mtv.x, col.mtv.y);
+                ImGui::Text("Normal - x: %.5f, y: %.5f", col.mtv.x, col.mtv.y);
                 ImGui::Spacing();
 
                 for (std::size_t i = 0; i < col.manifold.size(); i++)
@@ -100,9 +100,9 @@ void collision_tab::render_collisions_list() const
 
                         const glm::vec2 anchor1 = touch1 - col.collider1->gcentroid();
                         const glm::vec2 anchor2 = touch2 - col.collider2->gcentroid();
-                        ImGui::Text("Touch 1 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch1.x, touch1.y, anchor1.x,
+                        ImGui::Text("Touch 1 - x: %.5f, y: %.5f (x: %.5f, y: %.5f)", touch1.x, touch1.y, anchor1.x,
                                     anchor1.y);
-                        ImGui::Text("Touch 2 - x: %.2f, y: %.2f (x: %.2f, y: %.2f)", touch2.x, touch2.y, anchor2.x,
+                        ImGui::Text("Touch 2 - x: %.5f, y: %.5f (x: %.5f, y: %.5f)", touch2.x, touch2.y, anchor2.x,
                                     anchor2.y);
                         ImGui::TreePop();
                     }
