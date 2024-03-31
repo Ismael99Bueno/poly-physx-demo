@@ -88,7 +88,7 @@ void collision_tab::render_collisions_list() const
                 for (std::size_t i = 0; i < col.manifold.size(); i++)
                 {
                     const glm::vec2 &point = col.manifold[i].point;
-                    ImGui::Text("Contact %zu - x: %.5f, y: %.5f", i, point.x, point.y);
+                    ImGui::Text("Contact ID: %u - x: %.5f, y: %.5f", col.manifold[i].id.key, point.x, point.y);
                 }
                 ImGui::TreePop();
             }
@@ -280,7 +280,9 @@ void collision_tab::update_collisions()
         }
         avg_point /= col.manifold.size();
         repr->second.normal.p1(avg_point);
-        repr->second.normal.p2(avg_point + col.mtv * 100.f);
+
+        const float length = std::clamp(100.f * glm::length(col.mtv), 0.5f, 1.2f);
+        repr->second.normal.p2(avg_point + glm::normalize(col.mtv) * length);
     }
 }
 
