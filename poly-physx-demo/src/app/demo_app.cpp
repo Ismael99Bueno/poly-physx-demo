@@ -10,7 +10,7 @@
 namespace ppx::demo
 {
 demo_app::demo_app()
-    : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.e-3f, 0.0002f, 0.006f)),
+    : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.f / 60.f, 1.f / 180.f, 1.f / 30.f)),
       selector(*this), grouper(*this)
 {
     push_layer<actions_panel>();
