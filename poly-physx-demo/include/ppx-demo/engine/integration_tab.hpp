@@ -31,7 +31,7 @@ class integration_tab
 
     demo_app *m_app;
     lynx::window2D *m_window;
-    integration_method m_integration_method = integration_method::RK4;
+    integration_method m_integration_method = integration_method::RK1;
 
     void render_integration_method();
     void update_integration_method() const;

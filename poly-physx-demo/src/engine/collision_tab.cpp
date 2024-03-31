@@ -6,7 +6,6 @@
 
 #include "ppx/collision/manifold/clipping_algorithm_manifold2D.hpp"
 #include "ppx/collision/manifold/mtv_support_manifold2D.hpp"
-#include "ppx/collision/manifold/radius_distance_manifold2D.hpp"
 
 namespace ppx::demo
 {
@@ -61,14 +60,8 @@ void collision_tab::render_imgui_tab()
         if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
             render_quad_tree_parameters(*qtdet);
     }
-    if (ImGui::CollapsingHeader("Contact manifold algorithms"))
-    {
-        render_cc_manifold_list();
-        render_cp_manifold_list();
-        render_pp_manifold_list();
-        if (auto clip = m_app->world.collisions.detection()->pp_manifold_algorithm<clipping_algorithm_manifold2D>())
-            ImGui::Checkbox("Allow intersections", &clip->allow_intersections);
-    }
+
+    render_pp_manifold_list();
     if (ImGui::CollapsingHeader("Resolution"))
     {
         render_collision_resolution_list();
@@ -93,19 +86,10 @@ void collision_tab::render_collisions_list() const
                 ImGui::Spacing();
 
                 for (std::size_t i = 0; i < col.manifold.size(); i++)
-                    if (ImGui::TreeNode(&col.manifold[i], "Contact point %zu", i + 1))
-                    {
-                        const glm::vec2 &touch1 = col.manifold[i];
-                        const glm::vec2 touch2 = col.manifold[i] - col.mtv;
-
-                        const glm::vec2 anchor1 = touch1 - col.collider1->gcentroid();
-                        const glm::vec2 anchor2 = touch2 - col.collider2->gcentroid();
-                        ImGui::Text("Touch 1 - x: %.5f, y: %.5f (x: %.5f, y: %.5f)", touch1.x, touch1.y, anchor1.x,
-                                    anchor1.y);
-                        ImGui::Text("Touch 2 - x: %.5f, y: %.5f (x: %.5f, y: %.5f)", touch2.x, touch2.y, anchor2.x,
-                                    anchor2.y);
-                        ImGui::TreePop();
-                    }
+                {
+                    const glm::vec2 &point = col.manifold[i].point;
+                    ImGui::Text("Contact %zu - x: %.5f, y: %.5f", i, point.x, point.y);
+                }
                 ImGui::TreePop();
             }
         ImGui::TreePop();
@@ -181,32 +165,6 @@ void collision_tab::render_pp_narrow_list() const
                            ImGuiSliderFlags_Logarithmic);
 }
 
-void collision_tab::render_cc_manifold_list() const
-{
-    int alg;
-    if (m_app->world.collisions.detection()->cc_manifold_algorithm<radius_distance_manifold2D>())
-        alg = 0;
-    else if (m_app->world.collisions.detection()->cc_manifold_algorithm<mtv_support_manifold2D>())
-        alg = 1;
-    if (ImGui::Combo("C-C Manifold algorithm", &alg, "Radius distance\0MTV Support\0\0"))
-    {
-        if (alg == 0)
-            m_app->world.collisions.detection()->set_cc_manifold_algorithm<radius_distance_manifold2D>();
-        else if (alg == 1)
-            m_app->world.collisions.detection()->set_cc_manifold_algorithm<mtv_support_manifold2D>();
-    }
-}
-void collision_tab::render_cp_manifold_list() const
-{
-    int alg;
-    if (m_app->world.collisions.detection()->cp_manifold_algorithm<mtv_support_manifold2D>())
-        alg = 0;
-    if (ImGui::Combo("C-P Manifold algorithm", &alg, "MTV Support\0\0"))
-    {
-        if (alg == 0)
-            m_app->world.collisions.detection()->set_cp_manifold_algorithm<mtv_support_manifold2D>();
-    }
-}
 void collision_tab::render_pp_manifold_list() const
 {
     int alg;
@@ -317,8 +275,8 @@ void collision_tab::update_collisions()
         glm::vec2 avg_point{0.f};
         for (std::size_t i = 0; i < col.manifold.size(); i++)
         {
-            repr->second.contacts[i].transform.position = col.manifold[i];
-            avg_point += col.manifold[i];
+            repr->second.contacts[i].transform.position = col.manifold[i].point;
+            avg_point += col.manifold[i].point;
         }
         avg_point /= col.manifold.size();
         repr->second.normal.p1(avg_point);

@@ -63,8 +63,6 @@ class collision_tab
     void render_cp_narrow_list() const;
     void render_pp_narrow_list() const;
 
-    void render_cc_manifold_list() const;
-    void render_cp_manifold_list() const;
     void render_pp_manifold_list() const;
 
     void render_bounding_boxes() const;
