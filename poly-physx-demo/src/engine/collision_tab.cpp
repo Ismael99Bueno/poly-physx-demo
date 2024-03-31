@@ -279,10 +279,12 @@ void collision_tab::update_collisions()
             avg_point += col.manifold[i].point;
         }
         avg_point /= col.manifold.size();
-        repr->second.normal.p1(avg_point);
 
-        const float length = std::clamp(100.f * glm::length(col.mtv), 0.5f, 1.2f);
-        repr->second.normal.p2(avg_point + glm::normalize(col.mtv) * length);
+        const float length = 0.5f * std::clamp(100.f * glm::length(col.mtv), 0.5f, 1.2f);
+        const glm::vec2 dir = length * glm::normalize(col.mtv);
+
+        repr->second.normal.p1(avg_point - dir);
+        repr->second.normal.p2(avg_point + dir);
     }
 }
 
