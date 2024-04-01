@@ -197,9 +197,13 @@ const std::unordered_set<collider2D *> &selection_manager::selected_colliders() 
 YAML::Node selection_manager::encode() const
 {
     YAML::Node node;
-    for (body2D *body : m_selected_bodies)
+    for (const body2D *body : m_selected_bodies)
         node["Bodies"].push_back(body->index);
+    for (const collider2D *collider : m_selected_colliders)
+        node["Colliders"].push_back(collider->index);
+
     node["Bodies"].SetStyle(YAML::EmitterStyle::Flow);
+    node["Colliders"].SetStyle(YAML::EmitterStyle::Flow);
     return node;
 }
 
@@ -212,7 +216,15 @@ void selection_manager::decode(const YAML::Node &node)
             const std::size_t index = n.as<std::size_t>();
             m_selected_bodies.insert(m_app.world.bodies[index]);
         }
-        update_selected_joints();
     }
+    if (node["Colliders"])
+    {
+        for (const YAML::Node &n : node["Colliders"])
+        {
+            const std::size_t index = n.as<std::size_t>();
+            m_selected_colliders.insert(m_app.world.colliders[index]);
+        }
+    }
+    update_selected_joints();
 }
 } // namespace ppx::demo

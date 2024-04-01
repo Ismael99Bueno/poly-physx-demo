@@ -60,6 +60,7 @@ template <typename Joint> void joints_tab::render_single_properties(Joint *joint
     ImGui::Text("Name: %s", kit::uuid::name_from_ptr(joint).c_str());
     ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
                 kit::uuid::name_from_ptr(joint->body2()).c_str());
+    ImGui::Checkbox("Bodies collide##Single", &joint->bodies_collide);
 }
 
 void joints_tab::render_single_spring_properties(spring2D *sp)
@@ -97,8 +98,18 @@ const std::unordered_set<Joint *> *joints_tab::render_selected_properties(std::v
 
         if (ImGui::Button("Remove selected"))
             to_remove.insert(to_remove.end(), selected.begin(), selected.end());
+
+        bool bodies_collide = true;
+        for (Joint *joint : selected)
+            bodies_collide &= joint->bodies_collide;
+
+        if (ImGui::Checkbox("Bodies collide##Multiple", &bodies_collide))
+            for (Joint *joint : selected)
+                joint->bodies_collide = bodies_collide;
+
         return &selected;
     }
+
     return nullptr;
 }
 
@@ -222,6 +233,7 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
         const float dist = current_joint_length();
         ImGui::Text("Length: %.1f", dist);
     }
+    ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
@@ -231,16 +243,18 @@ void joints_tab::render_imgui_tab()
     ImGui::BeginTabBar("Joints tab bar");
     if (ImGui::BeginTabItem("Spring"))
     {
-        render_joint_properties(m_spring_specs);
         render_selected_spring_properties();
+        render_joint_properties(m_spring_specs);
+
         if (ImGui::CollapsingHeader("Springs"))
             render_joints_list<spring2D>();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem("Distance joint"))
     {
-        render_joint_properties(m_dist_joint_specs);
         render_selected_dist_joint_properties();
+        render_joint_properties(m_dist_joint_specs);
+
         if (ImGui::CollapsingHeader("Distance joints"))
             render_joints_list<distance_joint2D>();
         ImGui::EndTabItem();
