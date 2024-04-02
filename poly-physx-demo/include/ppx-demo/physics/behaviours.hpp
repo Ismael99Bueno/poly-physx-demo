@@ -9,7 +9,7 @@ class gravity : public force2D
 {
   public:
     using force2D::force2D;
-    float magnitude = -5.f;
+    float magnitude = -35.f;
 
     glm::vec3 force(const body2D &body) const override;
     float potential_energy(const body2D &body) const override;

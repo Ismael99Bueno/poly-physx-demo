@@ -46,7 +46,10 @@ void integration_tab::render_timestep_settings() const
     rk::timestep<float> &ts = m_app->world.integrator.ts;
 
     if (m_app->sync_timestep)
+    {
         ImGui::Text("Timestep: %.4f (%u hz)", ts.value, to_hertz(ts.value));
+        ImGui::SliderFloat("Sync speed", &m_app->sync_speed, 0.001f, 1.f);
+    }
     else
         timestep_slider_with_hertz("Timestep", &ts.value, ts.min, ts.max);
     timestep_slider_with_hertz("Minimum timestep", &ts.min, 0.0001f, ts.max * 0.95f);
