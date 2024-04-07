@@ -27,8 +27,8 @@ void group_manager::render() const
         m_window->draw(*shape);
     for (const spring_line &spline : m_springs_preview)
         m_window->draw(spline);
-    for (const thick_line &rjline : m_dist_joints_preview)
-        m_window->draw(rjline);
+    for (const thick_line &djline : m_dist_joints_preview)
+        m_window->draw(djline);
 }
 
 void group_manager::begin_group_from_selected()
