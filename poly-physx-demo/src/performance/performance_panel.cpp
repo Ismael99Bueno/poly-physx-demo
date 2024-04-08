@@ -20,7 +20,7 @@ void performance_panel::on_render(const float ts)
 {
     if (ImGui::Begin("Performance"))
     {
-        render_unit_slider();
+        ImGui::Combo("Time unit", (int *)&m_time_unit, "Nanoseconds\0Microseconds\0Milliseconds\0Seconds\0\0");
         ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");
         render_fps();
 #ifdef KIT_PROFILE
@@ -178,13 +178,6 @@ void performance_panel::render_profile_hierarchy()
     default:
         break;
     }
-}
-
-void performance_panel::render_unit_slider()
-{
-    static const std::array<const char *, 4> units = {"Nanoseconds", "Microseconds", "Milliseconds", "Seconds"};
-    const char *unit_name = units[(std::size_t)m_time_unit];
-    ImGui::SliderInt("Unit", (int *)&m_time_unit, 0, 3, unit_name);
 }
 
 void performance_panel::render_fps() const

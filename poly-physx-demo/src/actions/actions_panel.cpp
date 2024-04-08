@@ -40,7 +40,6 @@ void actions_panel::on_render(const float ts)
 {
     m_body_tab.render();
     m_joints_tab.render();
-    m_grab_tab.render();
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");

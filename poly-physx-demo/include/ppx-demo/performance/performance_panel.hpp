@@ -33,7 +33,6 @@ class performance_panel : public demo_layer
     void on_update(float ts) override;
     void on_render(float ts) override;
 
-    void render_unit_slider();
     void render_fps() const;
 
     void render_summary();

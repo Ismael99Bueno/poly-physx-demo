@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ppx-app/lines/spring_line.hpp"
+#include "lynx/drawing/line.hpp"
 #include "ppx/body/body2D.hpp"
 
 namespace ppx::demo
@@ -13,7 +13,6 @@ class grab_tab
     grab_tab(demo_app *app);
 
     void update();
-    void render();
     void render_imgui_tab();
 
     void begin_grab();
@@ -23,17 +22,26 @@ class grab_tab
     void decode(const YAML::Node &node);
 
   private:
+    enum class joint_type
+    {
+        SPRING,
+        DISTANCE_JOINT
+    };
+
     demo_app *m_app;
     lynx::window2D *m_window;
 
-    body2D *m_body = nullptr;
-    glm::vec2 m_lanchor;
-    spring_line m_spring_line;
+    body2D *m_grabbed = nullptr;
+    body2D *m_mouse = nullptr;
 
+    spring2D *m_spring = nullptr;
+    distance_joint2D *m_djoint = nullptr;
+
+    float m_dj_distance = 1.f;
     float m_frequency = .3f;
     float m_damping_ratio = .1f;
 
-    void apply_force_to_body(const glm::vec2 &ganchor, const glm::vec2 &mpos) const;
+    joint_type m_jtype = joint_type::SPRING;
 };
 
 } // namespace ppx::demo
