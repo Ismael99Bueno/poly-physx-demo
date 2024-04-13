@@ -20,7 +20,7 @@ void grab_tab::update()
 
     const glm::vec2 mpos = m_app->world_mouse_position();
     m_mouse->centroid(mpos);
-    if (m_jtype == joint_type::DISTANCE_JOINT)
+    if (m_jtype != joint_type::SPRING)
     {
         const auto [_, damping] =
             spring2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_grabbed->props().nondynamic.mass);
@@ -30,11 +30,27 @@ void grab_tab::update()
 
 void grab_tab::render_imgui_tab()
 {
-    ImGui::Combo("Joint type", (int *)&m_jtype, "Spring\0Distance joint\0\0");
+    ImGui::Combo("Joint type", (int *)&m_jtype, "Spring\0Distance joint\0Revolute joint\0\0");
     ImGui::DragFloat("Frequency", &m_frequency, 0.3f, 0.f, FLT_MAX, "%.1f");
     ImGui::DragFloat("Damping ratio", &m_damping_ratio, 0.3f, 0.f, FLT_MAX, "%.1f");
-    if (m_jtype == joint_type::DISTANCE_JOINT)
+    if (m_jtype == joint_type::DISTANCE)
         ImGui::DragFloat("Distance", &m_dj_distance, 0.3f, 0.f, FLT_MAX, "%.1f");
+}
+
+template <typename T> typename T::specs grab_tab::create_joint_grab_specs(const glm::vec2 &mpos) const
+{
+    typename T::specs specs;
+    specs.bindex1 = m_grabbed->index;
+    specs.bindex2 = m_mouse->index;
+    if constexpr (std::is_same_v<T, revolute_joint2D>)
+        specs.ganchor = mpos;
+    else
+    {
+        specs.ganchor1 = mpos;
+        specs.ganchor2 = mpos;
+    }
+    specs.bodies_collide = false;
+    return specs;
 }
 
 void grab_tab::begin_grab()
@@ -51,28 +67,23 @@ void grab_tab::begin_grab()
     switch (m_jtype)
     {
     case joint_type::SPRING: {
-        spring2D::specs spspc;
-        spspc.bindex1 = m_grabbed->index;
-        spspc.bindex2 = m_mouse->index;
-        spspc.ganchor1 = mpos;
-        spspc.ganchor2 = mpos;
+        spring2D::specs spspc = create_joint_grab_specs<spring2D>(mpos);
         spspc.props.frequency = m_frequency;
         spspc.props.damping_ratio = m_damping_ratio;
-        spspc.bodies_collide = false;
-        m_spring = m_app->world.joints.add<spring2D>(spspc);
+        m_app->world.joints.add<spring2D>(spspc);
         break;
     }
-    case joint_type::DISTANCE_JOINT: {
-        distance_joint2D::specs djspc;
-        djspc.bindex1 = m_grabbed->index;
-        djspc.bindex2 = m_mouse->index;
-        djspc.ganchor1 = mpos;
-        djspc.ganchor2 = mpos;
+    case joint_type::DISTANCE: {
+        distance_joint2D::specs djspc = create_joint_grab_specs<distance_joint2D>(mpos);
         djspc.props.min_distance = 0.f;
         djspc.props.max_distance = m_dj_distance;
         djspc.props.deduce_distance = false;
-        djspc.bodies_collide = false;
-        m_djoint = m_app->world.joints.add<distance_joint2D>(djspc);
+        m_app->world.joints.add<distance_joint2D>(djspc);
+        break;
+    }
+    case joint_type::REVOLUTE: {
+        revolute_joint2D::specs rjspc = create_joint_grab_specs<revolute_joint2D>(mpos);
+        m_app->world.joints.add<revolute_joint2D>(rjspc);
         break;
     }
     }

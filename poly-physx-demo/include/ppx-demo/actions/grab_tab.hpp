@@ -25,7 +25,8 @@ class grab_tab
     enum class joint_type
     {
         SPRING,
-        DISTANCE_JOINT
+        DISTANCE,
+        REVOLUTE
     };
 
     demo_app *m_app;
@@ -34,14 +35,13 @@ class grab_tab
     body2D *m_grabbed = nullptr;
     body2D *m_mouse = nullptr;
 
-    spring2D *m_spring = nullptr;
-    distance_joint2D *m_djoint = nullptr;
-
     float m_dj_distance = 1.f;
     float m_frequency = .3f;
     float m_damping_ratio = .1f;
 
     joint_type m_jtype = joint_type::SPRING;
+
+    template <typename T> typename T::specs create_joint_grab_specs(const glm::vec2 &mpos) const;
 };
 
 } // namespace ppx::demo
