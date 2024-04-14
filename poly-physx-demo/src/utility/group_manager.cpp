@@ -25,9 +25,9 @@ void group_manager::render() const
 
     for (const auto &shape : m_shapes_preview)
         m_window->draw(*shape);
-    for (const spring_line &spline : m_springs_preview)
+    for (const spring_line &spline : m_joints_preview.get<spring2D>())
         m_window->draw(spline);
-    for (const thick_line &djline : m_dist_joints_preview)
+    for (const thick_line &djline : m_joints_preview.get<distance_joint2D>())
         m_window->draw(djline);
 }
 
@@ -40,12 +40,12 @@ void group_manager::begin_group_from_selected()
     m_ongoing_group = true;
 }
 
-template <typename Specs, typename Line>
-void group_manager::update_preview_from_joint_proxies(const std::vector<joint_proxy<Specs>> &jproxies,
-                                                      std::vector<Line> &preview)
+template <typename Joint> void group_manager::update_preview_from_current_joint_proxies()
 {
+    auto &preview = m_joints_preview.get<Joint>();
+
     preview.clear();
-    for (const joint_proxy<Specs> &jproxy : jproxies)
+    for (const auto &jproxy : m_current_group.jproxies.get<Joint>())
     {
         auto &prv = preview.emplace_back(jproxy.color);
         prv.p1(m_current_group.bproxies[jproxy.bprox_index1].specs.position + jproxy.specs.ganchor1 -
@@ -88,8 +88,8 @@ void group_manager::update_preview_from_current_group()
             shape->color(cproxy.color);
         };
     }
-    update_preview_from_joint_proxies(m_current_group.sproxies, m_springs_preview);
-    update_preview_from_joint_proxies(m_current_group.djproxies, m_dist_joints_preview);
+    update_preview_from_current_joint_proxies<spring2D>();
+    update_preview_from_current_joint_proxies<distance_joint2D>();
 }
 
 bool group_manager::ongoing_group() const
@@ -140,15 +140,14 @@ void group_manager::paste_group()
         added_indices.push_back(m_app.world.bodies.add(specs)->index);
     }
 
-    paste_joints<spring2D>(m_current_group.sproxies, added_indices);
-    paste_joints<distance_joint2D>(m_current_group.djproxies, added_indices);
+    paste_current_joints<spring2D>(added_indices);
+    paste_current_joints<distance_joint2D>(added_indices);
+    paste_current_joints<revolute_joint2D>(added_indices);
 }
 
-template <typename Joint>
-void group_manager::paste_joints(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
-                                 const std::vector<std::size_t> &added_indices)
+template <typename Joint> void group_manager::paste_current_joints(const std::vector<std::size_t> &added_indices)
 {
-    for (joint_proxy<typename Joint::specs> &jproxy : jproxies)
+    for (auto &jproxy : m_current_group.jproxies.get<Joint>())
     {
         jproxy.specs.bindex1 = added_indices[jproxy.bprox_index1];
         jproxy.specs.bindex2 = added_indices[jproxy.bprox_index2];
@@ -179,23 +178,25 @@ group_manager::group group_manager::create_group_from_selected()
     for (std::size_t i = 0; i < selected_bodies.size(); i++)
         for (std::size_t j = i + 1; j < selected_bodies.size(); j++)
         {
-            add_joints_to_group<spring2D>(fresh_group.sproxies, selected_bodies, i, j);
-            add_joints_to_group<distance_joint2D>(fresh_group.djproxies, selected_bodies, i, j);
+            add_joints_to_current_group<spring2D>(selected_bodies, i, j);
+            add_joints_to_current_group<distance_joint2D>(selected_bodies, i, j);
+            add_joints_to_current_group<revolute_joint2D>(selected_bodies, i, j);
         }
 
     return fresh_group;
 }
 
 template <typename Joint>
-void group_manager::add_joints_to_group(std::vector<joint_proxy<typename Joint::specs>> &jproxies,
-                                        const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
-                                        std::size_t idx2)
+void group_manager::add_joints_to_current_group(const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
+                                                std::size_t idx2)
 {
     using Specs = typename Joint::specs;
     const body2D *body1 = selected_bodies[idx1];
     const body2D *body2 = selected_bodies[idx2];
 
     const joint_container2D<Joint> *jmanager = m_app.world.joints.manager<Joint>();
+    auto &jproxies = m_current_group.jproxies.get<Joint>();
+
     for (const Joint *joint : jmanager->from_bodies(body1, body2))
     {
         const lynx::color color{m_app.joint_color, 120u};
@@ -244,10 +245,10 @@ YAML::Node group_manager::group::encode(world2D &world) const
         node["Body proxies"].push_back(btnode);
     }
 
-    for (const joint_proxy<spring2D::specs> &spproxy : sproxies)
+    for (const joint_proxy<spring2D::specs> &spproxy : jproxies.get<spring2D>())
         node["Spring proxies"].push_back(encode_joint_proxy(spproxy));
 
-    for (const joint_proxy<distance_joint2D::specs> &djproxy : djproxies)
+    for (const joint_proxy<distance_joint2D::specs> &djproxy : jproxies.get<distance_joint2D>())
         node["Distance joint proxies"].push_back(encode_joint_proxy(djproxy));
 
     return node;
@@ -255,8 +256,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
 void group_manager::group::decode(const YAML::Node &node, world2D &world)
 {
     bproxies.clear();
-    sproxies.clear();
-    djproxies.clear();
+    jproxies = {};
 
     mean_position = node["Mean centroid"].as<glm::vec2>();
     if (node["Body proxies"])
@@ -280,7 +280,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
         {
             joint_proxy<spring2D::specs> spproxy;
             decode_joint_proxy<spring2D::specs>(spproxy, n);
-            sproxies.push_back(spproxy);
+            jproxies.get<spring2D>().push_back(spproxy);
         }
 
     if (node["Distance joint proxies"])
@@ -288,7 +288,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
         {
             joint_proxy<distance_joint2D::specs> djproxy;
             decode_joint_proxy<distance_joint2D::specs>(djproxy, n);
-            djproxies.push_back(djproxy);
+            jproxies.get<distance_joint2D>().push_back(djproxy);
         }
 }
 
