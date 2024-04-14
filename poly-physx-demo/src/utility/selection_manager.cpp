@@ -14,13 +14,14 @@ selection_manager::selection_manager(demo_app &app)
     app.world.bodies.events.on_removal += [this](body2D &body) { m_selected_bodies.erase(&body); };
     app.world.colliders.events.on_removal += [this](collider2D &collider) { m_selected_colliders.erase(&collider); };
 
-    add_joint_on_remove_callback<spring2D>(m_selected_springs);
-    add_joint_on_remove_callback<distance_joint2D>(m_selected_djoints);
+    add_joint_on_remove_callback<spring2D>();
+    add_joint_on_remove_callback<distance_joint2D>();
 }
 
-template <typename Joint> void selection_manager::add_joint_on_remove_callback(std::unordered_set<Joint *> &selected)
+template <typename Joint> void selection_manager::add_joint_on_remove_callback()
 {
-    m_app.world.joints.manager<Joint>()->events.on_removal += [&selected](Joint &joint) { selected.erase(&joint); };
+    m_app.world.joints.manager<Joint>()->events.on_removal +=
+        [this](Joint &joint) { m_selected_joints.get<Joint>().erase(&joint); };
 }
 
 static float oscillating_thickness(const float time)
@@ -170,8 +171,9 @@ bool selection_manager::is_selected(collider2D *collider) const
     return m_selected_colliders.contains(collider);
 }
 
-template <typename Joint> void selection_manager::update_selected_joints(std::unordered_set<Joint *> &selected)
+template <typename Joint> void selection_manager::update_selected_joints()
 {
+    auto &selected = m_selected_joints.get<Joint>();
     selected.clear();
     joint_container2D<Joint> *joints = m_app.world.joints.manager<Joint>();
     for (Joint *joint : *joints)
@@ -181,8 +183,9 @@ template <typename Joint> void selection_manager::update_selected_joints(std::un
 
 void selection_manager::update_selected_joints()
 {
-    update_selected_joints<spring2D>(m_selected_springs);
-    update_selected_joints<distance_joint2D>(m_selected_djoints);
+    update_selected_joints<spring2D>();
+    update_selected_joints<distance_joint2D>();
+    update_selected_joints<revolute_joint2D>();
 }
 
 const std::unordered_set<body2D *> &selection_manager::selected_bodies() const

@@ -6,6 +6,7 @@
 #include "ppx/collider/collider2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
+#include "ppx/joints/revolute_joint2D.hpp"
 #include <unordered_set>
 
 namespace ppx::demo
@@ -40,10 +41,7 @@ class selection_manager
 
     template <typename Joint> const std::unordered_set<Joint *> &selected_joints() const
     {
-        if constexpr (std::is_same_v<Joint, spring2D>)
-            return m_selected_springs;
-        else if constexpr (std::is_same_v<Joint, distance_joint2D>)
-            return m_selected_djoints;
+        return m_selected_joints.get<Joint>();
     }
 
     YAML::Node encode() const;
@@ -60,11 +58,23 @@ class selection_manager
     std::unordered_set<body2D *> m_selected_bodies;
     std::unordered_set<collider2D *> m_selected_colliders;
 
-    std::unordered_set<spring2D *> m_selected_springs;
-    std::unordered_set<distance_joint2D *> m_selected_djoints;
+    template <class... Joints> struct joint_set
+    {
+        std::tuple<std::unordered_set<Joints *>...> sets;
+        template <typename Joint> auto &get() const
+        {
+            return std::get<std::unordered_set<Joint *>>(sets);
+        }
+        template <typename Joint> auto &get()
+        {
+            return std::get<std::unordered_set<Joint *>>(sets);
+        }
+    };
 
-    template <typename Joint> void add_joint_on_remove_callback(std::unordered_set<Joint *> &selected);
-    template <typename Joint> void update_selected_joints(std::unordered_set<Joint *> &selected);
+    joint_set<spring2D, distance_joint2D, revolute_joint2D> m_selected_joints;
+
+    template <typename Joint> void add_joint_on_remove_callback();
+    template <typename Joint> void update_selected_joints();
     void update_selected_joints();
 };
 } // namespace ppx::demo

@@ -69,9 +69,9 @@ class group_manager
         using type = thick_line;
     };
 
-    template <class... Args> struct jproxies
+    template <class... Joints> struct jproxies
     {
-        std::tuple<std::vector<joint_proxy<Args>>...> proxies;
+        std::tuple<std::vector<joint_proxy<Joints>>...> proxies;
         template <typename Joint> auto &get() const
         {
             using Specs = typename Joint::specs;
@@ -83,9 +83,9 @@ class group_manager
             return std::get<std::vector<joint_proxy<Specs>>>(proxies);
         }
     };
-    template <class... Args> struct jpreviews
+    template <class... Joints> struct jpreviews
     {
-        std::tuple<std::vector<typename jtype_to_line<Args>::type>...> previews;
+        std::tuple<std::vector<typename jtype_to_line<Joints>::type>...> previews;
         template <typename Joint> auto &get() const
         {
             constexpr std::size_t index = jtype_to_line<Joint>::index;
