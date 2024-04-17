@@ -56,6 +56,7 @@ links {
    "glfw",
    "yaml-cpp",
 }
+linkoptions "-rpath /usr/local/lib"
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 filter "system:windows"

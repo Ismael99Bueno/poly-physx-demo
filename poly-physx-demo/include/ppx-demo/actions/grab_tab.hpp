@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lynx/drawing/line.hpp"
+#include "lynx/app/window.hpp"
 #include "ppx/body/body2D.hpp"
 
 namespace ppx::demo
@@ -39,7 +40,7 @@ class grab_tab
     float m_frequency = .3f;
     float m_damping_ratio = .1f;
 
-    joint_type m_jtype = joint_type::SPRING;
+    joint_type m_jtype = joint_type::REVOLUTE;
 
     template <typename T> typename T::specs create_joint_grab_specs(const glm::vec2 &mpos) const;
 };

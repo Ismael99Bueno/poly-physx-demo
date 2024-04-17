@@ -5,22 +5,18 @@
 
 namespace ppx::demo
 {
-joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window())
+joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window()), m_grab(app)
 {
 }
 
 void joints_tab::update()
 {
-    for (const spring2D *sp : m_to_remove_springs)
-        if (sp)
-            m_app->world.joints.remove(sp);
-    for (const distance_joint2D *dj : m_to_remove_djoints)
-        if (dj)
-            m_app->world.joints.remove(dj);
+    for (const joint2D *joint : m_to_remove)
+        m_app->world.joints.remove(joint);
 
-    m_to_remove_springs.clear();
-    m_to_remove_djoints.clear();
-    if (!m_body1)
+    m_to_remove.clear();
+    m_grab.update();
+    if (!m_body1 || !m_preview)
         return;
 
     const glm::vec2 ganchor = m_body1->global_position_point(m_lanchor1);
@@ -52,10 +48,10 @@ float joints_tab::current_joint_length() const
     return glm::distance(ganchor1, ganchor2);
 }
 
-template <typename Joint> void joints_tab::render_single_properties(Joint *joint, std::vector<const Joint *> &to_remove)
+template <typename Joint> void joints_tab::render_single_properties(Joint *joint)
 {
     if (ImGui::Button("Remove"))
-        to_remove.push_back(joint);
+        m_to_remove.push_back(joint);
 
     ImGui::Text("Name: %s", kit::uuid::name_from_ptr(joint).c_str());
     ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
@@ -65,7 +61,7 @@ template <typename Joint> void joints_tab::render_single_properties(Joint *joint
 
 void joints_tab::render_single_spring_properties(spring2D *sp)
 {
-    render_single_properties(sp, m_to_remove_springs);
+    render_single_properties(sp);
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
@@ -77,8 +73,7 @@ void joints_tab::render_single_spring_properties(spring2D *sp)
                        ImGuiSliderFlags_Logarithmic);
 }
 
-template <typename Joint>
-const std::unordered_set<Joint *> *joints_tab::render_selected_properties(std::vector<const Joint *> &to_remove)
+template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_selected_properties()
 {
     auto &selected = m_app->selector.selected_joints<Joint>();
     if (ImGui::TreeNode(&selected, "Selected: %zu", selected.size()))
@@ -91,13 +86,13 @@ const std::unordered_set<Joint *> *joints_tab::render_selected_properties(std::v
         }
         if (selected.size() == 1)
         {
-            render_single_properties(*selected.begin(), to_remove);
+            render_single_properties(*selected.begin());
             ImGui::TreePop();
             return nullptr;
         }
 
         if (ImGui::Button("Remove selected"))
-            to_remove.insert(to_remove.end(), selected.begin(), selected.end());
+            m_to_remove.insert(m_to_remove.end(), selected.begin(), selected.end());
 
         bool bodies_collide = true;
         for (Joint *joint : selected)
@@ -115,7 +110,7 @@ const std::unordered_set<Joint *> *joints_tab::render_selected_properties(std::v
 
 void joints_tab::render_selected_spring_properties()
 {
-    auto selected = render_selected_properties<spring2D>(m_to_remove_springs);
+    auto selected = render_selected_properties<spring2D>();
     if (!selected)
         return;
     static constexpr float drag_speed = 0.3f;
@@ -176,7 +171,7 @@ template <typename Joint> void joints_tab::render_joints_list()
 
 void joints_tab::render_single_dist_joint_properties(distance_joint2D *dj)
 {
-    render_single_properties(dj, m_to_remove_djoints);
+    render_single_properties(dj);
     ImGui::Spacing();
     ImGui::Text("Stress: %.5f", dj->constraint_position());
     ImGui::DragFloat("Min distance", &dj->min_distance, 0.3f, 0.f, dj->max_distance, "%.1f");
@@ -185,7 +180,7 @@ void joints_tab::render_single_dist_joint_properties(distance_joint2D *dj)
 
 void joints_tab::render_selected_dist_joint_properties()
 {
-    auto selected = render_selected_properties<distance_joint2D>(m_to_remove_djoints);
+    auto selected = render_selected_properties<distance_joint2D>();
     if (!selected)
         return;
     float min_distance = 0.f;
@@ -219,13 +214,13 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
         ImGui::SliderInt("Non linear terms", (int *)&specs.props.non_linear_terms, 0, 8);
         ImGui::SliderFloat("Non linear contribution", &specs.props.non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
-        ImGui::Checkbox("Auto-length", &m_auto_spring_length);
-        if (m_auto_spring_length && m_body1)
+        ImGui::Checkbox("Auto-length", &specs.props.deduce_length);
+        if (specs.props.deduce_length && m_body1)
         {
             specs.props.length = current_joint_length();
             ImGui::Text("Length: %.1f", specs.props.length);
         }
-        else if (!m_auto_spring_length)
+        else if (!specs.props.deduce_length)
             ImGui::DragFloat("Length", &specs.props.length, drag_speed, 0.f, FLT_MAX, format);
     }
     else if (m_body1)
@@ -238,13 +233,13 @@ template <typename T> void joints_tab::render_joint_properties(T &specs) // This
 
 void joints_tab::render_imgui_tab()
 {
-    static const char *names[2] = {"Spring", "Distance joint"};
+    static const char *names[3] = {"Spring", "Distance joint", "Revolute joint"};
     ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
     ImGui::BeginTabBar("Joints tab bar");
     if (ImGui::BeginTabItem("Spring"))
     {
         render_selected_spring_properties();
-        render_joint_properties(m_spring_specs);
+        render_joint_properties(std::get<spring2D::specs>(m_specs));
 
         if (ImGui::CollapsingHeader("Springs"))
             render_joints_list<spring2D>();
@@ -253,10 +248,18 @@ void joints_tab::render_imgui_tab()
     if (ImGui::BeginTabItem("Distance joint"))
     {
         render_selected_dist_joint_properties();
-        render_joint_properties(m_dist_joint_specs);
+        render_joint_properties(std::get<distance_joint2D::specs>(m_specs));
 
         if (ImGui::CollapsingHeader("Distance joints"))
             render_joints_list<distance_joint2D>();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("Revolute joint"))
+    {
+        render_joint_properties(std::get<revolute_joint2D::specs>(m_specs));
+
+        if (ImGui::CollapsingHeader("Revolute joints"))
+            render_joints_list<revolute_joint2D>();
         ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
@@ -281,6 +284,16 @@ void joints_tab::begin_joint_attach()
     case joint_type::DISTANCE:
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
         break;
+    case joint_type::REVOLUTE:
+        if (!m_body1->is_dynamic())
+        {
+            m_body1 = nullptr;
+            return;
+        }
+        m_preview = nullptr;
+        m_grab.begin_grab();
+        for (collider2D *collider : *m_body1)
+            collider->collision_filter.cgroups = filter::CGROUP<31>;
     default:
         break;
     }
@@ -295,8 +308,16 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
 
-    specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
-    specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
+    if constexpr (std::is_same_v<T, revolute_joint2D::specs>)
+    {
+        specs.ganchor = mpos;
+        specs.bodies_collide = false;
+    }
+    else
+    {
+        specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
+        specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
+    }
 
     specs.bindex1 = m_body1->index;
     specs.bindex2 = body2->index;
@@ -311,12 +332,19 @@ void joints_tab::end_joint_attach()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        if (attach_bodies_to_joint_specs(m_spring_specs))
-            m_app->world.joints.add<spring2D>(m_spring_specs);
+        if (attach_bodies_to_joint_specs(std::get<spring2D::specs>(m_specs)))
+            m_app->world.joints.add<spring2D>(std::get<spring2D::specs>(m_specs));
         break;
     case joint_type::DISTANCE:
-        if (attach_bodies_to_joint_specs(m_dist_joint_specs))
-            m_app->world.joints.add<distance_joint2D>(m_dist_joint_specs);
+        if (attach_bodies_to_joint_specs(std::get<distance_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<distance_joint2D>(std::get<distance_joint2D::specs>(m_specs));
+        break;
+    case joint_type::REVOLUTE:
+        if (attach_bodies_to_joint_specs(std::get<revolute_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<revolute_joint2D>(std::get<revolute_joint2D::specs>(m_specs));
+        m_grab.end_grab();
+        for (collider2D *collider : *m_body1)
+            collider->collision_filter.cgroups = filter::CGROUP<0>;
         break;
     default:
         break;
@@ -326,6 +354,13 @@ void joints_tab::end_joint_attach()
 
 void joints_tab::cancel_joint_attach()
 {
+    if (m_joint_type == joint_type::REVOLUTE)
+    {
+        m_grab.end_grab();
+        if (m_body1)
+            for (collider2D *collider : *m_body1)
+                collider->collision_filter.cgroups = filter::CGROUP<0>;
+    }
     m_body1 = nullptr;
 }
 
@@ -353,10 +388,9 @@ YAML::Node joints_tab::encode() const
     YAML::Node node;
     node["Joint type"] = (int)m_joint_type;
 
-    node["Spring frequency"] = m_spring_specs.props.frequency;
-    node["Spring damping ratio"] = m_spring_specs.props.damping_ratio;
-    if (!m_auto_spring_length)
-        node["Spring length"] = m_spring_specs.props.length;
+    node["Spring"] = std::get<spring2D::specs>(m_specs);
+    node["Distance joint"] = std::get<distance_joint2D::specs>(m_specs);
+    node["Revolute joint"] = std::get<revolute_joint2D::specs>(m_specs);
 
     return node;
 }
@@ -364,11 +398,8 @@ void joints_tab::decode(const YAML::Node &node)
 {
     m_joint_type = (joint_type)node["Joint type"].as<int>();
 
-    m_spring_specs.props.frequency = node["Spring frequency"].as<float>();
-    m_spring_specs.props.damping_ratio = node["Spring damping ratio"].as<float>();
-    m_auto_spring_length = !node["Spring length"];
-
-    if (!m_auto_spring_length)
-        m_spring_specs.props.length = node["Spring length"].as<float>();
+    std::get<spring2D::specs>(m_specs) = node["Spring"].as<spring2D::specs>();
+    std::get<distance_joint2D::specs>(m_specs) = node["Distance joint"].as<distance_joint2D::specs>();
+    std::get<revolute_joint2D::specs>(m_specs) = node["Revolute joint"].as<revolute_joint2D::specs>();
 }
 } // namespace ppx::demo
