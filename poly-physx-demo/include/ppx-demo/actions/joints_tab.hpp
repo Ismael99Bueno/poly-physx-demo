@@ -4,6 +4,8 @@
 #include "ppx-app/lines/spring_line.hpp"
 #include "ppx-app/lines/thick_line.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
+#include "ppx/joints/rotor_joint2D.hpp"
+#include "ppx/joints/motor_joint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
 
@@ -38,6 +40,8 @@ class joints_tab
         SPRING,
         DISTANCE,
         REVOLUTE,
+        ROTOR,
+        MOTOR,
         SIZE
     };
 
@@ -51,24 +55,23 @@ class joints_tab
     joint_type m_joint_type = joint_type::SPRING;
     kit::scope<lynx::line2D> m_preview;
 
-    std::tuple<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs> m_specs;
+    std::tuple<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, rotor_joint2D::specs,
+               motor_joint2D::specs>
+        m_specs;
 
     std::vector<const joint2D *> m_to_remove;
 
-    template <typename Joint> void render_single_properties(Joint *joint);
+    template <typename Joint> void render_full_joint(Joint *joint);
     template <typename Joint> const std::unordered_set<Joint *> *render_selected_properties();
     template <typename Joint> void render_joints_list();
 
-    void render_single_spring_properties(spring2D *sp);
     void render_selected_spring_properties();
-
-    void render_single_dist_joint_properties(distance_joint2D *dj);
     void render_selected_dist_joint_properties();
+    void render_selected_rot_joint_properties();
+    void render_selected_mot_joint_properties();
 
-    void render_single_rev_joint_properties(revolute_joint2D *rj);
-    void render_selected_rev_joint_properties();
-
-    template <typename T> void render_joint_properties(T &specs);
+    template <typename T> void render_joint_properties(T &props);
+    template <typename T> void render_joint_specs(T &specs);
     template <typename T> bool attach_bodies_to_joint_specs(T &specs) const;
     float current_joint_length() const;
 };

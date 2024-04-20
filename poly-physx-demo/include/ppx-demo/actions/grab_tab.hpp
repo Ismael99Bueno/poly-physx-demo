@@ -10,8 +10,15 @@ class demo_app;
 class grab_tab
 {
   public:
+    enum class joint_type
+    {
+        SPRING,
+        DISTANCE,
+        REVOLUTE
+    };
+
     grab_tab() = default;
-    grab_tab(demo_app *app);
+    grab_tab(demo_app *app, joint_type jtype = joint_type::SPRING);
 
     void update();
     void render_imgui_tab();
@@ -23,13 +30,6 @@ class grab_tab
     void decode(const YAML::Node &node);
 
   private:
-    enum class joint_type
-    {
-        SPRING,
-        DISTANCE,
-        REVOLUTE
-    };
-
     demo_app *m_app;
     lynx::window2D *m_window;
 
@@ -40,7 +40,7 @@ class grab_tab
     float m_frequency = .3f;
     float m_damping_ratio = .1f;
 
-    joint_type m_jtype = joint_type::REVOLUTE;
+    joint_type m_jtype;
 
     template <typename T> typename T::specs create_joint_grab_specs(const glm::vec2 &mpos) const;
 };

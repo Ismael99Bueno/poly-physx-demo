@@ -143,6 +143,8 @@ void group_manager::paste_group()
     paste_current_joints<spring2D>(added_indices);
     paste_current_joints<distance_joint2D>(added_indices);
     paste_current_joints<revolute_joint2D>(added_indices);
+    paste_current_joints<rotor_joint2D>(added_indices);
+    paste_current_joints<motor_joint2D>(added_indices);
 }
 
 template <typename Joint> void group_manager::paste_current_joints(const std::vector<std::size_t> &added_indices)
@@ -181,6 +183,8 @@ group_manager::group group_manager::create_group_from_selected()
             add_joints_to_current_group<spring2D>(selected_bodies, i, j);
             add_joints_to_current_group<distance_joint2D>(selected_bodies, i, j);
             add_joints_to_current_group<revolute_joint2D>(selected_bodies, i, j);
+            add_joints_to_current_group<rotor_joint2D>(selected_bodies, i, j);
+            add_joints_to_current_group<motor_joint2D>(selected_bodies, i, j);
         }
 
     return fresh_group;

@@ -7,6 +7,8 @@
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
+#include "ppx/joints/rotor_joint2D.hpp"
+#include "ppx/joints/motor_joint2D.hpp"
 #include <unordered_set>
 
 namespace ppx::demo
@@ -71,7 +73,7 @@ class selection_manager
         }
     };
 
-    joint_set<spring2D, distance_joint2D, revolute_joint2D> m_selected_joints;
+    joint_set<spring2D, distance_joint2D, revolute_joint2D, rotor_joint2D, motor_joint2D> m_selected_joints;
 
     template <typename Joint> void add_joint_on_remove_callback();
     template <typename Joint> void update_selected_joints();

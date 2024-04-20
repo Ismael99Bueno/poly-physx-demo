@@ -5,7 +5,7 @@
 
 namespace ppx::demo
 {
-joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window()), m_grab(app)
+joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window()), m_grab(app, grab_tab::joint_type::REVOLUTE)
 {
 }
 
@@ -48,7 +48,7 @@ float joints_tab::current_joint_length() const
     return glm::distance(ganchor1, ganchor2);
 }
 
-template <typename Joint> void joints_tab::render_single_properties(Joint *joint)
+template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
 {
     if (ImGui::Button("Remove"))
         m_to_remove.push_back(joint);
@@ -57,20 +57,18 @@ template <typename Joint> void joints_tab::render_single_properties(Joint *joint
     ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
                 kit::uuid::name_from_ptr(joint->body2()).c_str());
     ImGui::Checkbox("Bodies collide##Single", &joint->bodies_collide);
-}
-
-void joints_tab::render_single_spring_properties(spring2D *sp)
-{
-    render_single_properties(sp);
-    static constexpr float drag_speed = 0.3f;
-    static constexpr const char *format = "%.1f";
-
-    ImGui::DragFloat("Frequency##Single", &sp->frequency, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Damping ratio##Single", &sp->damping_ratio, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::DragFloat("Length##Single", &sp->length, drag_speed, 0.f, FLT_MAX, format);
-    ImGui::SliderInt("Non linear terms##Single", (int *)&sp->non_linear_terms, 0, 8);
-    ImGui::SliderFloat("Non linear contribution##Single", &sp->non_linear_contribution, 0.f, 1.f, "%.4f",
-                       ImGuiSliderFlags_Logarithmic);
+    if constexpr (PVConstraint2D<Joint>)
+    {
+        const auto stress = joint->constraint_position();
+        if constexpr (Joint::DIMENSION == 1)
+            ImGui::Text("Stress: %.5f", stress);
+        else if constexpr (Joint::DIMENSION == 2)
+            ImGui::Text("Stress - x: %.5f, y: %.5f", stress.x, stress.y);
+        else if constexpr (Joint::DIMENSION == 3)
+            ImGui::Text("Stress - x: %.5f, y: %.5f, z: %.5f", stress.x, stress.y, stress.z);
+    }
+    if constexpr (!std::is_same_v<Joint, revolute_joint2D>)
+        render_joint_properties(joint->props);
 }
 
 template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_selected_properties()
@@ -86,7 +84,7 @@ template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_
         }
         if (selected.size() == 1)
         {
-            render_single_properties(*selected.begin());
+            render_full_joint(*selected.begin());
             ImGui::TreePop();
             return nullptr;
         }
@@ -124,34 +122,34 @@ void joints_tab::render_selected_spring_properties()
 
     for (spring2D *sp : *selected)
     {
-        frequency += sp->frequency;
-        damping_ratio += sp->damping_ratio;
-        length += sp->length;
-        non_linear_contribution += sp->non_linear_contribution;
-        if (non_linear_terms > sp->non_linear_terms)
-            non_linear_terms = sp->non_linear_terms;
+        frequency += sp->props.frequency;
+        damping_ratio += sp->props.damping_ratio;
+        length += sp->props.length;
+        non_linear_contribution += sp->props.non_linear_contribution;
+        if (non_linear_terms > sp->props.non_linear_terms)
+            non_linear_terms = sp->props.non_linear_terms;
     }
     frequency /= selected->size();
     damping_ratio /= selected->size();
     length /= selected->size();
     non_linear_contribution /= selected->size();
 
-    if (ImGui::DragFloat("Frequency##Multiple", &frequency, drag_speed, 0.f, FLT_MAX, format))
+    if (ImGui::DragFloat("Frequency##Multiple", &frequency, 0.01f, 0.f, FLT_MAX, "%.3f"))
         for (spring2D *sp : *selected)
-            sp->frequency = frequency;
-    if (ImGui::DragFloat("Damping ratio##Multiple", &damping_ratio, drag_speed, 0.f, FLT_MAX, format))
+            sp->props.frequency = frequency;
+    if (ImGui::DragFloat("Damping ratio##Multiple", &damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f"))
         for (spring2D *sp : *selected)
-            sp->damping_ratio = damping_ratio;
+            sp->props.damping_ratio = damping_ratio;
     if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
         for (spring2D *sp : *selected)
-            sp->length = length;
+            sp->props.length = length;
     if (ImGui::SliderInt("Non linear terms##Multiple", (int *)&non_linear_terms, 0, 8))
         for (spring2D *sp : *selected)
-            sp->non_linear_terms = non_linear_terms;
+            sp->props.non_linear_terms = non_linear_terms;
     if (ImGui::SliderFloat("Non linear contribution##Multiple", &non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic))
         for (spring2D *sp : *selected)
-            sp->non_linear_contribution = non_linear_contribution;
+            sp->props.non_linear_contribution = non_linear_contribution;
     ImGui::TreePop();
 }
 
@@ -161,21 +159,9 @@ template <typename Joint> void joints_tab::render_joints_list()
     for (Joint *joint : *joints)
         if (ImGui::TreeNode(joint, "%s", kit::uuid::name_from_ptr(joint).c_str()))
         {
-            if constexpr (std::is_same_v<Joint, spring2D>)
-                render_single_spring_properties(joint);
-            else if constexpr (std::is_same_v<Joint, distance_joint2D>)
-                render_single_dist_joint_properties(joint);
+            render_full_joint(joint);
             ImGui::TreePop();
         }
-}
-
-void joints_tab::render_single_dist_joint_properties(distance_joint2D *dj)
-{
-    render_single_properties(dj);
-    ImGui::Spacing();
-    ImGui::Text("Stress: %.5f", dj->constraint_position());
-    ImGui::DragFloat("Min distance", &dj->min_distance, 0.3f, 0.f, dj->max_distance, "%.1f");
-    ImGui::DragFloat("Max distance", &dj->max_distance, 0.3f, dj->min_distance, FLT_MAX, "%.1f");
 }
 
 void joints_tab::render_selected_dist_joint_properties()
@@ -188,58 +174,155 @@ void joints_tab::render_selected_dist_joint_properties()
 
     for (distance_joint2D *dj : *selected)
     {
-        min_distance += dj->min_distance;
-        max_distance += dj->max_distance;
+        min_distance += dj->props.min_distance;
+        max_distance += dj->props.max_distance;
     }
     min_distance /= selected->size();
     max_distance /= selected->size();
 
     if (ImGui::SliderFloat("Min distance", &min_distance, 0.f, max_distance, "%.1f"))
         for (distance_joint2D *dj : *selected)
-            dj->min_distance = min_distance;
+            dj->props.min_distance = min_distance;
     if (ImGui::SliderFloat("Max distance", &max_distance, min_distance, FLT_MAX, "%.1f"))
         for (distance_joint2D *dj : *selected)
-            dj->max_distance = max_distance;
+            dj->props.max_distance = max_distance;
     ImGui::TreePop();
 }
 
-template <typename T> void joints_tab::render_joint_properties(T &specs) // This is dodgy
+void joints_tab::render_selected_rot_joint_properties()
+{
+    auto selected = render_selected_properties<rotor_joint2D>();
+    if (!selected)
+        return;
+    float torque = 0.f;
+    float correction_factor = 0.f;
+    float target_speed = 0.f;
+    float target_offset = 0.f;
+    bool spin_indefinitely = true;
+
+    for (rotor_joint2D *rotj : *selected)
+    {
+        torque += rotj->props.torque;
+        correction_factor += rotj->props.correction_factor;
+        target_speed += rotj->props.target_speed;
+        target_offset += rotj->props.target_offset;
+        spin_indefinitely &= rotj->props.spin_indefinitely;
+    }
+    torque /= selected->size();
+    correction_factor /= selected->size();
+    target_speed /= selected->size();
+    target_offset /= selected->size();
+
+    if (ImGui::DragFloat("Torque", &torque, 0.3f, 0.f, FLT_MAX, "%.1f"))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.torque = torque;
+    if (ImGui::SliderFloat("Correction factor", &correction_factor, 0.f, 1.f, "%.4f", ImGuiSliderFlags_Logarithmic))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.correction_factor = correction_factor;
+    if (ImGui::Checkbox("Spin indefinitely", &spin_indefinitely))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.spin_indefinitely = spin_indefinitely;
+    if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.target_speed = target_speed;
+    if (ImGui::SliderFloat("Target offset", &target_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.target_offset = target_offset;
+    ImGui::TreePop();
+}
+
+void joints_tab::render_selected_mot_joint_properties()
+{
+    auto selected = render_selected_properties<motor_joint2D>();
+    if (!selected)
+        return;
+    float force = 0.f;
+    float correction_factor = 0.f;
+    float target_speed = 0.f;
+    glm::vec2 target_offset{0.f};
+
+    for (motor_joint2D *motj : *selected)
+    {
+        force += motj->props.force;
+        correction_factor += motj->props.correction_factor;
+        target_speed += motj->props.target_speed;
+        target_offset += motj->props.target_offset;
+    }
+    force /= selected->size();
+    correction_factor /= selected->size();
+    target_speed /= selected->size();
+    target_offset /= selected->size();
+
+    if (ImGui::DragFloat("Force", &force, 0.3f, 0.f, FLT_MAX, "%.1f"))
+        for (motor_joint2D *motj : *selected)
+            motj->props.force = force;
+    if (ImGui::SliderFloat("Correction factor", &correction_factor, 0.f, 1.f, "%.4f", ImGuiSliderFlags_Logarithmic))
+        for (motor_joint2D *motj : *selected)
+            motj->props.correction_factor = correction_factor;
+    if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
+        for (motor_joint2D *motj : *selected)
+            motj->props.target_speed = target_speed;
+    if (ImGui::DragFloat2("Target offset", glm::value_ptr(target_offset), 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
+        for (motor_joint2D *motj : *selected)
+            motj->props.target_offset = target_offset;
+    ImGui::TreePop();
+}
+
+template <typename T> void joints_tab::render_joint_properties(T &props) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
     constexpr const char *format = "%.1f";
-    if constexpr (std::is_same_v<T, spring2D::specs>)
+    if constexpr (std::is_same_v<T, spring2D::specs::properties>)
     {
-        ImGui::DragFloat("Stiffness", &specs.props.frequency, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::DragFloat("Damping", &specs.props.damping_ratio, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::SliderInt("Non linear terms", (int *)&specs.props.non_linear_terms, 0, 8);
-        ImGui::SliderFloat("Non linear contribution", &specs.props.non_linear_contribution, 0.f, 1.f, "%.4f",
+        ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
+        ImGui::DragFloat("Damping", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
+        ImGui::DragFloat("Length", &props.length, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
+        ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
-        ImGui::Checkbox("Auto-length", &specs.props.deduce_length);
-        if (specs.props.deduce_length && m_body1)
-        {
-            specs.props.length = current_joint_length();
-            ImGui::Text("Length: %.1f", specs.props.length);
-        }
-        else if (!specs.props.deduce_length)
-            ImGui::DragFloat("Length", &specs.props.length, drag_speed, 0.f, FLT_MAX, format);
     }
-    else if (m_body1)
+    else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
     {
-        const float dist = current_joint_length();
-        ImGui::Text("Length: %.1f", dist);
+        ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
+        ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
     }
+    else if constexpr (std::is_same_v<T, rotor_joint2D::specs::properties>)
+    {
+        ImGui::DragFloat("Torque", &props.torque, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
+        ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
+        ImGui::SliderFloat("Target offset", &props.target_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f");
+        ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
+    }
+    else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
+    {
+        ImGui::DragFloat("Force", &props.force, drag_speed, 0.f, FLT_MAX, format);
+        ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                           ImGuiSliderFlags_Logarithmic);
+        ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
+        ImGui::DragFloat2("Target offset", &props.target_offset.x, drag_speed, -FLT_MAX, FLT_MAX, format);
+    }
+}
+
+template <typename T> void joints_tab::render_joint_specs(T &specs)
+{
+    if constexpr (!std::is_same_v<T, revolute_joint2D::specs>)
+        render_joint_properties(specs.props);
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
 {
-    static const char *names[3] = {"Spring", "Distance joint", "Revolute joint"};
+    static const char *names[5] = {"Spring", "Distance joint", "Revolute joint", "Rotor joint", "Motor joint"};
     ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
     ImGui::BeginTabBar("Joints tab bar");
     if (ImGui::BeginTabItem("Spring"))
     {
         render_selected_spring_properties();
-        render_joint_properties(std::get<spring2D::specs>(m_specs));
+        auto &specs = std::get<spring2D::specs>(m_specs);
+        render_joint_specs(specs);
+        ImGui::Checkbox("Auto-length", &specs.deduce_length);
 
         if (ImGui::CollapsingHeader("Springs"))
             render_joints_list<spring2D>();
@@ -248,7 +331,7 @@ void joints_tab::render_imgui_tab()
     if (ImGui::BeginTabItem("Distance joint"))
     {
         render_selected_dist_joint_properties();
-        render_joint_properties(std::get<distance_joint2D::specs>(m_specs));
+        render_joint_specs(std::get<distance_joint2D::specs>(m_specs));
 
         if (ImGui::CollapsingHeader("Distance joints"))
             render_joints_list<distance_joint2D>();
@@ -256,10 +339,28 @@ void joints_tab::render_imgui_tab()
     }
     if (ImGui::BeginTabItem("Revolute joint"))
     {
-        render_joint_properties(std::get<revolute_joint2D::specs>(m_specs));
+        render_joint_specs(std::get<revolute_joint2D::specs>(m_specs));
 
         if (ImGui::CollapsingHeader("Revolute joints"))
             render_joints_list<revolute_joint2D>();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("Rotor joint"))
+    {
+        render_selected_rot_joint_properties();
+        render_joint_specs(std::get<rotor_joint2D::specs>(m_specs));
+
+        if (ImGui::CollapsingHeader("Rotor joints"))
+            render_joints_list<rotor_joint2D>();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("Motor joint"))
+    {
+        render_selected_mot_joint_properties();
+        render_joint_specs(std::get<motor_joint2D::specs>(m_specs));
+
+        if (ImGui::CollapsingHeader("Motor joints"))
+            render_joints_list<motor_joint2D>();
         ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
@@ -294,6 +395,13 @@ void joints_tab::begin_joint_attach()
         m_grab.begin_grab();
         for (collider2D *collider : *m_body1)
             collider->collision_filter.cgroups = filter::CGROUP<31>;
+        break;
+    case joint_type::ROTOR:
+        m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
+        break;
+    case joint_type::MOTOR:
+        m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
+        break;
     default:
         break;
     }
@@ -313,7 +421,7 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
         specs.ganchor = mpos;
         specs.bodies_collide = false;
     }
-    else
+    else if constexpr (!std::is_same_v<T, rotor_joint2D::specs> && !std::is_same_v<T, motor_joint2D::specs>)
     {
         specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
         specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
@@ -345,6 +453,14 @@ void joints_tab::end_joint_attach()
         m_grab.end_grab();
         for (collider2D *collider : *m_body1)
             collider->collision_filter.cgroups = filter::CGROUP<0>;
+        break;
+    case joint_type::ROTOR:
+        if (attach_bodies_to_joint_specs(std::get<rotor_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<rotor_joint2D>(std::get<rotor_joint2D::specs>(m_specs));
+        break;
+    case joint_type::MOTOR:
+        if (attach_bodies_to_joint_specs(std::get<motor_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<motor_joint2D>(std::get<motor_joint2D::specs>(m_specs));
         break;
     default:
         break;
@@ -391,6 +507,8 @@ YAML::Node joints_tab::encode() const
     node["Spring"] = std::get<spring2D::specs>(m_specs);
     node["Distance joint"] = std::get<distance_joint2D::specs>(m_specs);
     node["Revolute joint"] = std::get<revolute_joint2D::specs>(m_specs);
+    node["Rotor joint"] = std::get<rotor_joint2D::specs>(m_specs);
+    node["Motor joint"] = std::get<motor_joint2D::specs>(m_specs);
 
     return node;
 }
@@ -401,5 +519,7 @@ void joints_tab::decode(const YAML::Node &node)
     std::get<spring2D::specs>(m_specs) = node["Spring"].as<spring2D::specs>();
     std::get<distance_joint2D::specs>(m_specs) = node["Distance joint"].as<distance_joint2D::specs>();
     std::get<revolute_joint2D::specs>(m_specs) = node["Revolute joint"].as<revolute_joint2D::specs>();
+    std::get<rotor_joint2D::specs>(m_specs) = node["Rotor joint"].as<rotor_joint2D::specs>();
+    std::get<motor_joint2D::specs>(m_specs) = node["Motor joint"].as<motor_joint2D::specs>();
 }
 } // namespace ppx::demo

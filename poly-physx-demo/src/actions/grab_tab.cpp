@@ -8,7 +8,7 @@
 
 namespace ppx::demo
 {
-grab_tab::grab_tab(demo_app *app) : m_app(app)
+grab_tab::grab_tab(demo_app *app, joint_type jtype) : m_app(app), m_jtype(jtype)
 {
     m_window = m_app->window();
 }
@@ -31,8 +31,8 @@ void grab_tab::update()
 void grab_tab::render_imgui_tab()
 {
     ImGui::Combo("Joint type", (int *)&m_jtype, "Spring\0Distance joint\0Revolute joint\0\0");
-    ImGui::DragFloat("Frequency", &m_frequency, 0.3f, 0.f, FLT_MAX, "%.1f");
-    ImGui::DragFloat("Damping ratio", &m_damping_ratio, 0.3f, 0.f, FLT_MAX, "%.1f");
+    ImGui::DragFloat("Frequency", &m_frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
+    ImGui::DragFloat("Damping ratio", &m_damping_ratio, 0.01f, 0.f, FLT_MAX, "%.3f");
     if (m_jtype == joint_type::DISTANCE)
         ImGui::DragFloat("Distance", &m_dj_distance, 0.3f, 0.f, FLT_MAX, "%.1f");
 }
@@ -77,7 +77,7 @@ void grab_tab::begin_grab()
         distance_joint2D::specs djspc = create_joint_grab_specs<distance_joint2D>(mpos);
         djspc.props.min_distance = 0.f;
         djspc.props.max_distance = m_dj_distance;
-        djspc.props.deduce_distance = false;
+        djspc.deduce_distance = false;
         m_app->world.joints.add<distance_joint2D>(djspc);
         break;
     }
