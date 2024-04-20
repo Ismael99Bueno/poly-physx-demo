@@ -25,9 +25,8 @@ void joints_tab::update()
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
 
-    const body2D *body2 = m_app->world.bodies[mpos];
-
-    m_preview->p2((!center_anchor2 && body2) ? body2->centroid() : mpos);
+    const auto at_mpos = m_app->world.bodies[mpos];
+    m_preview->p2((!center_anchor2 && !at_mpos.empty()) ? at_mpos.front()->centroid() : mpos);
 }
 
 void joints_tab::render()
@@ -42,9 +41,9 @@ float joints_tab::current_joint_length() const
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
-    const body2D *body2 = m_app->world.bodies[mpos];
+    const auto at_mpos = m_app->world.bodies[mpos];
 
-    const glm::vec2 ganchor2 = (!center_anchor2 && body2) ? body2->centroid() : mpos;
+    const glm::vec2 ganchor2 = (!center_anchor2 && !at_mpos.empty()) ? at_mpos.front()->centroid() : mpos;
     return glm::distance(ganchor1, ganchor2);
 }
 
@@ -67,7 +66,7 @@ template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
         else if constexpr (Joint::DIMENSION == 3)
             ImGui::Text("Stress - x: %.5f, y: %.5f, z: %.5f", stress.x, stress.y, stress.z);
     }
-    if constexpr (!std::is_same_v<Joint, revolute_joint2D>)
+    if constexpr (!std::is_same_v<Joint, revolute_joint2D> && !std::is_same_v<Joint, weld_joint2D>)
         render_joint_properties(joint->props);
 }
 
@@ -197,7 +196,8 @@ void joints_tab::render_selected_rot_joint_properties()
     float torque = 0.f;
     float correction_factor = 0.f;
     float target_speed = 0.f;
-    float target_offset = 0.f;
+    float min_offset = 0.f;
+    float max_offset = 0.f;
     bool spin_indefinitely = true;
 
     for (rotor_joint2D *rotj : *selected)
@@ -205,13 +205,15 @@ void joints_tab::render_selected_rot_joint_properties()
         torque += rotj->props.torque;
         correction_factor += rotj->props.correction_factor;
         target_speed += rotj->props.target_speed;
-        target_offset += rotj->props.target_offset;
+        min_offset += rotj->props.min_offset;
+        max_offset += rotj->props.max_offset;
         spin_indefinitely &= rotj->props.spin_indefinitely;
     }
     torque /= selected->size();
     correction_factor /= selected->size();
     target_speed /= selected->size();
-    target_offset /= selected->size();
+    min_offset /= selected->size();
+    max_offset /= selected->size();
 
     if (ImGui::DragFloat("Torque", &torque, 0.3f, 0.f, FLT_MAX, "%.1f"))
         for (rotor_joint2D *rotj : *selected)
@@ -225,9 +227,12 @@ void joints_tab::render_selected_rot_joint_properties()
     if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
         for (rotor_joint2D *rotj : *selected)
             rotj->props.target_speed = target_speed;
-    if (ImGui::SliderFloat("Target offset", &target_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    if (ImGui::SliderFloat("Min offset", &min_offset, -glm::pi<float>(), max_offset, "%.3f"))
         for (rotor_joint2D *rotj : *selected)
-            rotj->props.target_offset = target_offset;
+            rotj->props.min_offset = min_offset;
+    if (ImGui::SliderFloat("Max offset", &max_offset, min_offset, glm::pi<float>(), "%.3f"))
+        for (rotor_joint2D *rotj : *selected)
+            rotj->props.max_offset = max_offset;
     ImGui::TreePop();
 }
 
@@ -292,7 +297,8 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
         ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
-        ImGui::SliderFloat("Target offset", &props.target_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f");
+        ImGui::SliderFloat("Min offset", &props.min_offset, -glm::pi<float>(), props.max_offset, "%.3f");
+        ImGui::SliderFloat("Max offset", &props.max_offset, props.min_offset, glm::pi<float>(), "%.3f");
         ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
     }
     else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
@@ -307,14 +313,14 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
 
 template <typename T> void joints_tab::render_joint_specs(T &specs)
 {
-    if constexpr (!std::is_same_v<T, revolute_joint2D::specs>)
-        render_joint_properties(specs.props);
+    render_joint_properties(specs.props);
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
 {
-    static const char *names[5] = {"Spring", "Distance joint", "Revolute joint", "Rotor joint", "Motor joint"};
+    static const char *names[6] = {"Spring",     "Distance joint", "Revolute joint",
+                                   "Weld joint", "Rotor joint",    "Motor joint"};
     ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
     ImGui::BeginTabBar("Joints tab bar");
     if (ImGui::BeginTabItem("Spring"))
@@ -339,10 +345,16 @@ void joints_tab::render_imgui_tab()
     }
     if (ImGui::BeginTabItem("Revolute joint"))
     {
-        render_joint_specs(std::get<revolute_joint2D::specs>(m_specs));
-
+        render_selected_properties<revolute_joint2D>();
         if (ImGui::CollapsingHeader("Revolute joints"))
             render_joints_list<revolute_joint2D>();
+        ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("Weld joint"))
+    {
+        render_selected_properties<weld_joint2D>();
+        if (ImGui::CollapsingHeader("Weld joints"))
+            render_joints_list<weld_joint2D>();
         ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem("Rotor joint"))
@@ -369,9 +381,10 @@ void joints_tab::render_imgui_tab()
 void joints_tab::begin_joint_attach()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_body1 = m_app->world.bodies[mpos];
-    if (!m_body1)
+    const auto at_mpos = m_app->world.bodies[mpos];
+    if (at_mpos.empty())
         return;
+    m_body1 = at_mpos.front();
 
     const bool center_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     m_lanchor1 =
@@ -385,6 +398,7 @@ void joints_tab::begin_joint_attach()
     case joint_type::DISTANCE:
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
         break;
+    case joint_type::WELD:
     case joint_type::REVOLUTE:
         if (!m_body1->is_dynamic())
         {
@@ -410,13 +424,18 @@ void joints_tab::begin_joint_attach()
 template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    body2D *body2 = m_app->world.bodies[mpos];
-    if (!body2 || m_body1 == body2 || !(m_body1->is_dynamic() || body2->is_dynamic()))
+    body2D *body2 = nullptr;
+    for (body2D *candidate : m_app->world.bodies[mpos])
+        if (candidate != m_body1 && (candidate->is_dynamic() || m_body1->is_dynamic()))
+        {
+            body2 = candidate;
+            break;
+        }
+    if (!body2)
         return false;
-
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
 
-    if constexpr (std::is_same_v<T, revolute_joint2D::specs>)
+    if constexpr (std::is_same_v<T, revolute_joint2D::specs> || std::is_same_v<T, weld_joint2D::specs>)
     {
         specs.ganchor = mpos;
         specs.bodies_collide = false;
@@ -450,6 +469,13 @@ void joints_tab::end_joint_attach()
     case joint_type::REVOLUTE:
         if (attach_bodies_to_joint_specs(std::get<revolute_joint2D::specs>(m_specs)))
             m_app->world.joints.add<revolute_joint2D>(std::get<revolute_joint2D::specs>(m_specs));
+        m_grab.end_grab();
+        for (collider2D *collider : *m_body1)
+            collider->collision_filter.cgroups = filter::CGROUP<0>;
+        break;
+    case joint_type::WELD:
+        if (attach_bodies_to_joint_specs(std::get<weld_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<weld_joint2D>(std::get<weld_joint2D::specs>(m_specs));
         m_grab.end_grab();
         for (collider2D *collider : *m_body1)
             collider->collision_filter.cgroups = filter::CGROUP<0>;

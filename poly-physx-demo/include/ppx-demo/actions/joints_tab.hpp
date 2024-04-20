@@ -8,6 +8,7 @@
 #include "ppx/joints/motor_joint2D.hpp"
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
+#include "ppx/joints/weld_joint2D.hpp"
 
 namespace ppx::demo
 {
@@ -40,6 +41,7 @@ class joints_tab
         SPRING,
         DISTANCE,
         REVOLUTE,
+        WELD,
         ROTOR,
         MOTOR,
         SIZE
@@ -55,8 +57,8 @@ class joints_tab
     joint_type m_joint_type = joint_type::SPRING;
     kit::scope<lynx::line2D> m_preview;
 
-    std::tuple<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, rotor_joint2D::specs,
-               motor_joint2D::specs>
+    std::tuple<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
+               rotor_joint2D::specs, motor_joint2D::specs>
         m_specs;
 
     std::vector<const joint2D *> m_to_remove;

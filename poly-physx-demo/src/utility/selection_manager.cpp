@@ -17,6 +17,7 @@ selection_manager::selection_manager(demo_app &app)
     add_joint_on_remove_callback<spring2D>();
     add_joint_on_remove_callback<distance_joint2D>();
     add_joint_on_remove_callback<revolute_joint2D>();
+    add_joint_on_remove_callback<weld_joint2D>();
     add_joint_on_remove_callback<rotor_joint2D>();
     add_joint_on_remove_callback<motor_joint2D>();
 }
@@ -189,6 +190,7 @@ void selection_manager::update_selected_joints()
     update_selected_joints<spring2D>();
     update_selected_joints<distance_joint2D>();
     update_selected_joints<revolute_joint2D>();
+    update_selected_joints<weld_joint2D>();
     update_selected_joints<rotor_joint2D>();
     update_selected_joints<motor_joint2D>();
 }

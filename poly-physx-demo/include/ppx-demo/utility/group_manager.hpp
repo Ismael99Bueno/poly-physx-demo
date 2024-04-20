@@ -5,6 +5,7 @@
 #include "ppx/joints/spring2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
+#include "ppx/joints/weld_joint2D.hpp"
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
 
@@ -104,8 +105,8 @@ class group_manager
     {
         glm::vec2 mean_position{0.f};
         std::vector<body_proxy> bproxies;
-        jproxies<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, rotor_joint2D::specs,
-                 motor_joint2D::specs>
+        jproxies<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
+                 rotor_joint2D::specs, motor_joint2D::specs>
             jproxies;
 
         YAML::Node encode(world2D &world) const;

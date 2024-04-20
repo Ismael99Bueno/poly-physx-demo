@@ -143,6 +143,7 @@ void group_manager::paste_group()
     paste_current_joints<spring2D>(added_indices);
     paste_current_joints<distance_joint2D>(added_indices);
     paste_current_joints<revolute_joint2D>(added_indices);
+    paste_current_joints<weld_joint2D>(added_indices);
     paste_current_joints<rotor_joint2D>(added_indices);
     paste_current_joints<motor_joint2D>(added_indices);
 }
@@ -183,6 +184,7 @@ group_manager::group group_manager::create_group_from_selected()
             add_joints_to_current_group<spring2D>(selected_bodies, i, j);
             add_joints_to_current_group<distance_joint2D>(selected_bodies, i, j);
             add_joints_to_current_group<revolute_joint2D>(selected_bodies, i, j);
+            add_joints_to_current_group<weld_joint2D>(selected_bodies, i, j);
             add_joints_to_current_group<rotor_joint2D>(selected_bodies, i, j);
             add_joints_to_current_group<motor_joint2D>(selected_bodies, i, j);
         }

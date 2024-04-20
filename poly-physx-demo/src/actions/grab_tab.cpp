@@ -56,8 +56,10 @@ template <typename T> typename T::specs grab_tab::create_joint_grab_specs(const 
 void grab_tab::begin_grab()
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
-    m_grabbed = m_app->world.bodies[mpos];
-    if (!m_grabbed || !m_grabbed->is_dynamic())
+    for (body2D *candidate : m_app->world.bodies[mpos])
+        if (candidate->is_dynamic())
+            m_grabbed = candidate;
+    if (!m_grabbed)
         return;
 
     body2D::specs bspc;
