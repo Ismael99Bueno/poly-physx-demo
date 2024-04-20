@@ -179,12 +179,25 @@ void joints_tab::render_selected_dist_joint_properties()
     min_distance /= selected->size();
     max_distance /= selected->size();
 
-    if (ImGui::SliderFloat("Min distance", &min_distance, 0.f, max_distance, "%.1f"))
+    static bool single_distance = false;
+    ImGui::Checkbox("Single distance", &single_distance);
+
+    if (!single_distance)
+    {
+        if (ImGui::DragFloat("Min distance", &min_distance, 0.3f, 0.f, max_distance, "%.1f"))
+            for (distance_joint2D *dj : *selected)
+                dj->props.min_distance = min_distance;
+        if (ImGui::DragFloat("Max distance", &max_distance, 0.3f, min_distance, FLT_MAX, "%.1f"))
+            for (distance_joint2D *dj : *selected)
+                dj->props.max_distance = max_distance;
+    }
+    else if (ImGui::DragFloat("Distance", &min_distance, 0.3f, 0.f, FLT_MAX, "%.1f"))
         for (distance_joint2D *dj : *selected)
+        {
             dj->props.min_distance = min_distance;
-    if (ImGui::SliderFloat("Max distance", &max_distance, min_distance, FLT_MAX, "%.1f"))
-        for (distance_joint2D *dj : *selected)
             dj->props.max_distance = max_distance;
+        }
+
     ImGui::TreePop();
 }
 
@@ -227,12 +240,26 @@ void joints_tab::render_selected_rot_joint_properties()
     if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
         for (rotor_joint2D *rotj : *selected)
             rotj->props.target_speed = target_speed;
-    if (ImGui::SliderFloat("Min offset", &min_offset, -glm::pi<float>(), max_offset, "%.3f"))
+
+    static bool single_offset = false;
+    ImGui::Checkbox("Single offset", &single_offset);
+
+    if (!single_offset)
+    {
+        if (ImGui::SliderFloat("Min offset", &min_offset, -glm::pi<float>(), max_offset, "%.3f"))
+            for (rotor_joint2D *rotj : *selected)
+                rotj->props.min_offset = min_offset;
+        if (ImGui::SliderFloat("Max offset", &max_offset, min_offset, glm::pi<float>(), "%.3f"))
+            for (rotor_joint2D *rotj : *selected)
+                rotj->props.max_offset = max_offset;
+    }
+    else if (ImGui::SliderFloat("Offset", &min_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
         for (rotor_joint2D *rotj : *selected)
+        {
             rotj->props.min_offset = min_offset;
-    if (ImGui::SliderFloat("Max offset", &max_offset, min_offset, glm::pi<float>(), "%.3f"))
-        for (rotor_joint2D *rotj : *selected)
             rotj->props.max_offset = max_offset;
+        }
+
     ImGui::TreePop();
 }
 
@@ -288,8 +315,16 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
     }
     else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
     {
-        ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
-        ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
+        static bool single_distance = false;
+        ImGui::Checkbox("Single distance", &single_distance);
+
+        if (!single_distance)
+        {
+            ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
+            ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
+        }
+        else if (ImGui::DragFloat("Distance", &props.min_distance, 0.3f, 0.f, FLT_MAX, format))
+            props.max_distance = props.min_distance;
     }
     else if constexpr (std::is_same_v<T, rotor_joint2D::specs::properties>)
     {
@@ -297,8 +332,17 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
         ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
-        ImGui::SliderFloat("Min offset", &props.min_offset, -glm::pi<float>(), props.max_offset, "%.3f");
-        ImGui::SliderFloat("Max offset", &props.max_offset, props.min_offset, glm::pi<float>(), "%.3f");
+
+        static bool single_offset = false;
+        ImGui::Checkbox("Single offset", &single_offset);
+
+        if (!single_offset)
+        {
+            ImGui::SliderFloat("Min offset", &props.min_offset, -glm::pi<float>(), props.max_offset, "%.3f");
+            ImGui::SliderFloat("Max offset", &props.max_offset, props.min_offset, glm::pi<float>(), "%.3f");
+        }
+        else if (ImGui::SliderFloat("Offset", &props.min_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+            props.max_offset = props.min_offset;
         ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
     }
     else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
@@ -307,7 +351,7 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
         ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
-        ImGui::DragFloat2("Target offset", &props.target_offset.x, drag_speed, -FLT_MAX, FLT_MAX, format);
+        ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), drag_speed, -FLT_MAX, FLT_MAX, format);
     }
 }
 
