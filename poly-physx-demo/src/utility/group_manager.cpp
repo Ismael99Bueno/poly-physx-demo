@@ -48,10 +48,8 @@ template <typename Joint> void group_manager::update_preview_from_current_joint_
     for (const auto &jproxy : m_current_group.jproxies.get<Joint>())
     {
         auto &prv = preview.emplace_back(jproxy.color);
-        prv.p1(m_current_group.bproxies[jproxy.bprox_index1].specs.position + jproxy.specs.ganchor1 -
-               m_current_group.mean_position);
-        prv.p2(m_current_group.bproxies[jproxy.bprox_index2].specs.position + jproxy.specs.ganchor2 -
-               m_current_group.mean_position);
+        prv.p1(jproxy.specs.ganchor1 - m_current_group.mean_position);
+        prv.p2(jproxy.specs.ganchor2 - m_current_group.mean_position);
         prv.parent(&m_preview_transform);
     }
 }
@@ -69,23 +67,23 @@ void group_manager::update_preview_from_current_group()
                                                   .rotation(bproxy.specs.rotation)
                                                   .parent(&m_preview_transform)
                                                   .build());
-        for (const collider_proxy &cproxy : bproxy.cproxies)
+        for (std::size_t i = 0; i < bproxy.specs.props.colliders.size(); i++)
         {
+            auto &cspecs = bproxy.specs.props.colliders[i];
+            auto &color = bproxy.colors[i];
             lynx::shape2D *shape;
-            if (cproxy.specs.props.shape == collider2D::stype::POLYGON)
+            if (cspecs.props.shape == collider2D::stype::POLYGON)
             {
-                const std::vector<glm::vec2> vertices{cproxy.specs.props.vertices.begin(),
-                                                      cproxy.specs.props.vertices.end()};
-                shape = m_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, cproxy.color)).get();
+                const std::vector<glm::vec2> vertices{cspecs.props.vertices.begin(), cspecs.props.vertices.end()};
+                shape = m_shapes_preview.emplace_back(kit::make_scope<lynx::polygon2D>(vertices, color)).get();
             }
             else
-                shape = m_shapes_preview
-                            .emplace_back(kit::make_scope<lynx::ellipse2D>(cproxy.specs.props.radius, cproxy.color))
-                            .get();
-            shape->transform.position = cproxy.specs.position;
-            shape->transform.rotation = cproxy.specs.rotation;
+                shape =
+                    m_shapes_preview.emplace_back(kit::make_scope<lynx::ellipse2D>(cspecs.props.radius, color)).get();
+            shape->transform.position = cspecs.position;
+            shape->transform.rotation = cspecs.rotation;
             shape->transform.parent = &m_bodies_preview_transforms.back();
-            shape->color(cproxy.color);
+            shape->color(color);
         };
     }
     update_preview_from_current_joint_proxies<spring2D>();
@@ -137,7 +135,18 @@ void group_manager::paste_group()
         specs.position += offset_pos;
         specs.velocity = glm::vec2{0.f};
         specs.angular_velocity = 0.f;
-        added_indices.push_back(m_app.world.bodies.add(specs)->index);
+        const auto colliders = specs.props.colliders;
+        specs.props.colliders.clear();
+
+        body2D *body = m_app.world.bodies.add(specs);
+        added_indices.push_back(body->index);
+        body->begin_density_update();
+        for (std::size_t i = 0; i < colliders.size(); i++)
+        {
+            m_app.collider_color = lynx::color{bproxy.colors[i], 255u};
+            body->add(colliders[i]);
+        }
+        body->end_density_update();
     }
 
     paste_current_joints<spring2D>(added_indices);
@@ -150,11 +159,21 @@ void group_manager::paste_group()
 
 template <typename Joint> void group_manager::paste_current_joints(const std::vector<std::size_t> &added_indices)
 {
+    const glm::vec2 offset_pos = m_app.world_mouse_position() - m_current_group.mean_position;
     for (auto &jproxy : m_current_group.jproxies.get<Joint>())
     {
-        jproxy.specs.bindex1 = added_indices[jproxy.bprox_index1];
-        jproxy.specs.bindex2 = added_indices[jproxy.bprox_index2];
-        m_app.world.joints.add<Joint>(jproxy.specs);
+        auto spc = jproxy.specs;
+        spc.bindex1 = added_indices[jproxy.bprox_index1];
+        spc.bindex2 = added_indices[jproxy.bprox_index2];
+        if constexpr (Joint::ANCHORS == 2)
+        {
+            spc.ganchor1 += offset_pos;
+            spc.ganchor2 += offset_pos;
+        }
+        else if constexpr (Joint::ANCHORS == 1)
+            spc.ganchor += offset_pos;
+
+        m_app.world.joints.add<Joint>(spc);
     }
 }
 
@@ -170,8 +189,7 @@ group_manager::group group_manager::create_group_from_selected()
         body_proxy bproxy;
         bproxy.specs = body2D::specs::from_instance(*body);
         for (collider2D *collider : *body)
-            bproxy.cproxies.push_back({.color = lynx::color{m_app.shapes().at(collider)->color(), alpha},
-                                       .specs = collider2D::specs::from_instance(*collider)});
+            bproxy.colors.push_back(lynx::color{m_app.shapes().at(collider)->color(), alpha});
         fresh_group.bproxies.push_back(bproxy);
         fresh_group.mean_position += body->gposition();
         selected_bodies.push_back(body);
@@ -181,27 +199,27 @@ group_manager::group group_manager::create_group_from_selected()
     for (std::size_t i = 0; i < selected_bodies.size(); i++)
         for (std::size_t j = i + 1; j < selected_bodies.size(); j++)
         {
-            add_joints_to_current_group<spring2D>(selected_bodies, i, j);
-            add_joints_to_current_group<distance_joint2D>(selected_bodies, i, j);
-            add_joints_to_current_group<revolute_joint2D>(selected_bodies, i, j);
-            add_joints_to_current_group<weld_joint2D>(selected_bodies, i, j);
-            add_joints_to_current_group<rotor_joint2D>(selected_bodies, i, j);
-            add_joints_to_current_group<motor_joint2D>(selected_bodies, i, j);
+            add_joints_to_group<spring2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<distance_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<revolute_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<weld_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<rotor_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<motor_joint2D>(fresh_group, selected_bodies, i, j);
         }
 
     return fresh_group;
 }
 
 template <typename Joint>
-void group_manager::add_joints_to_current_group(const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
-                                                std::size_t idx2)
+void group_manager::add_joints_to_group(group &grp, const std::vector<const body2D *> &selected_bodies,
+                                        std::size_t idx1, std::size_t idx2)
 {
     using Specs = typename Joint::specs;
     const body2D *body1 = selected_bodies[idx1];
     const body2D *body2 = selected_bodies[idx2];
 
     const joint_container2D<Joint> *jmanager = m_app.world.joints.manager<Joint>();
-    auto &jproxies = m_current_group.jproxies.get<Joint>();
+    auto &jproxies = grp.jproxies.get<Joint>();
 
     for (const Joint *joint : jmanager->from_bodies(body1, body2))
     {
@@ -232,6 +250,28 @@ template <typename Specs, typename T> static void decode_joint_proxy(T &jproxy, 
     jproxy.specs = node["Specs"].as<Specs>();
 }
 
+template <typename Joint> YAML::Node group_manager::group::encode_proxies() const
+{
+    using Specs = typename Joint::specs;
+    YAML::Node node;
+    for (const joint_proxy<Specs> &prx : jproxies.get<Joint>())
+        node.push_back(encode_joint_proxy(prx));
+    return node;
+}
+
+template <typename Joint> void group_manager::group::decode_proxies(const YAML::Node &node)
+{
+    if (!node)
+        return;
+    using Specs = typename Joint::specs;
+    for (const YAML::Node &n : node)
+    {
+        joint_proxy<Specs> jproxy;
+        decode_joint_proxy<Specs>(jproxy, n);
+        jproxies.get<Joint>().push_back(jproxy);
+    }
+}
+
 YAML::Node group_manager::group::encode(world2D &world) const
 {
     YAML::Node node;
@@ -241,21 +281,17 @@ YAML::Node group_manager::group::encode(world2D &world) const
     {
         YAML::Node btnode;
         btnode["Body"] = bproxy.specs;
-        for (const collider_proxy &cproxy : bproxy.cproxies)
-        {
-            YAML::Node cnode;
-            cnode["Color"] = cproxy.color.normalized;
-            cnode["Collider"] = cproxy.specs;
-            btnode["Colliders"].push_back(cnode);
-        }
+        for (std::size_t i = 0; i < bproxy.specs.props.colliders.size(); i++)
+            btnode["Colors"].push_back(bproxy.colors[i].normalized);
         node["Body proxies"].push_back(btnode);
     }
 
-    for (const joint_proxy<spring2D::specs> &spproxy : jproxies.get<spring2D>())
-        node["Spring proxies"].push_back(encode_joint_proxy(spproxy));
-
-    for (const joint_proxy<distance_joint2D::specs> &djproxy : jproxies.get<distance_joint2D>())
-        node["Distance joint proxies"].push_back(encode_joint_proxy(djproxy));
+    node["Spring proxies"] = encode_proxies<spring2D>();
+    node["Distance joint proxies"] = encode_proxies<distance_joint2D>();
+    node["Revolute joint proxies"] = encode_proxies<revolute_joint2D>();
+    node["Weld joint proxies"] = encode_proxies<weld_joint2D>();
+    node["Rotor joint proxies"] = encode_proxies<rotor_joint2D>();
+    node["Motor joint proxies"] = encode_proxies<motor_joint2D>();
 
     return node;
 }
@@ -270,32 +306,19 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
         {
             body_proxy bproxy;
             bproxy.specs = bn["Body"].as<body2D::specs>();
-            if (bn["Colliders"])
-                for (const YAML::Node &cn : bn["Colliders"])
-                {
-                    collider_proxy cproxy;
-                    cproxy.color.normalized = cn["Color"].as<glm::vec4>();
-                    cproxy.specs = cn["Collider"].as<collider2D::specs>();
-                    bproxy.cproxies.push_back(cproxy);
-                }
+            if (bn["Colors"])
+                for (const YAML::Node &cn : bn["Colors"])
+                    bproxy.colors.push_back(lynx::color{cn.as<glm::vec4>()});
+
             bproxies.push_back(bproxy);
         }
 
-    if (node["Spring proxies"])
-        for (const YAML::Node &n : node["Spring proxies"])
-        {
-            joint_proxy<spring2D::specs> spproxy;
-            decode_joint_proxy<spring2D::specs>(spproxy, n);
-            jproxies.get<spring2D>().push_back(spproxy);
-        }
-
-    if (node["Distance joint proxies"])
-        for (const YAML::Node &n : node["Distance joint proxies"])
-        {
-            joint_proxy<distance_joint2D::specs> djproxy;
-            decode_joint_proxy<distance_joint2D::specs>(djproxy, n);
-            jproxies.get<distance_joint2D>().push_back(djproxy);
-        }
+    decode_proxies<spring2D>(node["Spring proxies"]);
+    decode_proxies<distance_joint2D>(node["Distance joint proxies"]);
+    decode_proxies<revolute_joint2D>(node["Revolute joint proxies"]);
+    decode_proxies<weld_joint2D>(node["Weld joint proxies"]);
+    decode_proxies<rotor_joint2D>(node["Rotor joint proxies"]);
+    decode_proxies<motor_joint2D>(node["Motor joint proxies"]);
 }
 
 YAML::Node group_manager::encode() const

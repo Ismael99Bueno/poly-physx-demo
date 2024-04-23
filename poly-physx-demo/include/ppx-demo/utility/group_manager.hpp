@@ -39,15 +39,10 @@ class group_manager
     void decode(const YAML::Node &node);
 
   private:
-    struct collider_proxy
-    {
-        lynx::color color;
-        collider2D::specs specs;
-    };
     struct body_proxy
     {
         body2D::specs specs;
-        std::vector<collider_proxy> cproxies;
+        std::vector<lynx::color> colors;
     };
 
     template <typename Specs> struct joint_proxy
@@ -109,6 +104,9 @@ class group_manager
                  rotor_joint2D::specs, motor_joint2D::specs>
             jproxies;
 
+        template <typename Joint> YAML::Node encode_proxies() const;
+        template <typename Joint> void decode_proxies(const YAML::Node &node);
+
         YAML::Node encode(world2D &world) const;
         void decode(const YAML::Node &node, world2D &world);
     };
@@ -135,8 +133,8 @@ class group_manager
     template <typename Joint> void paste_current_joints(const std::vector<std::size_t> &added_indices);
 
     template <typename Joint>
-    void add_joints_to_current_group(const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
-                                     std::size_t idx2);
+    void add_joints_to_group(group &grp, const std::vector<const body2D *> &selected_bodies, std::size_t idx1,
+                             std::size_t idx2);
 
     void update_preview_from_current_group();
     template <typename Joint> void update_preview_from_current_joint_proxies();
