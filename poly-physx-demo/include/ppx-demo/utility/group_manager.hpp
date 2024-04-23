@@ -2,7 +2,7 @@
 
 #include "ppx/body/body2D.hpp"
 #include "ppx/collider/collider2D.hpp"
-#include "ppx/joints/spring2D.hpp"
+#include "ppx/joints/spring_joint2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
 #include "ppx/joints/weld_joint2D.hpp"
@@ -56,7 +56,7 @@ class group_manager
     template <typename T> struct jtype_to_line
     {
     };
-    template <> struct jtype_to_line<spring2D>
+    template <> struct jtype_to_line<spring_joint2D>
     {
         static inline constexpr std::size_t index = 0;
         using type = spring_line;
@@ -100,7 +100,7 @@ class group_manager
     {
         glm::vec2 mean_position{0.f};
         std::vector<body_proxy> bproxies;
-        jproxies<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
+        jproxies<spring_joint2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
                  rotor_joint2D::specs, motor_joint2D::specs>
             jproxies;
 
@@ -126,7 +126,7 @@ class group_manager
     std::vector<kit::transform2D<float>> m_bodies_preview_transforms;
     std::vector<kit::scope<lynx::shape2D>> m_shapes_preview;
 
-    jpreviews<spring2D, distance_joint2D> m_joints_preview;
+    jpreviews<spring_joint2D, distance_joint2D> m_joints_preview;
 
     bool m_ongoing_group = false;
 

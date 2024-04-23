@@ -14,7 +14,7 @@ selection_manager::selection_manager(demo_app &app)
     app.world.bodies.events.on_removal += [this](body2D &body) { m_selected_bodies.erase(&body); };
     app.world.colliders.events.on_removal += [this](collider2D &collider) { m_selected_colliders.erase(&collider); };
 
-    add_joint_on_remove_callback<spring2D>();
+    add_joint_on_remove_callback<spring_joint2D>();
     add_joint_on_remove_callback<distance_joint2D>();
     add_joint_on_remove_callback<revolute_joint2D>();
     add_joint_on_remove_callback<weld_joint2D>();
@@ -187,7 +187,7 @@ template <typename Joint> void selection_manager::update_selected_joints()
 
 void selection_manager::update_selected_joints()
 {
-    update_selected_joints<spring2D>();
+    update_selected_joints<spring_joint2D>();
     update_selected_joints<distance_joint2D>();
     update_selected_joints<revolute_joint2D>();
     update_selected_joints<weld_joint2D>();

@@ -4,7 +4,7 @@
 #include "lynx/app/window.hpp"
 #include "ppx/body/body2D.hpp"
 #include "ppx/collider/collider2D.hpp"
-#include "ppx/joints/spring2D.hpp"
+#include "ppx/joints/spring_joint2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
 #include "ppx/joints/weld_joint2D.hpp"
@@ -74,7 +74,7 @@ class selection_manager
         }
     };
 
-    joint_set<spring2D, distance_joint2D, revolute_joint2D, weld_joint2D, rotor_joint2D, motor_joint2D>
+    joint_set<spring_joint2D, distance_joint2D, revolute_joint2D, weld_joint2D, rotor_joint2D, motor_joint2D>
         m_selected_joints;
 
     template <typename Joint> void add_joint_on_remove_callback();

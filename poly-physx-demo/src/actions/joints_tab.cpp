@@ -107,7 +107,7 @@ template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_
 
 void joints_tab::render_selected_spring_properties()
 {
-    auto selected = render_selected_properties<spring2D>();
+    auto selected = render_selected_properties<spring_joint2D>();
     if (!selected)
         return;
     static constexpr float drag_speed = 0.3f;
@@ -115,40 +115,59 @@ void joints_tab::render_selected_spring_properties()
 
     float frequency = 0.f;
     float damping_ratio = 0.f;
-    float length = 0.f;
+    float min_length = 0.f;
+    float max_length = 0.f;
     std::uint32_t non_linear_terms = UINT32_MAX;
     float non_linear_contribution = 0.f;
 
-    for (spring2D *sp : *selected)
+    for (spring_joint2D *sp : *selected)
     {
         frequency += sp->props.frequency;
         damping_ratio += sp->props.damping_ratio;
-        length += sp->props.length;
+        min_length += sp->props.min_length;
+        max_length += sp->props.max_length;
         non_linear_contribution += sp->props.non_linear_contribution;
         if (non_linear_terms > sp->props.non_linear_terms)
             non_linear_terms = sp->props.non_linear_terms;
     }
     frequency /= selected->size();
     damping_ratio /= selected->size();
-    length /= selected->size();
+    min_length /= selected->size();
+    max_length /= selected->size();
     non_linear_contribution /= selected->size();
 
     if (ImGui::DragFloat("Frequency##Multiple", &frequency, 0.01f, 0.f, FLT_MAX, "%.3f"))
-        for (spring2D *sp : *selected)
+        for (spring_joint2D *sp : *selected)
             sp->props.frequency = frequency;
     if (ImGui::DragFloat("Damping ratio##Multiple", &damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f"))
-        for (spring2D *sp : *selected)
+        for (spring_joint2D *sp : *selected)
             sp->props.damping_ratio = damping_ratio;
-    if (ImGui::DragFloat("Length##Multiple", &length, drag_speed, 0.f, FLT_MAX, format))
-        for (spring2D *sp : *selected)
-            sp->props.length = length;
     if (ImGui::SliderInt("Non linear terms##Multiple", (int *)&non_linear_terms, 0, 8))
-        for (spring2D *sp : *selected)
+        for (spring_joint2D *sp : *selected)
             sp->props.non_linear_terms = non_linear_terms;
     if (ImGui::SliderFloat("Non linear contribution##Multiple", &non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic))
-        for (spring2D *sp : *selected)
+        for (spring_joint2D *sp : *selected)
             sp->props.non_linear_contribution = non_linear_contribution;
+
+    static bool single_length = false;
+    ImGui::Checkbox("Single length", &single_length);
+
+    if (!single_length)
+    {
+        if (ImGui::DragFloat("Min length##Multiple", &min_length, drag_speed, 0.f, max_length, format))
+            for (spring_joint2D *sp : *selected)
+                sp->props.min_length = min_length;
+        if (ImGui::DragFloat("Max length##Multiple", &max_length, drag_speed, min_length, FLT_MAX, format))
+            for (spring_joint2D *sp : *selected)
+                sp->props.max_length = max_length;
+    }
+    else if (ImGui::DragFloat("Length##Multiple", &min_length, drag_speed, 0.f, FLT_MAX, format))
+        for (spring_joint2D *sp : *selected)
+        {
+            sp->props.min_length = min_length;
+            sp->props.max_length = max_length;
+        }
     ImGui::TreePop();
 }
 
@@ -304,14 +323,23 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
 {
     constexpr float drag_speed = 0.4f;
     constexpr const char *format = "%.1f";
-    if constexpr (std::is_same_v<T, spring2D::specs::properties>)
+    if constexpr (std::is_same_v<T, spring_joint2D::specs::properties>)
     {
         ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
         ImGui::DragFloat("Damping", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
-        ImGui::DragFloat("Length", &props.length, drag_speed, 0.f, FLT_MAX, format);
         ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
         ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
+
+        static bool single_length = false;
+        ImGui::Checkbox("Single length", &single_length);
+        if (!single_length)
+        {
+            ImGui::DragFloat("Min length", &props.min_length, drag_speed, 0.f, props.max_length, "%.1f");
+            ImGui::DragFloat("Max length", &props.max_length, drag_speed, props.min_length, FLT_MAX, "%.1f");
+        }
+        else if (ImGui::DragFloat("Length", &props.min_length, drag_speed, 0.f, FLT_MAX, format))
+            props.max_length = props.min_length;
     }
     else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
     {
@@ -358,68 +386,64 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
 template <typename T> void joints_tab::render_joint_specs(T &specs)
 {
     render_joint_properties(specs.props);
+    if constexpr (std::is_same_v<T, spring_joint2D::specs>)
+        ImGui::Checkbox("Deduce length", &specs.deduce_length);
+    else if constexpr (std::is_same_v<T, distance_joint2D::specs>)
+        ImGui::Checkbox("Deduce distance", &specs.deduce_distance);
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
 {
-    static const char *names[6] = {"Spring",     "Distance joint", "Revolute joint",
-                                   "Weld joint", "Rotor joint",    "Motor joint"};
-    ImGui::Text("Current joint: %s (Change with LEFT and RiGHT)", names[(std::uint32_t)m_joint_type]);
-    ImGui::BeginTabBar("Joints tab bar");
-    if (ImGui::BeginTabItem("Spring"))
+    ImGui::Combo("Joint type", (int *)&m_joint_type,
+                 "Spring joint\0Distance joint\0Revolute joint\0Weld joint\0Rotor joint\0Motor joint\0\0");
+    switch (m_joint_type)
+    {
+    case joint_type::SPRING:
+        render_joint_specs(std::get<spring_joint2D::specs>(m_specs));
+        break;
+    case joint_type::DISTANCE:
+        render_joint_specs(std::get<distance_joint2D::specs>(m_specs));
+        break;
+    case joint_type::ROTOR:
+        render_joint_specs(std::get<rotor_joint2D::specs>(m_specs));
+        break;
+    case joint_type::MOTOR:
+        render_joint_specs(std::get<motor_joint2D::specs>(m_specs));
+        break;
+    default:
+        break;
+    }
+    if (ImGui::CollapsingHeader("Spring joints"))
     {
         render_selected_spring_properties();
-        auto &specs = std::get<spring2D::specs>(m_specs);
-        render_joint_specs(specs);
-        ImGui::Checkbox("Auto-length", &specs.deduce_length);
-
-        if (ImGui::CollapsingHeader("Springs"))
-            render_joints_list<spring2D>();
-        ImGui::EndTabItem();
+        render_joints_list<spring_joint2D>();
     }
-    if (ImGui::BeginTabItem("Distance joint"))
+    if (ImGui::CollapsingHeader("Distance joints"))
     {
         render_selected_dist_joint_properties();
-        render_joint_specs(std::get<distance_joint2D::specs>(m_specs));
-
-        if (ImGui::CollapsingHeader("Distance joints"))
-            render_joints_list<distance_joint2D>();
-        ImGui::EndTabItem();
+        render_joints_list<distance_joint2D>();
     }
-    if (ImGui::BeginTabItem("Revolute joint"))
+    if (ImGui::CollapsingHeader("Revolute joints"))
     {
         render_selected_properties<revolute_joint2D>();
-        if (ImGui::CollapsingHeader("Revolute joints"))
-            render_joints_list<revolute_joint2D>();
-        ImGui::EndTabItem();
+        render_joints_list<revolute_joint2D>();
     }
-    if (ImGui::BeginTabItem("Weld joint"))
+    if (ImGui::CollapsingHeader("Weld joints"))
     {
         render_selected_properties<weld_joint2D>();
-        if (ImGui::CollapsingHeader("Weld joints"))
-            render_joints_list<weld_joint2D>();
-        ImGui::EndTabItem();
+        render_joints_list<weld_joint2D>();
     }
-    if (ImGui::BeginTabItem("Rotor joint"))
+    if (ImGui::CollapsingHeader("Rotor joints"))
     {
         render_selected_rot_joint_properties();
-        render_joint_specs(std::get<rotor_joint2D::specs>(m_specs));
-
-        if (ImGui::CollapsingHeader("Rotor joints"))
-            render_joints_list<rotor_joint2D>();
-        ImGui::EndTabItem();
+        render_joints_list<rotor_joint2D>();
     }
-    if (ImGui::BeginTabItem("Motor joint"))
+    if (ImGui::CollapsingHeader("Motor joints"))
     {
         render_selected_mot_joint_properties();
-        render_joint_specs(std::get<motor_joint2D::specs>(m_specs));
-
-        if (ImGui::CollapsingHeader("Motor joints"))
-            render_joints_list<motor_joint2D>();
-        ImGui::EndTabItem();
+        render_joints_list<motor_joint2D>();
     }
-    ImGui::EndTabBar();
 }
 
 void joints_tab::begin_joint_attach()
@@ -503,8 +527,8 @@ void joints_tab::end_joint_attach()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        if (attach_bodies_to_joint_specs(std::get<spring2D::specs>(m_specs)))
-            m_app->world.joints.add<spring2D>(std::get<spring2D::specs>(m_specs));
+        if (attach_bodies_to_joint_specs(std::get<spring_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<spring_joint2D>(std::get<spring_joint2D::specs>(m_specs));
         break;
     case joint_type::DISTANCE:
         if (attach_bodies_to_joint_specs(std::get<distance_joint2D::specs>(m_specs)))
@@ -555,26 +579,12 @@ bool joints_tab::first_is_selected() const
     return m_body1;
 }
 
-void joints_tab::increase_joint_type()
-{
-    const std::uint32_t idx = ((std::uint32_t)m_joint_type + 1) % (std::uint32_t)joint_type::SIZE;
-    m_joint_type = (joint_type)idx;
-}
-void joints_tab::decrease_joint_type()
-{
-    const std::uint32_t idx = (std::uint32_t)m_joint_type;
-    if (idx == 0)
-        m_joint_type = (joint_type)((std::uint32_t)joint_type::SIZE - 1);
-    else
-        m_joint_type = (joint_type)(idx - 1);
-}
-
 YAML::Node joints_tab::encode() const
 {
     YAML::Node node;
     node["Joint type"] = (int)m_joint_type;
 
-    node["Spring"] = std::get<spring2D::specs>(m_specs);
+    node["Spring joint"] = std::get<spring_joint2D::specs>(m_specs);
     node["Distance joint"] = std::get<distance_joint2D::specs>(m_specs);
     node["Revolute joint"] = std::get<revolute_joint2D::specs>(m_specs);
     node["Rotor joint"] = std::get<rotor_joint2D::specs>(m_specs);
@@ -586,7 +596,7 @@ void joints_tab::decode(const YAML::Node &node)
 {
     m_joint_type = (joint_type)node["Joint type"].as<int>();
 
-    std::get<spring2D::specs>(m_specs) = node["Spring"].as<spring2D::specs>();
+    std::get<spring_joint2D::specs>(m_specs) = node["Spring joint"].as<spring_joint2D::specs>();
     std::get<distance_joint2D::specs>(m_specs) = node["Distance joint"].as<distance_joint2D::specs>();
     std::get<revolute_joint2D::specs>(m_specs) = node["Revolute joint"].as<revolute_joint2D::specs>();
     std::get<rotor_joint2D::specs>(m_specs) = node["Rotor joint"].as<rotor_joint2D::specs>();

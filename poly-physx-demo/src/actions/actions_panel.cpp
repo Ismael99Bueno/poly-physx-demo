@@ -65,21 +65,6 @@ bool actions_panel::on_event(const lynx::event2D &event)
         m_grab_tab.end_grab();
     switch (event.type)
     {
-    case lynx::event2D::KEY_PRESSED:
-        if (ImGui::GetIO().WantCaptureKeyboard)
-            return false;
-        switch (event.key)
-        {
-        case lynx::input2D::key::LEFT:
-            m_joints_tab.decrease_joint_type();
-            break;
-        case lynx::input2D::key::RIGHT:
-            m_joints_tab.increase_joint_type();
-            break;
-        default:
-            break;
-        }
-        break;
     case lynx::event2D::MOUSE_PRESSED:
         if (ImGui::GetIO().WantCaptureMouse)
             return false;

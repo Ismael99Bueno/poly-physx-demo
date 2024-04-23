@@ -25,7 +25,7 @@ void group_manager::render() const
 
     for (const auto &shape : m_shapes_preview)
         m_window->draw(*shape);
-    for (const spring_line &spline : m_joints_preview.get<spring2D>())
+    for (const spring_line &spline : m_joints_preview.get<spring_joint2D>())
         m_window->draw(spline);
     for (const thick_line &djline : m_joints_preview.get<distance_joint2D>())
         m_window->draw(djline);
@@ -86,7 +86,7 @@ void group_manager::update_preview_from_current_group()
             shape->color(color);
         };
     }
-    update_preview_from_current_joint_proxies<spring2D>();
+    update_preview_from_current_joint_proxies<spring_joint2D>();
     update_preview_from_current_joint_proxies<distance_joint2D>();
 }
 
@@ -149,7 +149,7 @@ void group_manager::paste_group()
         body->end_density_update();
     }
 
-    paste_current_joints<spring2D>(added_indices);
+    paste_current_joints<spring_joint2D>(added_indices);
     paste_current_joints<distance_joint2D>(added_indices);
     paste_current_joints<revolute_joint2D>(added_indices);
     paste_current_joints<weld_joint2D>(added_indices);
@@ -199,7 +199,7 @@ group_manager::group group_manager::create_group_from_selected()
     for (std::size_t i = 0; i < selected_bodies.size(); i++)
         for (std::size_t j = i + 1; j < selected_bodies.size(); j++)
         {
-            add_joints_to_group<spring2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<spring_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<distance_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<revolute_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<weld_joint2D>(fresh_group, selected_bodies, i, j);
@@ -286,7 +286,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
         node["Body proxies"].push_back(btnode);
     }
 
-    node["Spring proxies"] = encode_proxies<spring2D>();
+    node["Spring joint proxies"] = encode_proxies<spring_joint2D>();
     node["Distance joint proxies"] = encode_proxies<distance_joint2D>();
     node["Revolute joint proxies"] = encode_proxies<revolute_joint2D>();
     node["Weld joint proxies"] = encode_proxies<weld_joint2D>();
@@ -313,7 +313,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
             bproxies.push_back(bproxy);
         }
 
-    decode_proxies<spring2D>(node["Spring proxies"]);
+    decode_proxies<spring_joint2D>(node["Spring joint proxies"]);
     decode_proxies<distance_joint2D>(node["Distance joint proxies"]);
     decode_proxies<revolute_joint2D>(node["Revolute joint proxies"]);
     decode_proxies<weld_joint2D>(node["Weld joint proxies"]);

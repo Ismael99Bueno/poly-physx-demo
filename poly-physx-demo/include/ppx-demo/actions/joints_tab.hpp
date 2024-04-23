@@ -6,7 +6,7 @@
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
-#include "ppx/joints/spring2D.hpp"
+#include "ppx/joints/spring_joint2D.hpp"
 #include "ppx/joints/revolute_joint2D.hpp"
 #include "ppx/joints/weld_joint2D.hpp"
 
@@ -29,9 +29,6 @@ class joints_tab
 
     bool first_is_selected() const;
 
-    void increase_joint_type();
-    void decrease_joint_type();
-
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
 
@@ -43,8 +40,7 @@ class joints_tab
         REVOLUTE,
         WELD,
         ROTOR,
-        MOTOR,
-        SIZE
+        MOTOR
     };
 
     demo_app *m_app;
@@ -57,7 +53,7 @@ class joints_tab
     joint_type m_joint_type = joint_type::SPRING;
     kit::scope<lynx::line2D> m_preview;
 
-    std::tuple<spring2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
+    std::tuple<spring_joint2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
                rotor_joint2D::specs, motor_joint2D::specs>
         m_specs;
 

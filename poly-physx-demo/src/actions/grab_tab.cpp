@@ -23,14 +23,14 @@ void grab_tab::update()
     if (m_jtype != joint_type::SPRING)
     {
         const auto [_, damping] =
-            spring2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_grabbed->props().nondynamic.mass);
+            spring_joint2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_grabbed->props().nondynamic.mass);
         m_grabbed->add_force(-damping * m_grabbed->velocity());
     }
 }
 
 void grab_tab::render_imgui_tab()
 {
-    ImGui::Combo("Joint type", (int *)&m_jtype, "Spring\0Distance joint\0Revolute joint\0\0");
+    ImGui::Combo("Joint type", (int *)&m_jtype, "Spring joint\0Distance joint\0Revolute joint\0\0");
     ImGui::DragFloat("Frequency", &m_frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
     ImGui::DragFloat("Damping ratio", &m_damping_ratio, 0.01f, 0.f, FLT_MAX, "%.3f");
     if (m_jtype == joint_type::DISTANCE)
@@ -69,10 +69,10 @@ void grab_tab::begin_grab()
     switch (m_jtype)
     {
     case joint_type::SPRING: {
-        spring2D::specs spspc = create_joint_grab_specs<spring2D>(mpos);
+        spring_joint2D::specs spspc = create_joint_grab_specs<spring_joint2D>(mpos);
         spspc.props.frequency = m_frequency;
         spspc.props.damping_ratio = m_damping_ratio;
-        m_app->world.joints.add<spring2D>(spspc);
+        m_app->world.joints.add<spring_joint2D>(spspc);
         break;
     }
     case joint_type::DISTANCE: {
