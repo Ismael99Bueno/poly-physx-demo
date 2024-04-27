@@ -175,11 +175,18 @@ template <typename Joint> void joints_tab::render_joints_list()
 {
     joint_container2D<Joint> *joints = m_app->world.joints.manager<Joint>();
     for (Joint *joint : *joints)
+    {
+        ImGui::PushID(joint);
+        if (ImGui::Button("X"))
+            m_to_remove.push_back(joint);
+        ImGui::PopID();
+        ImGui::SameLine();
         if (ImGui::TreeNode(joint, "%s", kit::uuid::name_from_ptr(joint).c_str()))
         {
             render_full_joint(joint);
             ImGui::TreePop();
         }
+    }
 }
 
 void joints_tab::render_selected_dist_joint_properties()

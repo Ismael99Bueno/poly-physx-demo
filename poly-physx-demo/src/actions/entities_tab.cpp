@@ -56,20 +56,34 @@ void entities_tab::render_general_options()
 void entities_tab::render_bodies_list()
 {
     for (body2D *body : m_app->world.bodies)
+    {
+        ImGui::PushID(body);
+        if (ImGui::Button("X"))
+            m_bodies_to_remove.push_back(body);
+        ImGui::PopID();
+        ImGui::SameLine();
         if (ImGui::TreeNode(body, "%s", kit::uuid::name_from_ptr(body).c_str()))
         {
             render_single_body_properties(body);
             ImGui::TreePop();
         }
+    }
 }
 void entities_tab::render_colliders_list()
 {
     for (collider2D *collider : m_app->world.colliders)
+    {
+        ImGui::PushID(collider);
+        if (ImGui::Button("X"))
+            m_colliders_to_remove.push_back(collider);
+        ImGui::PopID();
+        ImGui::SameLine();
         if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
         {
             render_single_collider_properties(collider);
             ImGui::TreePop();
         }
+    }
 }
 
 void entities_tab::render_single_body_properties(body2D *body)
