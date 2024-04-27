@@ -228,8 +228,8 @@ void joints_tab::render_selected_rot_joint_properties()
     float torque = 0.f;
     float correction_factor = 0.f;
     float target_speed = 0.f;
-    float min_offset = 0.f;
-    float max_offset = 0.f;
+    float min_angle = 0.f;
+    float max_angle = 0.f;
     bool spin_indefinitely = true;
 
     for (rotor_joint2D *rotj : *selected)
@@ -237,15 +237,15 @@ void joints_tab::render_selected_rot_joint_properties()
         torque += rotj->props.torque;
         correction_factor += rotj->props.correction_factor;
         target_speed += rotj->props.target_speed;
-        min_offset += rotj->props.min_offset;
-        max_offset += rotj->props.max_offset;
+        min_angle += rotj->props.min_angle;
+        max_angle += rotj->props.max_angle;
         spin_indefinitely &= rotj->props.spin_indefinitely;
     }
     torque /= selected->size();
     correction_factor /= selected->size();
     target_speed /= selected->size();
-    min_offset /= selected->size();
-    max_offset /= selected->size();
+    min_angle /= selected->size();
+    max_angle /= selected->size();
 
     if (ImGui::DragFloat("Torque", &torque, 0.3f, 0.f, FLT_MAX, "%.1f"))
         for (rotor_joint2D *rotj : *selected)
@@ -260,23 +260,23 @@ void joints_tab::render_selected_rot_joint_properties()
         for (rotor_joint2D *rotj : *selected)
             rotj->props.target_speed = target_speed;
 
-    static bool single_offset = false;
-    ImGui::Checkbox("Single offset", &single_offset);
+    static bool single_angle = false;
+    ImGui::Checkbox("Single angle", &single_angle);
 
-    if (!single_offset)
+    if (!single_angle)
     {
-        if (ImGui::SliderFloat("Min offset", &min_offset, -glm::pi<float>(), max_offset, "%.3f"))
+        if (ImGui::SliderFloat("Min angle", &min_angle, -glm::pi<float>(), max_angle, "%.3f"))
             for (rotor_joint2D *rotj : *selected)
-                rotj->props.min_offset = min_offset;
-        if (ImGui::SliderFloat("Max offset", &max_offset, min_offset, glm::pi<float>(), "%.3f"))
+                rotj->props.min_angle = min_angle;
+        if (ImGui::SliderFloat("Max angle", &max_angle, min_angle, glm::pi<float>(), "%.3f"))
             for (rotor_joint2D *rotj : *selected)
-                rotj->props.max_offset = max_offset;
+                rotj->props.max_angle = max_angle;
     }
-    else if (ImGui::SliderFloat("Offset", &min_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    else if (ImGui::SliderFloat("Angle", &min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
         for (rotor_joint2D *rotj : *selected)
         {
-            rotj->props.min_offset = min_offset;
-            rotj->props.max_offset = max_offset;
+            rotj->props.min_angle = min_angle;
+            rotj->props.max_angle = max_angle;
         }
 
     ImGui::TreePop();
@@ -361,16 +361,16 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
                            ImGuiSliderFlags_Logarithmic);
         ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
 
-        static bool single_offset = false;
-        ImGui::Checkbox("Single offset", &single_offset);
+        static bool single_angle = false;
+        ImGui::Checkbox("Single angle", &single_angle);
 
-        if (!single_offset)
+        if (!single_angle)
         {
-            ImGui::SliderFloat("Min offset", &props.min_offset, -glm::pi<float>(), props.max_offset, "%.3f");
-            ImGui::SliderFloat("Max offset", &props.max_offset, props.min_offset, glm::pi<float>(), "%.3f");
+            ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+            ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
         }
-        else if (ImGui::SliderFloat("Offset", &props.min_offset, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
-            props.max_offset = props.min_offset;
+        else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+            props.max_angle = props.min_angle;
         ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
     }
     else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
