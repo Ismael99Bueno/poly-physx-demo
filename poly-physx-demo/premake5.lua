@@ -56,7 +56,6 @@ links {
    "glfw",
    "yaml-cpp",
 }
-linkoptions "-rpath /usr/local/lib"
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 filter "system:windows"
@@ -65,6 +64,7 @@ filter "system:windows"
    links {"vulkan-1", "gdi32"}
 
 filter "system:macosx"
+   linkoptions "-rpath /usr/local/lib"
    links {
       "vulkan",
       "Cocoa.framework",
