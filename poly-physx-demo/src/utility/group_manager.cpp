@@ -155,6 +155,7 @@ void group_manager::paste_group()
     paste_current_joints<weld_joint2D>(added_indices);
     paste_current_joints<rotor_joint2D>(added_indices);
     paste_current_joints<motor_joint2D>(added_indices);
+    paste_current_joints<ball_joint2D>(added_indices);
 }
 
 template <typename Joint> void group_manager::paste_current_joints(const std::vector<std::size_t> &added_indices)
@@ -205,6 +206,7 @@ group_manager::group group_manager::create_group_from_selected()
             add_joints_to_group<weld_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<rotor_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<motor_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<ball_joint2D>(fresh_group, selected_bodies, i, j);
         }
 
     return fresh_group;
@@ -292,6 +294,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
     node["Weld joint proxies"] = encode_proxies<weld_joint2D>();
     node["Rotor joint proxies"] = encode_proxies<rotor_joint2D>();
     node["Motor joint proxies"] = encode_proxies<motor_joint2D>();
+    node["Ball joint proxies"] = encode_proxies<ball_joint2D>();
 
     return node;
 }
@@ -319,6 +322,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
     decode_proxies<weld_joint2D>(node["Weld joint proxies"]);
     decode_proxies<rotor_joint2D>(node["Rotor joint proxies"]);
     decode_proxies<motor_joint2D>(node["Motor joint proxies"]);
+    decode_proxies<ball_joint2D>(node["Ball joint proxies"]);
 }
 
 YAML::Node group_manager::encode() const

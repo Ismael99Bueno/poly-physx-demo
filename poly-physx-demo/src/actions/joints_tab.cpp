@@ -319,6 +319,44 @@ void joints_tab::render_selected_mot_joint_properties()
     ImGui::TreePop();
 }
 
+void joints_tab::render_selected_ball_joint_properties()
+{
+    auto selected = render_selected_properties<ball_joint2D>();
+    if (!selected)
+        return;
+    float min_angle = 0.f;
+    float max_angle = 0.f;
+
+    for (ball_joint2D *bj : *selected)
+    {
+        min_angle += bj->props.min_angle;
+        max_angle += bj->props.max_angle;
+    }
+    min_angle /= selected->size();
+    max_angle /= selected->size();
+
+    static bool single_angle = false;
+    ImGui::Checkbox("Single angle", &single_angle);
+
+    if (!single_angle)
+    {
+        if (ImGui::SliderFloat("Min angle", &min_angle, -glm::pi<float>(), max_angle, "%.3f"))
+            for (ball_joint2D *bj : *selected)
+                bj->props.min_angle = min_angle;
+        if (ImGui::SliderFloat("Max angle", &max_angle, min_angle, glm::pi<float>(), "%.3f"))
+            for (ball_joint2D *bj : *selected)
+                bj->props.max_angle = max_angle;
+    }
+    else if (ImGui::SliderFloat("Angle", &min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+        for (ball_joint2D *bj : *selected)
+        {
+            bj->props.min_angle = min_angle;
+            bj->props.max_angle = max_angle;
+        }
+
+    ImGui::TreePop();
+}
+
 template <typename T> void joints_tab::render_joint_properties(T &props) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
@@ -381,6 +419,19 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
         ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), drag_speed, -FLT_MAX, FLT_MAX, format);
     }
+    else if constexpr (std::is_same_v<T, ball_joint2D::specs::properties>)
+    {
+        static bool single_angle = false;
+        ImGui::Checkbox("Single angle", &single_angle);
+
+        if (!single_angle)
+        {
+            ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+            ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
+        }
+        else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+            props.max_angle = props.min_angle;
+    }
 }
 
 template <typename T> void joints_tab::render_joint_specs(T &specs)
@@ -390,13 +441,15 @@ template <typename T> void joints_tab::render_joint_specs(T &specs)
         ImGui::Checkbox("Deduce length", &specs.deduce_length);
     else if constexpr (std::is_same_v<T, distance_joint2D::specs>)
         ImGui::Checkbox("Deduce distance", &specs.deduce_distance);
+    else if constexpr (std::is_same_v<T, ball_joint2D::specs>)
+        ImGui::Checkbox("Deduce angle", &specs.deduce_angle);
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
 {
     ImGui::Combo("Joint type", (int *)&m_joint_type,
-                 "Spring joint\0Distance joint\0Revolute joint\0Weld joint\0Rotor joint\0Motor joint\0\0");
+                 "Spring joint\0Distance joint\0Revolute joint\0Weld joint\0Rotor joint\0Motor joint\0Ball joint\0\0");
     switch (m_joint_type)
     {
     case joint_type::SPRING:
@@ -410,6 +463,9 @@ void joints_tab::render_imgui_tab()
         break;
     case joint_type::MOTOR:
         render_joint_specs(std::get<motor_joint2D::specs>(m_specs));
+        break;
+    case joint_type::BALL:
+        render_joint_specs(std::get<ball_joint2D::specs>(m_specs));
         break;
     default:
         break;
@@ -443,6 +499,11 @@ void joints_tab::render_imgui_tab()
     {
         render_selected_mot_joint_properties();
         render_joints_list<motor_joint2D>();
+    }
+    if (ImGui::CollapsingHeader("Ball joints"))
+    {
+        render_selected_ball_joint_properties();
+        render_joints_list<ball_joint2D>();
     }
 }
 
@@ -479,8 +540,7 @@ void joints_tab::begin_joint_attach()
             collider->collision_filter.cgroups = filter::CGROUP<31>;
         break;
     case joint_type::ROTOR:
-        m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
-        break;
+    case joint_type::BALL:
     case joint_type::MOTOR:
         m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
         break;
@@ -489,7 +549,7 @@ void joints_tab::begin_joint_attach()
     }
 }
 
-template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) const
+template <typename Joint> bool joints_tab::attach_bodies_to_joint_specs(typename Joint::specs &specs) const
 {
     const glm::vec2 mpos = m_app->world_mouse_position();
     body2D *body2 = nullptr;
@@ -503,16 +563,16 @@ template <typename T> bool joints_tab::attach_bodies_to_joint_specs(T &specs) co
         return false;
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
 
-    if constexpr (std::is_same_v<T, revolute_joint2D::specs> || std::is_same_v<T, weld_joint2D::specs>)
-    {
-        specs.ganchor = mpos;
-        specs.bodies_collide = false;
-    }
-    else if constexpr (!std::is_same_v<T, rotor_joint2D::specs> && !std::is_same_v<T, motor_joint2D::specs>)
+    if constexpr (Joint::ANCHORS == 1)
+        specs.ganchor = center_anchor2 ? mpos : body2->centroid();
+    else if constexpr (Joint::ANCHORS == 2)
     {
         specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
         specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
     }
+
+    if constexpr (std::is_same_v<Joint, revolute_joint2D> || std::is_same_v<Joint, weld_joint2D>)
+        specs.bodies_collide = false;
 
     specs.bindex1 = m_body1->index;
     specs.bindex2 = body2->index;
@@ -527,34 +587,38 @@ void joints_tab::end_joint_attach()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        if (attach_bodies_to_joint_specs(std::get<spring_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<spring_joint2D>(std::get<spring_joint2D::specs>(m_specs)))
             m_app->world.joints.add<spring_joint2D>(std::get<spring_joint2D::specs>(m_specs));
         break;
     case joint_type::DISTANCE:
-        if (attach_bodies_to_joint_specs(std::get<distance_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<distance_joint2D>(std::get<distance_joint2D::specs>(m_specs)))
             m_app->world.joints.add<distance_joint2D>(std::get<distance_joint2D::specs>(m_specs));
         break;
     case joint_type::REVOLUTE:
-        if (attach_bodies_to_joint_specs(std::get<revolute_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<revolute_joint2D>(std::get<revolute_joint2D::specs>(m_specs)))
             m_app->world.joints.add<revolute_joint2D>(std::get<revolute_joint2D::specs>(m_specs));
         m_grab.end_grab();
         for (collider2D *collider : *m_body1)
             collider->collision_filter.cgroups = filter::CGROUP<0>;
         break;
     case joint_type::WELD:
-        if (attach_bodies_to_joint_specs(std::get<weld_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<weld_joint2D>(std::get<weld_joint2D::specs>(m_specs)))
             m_app->world.joints.add<weld_joint2D>(std::get<weld_joint2D::specs>(m_specs));
         m_grab.end_grab();
         for (collider2D *collider : *m_body1)
             collider->collision_filter.cgroups = filter::CGROUP<0>;
         break;
     case joint_type::ROTOR:
-        if (attach_bodies_to_joint_specs(std::get<rotor_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<rotor_joint2D>(std::get<rotor_joint2D::specs>(m_specs)))
             m_app->world.joints.add<rotor_joint2D>(std::get<rotor_joint2D::specs>(m_specs));
         break;
     case joint_type::MOTOR:
-        if (attach_bodies_to_joint_specs(std::get<motor_joint2D::specs>(m_specs)))
+        if (attach_bodies_to_joint_specs<motor_joint2D>(std::get<motor_joint2D::specs>(m_specs)))
             m_app->world.joints.add<motor_joint2D>(std::get<motor_joint2D::specs>(m_specs));
+        break;
+    case joint_type::BALL:
+        if (attach_bodies_to_joint_specs<ball_joint2D>(std::get<ball_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<ball_joint2D>(std::get<ball_joint2D::specs>(m_specs));
         break;
     default:
         break;

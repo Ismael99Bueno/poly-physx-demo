@@ -8,6 +8,7 @@
 #include "ppx/joints/weld_joint2D.hpp"
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
+#include "ppx/joints/ball_joint2D.hpp"
 
 #include "lynx/drawing/shape.hpp"
 
@@ -101,7 +102,7 @@ class group_manager
         glm::vec2 mean_position{0.f};
         std::vector<body_proxy> bproxies;
         jproxies<spring_joint2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
-                 rotor_joint2D::specs, motor_joint2D::specs>
+                 rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs>
             jproxies;
 
         template <typename Joint> YAML::Node encode_proxies() const;
