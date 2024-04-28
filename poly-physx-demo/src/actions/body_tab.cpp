@@ -442,8 +442,9 @@ void body_tab::decode(const YAML::Node &node)
     m_cproxy_to_add = collider_utils::decode_proxy(node["Collider to be added"]);
     m_sticky_vertices = node["Sticky vertices"].as<bool>();
     m_proxies.clear();
-    for (const YAML::Node &n : node["Proxies"])
-        m_proxies[n["Name"].as<std::string>()] = decode_proxy(n);
+    const YAML::Node nprx = node["Proxies"];
+    for (auto it = nprx.begin(); it != nprx.end(); ++it)
+        m_proxies[it->first.as<std::string>()] = decode_proxy(it->second);
 }
 
 YAML::Node body_tab::encode_proxy(const proxy &prx)
