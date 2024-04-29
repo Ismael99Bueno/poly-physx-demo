@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ppx-demo/actions/grab_tab.hpp"
-#include "ppx-app/lines/spring_line.hpp"
-#include "ppx-app/lines/thick_line.hpp"
+#include "ppx-app/drawables/lines/spring_line2D.hpp"
+#include "ppx-app/drawables/lines/thick_line2D.hpp"
 #include "ppx/joints/distance_joint2D.hpp"
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
@@ -10,6 +10,7 @@
 #include "ppx/joints/revolute_joint2D.hpp"
 #include "ppx/joints/weld_joint2D.hpp"
 #include "ppx/joints/ball_joint2D.hpp"
+#include "ppx/joints/prismatic_joint2D.hpp"
 
 namespace ppx::demo
 {
@@ -42,7 +43,8 @@ class joints_tab
         WELD,
         ROTOR,
         MOTOR,
-        BALL
+        BALL,
+        PRISMATIC
     };
 
     demo_app *m_app;
@@ -56,10 +58,10 @@ class joints_tab
     kit::scope<lynx::line2D> m_preview;
 
     std::tuple<spring_joint2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
-               rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs>
+               rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs, prismatic_joint2D::specs>
         m_specs;
 
-    std::vector<const joint2D *> m_to_remove;
+    std::vector<joint2D *> m_to_remove;
 
     template <typename Joint> void render_full_joint(Joint *joint);
     template <typename Joint> const std::unordered_set<Joint *> *render_selected_properties();
@@ -70,6 +72,7 @@ class joints_tab
     void render_selected_rot_joint_properties();
     void render_selected_mot_joint_properties();
     void render_selected_ball_joint_properties();
+    void render_selected_prismatic_joint_properties();
 
     template <typename T> void render_joint_properties(T &props);
     template <typename T> void render_joint_specs(T &specs);

@@ -10,7 +10,7 @@
 #include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
 
 #include "lynx/drawing/line.hpp"
-#include "ppx-app/lines/thick_line.hpp"
+#include "ppx-app/drawables/lines/thick_line2D.hpp"
 
 namespace ppx::demo
 {
@@ -43,7 +43,7 @@ class collision_tab
     struct collision_repr
     {
         kit::dynarray<lynx::ellipse2D, manifold2D::CAPACITY> contacts;
-        thick_line normal;
+        thick_line2D normal;
     };
     std::unordered_map<kit::commutative_tuple<const collider2D *, const collider2D *>, collision_repr>
         m_collision_lines;

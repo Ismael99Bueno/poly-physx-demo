@@ -11,7 +11,7 @@ joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window()), m_g
 
 void joints_tab::update()
 {
-    for (const joint2D *joint : m_to_remove)
+    for (joint2D *joint : m_to_remove)
         m_app->world.joints.remove(joint);
 
     m_to_remove.clear();
@@ -364,6 +364,24 @@ void joints_tab::render_selected_ball_joint_properties()
     ImGui::TreePop();
 }
 
+void joints_tab::render_selected_prismatic_joint_properties()
+{
+    auto selected = render_selected_properties<prismatic_joint2D>();
+    if (!selected)
+        return;
+
+    glm::vec2 axis{0.f};
+    for (prismatic_joint2D *pj : *selected)
+        axis += pj->props.axis;
+    axis /= selected->size();
+
+    if (ImGui::DragFloat2("Axis", glm::value_ptr(axis), 0.01f, -1.f, 1.f, "%.3f"))
+        for (prismatic_joint2D *pj : *selected)
+            pj->props.axis = axis;
+
+    ImGui::TreePop();
+}
+
 template <typename T> void joints_tab::render_joint_properties(T &props) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
@@ -439,6 +457,10 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
             props.max_angle = props.min_angle;
     }
+    else if constexpr (std::is_same_v<T, prismatic_joint2D::specs::properties>)
+    {
+        ImGui::SliderFloat2("Axis", glm::value_ptr(props.axis), -1.f, 1.f, "%.3f");
+    }
 }
 
 template <typename T> void joints_tab::render_joint_specs(T &specs)
@@ -450,13 +472,16 @@ template <typename T> void joints_tab::render_joint_specs(T &specs)
         ImGui::Checkbox("Deduce distance", &specs.deduce_distance);
     else if constexpr (std::is_same_v<T, ball_joint2D::specs>)
         ImGui::Checkbox("Deduce angle", &specs.deduce_angle);
+    else if constexpr (std::is_same_v<T, prismatic_joint2D::specs>)
+        ImGui::Checkbox("Deduce axis", &specs.deduce_axis);
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
 }
 
 void joints_tab::render_imgui_tab()
 {
     ImGui::Combo("Joint type", (int *)&m_joint_type,
-                 "Spring joint\0Distance joint\0Revolute joint\0Weld joint\0Rotor joint\0Motor joint\0Ball joint\0\0");
+                 "Spring joint\0Distance joint\0Revolute joint\0Weld joint\0Rotor joint\0Motor joint\0Ball "
+                 "joint\0Prismatic joint\0\0");
     switch (m_joint_type)
     {
     case joint_type::SPRING:
@@ -473,6 +498,9 @@ void joints_tab::render_imgui_tab()
         break;
     case joint_type::BALL:
         render_joint_specs(std::get<ball_joint2D::specs>(m_specs));
+        break;
+    case joint_type::PRISMATIC:
+        render_joint_specs(std::get<prismatic_joint2D::specs>(m_specs));
         break;
     default:
         break;
@@ -512,6 +540,11 @@ void joints_tab::render_imgui_tab()
         render_selected_ball_joint_properties();
         render_joints_list<ball_joint2D>();
     }
+    if (ImGui::CollapsingHeader("Prismatic joints"))
+    {
+        render_selected_properties<prismatic_joint2D>();
+        render_joints_list<prismatic_joint2D>();
+    }
 }
 
 void joints_tab::begin_joint_attach()
@@ -529,10 +562,13 @@ void joints_tab::begin_joint_attach()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        m_preview = kit::make_scope<spring_line>(mpos, mpos, m_app->joint_color);
+        m_preview = kit::make_scope<spring_line2D>(mpos, mpos, m_app->joint_color);
+        break;
+    case joint_type::PRISMATIC:
+        m_preview = kit::make_scope<lynx::thin_line2D>(mpos, mpos, m_app->joint_color);
         break;
     case joint_type::DISTANCE:
-        m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
+        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, m_app->joint_color);
         break;
     case joint_type::WELD:
     case joint_type::REVOLUTE:
@@ -549,7 +585,7 @@ void joints_tab::begin_joint_attach()
     case joint_type::ROTOR:
     case joint_type::BALL:
     case joint_type::MOTOR:
-        m_preview = kit::make_scope<thick_line>(mpos, mpos, m_app->joint_color);
+        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, m_app->joint_color);
         break;
     default:
         break;
@@ -626,6 +662,10 @@ void joints_tab::end_joint_attach()
     case joint_type::BALL:
         if (attach_bodies_to_joint_specs<ball_joint2D>(std::get<ball_joint2D::specs>(m_specs)))
             m_app->world.joints.add<ball_joint2D>(std::get<ball_joint2D::specs>(m_specs));
+        break;
+    case joint_type::PRISMATIC:
+        if (attach_bodies_to_joint_specs<prismatic_joint2D>(std::get<prismatic_joint2D::specs>(m_specs)))
+            m_app->world.joints.add<prismatic_joint2D>(std::get<prismatic_joint2D::specs>(m_specs));
         break;
     default:
         break;

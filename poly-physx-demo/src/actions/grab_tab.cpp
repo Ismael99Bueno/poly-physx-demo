@@ -1,5 +1,5 @@
-#include "ppx-app/lines/spring_line.hpp"
-#include "ppx-app/lines/thick_line.hpp"
+#include "ppx-app/drawables/lines/spring_line2D.hpp"
+#include "ppx-app/drawables/lines/thick_line2D.hpp"
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/actions/grab_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"

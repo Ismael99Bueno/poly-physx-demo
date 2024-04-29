@@ -25,10 +25,12 @@ void group_manager::render() const
 
     for (const auto &shape : m_shapes_preview)
         m_window->draw(*shape);
-    for (const spring_line &spline : m_joints_preview.get<spring_joint2D>())
+    for (const spring_line2D &spline : m_joints_preview.get<spring_joint2D>())
         m_window->draw(spline);
-    for (const thick_line &djline : m_joints_preview.get<distance_joint2D>())
+    for (const thick_line2D &djline : m_joints_preview.get<distance_joint2D>())
         m_window->draw(djline);
+    for (const lynx::thin_line2D &pjline : m_joints_preview.get<prismatic_joint2D>())
+        m_window->draw(pjline);
 }
 
 void group_manager::begin_group_from_selected()
@@ -88,6 +90,7 @@ void group_manager::update_preview_from_current_group()
     }
     update_preview_from_current_joint_proxies<spring_joint2D>();
     update_preview_from_current_joint_proxies<distance_joint2D>();
+    update_preview_from_current_joint_proxies<prismatic_joint2D>();
 }
 
 bool group_manager::ongoing_group() const
@@ -156,6 +159,7 @@ void group_manager::paste_group()
     paste_current_joints<rotor_joint2D>(added_indices);
     paste_current_joints<motor_joint2D>(added_indices);
     paste_current_joints<ball_joint2D>(added_indices);
+    paste_current_joints<prismatic_joint2D>(added_indices);
 }
 
 template <typename Joint> void group_manager::paste_current_joints(const std::vector<std::size_t> &added_indices)
@@ -207,6 +211,7 @@ group_manager::group group_manager::create_group_from_selected()
             add_joints_to_group<rotor_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<motor_joint2D>(fresh_group, selected_bodies, i, j);
             add_joints_to_group<ball_joint2D>(fresh_group, selected_bodies, i, j);
+            add_joints_to_group<prismatic_joint2D>(fresh_group, selected_bodies, i, j);
         }
 
     return fresh_group;
@@ -295,6 +300,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
     node["Rotor joint proxies"] = encode_proxies<rotor_joint2D>();
     node["Motor joint proxies"] = encode_proxies<motor_joint2D>();
     node["Ball joint proxies"] = encode_proxies<ball_joint2D>();
+    node["Prismatic joint proxies"] = encode_proxies<prismatic_joint2D>();
 
     return node;
 }
@@ -323,6 +329,7 @@ void group_manager::group::decode(const YAML::Node &node, world2D &world)
     decode_proxies<rotor_joint2D>(node["Rotor joint proxies"]);
     decode_proxies<motor_joint2D>(node["Motor joint proxies"]);
     decode_proxies<ball_joint2D>(node["Ball joint proxies"]);
+    decode_proxies<prismatic_joint2D>(node["Prismatic joint proxies"]);
 }
 
 YAML::Node group_manager::encode() const

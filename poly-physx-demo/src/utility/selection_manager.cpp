@@ -21,6 +21,7 @@ selection_manager::selection_manager(demo_app &app)
     add_joint_on_remove_callback<rotor_joint2D>();
     add_joint_on_remove_callback<motor_joint2D>();
     add_joint_on_remove_callback<ball_joint2D>();
+    add_joint_on_remove_callback<prismatic_joint2D>();
 }
 
 template <typename Joint> void selection_manager::add_joint_on_remove_callback()
@@ -195,6 +196,7 @@ void selection_manager::update_selected_joints()
     update_selected_joints<rotor_joint2D>();
     update_selected_joints<motor_joint2D>();
     update_selected_joints<ball_joint2D>();
+    update_selected_joints<prismatic_joint2D>();
 }
 
 const std::unordered_set<body2D *> &selection_manager::selected_bodies() const

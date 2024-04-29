@@ -11,6 +11,7 @@
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
 #include "ppx/joints/ball_joint2D.hpp"
+#include "ppx/joints/prismatic_joint2D.hpp"
 #include <unordered_set>
 
 namespace ppx::demo
@@ -76,7 +77,7 @@ class selection_manager
     };
 
     joint_set<spring_joint2D, distance_joint2D, revolute_joint2D, weld_joint2D, rotor_joint2D, motor_joint2D,
-              ball_joint2D>
+              ball_joint2D, prismatic_joint2D>
         m_selected_joints;
 
     template <typename Joint> void add_joint_on_remove_callback();

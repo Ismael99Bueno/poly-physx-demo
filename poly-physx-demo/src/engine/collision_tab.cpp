@@ -269,7 +269,7 @@ void collision_tab::update_collisions()
             collision_repr new_repr;
             for (std::size_t i = 0; i < manifold2D::CAPACITY; i++)
                 new_repr.contacts.push_back(lynx::ellipse2D{.3f, lynx::color::green});
-            new_repr.normal = thick_line{lynx::color::magenta, .1f};
+            new_repr.normal = thick_line2D{lynx::color::magenta, .1f};
             repr = m_collision_lines.emplace(hash, new_repr).first;
         }
         glm::vec2 avg_point{0.f};

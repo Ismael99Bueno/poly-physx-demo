@@ -9,11 +9,12 @@
 #include "ppx/joints/rotor_joint2D.hpp"
 #include "ppx/joints/motor_joint2D.hpp"
 #include "ppx/joints/ball_joint2D.hpp"
+#include "ppx/joints/prismatic_joint2D.hpp"
 
 #include "lynx/drawing/shape.hpp"
 
-#include "ppx-app/lines/spring_line.hpp"
-#include "ppx-app/lines/thick_line.hpp"
+#include "ppx-app/drawables/lines/spring_line2D.hpp"
+#include "ppx-app/drawables/lines/thick_line2D.hpp"
 
 namespace ppx::demo
 {
@@ -60,12 +61,17 @@ class group_manager
     template <> struct jtype_to_line<spring_joint2D>
     {
         static inline constexpr std::size_t index = 0;
-        using type = spring_line;
+        using type = spring_line2D;
     };
     template <> struct jtype_to_line<distance_joint2D>
     {
         static inline constexpr std::size_t index = 1;
-        using type = thick_line;
+        using type = thick_line2D;
+    };
+    template <> struct jtype_to_line<prismatic_joint2D>
+    {
+        static inline constexpr std::size_t index = 2;
+        using type = lynx::thin_line2D;
     };
 
     template <class... Joints> struct jproxies
@@ -102,7 +108,7 @@ class group_manager
         glm::vec2 mean_position{0.f};
         std::vector<body_proxy> bproxies;
         jproxies<spring_joint2D::specs, distance_joint2D::specs, revolute_joint2D::specs, weld_joint2D::specs,
-                 rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs>
+                 rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs, prismatic_joint2D::specs>
             jproxies;
 
         template <typename Joint> YAML::Node encode_proxies() const;
@@ -127,7 +133,7 @@ class group_manager
     std::vector<kit::transform2D<float>> m_bodies_preview_transforms;
     std::vector<kit::scope<lynx::shape2D>> m_shapes_preview;
 
-    jpreviews<spring_joint2D, distance_joint2D> m_joints_preview;
+    jpreviews<spring_joint2D, distance_joint2D, prismatic_joint2D> m_joints_preview;
 
     bool m_ongoing_group = false;
 

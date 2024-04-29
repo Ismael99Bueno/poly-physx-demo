@@ -15,10 +15,10 @@ void entities_tab::update()
     if (m_signal_clear_bodies)
         m_app->world.bodies.clear();
     else
-        for (const body2D *body : m_bodies_to_remove)
+        for (body2D *body : m_bodies_to_remove)
             if (body)
                 m_app->world.bodies.remove(body);
-    for (const collider2D *collider : m_colliders_to_remove)
+    for (collider2D *collider : m_colliders_to_remove)
         if (collider)
             m_app->world.colliders.remove(collider);
 
@@ -44,7 +44,7 @@ void entities_tab::render_general_options()
 {
     m_signal_clear_bodies = ImGui::Button("Remove all");
     if (ImGui::Button("Remove empty"))
-        for (const body2D *body : m_app->world.bodies)
+        for (body2D *body : m_app->world.bodies)
             if (body->empty())
                 m_bodies_to_remove.push_back(body);
 
