@@ -45,6 +45,7 @@ void collision_tab::render_imgui_tab()
 
     if (ImGui::CollapsingHeader("Detection"))
     {
+        ImGui::Checkbox("Enabled", &m_app->world.collisions.detection()->enabled);
         render_collision_detection_list();
         if (ImGui::TreeNode("Narrow detection"))
         {
@@ -64,6 +65,7 @@ void collision_tab::render_imgui_tab()
     render_pp_manifold_list();
     if (ImGui::CollapsingHeader("Resolution"))
     {
+        ImGui::Checkbox("Enabled", &m_app->world.collisions.resolution()->enabled);
         render_collision_resolution_list();
 
         if (auto sires = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
