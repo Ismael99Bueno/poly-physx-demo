@@ -74,9 +74,11 @@ class joints_tab
     void render_selected_ball_joint_properties();
     void render_selected_prismatic_joint_properties();
 
-    template <typename T> void render_joint_properties(T &props);
-    template <typename T> void render_joint_specs(T &specs);
+    template <typename T> static void render_joint_properties(T &props, bool render_deduced_props = true);
+    template <typename T> static void render_joint_specs(T &specs);
     template <typename Joint> bool attach_bodies_to_joint_specs(typename Joint::specs &specs) const;
     float current_joint_length() const;
+
+    friend class contraption_tab;
 };
 } // namespace ppx::demo

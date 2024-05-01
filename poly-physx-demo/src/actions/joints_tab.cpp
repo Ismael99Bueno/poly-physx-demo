@@ -382,7 +382,7 @@ void joints_tab::render_selected_prismatic_joint_properties()
     ImGui::TreePop();
 }
 
-template <typename T> void joints_tab::render_joint_properties(T &props) // This is dodgy
+template <typename T> void joints_tab::render_joint_properties(T &props, bool render_deduced_props) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
     constexpr const char *format = "%.1f";
@@ -393,6 +393,8 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
         ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
         ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
+        if (!render_deduced_props)
+            return;
 
         static bool single_length = false;
         ImGui::Checkbox("Single length", &single_length);
@@ -406,6 +408,8 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
     }
     else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
     {
+        if (!render_deduced_props)
+            return;
         static bool single_distance = false;
         ImGui::Checkbox("Single distance", &single_distance);
 
@@ -446,6 +450,8 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
     }
     else if constexpr (std::is_same_v<T, ball_joint2D::specs::properties>)
     {
+        if (!render_deduced_props)
+            return;
         static bool single_angle = false;
         ImGui::Checkbox("Single angle", &single_angle);
 
@@ -459,22 +465,37 @@ template <typename T> void joints_tab::render_joint_properties(T &props) // This
     }
     else if constexpr (std::is_same_v<T, prismatic_joint2D::specs::properties>)
     {
+        if (!render_deduced_props)
+            return;
         ImGui::SliderFloat2("Axis", glm::value_ptr(props.axis), -1.f, 1.f, "%.3f");
     }
 }
 
 template <typename T> void joints_tab::render_joint_specs(T &specs)
 {
-    render_joint_properties(specs.props);
+    bool render_deduced_props = true;
     if constexpr (std::is_same_v<T, spring_joint2D::specs>)
+    {
         ImGui::Checkbox("Deduce length", &specs.deduce_length);
+        render_deduced_props = !specs.deduce_length;
+    }
     else if constexpr (std::is_same_v<T, distance_joint2D::specs>)
+    {
         ImGui::Checkbox("Deduce distance", &specs.deduce_distance);
+        render_deduced_props = !specs.deduce_distance;
+    }
     else if constexpr (std::is_same_v<T, ball_joint2D::specs>)
+    {
         ImGui::Checkbox("Deduce angle", &specs.deduce_angle);
+        render_deduced_props = !specs.deduce_angle;
+    }
     else if constexpr (std::is_same_v<T, prismatic_joint2D::specs>)
+    {
         ImGui::Checkbox("Deduce axis", &specs.deduce_axis);
+        render_deduced_props = !specs.deduce_axis;
+    }
     ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
+    render_joint_properties(specs.props, render_deduced_props);
 }
 
 void joints_tab::render_imgui_tab()

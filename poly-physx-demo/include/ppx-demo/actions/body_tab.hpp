@@ -41,7 +41,7 @@ class body_tab
 
     std::unordered_map<std::string, proxy> m_proxies;
 
-    glm::vec2 m_starting_mouse_pos{0.f};
+    glm::vec2 m_starting_mpos{0.f};
     float m_speed_spawn_multiplier = 0.6f;
     proxy m_current_proxy{};
     collider_utils::proxy m_cproxy_to_add{};
@@ -62,5 +62,7 @@ class body_tab
 
     static YAML::Node encode_proxy(const proxy &prx);
     static proxy decode_proxy(const YAML::Node &node);
+
+    friend class contraption_tab;
 };
 } // namespace ppx::demo

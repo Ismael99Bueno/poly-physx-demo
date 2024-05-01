@@ -40,9 +40,9 @@ void body_tab::begin_body_spawn()
         prev->transform.parent = &m_preview_transform;
     }
 
-    m_starting_mouse_pos = m_app->world_mouse_position();
-    m_preview_transform.position = m_starting_mouse_pos;
-    m_current_proxy.specs.position = m_starting_mouse_pos;
+    m_starting_mpos = m_app->world_mouse_position();
+    m_preview_transform.position = m_starting_mpos;
+    m_current_proxy.specs.position = m_starting_mpos;
 }
 
 void body_tab::end_body_spawn()
@@ -71,7 +71,7 @@ void body_tab::update()
     if (!m_spawning)
         return;
 
-    const glm::vec2 velocity = (m_starting_mouse_pos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
+    const glm::vec2 velocity = (m_starting_mpos - m_app->world_mouse_position()) * m_speed_spawn_multiplier;
     if (m_current_proxy.specs.props.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 

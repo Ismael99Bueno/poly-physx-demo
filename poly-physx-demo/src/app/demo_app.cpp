@@ -95,7 +95,7 @@ bool demo_app::on_event(const lynx::event2D &event)
         switch (event.mouse.button)
         {
         case lynx::input2D::mouse::BUTTON_1:
-            selector.begin_selection(!lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL));
+            selector.begin_selection(!lynx::input2D::key_pressed(lynx::input2D::key::Z));
             return true;
         default:
             return false;

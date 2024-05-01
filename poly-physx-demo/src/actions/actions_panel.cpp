@@ -15,6 +15,7 @@ void actions_panel::on_attach()
     m_joints_tab = joints_tab(m_app);
     m_grab_tab = grab_tab(m_app);
     m_entities_tab = entities_tab(m_app);
+    m_contraption_tab = contraption_tab(m_app, &m_body_tab);
 }
 void actions_panel::on_update(float ts)
 {
@@ -22,6 +23,7 @@ void actions_panel::on_update(float ts)
     m_joints_tab.update();
     m_grab_tab.update();
     m_entities_tab.update();
+    m_contraption_tab.update();
 }
 
 template <typename T> static void render_imgui_tab(const char *name, const char *tooltip, T &tab)
@@ -40,6 +42,7 @@ void actions_panel::on_render(const float ts)
 {
     m_body_tab.render();
     m_joints_tab.render();
+    m_contraption_tab.render();
     if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
@@ -47,6 +50,7 @@ void actions_panel::on_render(const float ts)
         render_imgui_tab("Joints", "Attach bodies with joints", m_joints_tab);
         render_imgui_tab("Grab", "Grab bodies", m_grab_tab);
         render_imgui_tab("Entities", "Entities overview", m_entities_tab);
+        render_imgui_tab("Contraptions", "Create contraptions", m_contraption_tab);
         ImGui::EndTabBar();
     }
     ImGui::End();
@@ -57,12 +61,15 @@ bool actions_panel::on_event(const lynx::event2D &event)
     const bool spawning = lynx::input2D::key_pressed(lynx::input2D::key::SPACE);
     const bool attaching = lynx::input2D::key_pressed(lynx::input2D::key::F);
     const bool grabbing = lynx::input2D::key_pressed(lynx::input2D::key::G);
+    const bool adding_contraption = lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     if (!spawning)
         m_body_tab.cancel_body_spawn();
     if (!attaching)
         m_joints_tab.cancel_joint_attach();
     if (!grabbing)
         m_grab_tab.end_grab();
+    if (!adding_contraption)
+        m_contraption_tab.cancel_contraption_spawn();
     switch (event.type)
     {
     case lynx::event2D::MOUSE_PRESSED:
@@ -82,6 +89,13 @@ bool actions_panel::on_event(const lynx::event2D &event)
             }
             else if (grabbing)
                 m_grab_tab.begin_grab();
+            else if (adding_contraption)
+            {
+                if (m_contraption_tab.is_spawning())
+                    m_contraption_tab.end_contraption_spawn();
+                else
+                    m_contraption_tab.begin_contraption_spawn();
+            }
 
             return true;
 
@@ -119,6 +133,7 @@ YAML::Node actions_panel::encode() const
     node["Spawn tab"] = m_body_tab.encode();
     node["Joints tab"] = m_joints_tab.encode();
     node["Grab tab"] = m_grab_tab.encode();
+    node["Contraption tab"] = m_contraption_tab.encode();
     return node;
 }
 bool actions_panel::decode(const YAML::Node &node)
@@ -126,6 +141,7 @@ bool actions_panel::decode(const YAML::Node &node)
     m_body_tab.decode(node["Spawn tab"]);
     m_joints_tab.decode(node["Joints tab"]);
     m_grab_tab.decode(node["Grab tab"]);
+    m_contraption_tab.decode(node["Contraption tab"]);
     return true;
 }
 } // namespace ppx::demo

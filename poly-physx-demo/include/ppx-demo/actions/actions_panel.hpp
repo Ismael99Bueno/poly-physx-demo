@@ -5,6 +5,7 @@
 #include "ppx-demo/actions/joints_tab.hpp"
 #include "ppx-demo/actions/grab_tab.hpp"
 #include "ppx-demo/actions/entities_tab.hpp"
+#include "ppx-demo/actions/contraption_tab.hpp"
 
 namespace ppx::demo
 {
@@ -18,6 +19,7 @@ class actions_panel : public demo_layer
     joints_tab m_joints_tab;
     grab_tab m_grab_tab;
     entities_tab m_entities_tab;
+    contraption_tab m_contraption_tab;
 
     void on_attach() override;
     void on_update(float ts) override;
