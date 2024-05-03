@@ -2,7 +2,7 @@
 #include "ppx-demo/utility/selection_manager.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx/serialization/serialization.hpp"
-#include "geo/algorithm/intersection.hpp"
+#include "geo/algorithm/intersection2D.hpp"
 #include "kit/utility/utils.hpp"
 
 namespace ppx::demo

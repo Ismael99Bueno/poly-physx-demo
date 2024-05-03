@@ -2,7 +2,7 @@
 #include "ppx-demo/actions/body_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx/serialization/serialization.hpp"
-#include "geo/algorithm/intersection.hpp"
+#include "geo/algorithm/intersection2D.hpp"
 
 namespace ppx::demo
 {
