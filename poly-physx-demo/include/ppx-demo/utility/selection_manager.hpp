@@ -33,12 +33,10 @@ class selection_manager
 
     void select(body2D *body);
     void deselect(body2D *body);
-    bool is_selecting(body2D *body) const;
     bool is_selected(body2D *body) const;
 
     void select(collider2D *collider);
     void deselect(collider2D *collider);
-    bool is_selecting(collider2D *collider) const;
     bool is_selected(collider2D *collider) const;
 
     const std::unordered_set<body2D *> &selected_bodies() const;

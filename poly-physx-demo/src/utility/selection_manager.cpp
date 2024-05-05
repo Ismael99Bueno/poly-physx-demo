@@ -47,40 +47,20 @@ static bool compare_colors(const lynx::color &c1, const lynx::color &c2)
 
 void selection_manager::update()
 {
-    if (!m_selecting)
-    {
-        for (collider2D *collider : m_selected_colliders)
-        {
-            const auto &shape = m_app.shapes().at(collider);
-            shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
-            if (is_selected(collider->body()))
-            {
-                if (!compare_colors(shape->outline_color(), body_selection_color))
-                    shape->outline_color(body_selection_color);
-            }
-            else if (!compare_colors(shape->outline_color(), collider_selection_color))
-                shape->outline_color(collider_selection_color);
-        }
-        return;
-    }
-    for (collider2D *collider : m_app.world.colliders)
+    for (collider2D *collider : m_selected_colliders)
     {
         const auto &shape = m_app.shapes().at(collider);
-        if (is_selecting(collider))
+        shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
+        if (m_selected_bodies.contains(collider->body()))
         {
-            shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
-            if (is_selecting(collider->body()))
-            {
-                if (!compare_colors(shape->outline_color(), body_selection_color))
-                    shape->outline_color(body_selection_color);
-            }
-            else if (!compare_colors(shape->outline_color(), collider_selection_color))
-                shape->outline_color(collider_selection_color);
+            if (!compare_colors(shape->outline_color(), body_selection_color))
+                shape->outline_color(body_selection_color);
         }
-        else if (!kit::approaches_zero(shape->outline_thickness))
-            shape->outline_thickness = 0.f;
+        else if (!compare_colors(shape->outline_color(), collider_selection_color))
+            shape->outline_color(collider_selection_color);
     }
-
+    if (!m_selecting)
+        return;
     const glm::vec2 &static_outline_point = m_selection_outline[0].position;
     const glm::vec2 mpos = m_app.world_mouse_position();
 
@@ -92,6 +72,27 @@ void selection_manager::update()
     const glm::vec2 max = {glm::max(mpos.x, static_outline_point.x), glm::max(mpos.y, static_outline_point.y)};
 
     m_selection_boundaries = aabb2D(min, max);
+
+    for (const auto &shape : m_app.shapes())
+        shape.second->outline_thickness = 0.f;
+
+    const auto bodies = m_app.world.bodies[m_selection_boundaries];
+    const auto colliders = m_app.world.colliders[m_selection_boundaries];
+    for (collider2D *collider : colliders)
+    {
+        if (m_selected_colliders.contains(collider))
+            continue;
+        const auto &shape = m_app.shapes().at(collider);
+
+        shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
+        if (std::find(bodies.begin(), bodies.end(), collider->body()) != bodies.end())
+        {
+            if (!compare_colors(shape->outline_color(), body_selection_color))
+                shape->outline_color(body_selection_color);
+        }
+        else if (!compare_colors(shape->outline_color(), collider_selection_color))
+            shape->outline_color(collider_selection_color);
+    }
 }
 void selection_manager::render() const
 {
@@ -140,19 +141,7 @@ void selection_manager::deselect(body2D *body)
     m_selected_bodies.erase(body);
     update_selected_joints();
 }
-bool selection_manager::is_selecting(body2D *body) const
-{
-    if (!m_selecting)
-        return false;
-    if (body->empty())
-        return geo::intersects(m_selection_boundaries, body->centroid());
-    if (m_selected_bodies.contains(body))
-        return true;
-    for (const collider2D *collider : *body)
-        if (!geo::intersects(m_selection_boundaries, collider->bounding_box()))
-            return false;
-    return true;
-}
+
 bool selection_manager::is_selected(body2D *body) const
 {
     return m_selected_bodies.contains(body);
@@ -167,11 +156,7 @@ void selection_manager::deselect(collider2D *collider)
     m_selected_colliders.erase(collider);
     m_app.shapes().at(collider)->outline_thickness = 0.f;
 }
-bool selection_manager::is_selecting(collider2D *collider) const
-{
-    return (m_selecting && geo::intersects(m_selection_boundaries, collider->bounding_box())) ||
-           m_selected_colliders.contains(collider);
-}
+
 bool selection_manager::is_selected(collider2D *collider) const
 {
     return m_selected_colliders.contains(collider);

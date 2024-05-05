@@ -151,7 +151,7 @@ template <typename Line> void contraption_tab::create_preview_objects(const std:
             }
         }
         if (i > 0)
-            m_preview_lines.push_back(kit::make_scope<Line>(m_app->joint_color));
+            m_preview_lines.push_back(kit::make_scope<Line>(lynx::color{m_app->joint_color, 120u}));
     }
 }
 

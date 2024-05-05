@@ -1,4 +1,4 @@
-#
+#pragma once
 
 #include "ppx-app/internal/pch.hpp"
 #ifdef LYNX_ENABLE_IMGUI
