@@ -21,6 +21,10 @@ class engine_panel : public demo_layer
     collision_tab m_collision_tab;
     constraints_tab m_constraints_tab;
 
+    bool m_casting = false;
+    thick_line2D m_ray_line;
+    glm::vec2 m_origin{0.f};
+
     void on_attach() override;
     void on_render(float ts) override;
     void on_update(float ts) override;

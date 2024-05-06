@@ -15,6 +15,8 @@ void engine_panel::on_attach()
     m_integration_tab = integration_tab(m_app);
     m_collision_tab = collision_tab(m_app);
     m_constraints_tab = constraints_tab(m_app);
+    m_ray_line = thick_line2D(lynx::color::cyan, 0.4f);
+    m_ray_line.p1(glm::vec2(0.f));
 }
 
 template <typename T> static void render_imgui_tab(const char *name, const char *tooltip, T &tab)
@@ -32,6 +34,31 @@ template <typename T> static void render_imgui_tab(const char *name, const char 
 void engine_panel::on_update(const float ts)
 {
     m_collision_tab.update();
+    m_casting = lynx::input2D::key_pressed(lynx::input2D::key::R);
+    if (!m_casting)
+        return;
+    if (lynx::input2D::mouse_button_pressed(lynx::input2D::mouse::BUTTON_1))
+    {
+        m_origin = m_app->world_mouse_position();
+        m_ray_line.p1(m_origin);
+    }
+
+    const bool infinite = lynx::input2D::key_pressed(lynx::input2D::key::LEFT_SHIFT);
+    const glm::vec2 dir = m_app->world_mouse_position() - m_origin;
+    const ray2D ray = infinite ? ray2D(m_origin, dir) : ray2D(m_origin, dir, glm::length(dir));
+    const auto hit = m_app->world.colliders.cast(ray);
+
+    float distance;
+    if (hit)
+        distance = hit.distance;
+    else if (!ray.infinite())
+        distance = ray.length();
+    else
+    {
+        const lynx::orthographic2D *camera = m_window->camera<lynx::orthographic2D>();
+        distance = glm::length(camera->transform.position - m_origin) + glm::length(camera->size());
+    }
+    m_ray_line.p2(m_origin + ray.direction() * distance);
 }
 
 void engine_panel::on_render(const float ts)
@@ -47,6 +74,9 @@ void engine_panel::on_render(const float ts)
         ImGui::EndTabBar();
     }
     ImGui::End();
+    if (!m_casting)
+        return;
+    m_window->draw(m_ray_line);
 }
 
 YAML::Node engine_panel::encode() const
