@@ -54,7 +54,7 @@ class collision_tab
 
     void update_bounding_boxes();
     void update_collisions();
-    void update_quad_tree_lines(const kit::quad_tree<collider2D *>::node &qtnode);
+    void update_quad_tree_lines(const quad_tree::node &qtnode);
 
     void render_collision_detection_list() const;
     void render_collisions_list() const;

@@ -232,7 +232,7 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
     return {glm::vec2(mm.x, mx.y), mx, glm::vec2(mx.x, mm.y), mm, glm::vec2(mm.x, mx.y)};
 }
 
-void collision_tab::update_quad_tree_lines(const kit::quad_tree<collider2D *>::node &qtnode)
+void collision_tab::update_quad_tree_lines(const quad_tree::node &qtnode)
 {
     if (qtnode.partitioned)
         for (auto child : qtnode.children)
