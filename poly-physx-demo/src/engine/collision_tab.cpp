@@ -74,6 +74,48 @@ void collision_tab::render_imgui_tab()
         else if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
             render_spring_driven_parameters();
     }
+
+    static bool callbacks = false;
+    static std::unordered_map<collider2D *, lynx::color> original_colors;
+    const auto on_enter = [this](contact2D *contact) {
+        if (!original_colors.contains(contact->collider1()))
+        {
+            const lynx::color &original1 = m_app->shapes().at(contact->collider1())->color();
+            original_colors[contact->collider1()] = original1;
+            m_app->shapes().at(contact->collider1())->color(lynx::color{glm::vec3{original1.normalized} * 1.2f});
+        }
+        if (!original_colors.contains(contact->collider2()))
+        {
+            const lynx::color &original2 = m_app->shapes().at(contact->collider2())->color();
+            original_colors[contact->collider2()] = original2;
+            m_app->shapes().at(contact->collider2())->color(lynx::color{glm::vec3{original2.normalized} * 1.2f});
+        }
+    };
+    const auto on_exit = [this](contact2D &contact) {
+        if (original_colors.contains(contact.collider1()) && contact.collider1()->contacts().size() == 1)
+        {
+            m_app->shapes().at(contact.collider1())->color(original_colors.at(contact.collider1()));
+            original_colors.erase(contact.collider1());
+        }
+        if (original_colors.contains(contact.collider2()) && contact.collider2()->contacts().size() == 1)
+        {
+            m_app->shapes().at(contact.collider2())->color(original_colors.at(contact.collider2()));
+            original_colors.erase(contact.collider2());
+        }
+    };
+    if (ImGui::Checkbox("Callbacks", &callbacks))
+    {
+        if (callbacks)
+        {
+            m_app->world.collisions.events.on_contact_enter += on_enter;
+            m_app->world.collisions.events.on_contact_exit += on_exit;
+        }
+        else
+        {
+            m_app->world.collisions.events.on_contact_enter -= on_enter;
+            m_app->world.collisions.events.on_contact_exit -= on_exit;
+        }
+    }
 }
 
 void collision_tab::render_collisions_list() const

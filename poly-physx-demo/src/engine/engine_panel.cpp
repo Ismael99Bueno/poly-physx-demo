@@ -34,7 +34,7 @@ template <typename T> static void render_imgui_tab(const char *name, const char 
 void engine_panel::on_update(const float ts)
 {
     m_collision_tab.update();
-    m_casting = lynx::input2D::key_pressed(lynx::input2D::key::R);
+    m_casting = lynx::input2D::key_pressed(lynx::input2D::key::R) && !ImGui::GetIO().WantCaptureKeyboard;
     if (!m_casting)
         return;
     if (lynx::input2D::mouse_button_pressed(lynx::input2D::mouse::BUTTON_1))
