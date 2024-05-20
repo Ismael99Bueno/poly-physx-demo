@@ -50,7 +50,7 @@ class collision_tab
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
     void render_constraint_driven_parameters(sequential_impulses_resolution2D &ctrres);
-    void render_spring_driven_parameters(spring_driven_resolution2D &spres);
+    void render_spring_driven_parameters();
 
     void update_bounding_boxes();
     void update_collisions();

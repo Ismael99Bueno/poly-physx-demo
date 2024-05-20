@@ -134,11 +134,15 @@ void selection_manager::end_selection()
 void selection_manager::select(body2D *body)
 {
     m_selected_bodies.insert(body);
+    for (collider2D *collider : *body)
+        m_selected_colliders.insert(collider);
     update_selected_joints();
 }
 void selection_manager::deselect(body2D *body)
 {
     m_selected_bodies.erase(body);
+    for (collider2D *collider : *body)
+        m_selected_colliders.erase(collider);
     update_selected_joints();
 }
 

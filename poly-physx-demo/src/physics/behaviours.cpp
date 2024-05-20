@@ -36,7 +36,7 @@ float gravitational::potential_energy_pair(const body2D &body1, const body2D &bo
 
 glm::vec3 electrical::force_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge * body2.charge;
+    const float cte = magnitude * body1.charge() * body2.charge();
     const float dist = glm::distance(body1.charge_centroid(), body2.charge_centroid());
     float denominator = dist;
     for (std::size_t i = 1; i < exponent; i++)
@@ -49,7 +49,7 @@ glm::vec3 electrical::force_pair(const body2D &body1, const body2D &body2) const
 }
 float electrical::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge * body2.charge;
+    const float cte = magnitude * body1.charge() * body2.charge();
     const float dist = glm::distance(body1.charge_centroid(), body2.charge_centroid());
 
     if (exponent == 1)
@@ -63,7 +63,7 @@ float electrical::potential_energy_pair(const body2D &body1, const body2D &body2
 
 glm::vec3 exponential::force_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge * body2.charge;
+    const float cte = magnitude * body1.charge() * body2.charge();
     const float dist = glm::distance(body1.charge_centroid(), body2.charge_centroid());
 
     const glm::vec2 force =
@@ -74,7 +74,7 @@ glm::vec3 exponential::force_pair(const body2D &body1, const body2D &body2) cons
 }
 float exponential::potential_energy_pair(const body2D &body1, const body2D &body2) const
 {
-    const float cte = magnitude * body1.charge * body2.charge;
+    const float cte = magnitude * body1.charge() * body2.charge();
     const float dist = glm::distance(body1.charge_centroid(), body2.charge_centroid());
 
     return -cte * expf(exponent_magnitude * dist) / exponent_magnitude;

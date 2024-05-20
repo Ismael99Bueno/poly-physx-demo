@@ -108,7 +108,11 @@ void entities_tab::render_single_body_properties(body2D *body)
     float mass = body->props().nondynamic.mass;
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         body->mass(mass);
-    ImGui::DragFloat("Charge", &body->charge, drag_speed, 0.f, 0.f, format);
+
+    float charge = body->charge();
+    if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
+        body->charge(charge);
+
     ImGui::Text("Inertia: %.1f", body->props().nondynamic.inertia);
 
     const glm::vec2 &lpos = body->lposition();
@@ -125,21 +129,35 @@ void entities_tab::render_single_body_properties(body2D *body)
     if (ImGui::DragFloat2("Centroid", glm::value_ptr(centroid), drag_speed, 0.f, 0.f, format))
         body->centroid(centroid);
 
-    ImGui::DragFloat2("Velocity", glm::value_ptr(body->velocity()), drag_speed, 0.f, 0.f, format);
+    glm::vec2 velocity = body->velocity();
+    if (ImGui::DragFloat2("Velocity", glm::value_ptr(velocity), drag_speed, 0.f, 0.f, format))
+        body->velocity(velocity);
 
     float rotation = body->rotation();
     if (ImGui::DragFloat("Rotation", &rotation, 0.1f * drag_speed, 0.f, 0.f, format))
         body->rotation(rotation);
 
-    ImGui::DragFloat("Angular velocity", &body->angular_velocity(), drag_speed, 0.f, 0.f, format);
+    float angular_velocity = body->angular_velocity();
+    if (ImGui::DragFloat("Angular velocity", &angular_velocity, 0.1f * drag_speed, 0.f, 0.f, format))
+        body->angular_velocity(angular_velocity);
+
+    bool awake = body->awake();
+    if (ImGui::Checkbox("Awake", &awake))
+        body->awake(awake);
 
     const glm::vec2 force = body->force();
     ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
-    ImGui::DragFloat2("Force modifier", glm::value_ptr(body->persistent_force), drag_speed, 0.f, 0.f, format);
+
+    glm::vec2 persistent_force = body->persistent_force();
+    if (ImGui::DragFloat2("Persistent force", glm::value_ptr(persistent_force), drag_speed, 0.f, 0.f, format))
+        body->persistent_force(persistent_force);
 
     const float torque = body->torque();
     ImGui::Text("Torque: %.1f", torque);
-    ImGui::DragFloat("Torque modifier", &body->persistent_torque, drag_speed, 0.f, 0.f, format);
+
+    float persistent_torque = body->persistent_torque();
+    if (ImGui::DragFloat("Persistent torque", &persistent_torque, drag_speed, 0.f, 0.f, format))
+        body->persistent_torque(persistent_torque);
 
     if (ImGui::TreeNode("Colliders"))
     {
@@ -253,11 +271,13 @@ void entities_tab::render_selected_bodies_properties()
 
         float mass = 0.f;
         float charge = 0.f;
+        bool awake = true;
 
         for (body2D *body : selected)
         {
             mass += body->props().nondynamic.mass;
-            charge += body->charge;
+            charge += body->charge();
+            awake &= body->awake();
         }
         mass /= selected.size();
         charge /= selected.size();
@@ -268,7 +288,11 @@ void entities_tab::render_selected_bodies_properties()
 
         if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
             for (body2D *body : selected)
-                body->charge = charge;
+                body->charge(charge);
+
+        if (ImGui::Checkbox("Awake", &awake))
+            for (body2D *body : selected)
+                body->awake(awake);
 
         static char buffer[24] = "\0";
         if (ImGui::InputTextWithHint("Save as a group", "Group name", buffer, 24,

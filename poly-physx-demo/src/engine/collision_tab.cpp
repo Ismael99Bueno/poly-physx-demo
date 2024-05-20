@@ -3,6 +3,7 @@
 #include "ppx-demo/app/demo_app.hpp"
 
 #include "ppx/collision/detection/narrow/gjk_epa_detection2D.hpp"
+#include "ppx/collision/contacts/sd_contact2D.hpp"
 
 #include "ppx/collision/manifold/clipping_algorithm_manifold2D.hpp"
 #include "ppx/collision/manifold/mtv_support_manifold2D.hpp"
@@ -70,8 +71,8 @@ void collision_tab::render_imgui_tab()
 
         if (auto sires = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
             render_constraint_driven_parameters(*sires);
-        if (auto spres = m_app->world.collisions.resolution<spring_driven_resolution2D>())
-            render_spring_driven_parameters(*spres);
+        else if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
+            render_spring_driven_parameters();
     }
 }
 
@@ -218,11 +219,11 @@ void collision_tab::render_constraint_driven_parameters(sequential_impulses_reso
             collider->restitution = restitution;
 }
 
-void collision_tab::render_spring_driven_parameters(spring_driven_resolution2D &spres)
+void collision_tab::render_spring_driven_parameters()
 {
-    ImGui::SliderFloat("Rigidity", &spres.rigidity, 0.f, 5000.f);
-    ImGui::SliderFloat("Normal damping", &spres.normal_damping, 0.f, 50.f);
-    ImGui::SliderFloat("Tangent damping", &spres.tangent_damping, 0.f, 50.f);
+    ImGui::SliderFloat("Rigidity", &sd_contact2D::rigidity, 0.f, 5000.f);
+    ImGui::SliderFloat("Max normal damping", &sd_contact2D::max_normal_damping, 0.f, 50.f);
+    ImGui::SliderFloat("Max tangent damping", &sd_contact2D::max_tangent_damping, 0.f, 50.f);
 }
 
 static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
