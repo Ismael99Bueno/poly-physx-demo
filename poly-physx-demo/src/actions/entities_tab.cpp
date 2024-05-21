@@ -141,9 +141,8 @@ void entities_tab::render_single_body_properties(body2D *body)
     if (ImGui::DragFloat("Angular velocity", &angular_velocity, 0.1f * drag_speed, 0.f, 0.f, format))
         body->angular_velocity(angular_velocity);
 
-    bool awake = body->awake();
-    if (ImGui::Checkbox("Awake", &awake))
-        body->awake(awake);
+    if (body->asleep() && ImGui::Button("Body is asleep. Wake up!"))
+        body->awake();
 
     const glm::vec2 force = body->force();
     ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
@@ -271,13 +270,11 @@ void entities_tab::render_selected_bodies_properties()
 
         float mass = 0.f;
         float charge = 0.f;
-        bool awake = true;
 
         for (body2D *body : selected)
         {
             mass += body->props().nondynamic.mass;
             charge += body->charge();
-            awake &= body->awake();
         }
         mass /= selected.size();
         charge /= selected.size();
@@ -290,9 +287,9 @@ void entities_tab::render_selected_bodies_properties()
             for (body2D *body : selected)
                 body->charge(charge);
 
-        if (ImGui::Checkbox("Awake", &awake))
+        if (ImGui::Button("Wake all bodies!"))
             for (body2D *body : selected)
-                body->awake(awake);
+                body->awake();
 
         static char buffer[24] = "\0";
         if (ImGui::InputTextWithHint("Save as a group", "Group name", buffer, 24,
