@@ -5,9 +5,9 @@
 #include "ppx/collision/detection/brute_force_detection2D.hpp"
 #include "ppx/collision/detection/quad_tree_detection2D.hpp"
 #include "ppx/collision/detection/sort_sweep_detection2D.hpp"
-
-#include "ppx/collision/resolution/sequential_impulses_resolution2D.hpp"
-#include "ppx/collision/resolution/spring_driven_resolution2D.hpp"
+#include "ppx/collision/contacts/contact_solver2D.hpp"
+#include "ppx/collision/contacts/nonpen_contact2D.hpp"
+#include "ppx/collision/contacts/spring_contact2D.hpp"
 
 #include "lynx/drawing/line.hpp"
 #include "ppx-app/drawables/lines/thick_line2D.hpp"
@@ -38,27 +38,80 @@ class collision_tab
     std::vector<lynx::line_strip2D> m_qt_lines;
     std::size_t m_qt_active_partitions = 0;
 
-    bool m_draw_collisions = false;
+    bool m_draw_contacts = false;
 
     struct collision_repr
     {
-        kit::dynarray<lynx::ellipse2D, manifold2D::CAPACITY> contacts;
+        lynx::ellipse2D point;
         thick_line2D normal;
     };
-    std::unordered_map<kit::commutative_tuple<const collider2D *, const collider2D *>, collision_repr>
-        m_collision_lines;
+    using contact_key = collision_contacts2D::contact_key;
+    using nonpen_cmap = contact_manager2D<nonpen_contact2D>::contact_map;
+    using spring_cmap = contact_manager2D<spring_contact2D>::contact_map;
+
+    std::unordered_map<contact_key, collision_repr> m_contact_lines;
 
     void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
-    void render_constraint_driven_parameters(sequential_impulses_resolution2D &ctrres);
-    void render_spring_driven_parameters();
+    void render_nonpen_contact_solver_parameters();
+    void render_spring_contact_solver_parameters();
 
     void update_bounding_boxes();
-    void update_collisions();
     void update_quad_tree_lines(const quad_tree::node &qtnode);
+
+    template <typename CMap> void update_contact_lines(const CMap &contacts)
+    {
+        for (const auto &[hash, cnt] : contacts)
+        {
+            auto repr = m_contact_lines.find(hash);
+            const glm::vec2 &point = cnt->point();
+            if (repr == m_contact_lines.end())
+            {
+                collision_repr new_repr;
+                new_repr.point = lynx::ellipse2D{.3f, lynx::color::green};
+                new_repr.point.transform.position = point;
+                new_repr.normal = thick_line2D{lynx::color::magenta, .1f};
+
+                repr = m_contact_lines.emplace(hash, new_repr).first;
+            }
+
+            const float length = 0.5f * std::clamp(100.f * cnt->penetration(), 0.5f, 1.2f);
+            const glm::vec2 dir = length * cnt->normal();
+
+            repr->second.point.transform.position = point;
+            repr->second.normal.p1(point - dir);
+            repr->second.normal.p2(point + dir);
+            if (cnt->enabled)
+            {
+                repr->second.point.color(lynx::color::grey_out(lynx::color::green, 0.4f));
+                repr->second.normal.color(lynx::color::grey_out(lynx::color::magenta, 0.4f));
+            }
+            else
+            {
+                repr->second.point.color(lynx::color::green);
+                repr->second.normal.color(lynx::color::magenta);
+            }
+        }
+    }
+
+    template <typename CMap> void render_contact_lines(const CMap &contacts)
+    {
+        for (auto it = m_contact_lines.begin(); it != m_contact_lines.end();)
+        {
+            if (!contacts.contains(it->first))
+            {
+                it = m_contact_lines.erase(it);
+                continue;
+            }
+            const auto &repr = it->second;
+            m_window->draw(repr.point);
+            m_window->draw(repr.normal);
+            ++it;
+        }
+    }
 
     void render_collision_detection_list() const;
     void render_collisions_list() const;
-    void render_collision_resolution_list() const;
+    void render_contact_solvers_list() const;
 
     void render_cp_narrow_list() const;
     void render_pp_narrow_list() const;
@@ -66,7 +119,7 @@ class collision_tab
     void render_pp_manifold_list() const;
 
     void render_bounding_boxes() const;
-    void render_collisions();
+
     void render_quad_tree_lines() const;
 };
 } // namespace ppx::demo

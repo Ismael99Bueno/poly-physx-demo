@@ -194,7 +194,7 @@ group_manager::group group_manager::create_group_from_selected()
         body_proxy bproxy;
         bproxy.specs = body2D::specs::from_instance(*body);
         for (collider2D *collider : *body)
-            bproxy.colors.push_back(lynx::color{m_app.shapes().at(collider)->color(), alpha});
+            bproxy.colors.push_back(lynx::color{m_app.color(collider).first, alpha});
         fresh_group.bproxies.push_back(bproxy);
         fresh_group.mean_position += body->gposition();
         selected_bodies.push_back(body);
@@ -225,7 +225,7 @@ void group_manager::add_joints_to_group(group &grp, const std::vector<const body
     const body2D *body1 = selected_bodies[idx1];
     const body2D *body2 = selected_bodies[idx2];
 
-    const joint_container2D<Joint> *jmanager = m_app.world.joints.manager<Joint>();
+    const joint_manager2D<Joint> *jmanager = m_app.world.joints.manager<Joint>();
     auto &jproxies = grp.jproxies.get<Joint>();
 
     for (const Joint *joint : jmanager->from_bodies(body1, body2))

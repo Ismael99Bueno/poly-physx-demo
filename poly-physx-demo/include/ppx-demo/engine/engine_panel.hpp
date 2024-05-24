@@ -4,6 +4,7 @@
 
 #include "ppx-demo/engine/integration_tab.hpp"
 #include "ppx-demo/engine/collision_tab.hpp"
+#include "ppx-demo/engine/islands_tab.hpp"
 #include "ppx-demo/engine/constraints_tab.hpp"
 
 #include "lynx/app/window.hpp"
@@ -13,13 +14,15 @@ namespace ppx::demo
 class engine_panel : public demo_layer
 {
   public:
-    engine_panel();
+    engine_panel(entities_tab &etab);
 
   private:
     lynx::window2D *m_window;
     integration_tab m_integration_tab;
     collision_tab m_collision_tab;
     constraints_tab m_constraints_tab;
+    islands_tab m_islands_tab;
+    entities_tab &m_etab;
 
     bool m_casting = false;
     thick_line2D m_ray_line;

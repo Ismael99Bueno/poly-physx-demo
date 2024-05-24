@@ -173,7 +173,7 @@ void joints_tab::render_selected_spring_properties()
 
 template <typename Joint> void joints_tab::render_joints_list()
 {
-    joint_container2D<Joint> *joints = m_app->world.joints.manager<Joint>();
+    joint_manager2D<Joint> *joints = m_app->world.joints.manager<Joint>();
     for (Joint *joint : *joints)
     {
         ImGui::PushID(joint);

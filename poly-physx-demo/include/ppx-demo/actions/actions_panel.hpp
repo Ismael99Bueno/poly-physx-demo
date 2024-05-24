@@ -28,5 +28,7 @@ class actions_panel : public demo_layer
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;
+
+    friend class demo_app;
 };
 } // namespace ppx::demo

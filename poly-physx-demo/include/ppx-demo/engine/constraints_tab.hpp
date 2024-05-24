@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lynx/app/window.hpp"
+#include "ppx-demo/actions/entities_tab.hpp"
 
 namespace ppx::demo
 {

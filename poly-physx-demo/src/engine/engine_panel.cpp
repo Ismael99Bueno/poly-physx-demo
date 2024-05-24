@@ -4,7 +4,7 @@
 
 namespace ppx::demo
 {
-engine_panel::engine_panel() : demo_layer("Engine panel")
+engine_panel::engine_panel(entities_tab &etab) : demo_layer("Engine panel"), m_etab(etab)
 {
 }
 
@@ -15,6 +15,7 @@ void engine_panel::on_attach()
     m_integration_tab = integration_tab(m_app);
     m_collision_tab = collision_tab(m_app);
     m_constraints_tab = constraints_tab(m_app);
+    m_islands_tab = islands_tab(m_app, &m_etab);
     m_ray_line = thick_line2D(lynx::color::cyan, 0.4f);
     m_ray_line.p1(glm::vec2(0.f));
 }
@@ -34,6 +35,7 @@ template <typename T> static void render_imgui_tab(const char *name, const char 
 void engine_panel::on_update(const float ts)
 {
     m_collision_tab.update();
+    m_islands_tab.update();
     m_casting = lynx::input2D::key_pressed(lynx::input2D::key::R) && !ImGui::GetIO().WantCaptureKeyboard;
     if (!m_casting)
         return;
@@ -63,6 +65,7 @@ void engine_panel::on_update(const float ts)
 
 void engine_panel::on_render(const float ts)
 {
+    m_islands_tab.render();
     if (ImGui::Begin("Engine"))
     {
         ImGui::Text("Bodies: %zu", m_app->world.bodies.size());
@@ -71,6 +74,7 @@ void engine_panel::on_render(const float ts)
         render_imgui_tab("Integration", "Manage integration parameters", m_integration_tab);
         render_imgui_tab("Collision", "Manage collision parameters", m_collision_tab);
         render_imgui_tab("Constraints", "Manage constraint parameters", m_constraints_tab);
+        render_imgui_tab("Islands", "Manage island parameters", m_islands_tab);
         ImGui::EndTabBar();
     }
     ImGui::End();

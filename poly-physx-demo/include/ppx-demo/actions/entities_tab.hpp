@@ -15,6 +15,7 @@ class entities_tab
 
     void update();
     void render_imgui_tab();
+    void render_single_body_properties(body2D *body);
 
   private:
     demo_app *m_app;
@@ -26,7 +27,6 @@ class entities_tab
 
     void render_general_options();
 
-    void render_single_body_properties(body2D *body);
     void render_single_collider_properties(collider2D *collider);
 
     void render_selected_bodies_properties();

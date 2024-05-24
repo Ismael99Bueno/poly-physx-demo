@@ -3,7 +3,8 @@
 #include "ppx-demo/app/demo_app.hpp"
 
 #include "ppx/collision/detection/narrow/gjk_epa_detection2D.hpp"
-#include "ppx/collision/contacts/sd_contact2D.hpp"
+#include "ppx/collision/contacts/nonpen_contact2D.hpp"
+#include "ppx/collision/contacts/spring_contact2D.hpp"
 
 #include "ppx/collision/manifold/clipping_algorithm_manifold2D.hpp"
 #include "ppx/collision/manifold/mtv_support_manifold2D.hpp"
@@ -19,8 +20,13 @@ void collision_tab::update()
 {
     if (m_draw_bounding_boxes)
         update_bounding_boxes();
-    if (m_draw_collisions)
-        update_collisions();
+    if (m_draw_contacts)
+    {
+        if (auto nonpen = m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+            update_contact_lines(nonpen->contacts());
+        else if (auto spring = m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+            update_contact_lines(spring->contacts());
+    }
 
     auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
     if (m_visualize_qtree && qtdet)
@@ -36,11 +42,16 @@ void collision_tab::render_imgui_tab()
 
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
-    if (m_draw_collisions)
-        render_collisions();
+    if (m_draw_contacts)
+    {
+        if (auto nonpen = m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+            render_contact_lines(nonpen->contacts());
+        else if (auto spring = m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+            render_contact_lines(spring->contacts());
+    }
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
-    ImGui::Checkbox("Draw collisions", &m_draw_collisions);
+    ImGui::Checkbox("Draw contacts", &m_draw_contacts);
     ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
     render_collisions_list();
 
@@ -64,15 +75,16 @@ void collision_tab::render_imgui_tab()
     }
 
     render_pp_manifold_list();
-    if (ImGui::CollapsingHeader("Resolution"))
+    if (ImGui::CollapsingHeader("Contacts"))
     {
-        ImGui::Checkbox("Enabled", &m_app->world.collisions.resolution()->enabled);
-        render_collision_resolution_list();
+        ImGui::Checkbox("Enable", &m_app->world.collisions.contacts()->enabled);
+        ImGui::SliderInt("Contact lifetime", (int *)&m_app->world.collisions.contacts()->contact_lifetime, 1, 100);
+        render_contact_solvers_list();
 
-        if (auto sires = m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
-            render_constraint_driven_parameters(*sires);
-        else if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
-            render_spring_driven_parameters();
+        if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+            render_nonpen_contact_solver_parameters();
+        else if (m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+            render_spring_contact_solver_parameters();
     }
 
     // static bool callbacks = false;
@@ -162,19 +174,19 @@ void collision_tab::render_collision_detection_list() const
     }
 }
 
-void collision_tab::render_collision_resolution_list() const
+void collision_tab::render_contact_solvers_list() const
 {
-    int res_method;
-    if (m_app->world.collisions.resolution<sequential_impulses_resolution2D>())
-        res_method = 0;
-    else if (m_app->world.collisions.resolution<spring_driven_resolution2D>())
-        res_method = 1;
-    if (ImGui::Combo("Collision resolution", &res_method, "Sequential impulses\0Spring driven\0\0"))
+    int csolver_method;
+    if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+        csolver_method = 0;
+    else if (m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+        csolver_method = 1;
+    if (ImGui::Combo("Collision contacts", &csolver_method, "Non-penetration contact\0Spring contact\0\0"))
     {
-        if (res_method == 0)
-            m_app->world.collisions.set_resolution<sequential_impulses_resolution2D>();
-        else if (res_method == 1)
-            m_app->world.collisions.set_resolution<spring_driven_resolution2D>();
+        if (csolver_method == 0)
+            m_app->world.collisions.set_contact_solver<contact_solver2D<nonpen_contact2D>>();
+        else if (csolver_method == 1)
+            m_app->world.collisions.set_contact_solver<contact_solver2D<spring_contact2D>>();
     }
 }
 
@@ -240,7 +252,7 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
         render_quad_tree_lines();
 }
 
-void collision_tab::render_constraint_driven_parameters(sequential_impulses_resolution2D &sires)
+void collision_tab::render_nonpen_contact_solver_parameters()
 {
     float friction = 0.f;
     float restitution = 0.f;
@@ -261,13 +273,14 @@ void collision_tab::render_constraint_driven_parameters(sequential_impulses_reso
             collider->restitution = restitution;
 }
 
-void collision_tab::render_spring_driven_parameters()
+void collision_tab::render_spring_contact_solver_parameters()
 {
-    ImGui::SliderFloat("Rigidity", &sd_contact2D::rigidity, 0.f, 5000.f);
-    ImGui::SliderFloat("Max normal damping", &sd_contact2D::max_normal_damping, 0.f, 50.f);
-    ImGui::SliderFloat("Max tangent damping", &sd_contact2D::max_tangent_damping, 0.f, 50.f);
+    ImGui::SliderFloat("Rigidity", &spring_contact2D::rigidity, 0.f, 5000.f);
+    ImGui::SliderFloat("Max normal damping", &spring_contact2D::max_normal_damping, 0.f, 50.f);
+    ImGui::SliderFloat("Max tangent damping", &spring_contact2D::max_tangent_damping, 0.f, 50.f);
 }
 
+// std vector pretty overkill
 static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 {
     const glm::vec2 &mm = aabb.min;
@@ -304,56 +317,11 @@ void collision_tab::update_bounding_boxes()
             m_bbox_lines.emplace_back(points);
     }
 }
-void collision_tab::update_collisions()
-{
-    for (const auto &[hash, col] : m_app->world.collisions)
-    {
-        auto repr = m_collision_lines.find(hash);
-        if (repr == m_collision_lines.end())
-        {
-            collision_repr new_repr;
-            for (std::size_t i = 0; i < manifold2D::CAPACITY; i++)
-                new_repr.contacts.push_back(lynx::ellipse2D{.3f, lynx::color::green});
-            new_repr.normal = thick_line2D{lynx::color::magenta, .1f};
-            repr = m_collision_lines.emplace(hash, new_repr).first;
-        }
-        glm::vec2 avg_point{0.f};
-        for (std::size_t i = 0; i < col.manifold.size(); i++)
-        {
-            repr->second.contacts[i].transform.position = col.manifold[i].point;
-            avg_point += col.manifold[i].point;
-        }
-        avg_point /= col.manifold.size();
-
-        const float length = 0.5f * std::clamp(100.f * glm::length(col.mtv), 0.5f, 1.2f);
-        const glm::vec2 dir = length * glm::normalize(col.mtv);
-
-        repr->second.normal.p1(avg_point - dir);
-        repr->second.normal.p2(avg_point + dir);
-    }
-}
 
 void collision_tab::render_bounding_boxes() const
 {
     for (std::size_t i = 0; i < m_app->world.colliders.size(); i++)
         m_window->draw(m_bbox_lines[i]);
-}
-
-void collision_tab::render_collisions()
-{
-    for (auto it = m_collision_lines.begin(); it != m_collision_lines.end();)
-    {
-        const auto collision = m_app->world.collisions.find(it->first);
-        if (collision != m_app->world.collisions.end())
-        {
-            for (std::size_t i = 0; i < collision->second.manifold.size(); i++)
-                m_window->draw(it->second.contacts[i]);
-            m_window->draw(it->second.normal);
-            ++it;
-        }
-        else
-            it = m_collision_lines.erase(it);
-    }
 }
 
 void collision_tab::render_quad_tree_lines() const
@@ -366,7 +334,7 @@ YAML::Node collision_tab::encode() const
 {
     YAML::Node node;
     node["Draw bounding boxes"] = m_draw_bounding_boxes;
-    node["Draw collisions"] = m_draw_collisions;
+    node["Draw contacts"] = m_draw_contacts;
     node["Visualize quad tree"] = m_visualize_qtree;
 
     return node;
@@ -374,7 +342,7 @@ YAML::Node collision_tab::encode() const
 void collision_tab::decode(const YAML::Node &node)
 {
     m_draw_bounding_boxes = node["Draw bounding boxes"].as<bool>();
-    m_draw_collisions = node["Draw collisions"].as<bool>();
+    m_draw_contacts = node["Draw contacts"].as<bool>();
     m_visualize_qtree = node["Visualize quad tree"].as<bool>();
 }
 } // namespace ppx::demo

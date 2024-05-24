@@ -170,7 +170,7 @@ template <typename Joint> void selection_manager::update_selected_joints()
 {
     auto &selected = m_selected_joints.get<Joint>();
     selected.clear();
-    joint_container2D<Joint> *joints = m_app.world.joints.manager<Joint>();
+    joint_manager2D<Joint> *joints = m_app.world.joints.manager<Joint>();
     for (Joint *joint : *joints)
         if (m_selected_bodies.contains(joint->body1()) && m_selected_bodies.contains(joint->body2()))
             selected.insert(joint);
