@@ -78,7 +78,8 @@ void collision_tab::render_imgui_tab()
     if (ImGui::CollapsingHeader("Contacts"))
     {
         ImGui::Checkbox("Enable", &m_app->world.collisions.contacts()->enabled);
-        ImGui::SliderInt("Contact lifetime", (int *)&m_app->world.collisions.contacts()->contact_lifetime, 1, 100);
+        ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->contact_lifetime, 0.01f, 5.f,
+                           "%.2f", ImGuiSliderFlags_Logarithmic);
         render_contact_solvers_list();
 
         if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())

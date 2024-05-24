@@ -80,7 +80,7 @@ class collision_tab
             repr->second.point.transform.position = point;
             repr->second.normal.p1(point - dir);
             repr->second.normal.p2(point + dir);
-            if (cnt->enabled)
+            if (!cnt->enabled)
             {
                 repr->second.point.color(lynx::color::grey_out(lynx::color::green, 0.4f));
                 repr->second.normal.color(lynx::color::grey_out(lynx::color::magenta, 0.4f));

@@ -63,6 +63,8 @@ void islands_tab::render_imgui_tab()
     bool enabled = m_app->world.islands.enabled();
     if (ImGui::Checkbox("Enabled", &enabled))
         m_app->world.islands.enabled(enabled);
+
+    ImGui::Checkbox("Multithreaded", &m_app->world.islands.multithreaded);
     ImGui::Checkbox("Split", &m_app->world.islands.enable_split);
     ImGui::SliderFloat("Sleep energy threshold", &m_app->world.islands.sleep_energy_threshold, 0.1f, 10.f, "%.3f",
                        ImGuiSliderFlags_Logarithmic);
