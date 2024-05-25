@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/engine/collision_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx-demo/actions/actions_panel.hpp"
 
 #include "ppx/collision/detection/narrow/gjk_epa_detection2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
@@ -52,8 +53,7 @@ void collision_tab::render_imgui_tab()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw contacts", &m_draw_contacts);
-    ImGui::Text("Collision count: %zu", m_app->world.collisions.size());
-    render_collisions_list();
+    render_collisions_and_contacts_list();
 
     if (ImGui::CollapsingHeader("Detection"))
     {
@@ -75,8 +75,10 @@ void collision_tab::render_imgui_tab()
     }
 
     render_pp_manifold_list();
-    if (ImGui::CollapsingHeader("Contacts"))
+    if (ImGui::CollapsingHeader("Contacts solver"))
     {
+        ImGui::Text("The contacts solver will be responsible for solving the contacts between colliders if islands are "
+                    "disabled");
         ImGui::Checkbox("Enable", &m_app->world.collisions.contacts()->enabled);
         ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->contact_lifetime, 0.01f, 5.f,
                            "%.2f", ImGuiSliderFlags_Logarithmic);
@@ -87,60 +89,29 @@ void collision_tab::render_imgui_tab()
         else if (m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
             render_spring_contact_solver_parameters();
     }
-
-    // static bool callbacks = false;
-    // static std::unordered_map<collider2D *, lynx::color> original_colors;
-    // const auto on_enter = [this](contact2D *contact) {
-    //     if (!original_colors.contains(contact->collider1()))
-    //     {
-    //         const lynx::color &original1 = m_app->shapes().at(contact->collider1())->color();
-    //         original_colors[contact->collider1()] = original1;
-    //         m_app->shapes().at(contact->collider1())->color(lynx::color{glm::vec3{original1.normalized} * 1.2f});
-    //     }
-    //     if (!original_colors.contains(contact->collider2()))
-    //     {
-    //         const lynx::color &original2 = m_app->shapes().at(contact->collider2())->color();
-    //         original_colors[contact->collider2()] = original2;
-    //         m_app->shapes().at(contact->collider2())->color(lynx::color{glm::vec3{original2.normalized} * 1.2f});
-    //     }
-    // };
-    // const auto on_exit = [this](contact2D &contact) {
-    //     if (original_colors.contains(contact.collider1()) && contact.collider1()->contacts().size() == 1)
-    //     {
-    //         m_app->shapes().at(contact.collider1())->color(original_colors.at(contact.collider1()));
-    //         original_colors.erase(contact.collider1());
-    //     }
-    //     if (original_colors.contains(contact.collider2()) && contact.collider2()->contacts().size() == 1)
-    //     {
-    //         m_app->shapes().at(contact.collider2())->color(original_colors.at(contact.collider2()));
-    //         original_colors.erase(contact.collider2());
-    //     }
-    // };
-    // if (ImGui::Checkbox("Callbacks", &callbacks))
-    // {
-    //     if (callbacks)
-    //     {
-    //         m_app->world.collisions.events.on_contact_enter += on_enter;
-    //         m_app->world.collisions.events.on_contact_exit += on_exit;
-    //     }
-    //     else
-    //     {
-    //         m_app->world.collisions.events.on_contact_enter -= on_enter;
-    //         m_app->world.collisions.events.on_contact_exit -= on_exit;
-    //     }
-    // }
 }
 
-void collision_tab::render_collisions_list() const
+void collision_tab::render_collisions_and_contacts_list() const
 {
-    if (ImGui::TreeNode("Collisions"))
+    if (ImGui::TreeNode(&m_app, "Collisions (%zu)", m_app->world.collisions.size()))
     {
         for (const auto &[hash, col] : m_app->world.collisions)
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
                                 kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
-                ImGui::Text("Contact points: %zu", col.manifold.size());
-                ImGui::Text("Normal - x: %.5f, y: %.5f", col.mtv.x, col.mtv.y);
+                ImGui::Text("Contacts: %zu", col.manifold.size());
+                ImGui::Text("MTV - x: %.5f, y: %.5f", col.mtv.x, col.mtv.y);
+                if (ImGui::TreeNode("Collider 1"))
+                {
+                    m_app->actions->entities.render_single_collider_properties(col.collider1);
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Collider 2"))
+                {
+                    m_app->actions->entities.render_single_collider_properties(col.collider2);
+                    ImGui::TreePop();
+                }
+
                 ImGui::Spacing();
 
                 for (std::size_t i = 0; i < col.manifold.size(); i++)
@@ -149,6 +120,34 @@ void collision_tab::render_collisions_list() const
                     ImGui::Text("Contact ID: %u - x: %.5f, y: %.5f", col.manifold[i].id.key, point.x, point.y);
                 }
                 ImGui::TreePop();
+            }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)", m_app->world.collisions.contacts()->size()))
+    {
+        const auto contacts = m_app->world.collisions.contacts()->create_contacts_list();
+        for (const contact2D *contact : contacts)
+            if (ImGui::TreeNode(contact, "%s - %s (%u)", kit::uuid::name_from_ptr(contact->collider1()).c_str(),
+                                kit::uuid::name_from_ptr(contact->collider2()).c_str(), contact->point().id.key))
+            {
+                const glm::vec2 &normal = contact->normal();
+                const auto &point = contact->point();
+                ImGui::Text("Normal - x: %.5f, y: %.5f", normal.x, normal.y);
+                ImGui::Text("Point - x: %.5f, y: %.5f", point.point.x, point.point.y);
+                ImGui::Text("Penetration: %.5f", point.penetration);
+                ImGui::Text("Restitution: %.5f", contact->restitution());
+                ImGui::Text("Friction: %.5f", contact->friction());
+                ImGui::Text("Lifetime left: %.5f", contact->lifetime_left());
+                if (ImGui::TreeNode("Collider 1"))
+                {
+                    m_app->actions->entities.render_single_collider_properties(contact->collider1());
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Collider 2"))
+                {
+                    m_app->actions->entities.render_single_collider_properties(contact->collider2());
+                    ImGui::TreePop();
+                }
             }
         ImGui::TreePop();
     }

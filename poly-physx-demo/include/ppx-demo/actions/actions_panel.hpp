@@ -14,13 +14,13 @@ class actions_panel : public demo_layer
   public:
     actions_panel();
 
-  private:
-    body_tab m_body_tab;
-    joints_tab m_joints_tab;
-    grab_tab m_grab_tab;
-    entities_tab m_entities_tab;
-    contraption_tab m_contraption_tab;
+    body_tab bodies;
+    joints_tab joints;
+    grab_tab grab;
+    entities_tab entities;
+    contraption_tab contraptions;
 
+  private:
     void on_attach() override;
     void on_update(float ts) override;
     void on_render(float ts) override;

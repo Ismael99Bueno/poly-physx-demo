@@ -11,7 +11,7 @@ class islands_tab
 {
   public:
     islands_tab() = default;
-    islands_tab(demo_app *app, entities_tab *etab);
+    islands_tab(demo_app *app);
 
     void update();
     void render();
@@ -21,9 +21,9 @@ class islands_tab
   private:
     demo_app *m_app;
     lynx::window2D *m_window;
-    entities_tab *m_etab;
 
     std::vector<lynx::line_strip2D> m_island_lines;
+    std::vector<joint2D *> m_to_remove;
     bool m_draw_islands = false;
 };
 } // namespace ppx::demo

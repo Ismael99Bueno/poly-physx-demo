@@ -73,7 +73,7 @@ template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
 template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_selected_properties()
 {
     auto &selected = m_app->selector.selected_joints<Joint>();
-    if (ImGui::TreeNode(&selected, "Selected: %zu", selected.size()))
+    if (ImGui::TreeNode(&selected, "Selected (%zu)", selected.size()))
     {
         if (selected.empty())
         {
@@ -526,45 +526,61 @@ void joints_tab::render_imgui_tab()
     default:
         break;
     }
-    if (ImGui::CollapsingHeader("Spring joints"))
+    std::size_t size = m_app->world.joints.manager<spring_joint2D>()->size();
+    if (ImGui::TreeNode("Spring", "Spring joints (%zu)", size))
     {
         render_selected_spring_properties();
         render_joints_list<spring_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Distance joints"))
+    size = m_app->world.joints.manager<distance_joint2D>()->size();
+    if (ImGui::TreeNode("Distance", "Distance joints (%zu)", size))
     {
         render_selected_dist_joint_properties();
         render_joints_list<distance_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Revolute joints"))
+    size = m_app->world.joints.manager<revolute_joint2D>()->size();
+    if (ImGui::TreeNode("Revolute", "Revolute joints (%zu)", size))
     {
         render_selected_properties<revolute_joint2D>();
         render_joints_list<revolute_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Weld joints"))
+    size = m_app->world.joints.manager<weld_joint2D>()->size();
+    if (ImGui::TreeNode("Weld", "Weld joints (%zu)", size))
     {
         render_selected_properties<weld_joint2D>();
         render_joints_list<weld_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Rotor joints"))
+    size = m_app->world.joints.manager<rotor_joint2D>()->size();
+    if (ImGui::TreeNode("Rotor", "Rotor joints (%zu)", size))
     {
         render_selected_rot_joint_properties();
         render_joints_list<rotor_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Motor joints"))
+    size = m_app->world.joints.manager<motor_joint2D>()->size();
+    if (ImGui::TreeNode("Motor", "Motor joints (%zu)", size))
     {
         render_selected_mot_joint_properties();
         render_joints_list<motor_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Ball joints"))
+    size = m_app->world.joints.manager<ball_joint2D>()->size();
+    if (ImGui::TreeNode("Ball", "Ball joints (%zu)", size))
     {
         render_selected_ball_joint_properties();
         render_joints_list<ball_joint2D>();
+        ImGui::TreePop();
     }
-    if (ImGui::CollapsingHeader("Prismatic joints"))
+    size = m_app->world.joints.manager<prismatic_joint2D>()->size();
+    if (ImGui::TreeNode("Prismatic", "Prismatic joints (%zu)", size))
     {
         render_selected_properties<prismatic_joint2D>();
         render_joints_list<prismatic_joint2D>();
+        ImGui::TreePop();
     }
 }
 

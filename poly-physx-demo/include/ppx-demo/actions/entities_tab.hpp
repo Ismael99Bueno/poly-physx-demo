@@ -15,7 +15,9 @@ class entities_tab
 
     void update();
     void render_imgui_tab();
+
     void render_single_body_properties(body2D *body);
+    void render_single_collider_properties(collider2D *collider);
 
   private:
     demo_app *m_app;
@@ -26,8 +28,6 @@ class entities_tab
     bool m_signal_clear_bodies = false;
 
     void render_general_options();
-
-    void render_single_collider_properties(collider2D *collider);
 
     void render_selected_bodies_properties();
     void render_selected_colliders_properties();

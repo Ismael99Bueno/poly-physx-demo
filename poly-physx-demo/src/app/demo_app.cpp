@@ -13,11 +13,11 @@ demo_app::demo_app()
     : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.f / 60.f, 1.f / 480.f, 1.f / 30.f)),
       selector(*this), grouper(*this)
 {
-    auto actions = push_layer<actions_panel>();
-    push_layer<engine_panel>(actions->m_entities_tab);
-    push_layer<performance_panel>();
-    push_layer<physics_panel>();
-    push_layer<menu_bar>();
+    actions = push_layer<actions_panel>();
+    engine = push_layer<engine_panel>();
+    performance = push_layer<performance_panel>();
+    physics = push_layer<physics_panel>();
+    menu = push_layer<menu_bar>();
 }
 
 void demo_app::on_late_start()

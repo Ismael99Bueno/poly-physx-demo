@@ -6,6 +6,12 @@
 
 namespace ppx::demo
 {
+class actions_panel;
+class engine_panel;
+class performance_panel;
+class physics_panel;
+class menu_bar;
+
 class demo_app : public app
 {
   public:
@@ -13,6 +19,12 @@ class demo_app : public app
 
     selection_manager selector;
     group_manager grouper;
+
+    actions_panel *actions;
+    engine_panel *engine;
+    performance_panel *performance;
+    physics_panel *physics;
+    menu_bar *menu;
 
     void add_walls();
 

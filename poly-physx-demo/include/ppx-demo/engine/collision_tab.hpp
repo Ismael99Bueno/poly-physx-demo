@@ -63,23 +63,23 @@ class collision_tab
         for (const auto &[hash, cnt] : contacts)
         {
             auto repr = m_contact_lines.find(hash);
-            const glm::vec2 &point = cnt->point();
+            const auto &point = cnt->point();
             if (repr == m_contact_lines.end())
             {
                 collision_repr new_repr;
                 new_repr.point = lynx::ellipse2D{.3f, lynx::color::green};
-                new_repr.point.transform.position = point;
+                new_repr.point.transform.position = point.point;
                 new_repr.normal = thick_line2D{lynx::color::magenta, .1f};
 
                 repr = m_contact_lines.emplace(hash, new_repr).first;
             }
 
-            const float length = 0.5f * std::clamp(100.f * cnt->penetration(), 0.5f, 1.2f);
+            const float length = 0.5f * std::clamp(100.f * glm::abs(point.penetration), 0.5f, 1.2f);
             const glm::vec2 dir = length * cnt->normal();
 
-            repr->second.point.transform.position = point;
-            repr->second.normal.p1(point - dir);
-            repr->second.normal.p2(point + dir);
+            repr->second.point.transform.position = point.point;
+            repr->second.normal.p1(point.point - dir);
+            repr->second.normal.p2(point.point + dir);
             if (!cnt->enabled)
             {
                 repr->second.point.color(lynx::color::grey_out(lynx::color::green, 0.4f));
@@ -110,7 +110,7 @@ class collision_tab
     }
 
     void render_collision_detection_list() const;
-    void render_collisions_list() const;
+    void render_collisions_and_contacts_list() const;
     void render_contact_solvers_list() const;
 
     void render_cp_narrow_list() const;

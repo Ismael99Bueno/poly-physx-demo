@@ -1,10 +1,11 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/engine/islands_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
+#include "ppx-demo/actions/actions_panel.hpp"
 
 namespace ppx::demo
 {
-islands_tab::islands_tab(demo_app *app, entities_tab *etab) : m_app(app), m_etab(etab)
+islands_tab::islands_tab(demo_app *app) : m_app(app)
 {
     m_window = m_app->window();
 }
@@ -18,6 +19,8 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 
 void islands_tab::update()
 {
+    for (joint2D *joint : m_to_remove)
+        m_app->world.joints.remove(joint);
     if (!m_draw_islands || !m_app->world.islands.enabled())
         return;
     std::size_t index = 0;
@@ -75,20 +78,27 @@ void islands_tab::render_imgui_tab()
     if (enabled && ImGui::TreeNode(&m_app, "Islands (%zu)", m_app->world.islands.size()))
     {
         for (const island2D *island : m_app->world.islands)
-            if (ImGui::TreeNode(island, "%s", kit::uuid::name_from_ptr(island).c_str()))
+            if (ImGui::TreeNode(island, "%s (%zu)", kit::uuid::name_from_ptr(island).c_str(), island->bodies().size()))
             {
-                ImGui::Text("Actuators: %zu", island->actuators().size());
-                ImGui::Text("Constraints: %zu", island->constraints().size());
+                ImGui::Text("Energy: %.4f", island->energy());
+                ImGui::Text("Time still: %.4f", island->time_still());
+                ImGui::Text("Solved positions: %s", island->solved_positions() ? "true" : "false");
+                ImGui::Text("Asleep: %s", island->asleep() ? "true" : "false");
+                ImGui::Text("Wants to split: %s", island->may_split ? "true" : "false");
+                ImGui::Text("Actuators count: %zu", island->actuators().size());
+                ImGui::Text("Constraints count: %zu", island->constraints().size());
+
                 if (ImGui::TreeNode(island, "Bodies (%zu)", island->bodies().size()))
                 {
                     for (body2D *body : island->bodies())
                         if (ImGui::TreeNode(body, "%s", kit::uuid::name_from_ptr(body).c_str()))
                         {
-                            m_etab->render_single_body_properties(body);
+                            m_app->actions->entities.render_single_body_properties(body);
                             ImGui::TreePop();
                         }
                     ImGui::TreePop();
                 }
+
                 ImGui::TreePop();
             }
         ImGui::TreePop();

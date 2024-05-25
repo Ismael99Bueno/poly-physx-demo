@@ -247,7 +247,7 @@ void entities_tab::render_selected_bodies_properties()
 {
     const auto &selected = m_app->selector.selected_bodies();
 
-    if (ImGui::TreeNode(&selected, "Selected bodies: %zu", selected.size()))
+    if (ImGui::TreeNode(&selected, "Selected bodies (%zu)", selected.size()))
     {
         if (selected.empty())
         {
@@ -310,7 +310,7 @@ void entities_tab::render_selected_colliders_properties()
 {
     const auto &selected = m_app->selector.selected_colliders();
 
-    if (ImGui::TreeNode(&selected, "Selected colliders: %zu", selected.size()))
+    if (ImGui::TreeNode(&selected, "Selected colliders (%zu)", selected.size()))
     {
         if (selected.empty())
         {
