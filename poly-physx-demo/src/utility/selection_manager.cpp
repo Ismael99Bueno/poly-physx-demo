@@ -142,7 +142,10 @@ void selection_manager::deselect(body2D *body)
 {
     m_selected_bodies.erase(body);
     for (collider2D *collider : *body)
+    {
         m_selected_colliders.erase(collider);
+        m_app.shapes().at(collider)->outline_thickness = 0.f;
+    }
     update_selected_joints();
 }
 
