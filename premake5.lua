@@ -50,6 +50,15 @@ filter "platforms:x86"
    architecture "x86"
 filter {}
 
+filter "system:linux"
+   platforms {
+      "x86_64"
+   }
+
+filter "platforms:x86_64"
+   architecture "x86_64"
+filter {}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 
 filter "configurations:debug*"
