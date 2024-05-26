@@ -6,7 +6,7 @@ defines {'PPX_DEMO_ROOT_PATH="' .. rootpath .. '"'}
 
 language "C++"
 cppdialect "c++20"
-filter "system:macosx"
+filter "system:macosx or linux"
    buildoptions {
       "-Wall",
       "-Wextra",
@@ -72,4 +72,15 @@ filter "system:macosx"
       "CoreFoundation.framework"
    }
 
+filter "system:linux"
+   includedirs {
+      "%{VULKAN_SDK}/include",
+      "/usr/include" 
+   }
+   libdirs "%{VULKAN_SDK}/lib"
+   links {
+      "vulkan",
+      "X11",     
+      "pthread"
+   }
 
