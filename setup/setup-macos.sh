@@ -3,8 +3,34 @@
 if [[ "$OSTYPE" != "darwin"* ]]
 then
     echo "Cannot run setup because your machine does not have the required OS! Required: MacOS, current: $OSTYPE"
-    exit
+    exit 1
 fi
+
+echo "Checking python intallation..."
+if ! which -s python3
+then
+    echo "Python 3 installation not found. Do you wish to install? [Y]/N"
+    read -r ANSWER
+    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
+    then
+        echo "Python 3 installation failed... Setup terminated"
+        exit
+    fi
+    if ! install_brew
+    then
+        echo "Homebrew installation failed... Setup terminated"
+        exit
+    fi
+
+    brew install python@3
+    if ! which -s python3
+    then
+        echo "Python 3 installation failed... Setup terminated"
+        exit 1
+    fi
+fi
+echo "Python3 installed
+"
 
 echo "Checking XCode CLT intallation..."
 if ! xcode-select -p &> /dev/null
@@ -19,6 +45,12 @@ then
 
     echo "Installing XCode CLT..."
     xcode-select --install
+    if ! xcode-select -p &> /dev/null
+    then
+        echo "XCode CLT installation failed... Setup terminated"
+        exit 1
+    fi
+
 fi
 echo "XCode Command Line Tools installed
 "
@@ -41,27 +73,6 @@ function install_brew
     return
 }
 
-echo "Checking python intallation..."
-if ! which -s python3
-then
-    echo "Python 3 installation not found. Do you wish to install? [Y]/N"
-    read -r ANSWER
-    if [[ "$ANSWER" != "Y" && "$ANSWER" != "y" && -n "$ANSWER" ]]
-    then
-        echo "Python 3 installation failed... Setup terminated"
-        exit
-    fi
-    if ! install_brew
-    then
-        echo "Homebrew installation failed... Setup terminated"
-        exit
-    fi
-
-    brew install python@3
-fi
-echo "Python3 installed
-"
-
 echo "Checking premake installation..."
 
 if ! which -s premake5
@@ -80,6 +91,11 @@ then
     fi
 
     brew install premake
+    if ! which -s premake5
+    then
+        echo "premake installation failed... Setup terminated"
+        exit 1
+    fi
 fi
 echo "premake installed
 "
@@ -102,6 +118,11 @@ then
     fi
 
     brew install make
+    if ! which -s make
+    then
+        echo "make installation failed... Setup terminated"
+        exit 1
+    fi
 fi
 echo "make installed
 "
@@ -133,8 +154,14 @@ then
     fi
 
     hdiutil attach "$ROOT/vendor/vulkan-sdk/bin/vulkan-installer.dmg"
-    sudo /Volumes/VulkanSDK/InstallVulkan.app/Contents/MacOS/InstallVulkan --root ~/VulkanSDK/1.3.250.1 --accept-licenses --default-answer --confirm-command install com.lunarg.vulkan.core com.lunarg.vulkan.usr
+    /Volumes/VulkanSDK/InstallVulkan.app/Contents/MacOS/InstallVulkan --root ~/VulkanSDK/1.3.250.1 --accept-licenses --default-answer --confirm-command install com.lunarg.vulkan.core com.lunarg.vulkan.usr
     hdiutil detach /Volumes/VulkanSDK
+
+    if [ ! -d "/usr/local/include/vulkan" ] || [ ! -f "/usr/local/lib/libvulkan.dylib" ]
+    then
+        echo "VulkanSDK installation failed... Setup terminated"
+        exit 1
+    fi
 fi
 echo "VulkanSDK installed
 "
@@ -142,10 +169,20 @@ echo "VulkanSDK installed
 echo "Compiling shaders...
 "
 
-"$ROOT"/lynx/scripts/macos-compile-shaders.sh
+"$ROOT"/lynx/scripts/unix-compile-shaders.sh
+if ! mycmd
+then
+    echo "Shader compilation failed... Setup terminated"
+    exit 1
+fi
 
 python3 "$DIR/src/generate_build_files.py"
+if ! mycmd
+then
+    echo "Build files generation failed... Setup terminated"
+    exit 1
+fi
+
 echo "Run generate_build_files.py with python to have further details on how the project can be built. Use the -h flag to display the options available
 "
-
 echo "Setup completed successfully!"

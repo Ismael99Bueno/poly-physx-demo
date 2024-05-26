@@ -27,7 +27,11 @@ def build(generator: str) -> None:
     bud.add_to_premake_path(export_compile_commands_path)
     subprocess.run(
         [
-            "premake5" if bud.is_macos else premake_windows_executable_path.__str__(),
+            (
+                "premake5"
+                if not bud.is_windows
+                else premake_windows_executable_path.__str__()
+            ),
             f"--file={premake_file_path}",
             generator,
         ],

@@ -72,14 +72,20 @@ class Buddy:
         return platform.system() == "Windows"
 
     @property
+    def is_linux(self) -> bool:
+        return platform.system() == "Linux"
+
+    @property
     def is_os_unsupported(self) -> bool:
-        return not self.is_macos and not self.is_windows
+        return not self.is_macos and not self.is_windows and not self.is_linux
 
     @property
     def os_version(self) -> str:
         if self.is_macos:
             return platform.mac_ver()[0]
-        return platform.version()
+        if self.is_windows:
+            return platform.version()
+        return platform.release()
 
     @property
     def os_architecture(self) -> str:
