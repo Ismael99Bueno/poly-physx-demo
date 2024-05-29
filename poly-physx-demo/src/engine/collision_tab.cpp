@@ -148,6 +148,7 @@ void collision_tab::render_collisions_and_contacts_list() const
                     m_app->actions->entities.render_single_collider_properties(contact->collider2());
                     ImGui::TreePop();
                 }
+                ImGui::TreePop();
             }
         ImGui::TreePop();
     }

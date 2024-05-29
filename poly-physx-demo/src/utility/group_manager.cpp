@@ -244,7 +244,7 @@ template <typename T> static YAML::Node encode_joint_proxy(const T &jproxy)
     YAML::Node node;
     node["Index 1"] = jproxy.bprox_index1;
     node["Index 2"] = jproxy.bprox_index2;
-    node["Color"] = jproxy.color.normalized;
+    node["Color"] = jproxy.color.rgba;
     node["Specs"] = jproxy.specs;
     return node;
 }
@@ -253,7 +253,7 @@ template <typename Specs, typename T> static void decode_joint_proxy(T &jproxy, 
 {
     jproxy.bprox_index1 = node["Index 1"].as<std::size_t>();
     jproxy.bprox_index2 = node["Index 2"].as<std::size_t>();
-    jproxy.color.normalized = node["Color"].as<glm::vec4>();
+    jproxy.color.rgba = node["Color"].as<glm::vec4>();
     jproxy.specs = node["Specs"].as<Specs>();
 }
 
@@ -289,7 +289,7 @@ YAML::Node group_manager::group::encode(world2D &world) const
         YAML::Node btnode;
         btnode["Body"] = bproxy.specs;
         for (std::size_t i = 0; i < bproxy.specs.props.colliders.size(); i++)
-            btnode["Colors"].push_back(bproxy.colors[i].normalized);
+            btnode["Colors"].push_back(bproxy.colors[i].rgba);
         node["Body proxies"].push_back(btnode);
     }
 

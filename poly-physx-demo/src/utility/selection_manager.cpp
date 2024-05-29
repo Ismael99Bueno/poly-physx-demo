@@ -40,8 +40,8 @@ static float oscillating_thickness(const float time)
 
 static bool compare_colors(const lynx::color &c1, const lynx::color &c2)
 {
-    const glm::vec4 &v1 = c1.normalized;
-    const glm::vec4 &v2 = c2.normalized;
+    const glm::vec4 &v1 = c1.rgba;
+    const glm::vec4 &v2 = c2.rgba;
     return kit::approximately(v1.r, v2.r) && kit::approximately(v1.g, v2.g) && kit::approximately(v1.b, v2.b);
 }
 

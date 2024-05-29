@@ -78,18 +78,10 @@ class collision_tab
             const glm::vec2 dir = length * cnt->normal();
 
             repr->second.point.transform.position = point.point;
-            repr->second.normal.p1(point.point - dir);
+            repr->second.normal.p1(point.point);
             repr->second.normal.p2(point.point + dir);
-            if (!cnt->enabled)
-            {
-                repr->second.point.color(lynx::color::grey_out(lynx::color::green, 0.4f));
-                repr->second.normal.color(lynx::color::grey_out(lynx::color::magenta, 0.4f));
-            }
-            else
-            {
-                repr->second.point.color(lynx::color::green);
-                repr->second.normal.color(lynx::color::magenta);
-            }
+            repr->second.point.color(cnt->enabled ? lynx::color::green : lynx::color::green * 0.6f);
+            repr->second.normal.color(cnt->enabled ? lynx::color::magenta : lynx::color::magenta * 0.6f);
         }
     }
 
