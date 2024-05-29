@@ -134,10 +134,12 @@ void collision_tab::render_collisions_and_contacts_list() const
                 const auto &point = contact->point();
                 ImGui::Text("Normal - x: %.5f, y: %.5f", normal.x, normal.y);
                 ImGui::Text("Point - x: %.5f, y: %.5f", point.point.x, point.point.y);
+                ImGui::Text("Applied force - x: %.5f, y: %.5f", contact->reactive_force().x,
+                            contact->reactive_force().y);
                 ImGui::Text("Penetration: %.5f", point.penetration);
                 ImGui::Text("Restitution: %.5f", contact->restitution());
                 ImGui::Text("Friction: %.5f", contact->friction());
-                ImGui::Text("Lifetime left: %.5f", contact->lifetime_left());
+                ImGui::Text("Lifetime left: %.5f", contact->life_expectancy());
                 if (ImGui::TreeNode("Collider 1"))
                 {
                     m_app->actions->entities.render_single_collider_properties(contact->collider1());
