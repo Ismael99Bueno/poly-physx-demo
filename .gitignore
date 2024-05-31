@@ -24,6 +24,7 @@
 **.xcodeproj
 *.sln
 **.vcxproj*
+config.yaml
 
 #ImGui artifacts
 imgui.ini
