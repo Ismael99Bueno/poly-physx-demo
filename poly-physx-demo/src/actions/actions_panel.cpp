@@ -22,7 +22,6 @@ void actions_panel::on_update(float ts)
     bodies.update();
     joints.update();
     grab.update();
-    entities.update();
     contraptions.update();
 }
 

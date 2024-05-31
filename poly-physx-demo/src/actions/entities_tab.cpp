@@ -10,23 +10,6 @@ entities_tab::entities_tab(demo_app *app) : m_app(app)
     m_window = m_app->window();
 }
 
-void entities_tab::update()
-{
-    if (m_signal_clear_bodies)
-        m_app->world.bodies.clear();
-    else
-        for (body2D *body : m_bodies_to_remove)
-            if (body)
-                m_app->world.bodies.remove(body);
-    for (collider2D *collider : m_colliders_to_remove)
-        if (collider)
-            m_app->world.colliders.remove(collider);
-
-    m_bodies_to_remove.clear();
-    m_colliders_to_remove.clear();
-    m_signal_clear_bodies = false;
-}
-
 void entities_tab::render_imgui_tab()
 {
     render_general_options();
@@ -42,11 +25,12 @@ void entities_tab::render_imgui_tab()
 
 void entities_tab::render_general_options()
 {
-    m_signal_clear_bodies = ImGui::Button("Remove all");
+    if (ImGui::Button("Remove all"))
+        m_app->world.bodies.clear();
     if (ImGui::Button("Remove empty"))
         for (body2D *body : m_app->world.bodies)
             if (body->empty())
-                m_bodies_to_remove.push_back(body);
+                m_app->world.bodies.remove(body);
 
     ImGui::SameLine();
     if (ImGui::Button("Add walls"))
@@ -59,7 +43,7 @@ void entities_tab::render_bodies_list()
     {
         ImGui::PushID(body);
         if (ImGui::Button("X"))
-            m_bodies_to_remove.push_back(body);
+            m_app->world.bodies.remove(body);
         ImGui::PopID();
         ImGui::SameLine();
         if (ImGui::TreeNode(body, "%s", kit::uuid::name_from_ptr(body).c_str()))
@@ -75,7 +59,7 @@ void entities_tab::render_colliders_list()
     {
         ImGui::PushID(collider);
         if (ImGui::Button("X"))
-            m_colliders_to_remove.push_back(collider);
+            m_app->world.colliders.remove(collider);
         ImGui::PopID();
         ImGui::SameLine();
         if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
@@ -94,7 +78,7 @@ void entities_tab::render_single_body_properties(body2D *body)
         m_app->selector.select(body);
 
     if (ImGui::Button("Remove"))
-        m_bodies_to_remove.push_back(body);
+        m_app->world.bodies.remove(body);
 
     ImGui::Text("Name: %s", kit::uuid::name_from_ptr(body).c_str());
 
@@ -188,7 +172,7 @@ void entities_tab::render_single_collider_properties(collider2D *collider)
         m_app->selector.select(collider);
 
     if (ImGui::Button("Remove"))
-        m_colliders_to_remove.push_back(collider);
+        m_app->world.colliders.remove(collider);
 
     if (ImGui::TreeNode("Collision groups"))
     {
@@ -263,7 +247,8 @@ void entities_tab::render_selected_bodies_properties()
         }
 
         if (ImGui::Button("Remove selected"))
-            m_bodies_to_remove.insert(m_bodies_to_remove.end(), selected.begin(), selected.end());
+            for (body2D *body : selected)
+                m_app->world.bodies.remove(body);
 
         static constexpr float drag_speed = 0.3f;
         static constexpr const char *format = "%.1f";
@@ -326,7 +311,8 @@ void entities_tab::render_selected_colliders_properties()
         }
 
         if (ImGui::Button("Remove selected"))
-            m_colliders_to_remove.insert(m_colliders_to_remove.end(), selected.begin(), selected.end());
+            for (collider2D *collider : selected)
+                m_app->world.colliders.remove(collider);
 
         static constexpr float drag_speed = 0.3f;
         static constexpr const char *format = "%.1f";

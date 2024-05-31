@@ -23,7 +23,6 @@ class islands_tab
     lynx::window2D *m_window;
 
     std::vector<lynx::line_strip2D> m_island_lines;
-    std::vector<joint2D *> m_to_remove;
     bool m_draw_islands = false;
 };
 } // namespace ppx::demo

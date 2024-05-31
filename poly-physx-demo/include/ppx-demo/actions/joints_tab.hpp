@@ -61,8 +61,6 @@ class joints_tab
                rotor_joint2D::specs, motor_joint2D::specs, ball_joint2D::specs, prismatic_joint2D::specs>
         m_specs;
 
-    std::vector<joint2D *> m_to_remove;
-
     template <typename Joint> void render_full_joint(Joint *joint);
     template <typename Joint> const std::unordered_set<Joint *> *render_selected_properties();
     template <typename Joint> void render_joints_list();

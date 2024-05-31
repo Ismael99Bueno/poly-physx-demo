@@ -19,8 +19,6 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 
 void islands_tab::update()
 {
-    for (joint2D *joint : m_to_remove)
-        m_app->world.joints.remove(joint);
     if (!m_draw_islands || !m_app->world.islands.enabled())
         return;
     std::size_t index = 0;

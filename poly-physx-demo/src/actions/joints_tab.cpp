@@ -11,10 +11,6 @@ joints_tab::joints_tab(demo_app *app) : m_app(app), m_window(app->window()), m_g
 
 void joints_tab::update()
 {
-    for (joint2D *joint : m_to_remove)
-        m_app->world.joints.remove(joint);
-
-    m_to_remove.clear();
     m_grab.update();
     if (!m_body1 || !m_preview)
         return;
@@ -50,7 +46,7 @@ float joints_tab::current_joint_length() const
 template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
 {
     if (ImGui::Button("Remove"))
-        m_to_remove.push_back(joint);
+        m_app->world.joints.remove(joint);
 
     ImGui::Text("Name: %s", kit::uuid::name_from_ptr(joint).c_str());
     ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
@@ -89,7 +85,8 @@ template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_
         }
 
         if (ImGui::Button("Remove selected"))
-            m_to_remove.insert(m_to_remove.end(), selected.begin(), selected.end());
+            for (Joint *joint : selected)
+                m_app->world.joints.remove(joint);
 
         bool bodies_collide = true;
         for (Joint *joint : selected)
@@ -178,7 +175,7 @@ template <typename Joint> void joints_tab::render_joints_list()
     {
         ImGui::PushID(joint);
         if (ImGui::Button("X"))
-            m_to_remove.push_back(joint);
+            joints->remove(joint);
         ImGui::PopID();
         ImGui::SameLine();
         if (ImGui::TreeNode(joint, "%s", kit::uuid::name_from_ptr(joint).c_str()))
