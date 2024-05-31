@@ -44,7 +44,7 @@ void menu_bar::on_render(const float ts)
         if (ImGui::BeginMenu("File"))
         {
             if (ImGui::MenuItem("New", "Ctrl + N"))
-                new_session();
+                load_new_session();
             if (ImGui::BeginMenu("Examples", any_user_file_present(EXAMPLES_DIRECTORY)))
             {
                 render_load_prompts(EXAMPLES_DIRECTORY);
@@ -96,7 +96,7 @@ bool menu_bar::on_event(const lynx::event2D &event)
         case lynx::input2D::key::N:
             if (lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL))
             {
-                new_session();
+                load_new_session();
                 return true;
             }
         default:
@@ -108,7 +108,7 @@ bool menu_bar::on_event(const lynx::event2D &event)
     return false;
 }
 
-void menu_bar::new_session()
+void menu_bar::load_new_session()
 {
     m_deserialize_path = DEFAULT_SAVE_FILEPATH;
 }
