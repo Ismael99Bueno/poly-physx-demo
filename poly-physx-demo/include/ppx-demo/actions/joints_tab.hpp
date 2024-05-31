@@ -72,7 +72,7 @@ class joints_tab
     void render_selected_ball_joint_properties();
     void render_selected_prismatic_joint_properties();
 
-    template <typename T> static void render_joint_properties(T &props, bool render_deduced_props = true);
+    template <typename T> static bool render_joint_properties(T &props, bool render_deduced_props = true);
     template <typename T> static void render_joint_specs(T &specs);
     template <typename Joint> bool attach_bodies_to_joint_specs(typename Joint::specs &specs) const;
     float current_joint_length() const;

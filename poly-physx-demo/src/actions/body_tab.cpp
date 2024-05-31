@@ -428,7 +428,7 @@ YAML::Node body_tab::encode() const
 {
     YAML::Node node;
     node["Speed spawn multiplier"] = m_speed_spawn_multiplier;
-    node["Current proxy"] = encode_proxy(m_current_proxy);
+    node["Current body proxy"] = encode_proxy(m_current_proxy);
     node["Collider to be added"] = collider_utils::encode_proxy(m_cproxy_to_add);
     node["Sticky vertices"] = m_sticky_vertices;
     for (const auto &[name, proxy] : m_proxies)
@@ -438,7 +438,7 @@ YAML::Node body_tab::encode() const
 void body_tab::decode(const YAML::Node &node)
 {
     m_speed_spawn_multiplier = node["Speed spawn multiplier"].as<float>();
-    m_current_proxy = decode_proxy(node["Current proxy"]);
+    m_current_proxy = decode_proxy(node["Current body proxy"]);
     m_cproxy_to_add = collider_utils::decode_proxy(node["Collider to be added"]);
     m_sticky_vertices = node["Sticky vertices"].as<bool>();
     m_proxies.clear();

@@ -35,7 +35,7 @@ void demo_app::on_late_start()
     if (last_exists)
         deserialize(menu_bar::LAST_SAVE_FILEPATH);
     else if (default_exists)
-        add_walls();
+        deserialize(menu_bar::DEFAULT_SAVE_FILEPATH);
 }
 
 void demo_app::on_late_shutdown()

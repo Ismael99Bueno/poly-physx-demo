@@ -49,7 +49,7 @@ void selection_manager::update()
 {
     for (collider2D *collider : m_selected_colliders)
     {
-        const auto &shape = m_app.shapes().at(collider);
+        const auto &shape = m_app.shapes().at(collider).shape;
         shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
         if (m_selected_bodies.contains(collider->body()))
         {
@@ -73,8 +73,8 @@ void selection_manager::update()
 
     m_selection_boundaries = aabb2D(min, max);
 
-    for (const auto &shape : m_app.shapes())
-        shape.second->outline_thickness = 0.f;
+    for (const auto &pair : m_app.shapes())
+        pair.second.shape->outline_thickness = 0.f;
 
     const auto bodies = m_app.world.bodies[m_selection_boundaries];
     const auto colliders = m_app.world.colliders[m_selection_boundaries];
@@ -82,7 +82,7 @@ void selection_manager::update()
     {
         if (m_selected_colliders.contains(collider))
             continue;
-        const auto &shape = m_app.shapes().at(collider);
+        const auto &shape = m_app.shapes().at(collider).shape;
 
         shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
         if (std::find(bodies.begin(), bodies.end(), collider->body()) != bodies.end())
@@ -144,7 +144,7 @@ void selection_manager::deselect(body2D *body)
     for (collider2D *collider : *body)
     {
         m_selected_colliders.erase(collider);
-        m_app.shapes().at(collider)->outline_thickness = 0.f;
+        m_app.shapes().at(collider).shape->outline_thickness = 0.f;
     }
     update_selected_joints();
 }
@@ -161,7 +161,7 @@ void selection_manager::select(collider2D *collider)
 void selection_manager::deselect(collider2D *collider)
 {
     m_selected_colliders.erase(collider);
-    m_app.shapes().at(collider)->outline_thickness = 0.f;
+    m_app.shapes().at(collider).shape->outline_thickness = 0.f;
 }
 
 bool selection_manager::is_selected(collider2D *collider) const

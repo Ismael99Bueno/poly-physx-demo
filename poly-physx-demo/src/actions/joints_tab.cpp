@@ -63,7 +63,12 @@ template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
             ImGui::Text("Stress - x: %.5f, y: %.5f, z: %.5f", stress.x, stress.y, stress.z);
     }
     if constexpr (!std::is_same_v<Joint, revolute_joint2D> && !std::is_same_v<Joint, weld_joint2D>)
-        render_joint_properties(joint->props);
+    {
+        using Props = typename Joint::specs::properties;
+        Props props = joint->props();
+        if (render_joint_properties(props))
+            joint->props(props);
+    }
 }
 
 template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_selected_properties()
@@ -110,61 +115,50 @@ void joints_tab::render_selected_spring_properties()
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
 
-    float frequency = 0.f;
-    float damping_ratio = 0.f;
-    float min_length = 0.f;
-    float max_length = 0.f;
-    std::uint32_t non_linear_terms = UINT32_MAX;
-    float non_linear_contribution = 0.f;
+    spring_joint2D::specs::properties props;
 
     for (spring_joint2D *sp : *selected)
     {
-        frequency += sp->props.frequency;
-        damping_ratio += sp->props.damping_ratio;
-        min_length += sp->props.min_length;
-        max_length += sp->props.max_length;
-        non_linear_contribution += sp->props.non_linear_contribution;
-        if (non_linear_terms > sp->props.non_linear_terms)
-            non_linear_terms = sp->props.non_linear_terms;
+        props.frequency += sp->props().frequency;
+        props.damping_ratio += sp->props().damping_ratio;
+        props.min_length += sp->props().min_length;
+        props.max_length += sp->props().max_length;
+        props.non_linear_contribution += sp->props().non_linear_contribution;
+        if (props.non_linear_terms > sp->props().non_linear_terms)
+            props.non_linear_terms = sp->props().non_linear_terms;
     }
-    frequency /= selected->size();
-    damping_ratio /= selected->size();
-    min_length /= selected->size();
-    max_length /= selected->size();
-    non_linear_contribution /= selected->size();
+    props.frequency /= selected->size();
+    props.damping_ratio /= selected->size();
+    props.min_length /= selected->size();
+    props.max_length /= selected->size();
+    props.non_linear_contribution /= selected->size();
 
-    if (ImGui::DragFloat("Frequency##Multiple", &frequency, 0.01f, 0.f, FLT_MAX, "%.3f"))
-        for (spring_joint2D *sp : *selected)
-            sp->props.frequency = frequency;
-    if (ImGui::DragFloat("Damping ratio##Multiple", &damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f"))
-        for (spring_joint2D *sp : *selected)
-            sp->props.damping_ratio = damping_ratio;
-    if (ImGui::SliderInt("Non linear terms##Multiple", (int *)&non_linear_terms, 0, 8))
-        for (spring_joint2D *sp : *selected)
-            sp->props.non_linear_terms = non_linear_terms;
-    if (ImGui::SliderFloat("Non linear contribution##Multiple", &non_linear_contribution, 0.f, 1.f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic))
-        for (spring_joint2D *sp : *selected)
-            sp->props.non_linear_contribution = non_linear_contribution;
+    bool changed = false;
+    changed |= ImGui::DragFloat("Frequency##Multiple", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
+    changed |= ImGui::DragFloat("Damping ratio##Multiple", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
+    changed |= ImGui::SliderInt("Non linear terms##Multiple", (int *)&props.non_linear_terms, 0, 8);
+    changed |= ImGui::SliderFloat("Non linear contribution##Multiple", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
+                                  ImGuiSliderFlags_Logarithmic);
 
     static bool single_length = false;
     ImGui::Checkbox("Single length", &single_length);
 
     if (!single_length)
     {
-        if (ImGui::DragFloat("Min length##Multiple", &min_length, drag_speed, 0.f, max_length, format))
-            for (spring_joint2D *sp : *selected)
-                sp->props.min_length = min_length;
-        if (ImGui::DragFloat("Max length##Multiple", &max_length, drag_speed, min_length, FLT_MAX, format))
-            for (spring_joint2D *sp : *selected)
-                sp->props.max_length = max_length;
+        changed |=
+            ImGui::DragFloat("Min length##Multiple", &props.min_length, drag_speed, 0.f, props.max_length, format);
+        changed |=
+            ImGui::DragFloat("Max length##Multiple", &props.max_length, drag_speed, props.min_length, FLT_MAX, format);
     }
-    else if (ImGui::DragFloat("Length##Multiple", &min_length, drag_speed, 0.f, FLT_MAX, format))
+    else if (ImGui::DragFloat("Length##Multiple", &props.min_length, drag_speed, 0.f, FLT_MAX, format))
+    {
+        props.max_length = props.min_length;
+        changed = true;
+    }
+
+    if (changed)
         for (spring_joint2D *sp : *selected)
-        {
-            sp->props.min_length = min_length;
-            sp->props.max_length = max_length;
-        }
+            sp->props(props);
     ImGui::TreePop();
 }
 
@@ -191,35 +185,36 @@ void joints_tab::render_selected_dist_joint_properties()
     auto selected = render_selected_properties<distance_joint2D>();
     if (!selected)
         return;
-    float min_distance = 0.f;
-    float max_distance = 0.f;
+
+    distance_joint2D::specs::properties props;
 
     for (distance_joint2D *dj : *selected)
     {
-        min_distance += dj->props.min_distance;
-        max_distance += dj->props.max_distance;
+        props.min_distance += dj->props().min_distance;
+        props.max_distance += dj->props().max_distance;
     }
-    min_distance /= selected->size();
-    max_distance /= selected->size();
+    props.min_distance /= selected->size();
+    props.max_distance /= selected->size();
 
+    bool changed = false;
     static bool single_distance = false;
     ImGui::Checkbox("Single distance", &single_distance);
 
     if (!single_distance)
     {
-        if (ImGui::DragFloat("Min distance", &min_distance, 0.3f, 0.f, max_distance, "%.1f"))
-            for (distance_joint2D *dj : *selected)
-                dj->props.min_distance = min_distance;
-        if (ImGui::DragFloat("Max distance", &max_distance, 0.3f, min_distance, FLT_MAX, "%.1f"))
-            for (distance_joint2D *dj : *selected)
-                dj->props.max_distance = max_distance;
+        changed |=
+            ImGui::DragFloat("Min distance##Multiple", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
+        changed |=
+            ImGui::DragFloat("Max distance##Multiple", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
     }
-    else if (ImGui::DragFloat("Distance", &min_distance, 0.3f, 0.f, FLT_MAX, "%.1f"))
+    else if (ImGui::DragFloat("Distance", &props.min_distance, 0.3f, 0.f, FLT_MAX, "%.1f"))
+    {
+        props.max_distance = props.min_distance;
+        changed = true;
+    }
+    if (changed)
         for (distance_joint2D *dj : *selected)
-        {
-            dj->props.min_distance = min_distance;
-            dj->props.max_distance = max_distance;
-        }
+            dj->props(props);
 
     ImGui::TreePop();
 }
@@ -229,59 +224,47 @@ void joints_tab::render_selected_rot_joint_properties()
     auto selected = render_selected_properties<rotor_joint2D>();
     if (!selected)
         return;
-    float torque = 0.f;
-    float correction_factor = 0.f;
-    float target_speed = 0.f;
-    float min_angle = 0.f;
-    float max_angle = 0.f;
-    bool spin_indefinitely = true;
+    rotor_joint2D::specs::properties props;
 
     for (rotor_joint2D *rotj : *selected)
     {
-        torque += rotj->props.torque;
-        correction_factor += rotj->props.correction_factor;
-        target_speed += rotj->props.target_speed;
-        min_angle += rotj->props.min_angle;
-        max_angle += rotj->props.max_angle;
-        spin_indefinitely &= rotj->props.spin_indefinitely;
+        props.torque += rotj->props().torque;
+        props.correction_factor += rotj->props().correction_factor;
+        props.target_speed += rotj->props().target_speed;
+        props.min_angle += rotj->props().min_angle;
+        props.max_angle += rotj->props().max_angle;
+        props.spin_indefinitely |= rotj->props().spin_indefinitely;
     }
-    torque /= selected->size();
-    correction_factor /= selected->size();
-    target_speed /= selected->size();
-    min_angle /= selected->size();
-    max_angle /= selected->size();
+    props.torque /= selected->size();
+    props.correction_factor /= selected->size();
+    props.target_speed /= selected->size();
+    props.min_angle /= selected->size();
+    props.max_angle /= selected->size();
 
-    if (ImGui::DragFloat("Torque", &torque, 0.3f, 0.f, FLT_MAX, "%.1f"))
-        for (rotor_joint2D *rotj : *selected)
-            rotj->props.torque = torque;
-    if (ImGui::SliderFloat("Correction factor", &correction_factor, 0.f, 1.f, "%.4f", ImGuiSliderFlags_Logarithmic))
-        for (rotor_joint2D *rotj : *selected)
-            rotj->props.correction_factor = correction_factor;
-    if (ImGui::Checkbox("Spin indefinitely", &spin_indefinitely))
-        for (rotor_joint2D *rotj : *selected)
-            rotj->props.spin_indefinitely = spin_indefinitely;
-    if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
-        for (rotor_joint2D *rotj : *selected)
-            rotj->props.target_speed = target_speed;
+    bool changed = false;
+
+    changed |= ImGui::DragFloat("Torque", &props.torque, 0.3f, 0.f, FLT_MAX, "%.1f");
+    changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                                  ImGuiSliderFlags_Logarithmic);
+    changed |= ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
+    changed |= ImGui::DragFloat("Target speed", &props.target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f");
 
     static bool single_angle = false;
     ImGui::Checkbox("Single angle", &single_angle);
 
     if (!single_angle)
     {
-        if (ImGui::SliderFloat("Min angle", &min_angle, -glm::pi<float>(), max_angle, "%.3f"))
-            for (rotor_joint2D *rotj : *selected)
-                rotj->props.min_angle = min_angle;
-        if (ImGui::SliderFloat("Max angle", &max_angle, min_angle, glm::pi<float>(), "%.3f"))
-            for (rotor_joint2D *rotj : *selected)
-                rotj->props.max_angle = max_angle;
+        changed |= ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+        changed |= ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
     }
-    else if (ImGui::SliderFloat("Angle", &min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    {
+        props.max_angle = props.min_angle;
+        changed = true;
+    }
+    if (changed)
         for (rotor_joint2D *rotj : *selected)
-        {
-            rotj->props.min_angle = min_angle;
-            rotj->props.max_angle = max_angle;
-        }
+            rotj->props(props);
 
     ImGui::TreePop();
 }
@@ -291,35 +274,31 @@ void joints_tab::render_selected_mot_joint_properties()
     auto selected = render_selected_properties<motor_joint2D>();
     if (!selected)
         return;
-    float force = 0.f;
-    float correction_factor = 0.f;
-    float target_speed = 0.f;
-    glm::vec2 target_offset{0.f};
+
+    motor_joint2D::specs::properties props;
 
     for (motor_joint2D *motj : *selected)
     {
-        force += motj->props.force;
-        correction_factor += motj->props.correction_factor;
-        target_speed += motj->props.target_speed;
-        target_offset += motj->props.target_offset;
+        props.force += motj->props().force;
+        props.correction_factor += motj->props().correction_factor;
+        props.target_speed += motj->props().target_speed;
+        props.target_offset += motj->props().target_offset;
     }
-    force /= selected->size();
-    correction_factor /= selected->size();
-    target_speed /= selected->size();
-    target_offset /= selected->size();
+    props.force /= selected->size();
+    props.correction_factor /= selected->size();
+    props.target_speed /= selected->size();
+    props.target_offset /= selected->size();
 
-    if (ImGui::DragFloat("Force", &force, 0.3f, 0.f, FLT_MAX, "%.1f"))
+    bool changed = false;
+    changed |= ImGui::DragFloat("Force", &props.force, 0.3f, 0.f, FLT_MAX, "%.1f");
+    changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                                  ImGuiSliderFlags_Logarithmic);
+    changed |= ImGui::DragFloat("Target speed", &props.target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f");
+    changed |= ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), 0.3f, -FLT_MAX, FLT_MAX, "%.1f");
+
+    if (changed)
         for (motor_joint2D *motj : *selected)
-            motj->props.force = force;
-    if (ImGui::SliderFloat("Correction factor", &correction_factor, 0.f, 1.f, "%.4f", ImGuiSliderFlags_Logarithmic))
-        for (motor_joint2D *motj : *selected)
-            motj->props.correction_factor = correction_factor;
-    if (ImGui::DragFloat("Target speed", &target_speed, 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
-        for (motor_joint2D *motj : *selected)
-            motj->props.target_speed = target_speed;
-    if (ImGui::DragFloat2("Target offset", glm::value_ptr(target_offset), 0.3f, -FLT_MAX, FLT_MAX, "%.1f"))
-        for (motor_joint2D *motj : *selected)
-            motj->props.target_offset = target_offset;
+            motj->props(props);
     ImGui::TreePop();
 }
 
@@ -328,35 +307,33 @@ void joints_tab::render_selected_ball_joint_properties()
     auto selected = render_selected_properties<ball_joint2D>();
     if (!selected)
         return;
-    float min_angle = 0.f;
-    float max_angle = 0.f;
+    ball_joint2D::specs::properties props;
 
     for (ball_joint2D *bj : *selected)
     {
-        min_angle += bj->props.min_angle;
-        max_angle += bj->props.max_angle;
+        props.min_angle += bj->props().min_angle;
+        props.max_angle += bj->props().max_angle;
     }
-    min_angle /= selected->size();
-    max_angle /= selected->size();
+    props.min_angle /= selected->size();
+    props.max_angle /= selected->size();
 
+    bool changed = false;
     static bool single_angle = false;
     ImGui::Checkbox("Single angle", &single_angle);
 
     if (!single_angle)
     {
-        if (ImGui::SliderFloat("Min angle", &min_angle, -glm::pi<float>(), max_angle, "%.3f"))
-            for (ball_joint2D *bj : *selected)
-                bj->props.min_angle = min_angle;
-        if (ImGui::SliderFloat("Max angle", &max_angle, min_angle, glm::pi<float>(), "%.3f"))
-            for (ball_joint2D *bj : *selected)
-                bj->props.max_angle = max_angle;
+        changed |= ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+        changed |= ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
     }
-    else if (ImGui::SliderFloat("Angle", &min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+    {
+        props.max_angle = props.min_angle;
+        changed = true;
+    }
+    if (changed)
         for (ball_joint2D *bj : *selected)
-        {
-            bj->props.min_angle = min_angle;
-            bj->props.max_angle = max_angle;
-        }
+            bj->props(props);
 
     ImGui::TreePop();
 }
@@ -367,105 +344,120 @@ void joints_tab::render_selected_prismatic_joint_properties()
     if (!selected)
         return;
 
-    glm::vec2 axis{0.f};
+    prismatic_joint2D::specs::properties props;
     for (prismatic_joint2D *pj : *selected)
-        axis += pj->props.axis;
-    axis /= selected->size();
+        props.axis += pj->props().axis;
+    props.axis /= selected->size();
 
-    if (ImGui::DragFloat2("Axis", glm::value_ptr(axis), 0.01f, -1.f, 1.f, "%.3f"))
+    if (ImGui::DragFloat2("Axis", glm::value_ptr(props.axis), 0.01f, -1.f, 1.f, "%.3f"))
         for (prismatic_joint2D *pj : *selected)
-            pj->props.axis = axis;
+            pj->props(props);
 
     ImGui::TreePop();
 }
 
-template <typename T> void joints_tab::render_joint_properties(T &props, bool render_deduced_props) // This is dodgy
+template <typename T> bool joints_tab::render_joint_properties(T &props, bool render_deduced_props) // This is dodgy
 {
     constexpr float drag_speed = 0.4f;
     constexpr const char *format = "%.1f";
+    bool changed = false;
     if constexpr (std::is_same_v<T, spring_joint2D::specs::properties>)
     {
-        ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
-        ImGui::DragFloat("Damping", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
-        ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
-        ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic);
+        changed |= ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
+        changed |= ImGui::DragFloat("Damping", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
+        changed |= ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
+        changed |= ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
+                                      ImGuiSliderFlags_Logarithmic);
         if (!render_deduced_props)
-            return;
+            return changed;
 
         static bool single_length = false;
-        ImGui::Checkbox("Single length", &single_length);
+        changed |= ImGui::Checkbox("Single length", &single_length);
         if (!single_length)
         {
-            ImGui::DragFloat("Min length", &props.min_length, drag_speed, 0.f, props.max_length, "%.1f");
-            ImGui::DragFloat("Max length", &props.max_length, drag_speed, props.min_length, FLT_MAX, "%.1f");
+            changed |= ImGui::DragFloat("Min length", &props.min_length, drag_speed, 0.f, props.max_length, "%.1f");
+            changed |= ImGui::DragFloat("Max length", &props.max_length, drag_speed, props.min_length, FLT_MAX, "%.1f");
         }
         else if (ImGui::DragFloat("Length", &props.min_length, drag_speed, 0.f, FLT_MAX, format))
+        {
             props.max_length = props.min_length;
+            changed = true;
+        }
     }
     else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
     {
         if (!render_deduced_props)
-            return;
+            return changed;
         static bool single_distance = false;
-        ImGui::Checkbox("Single distance", &single_distance);
+        changed |= ImGui::Checkbox("Single distance", &single_distance);
 
         if (!single_distance)
         {
-            ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
-            ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
+            changed |= ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
+            changed |= ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
         }
         else if (ImGui::DragFloat("Distance", &props.min_distance, 0.3f, 0.f, FLT_MAX, format))
+        {
             props.max_distance = props.min_distance;
+            changed = true;
+        }
     }
     else if constexpr (std::is_same_v<T, rotor_joint2D::specs::properties>)
     {
-        ImGui::DragFloat("Torque", &props.torque, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic);
-        ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
+        changed |= ImGui::DragFloat("Torque", &props.torque, drag_speed, 0.f, FLT_MAX, format);
+        changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                                      ImGuiSliderFlags_Logarithmic);
+        changed |= ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
 
         static bool single_angle = false;
-        ImGui::Checkbox("Single angle", &single_angle);
+        changed |= ImGui::Checkbox("Single angle", &single_angle);
 
         if (!single_angle)
         {
-            ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
-            ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
+            changed |= ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+            changed |= ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
         }
         else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+        {
             props.max_angle = props.min_angle;
-        ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
+            changed = true;
+        }
+        changed |= ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
     }
     else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
     {
-        ImGui::DragFloat("Force", &props.force, drag_speed, 0.f, FLT_MAX, format);
-        ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic);
-        ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
-        ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), drag_speed, -FLT_MAX, FLT_MAX, format);
+        changed |= ImGui::DragFloat("Force", &props.force, drag_speed, 0.f, FLT_MAX, format);
+        changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
+                                      ImGuiSliderFlags_Logarithmic);
+        changed |= ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
+        changed |= ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), drag_speed, -FLT_MAX,
+                                     FLT_MAX, format);
     }
     else if constexpr (std::is_same_v<T, ball_joint2D::specs::properties>)
     {
         if (!render_deduced_props)
-            return;
+            return changed;
         static bool single_angle = false;
-        ImGui::Checkbox("Single angle", &single_angle);
+        changed |= ImGui::Checkbox("Single angle", &single_angle);
 
         if (!single_angle)
         {
-            ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
-            ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
+            changed |= ImGui::SliderFloat("Min angle", &props.min_angle, -glm::pi<float>(), props.max_angle, "%.3f");
+            changed |= ImGui::SliderFloat("Max angle", &props.max_angle, props.min_angle, glm::pi<float>(), "%.3f");
         }
         else if (ImGui::SliderFloat("Angle", &props.min_angle, -glm::pi<float>(), glm::pi<float>(), "%.3f"))
+        {
             props.max_angle = props.min_angle;
+            changed = true;
+        }
     }
     else if constexpr (std::is_same_v<T, prismatic_joint2D::specs::properties>)
     {
         if (!render_deduced_props)
-            return;
-        ImGui::SliderFloat2("Axis", glm::value_ptr(props.axis), -1.f, 1.f, "%.3f");
+            return changed;
+        return ImGui::SliderFloat2("Axis", glm::value_ptr(props.axis), -1.f, 1.f, "%.3f");
     }
+    return changed;
 }
 
 template <typename T> void joints_tab::render_joint_specs(T &specs)

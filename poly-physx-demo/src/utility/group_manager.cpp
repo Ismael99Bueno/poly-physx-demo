@@ -194,7 +194,7 @@ group_manager::group group_manager::create_group_from_selected()
         body_proxy bproxy;
         bproxy.specs = body2D::specs::from_instance(*body);
         for (collider2D *collider : *body)
-            bproxy.colors.push_back(lynx::color{m_app.color(collider).first, alpha});
+            bproxy.colors.push_back(lynx::color{m_app.shapes().at(collider).color, alpha});
         fresh_group.bproxies.push_back(bproxy);
         fresh_group.mean_position += body->gposition();
         selected_bodies.push_back(body);
