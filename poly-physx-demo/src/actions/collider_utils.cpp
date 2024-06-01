@@ -2,6 +2,7 @@
 #include "ppx-demo/actions/collider_utils.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx/serialization/serialization.hpp"
+#include "ppx-app/serialization/serialization.hpp"
 
 #include "lynx/app/window.hpp"
 
@@ -160,7 +161,7 @@ YAML::Node collider_utils::encode_proxy(const proxy &prx)
     if (!prx.name.empty())
         node["Name"] = prx.name;
     node["Type"] = (int)prx.type;
-    node["Color"] = prx.color.rgba;
+    node["Color"] = prx.color;
     node["Specs"] = prx.specs;
 
     switch (prx.type)
@@ -184,7 +185,7 @@ collider_utils::proxy collider_utils::decode_proxy(const YAML::Node &node)
     if (node["Name"])
         prx.name = node["Name"].as<std::string>();
     prx.type = (proxy_type)node["Type"].as<int>();
-    prx.color.rgba = node["Color"].as<glm::vec4>();
+    prx.color = node["Color"].as<lynx::color>();
     prx.specs = node["Specs"].as<collider2D::specs>();
 
     switch (prx.type)
