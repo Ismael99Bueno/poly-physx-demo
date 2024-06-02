@@ -67,9 +67,9 @@ class collision_tab
             if (repr == m_contact_lines.end())
             {
                 collision_repr new_repr;
-                new_repr.point = lynx::ellipse2D{.3f, lynx::color::green};
+                new_repr.point = lynx::ellipse2D{.3f, contact_color()};
                 new_repr.point.transform.position = point.point;
-                new_repr.normal = thick_line2D{lynx::color::magenta, .1f};
+                new_repr.normal = thick_line2D{normal_color(), .1f};
 
                 repr = m_contact_lines.emplace(hash, new_repr).first;
             }
@@ -80,10 +80,13 @@ class collision_tab
             repr->second.point.transform.position = point.point;
             repr->second.normal.p1(point.point);
             repr->second.normal.p2(point.point + dir);
-            repr->second.point.color(cnt->enabled ? lynx::color::green : lynx::color::green * 0.6f);
-            repr->second.normal.color(cnt->enabled ? lynx::color::magenta : lynx::color::magenta * 0.6f);
+            repr->second.point.color(contact_color(!cnt->enabled));
+            repr->second.normal.color(normal_color(!cnt->enabled));
         }
     }
+
+    lynx::color contact_color(bool faded = false) const;
+    lynx::color normal_color(bool faded = false) const;
 
     template <typename CMap> void render_contact_lines(const CMap &contacts)
     {

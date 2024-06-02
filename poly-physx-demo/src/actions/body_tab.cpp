@@ -55,7 +55,7 @@ void body_tab::end_body_spawn()
     body->begin_density_update();
     for (const auto &cproxy : m_current_proxy.cproxies)
     {
-        m_app->collider_color = cproxy.color;
+        m_app->style.collider_color = cproxy.color;
         body->add(cproxy.specs);
     }
     body->end_density_update();

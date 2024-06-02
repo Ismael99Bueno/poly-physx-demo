@@ -156,6 +156,15 @@ void collision_tab::render_collisions_and_contacts_list() const
     }
 }
 
+lynx::color collision_tab::contact_color(bool faded) const
+{
+    return faded ? m_app->style.contact_color * 0.6f : m_app->style.contact_color;
+}
+lynx::color collision_tab::normal_color(bool faded) const
+{
+    return faded ? m_app->style.normal_color * 0.6f : m_app->style.normal_color;
+}
+
 void collision_tab::render_collision_detection_list() const
 {
     int det_method;

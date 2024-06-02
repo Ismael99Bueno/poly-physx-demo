@@ -26,7 +26,21 @@ class demo_app : public app
     physics_panel *physics;
     menu_bar *menu;
 
+    struct
+    {
+        lynx::color &collider_color = app::collider_color;
+        lynx::color &joint_color = app::joint_color;
+        lynx::color body_selection_color;
+        lynx::color collider_selection_color;
+        lynx::color quad_tree_color;
+        lynx::color contact_color;
+        lynx::color normal_color;
+        lynx::color ray_color;
+        std::vector<lynx::color> island_colors;
+    } style;
+
     void add_walls();
+    void parse_config_file();
 
   private:
     void on_late_start() override;

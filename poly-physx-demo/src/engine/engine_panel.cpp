@@ -16,7 +16,7 @@ void engine_panel::on_attach()
     collision = collision_tab(m_app);
     constraints = constraints_tab(m_app);
     islands = islands_tab(m_app);
-    m_ray_line = thick_line2D(lynx::color::cyan, 0.4f);
+    m_ray_line = thick_line2D(m_app->style.ray_color, 0.4f);
     m_ray_line.p1(glm::vec2(0.f));
 }
 

@@ -67,6 +67,8 @@ void menu_bar::on_render(const float ts)
                 load_as(SAVES_DIRECTORY);
                 ImGui::EndMenu();
             }
+            if (ImGui::MenuItem("Reload config file"))
+                m_app->parse_config_file();
 
             ImGui::EndMenu();
         }

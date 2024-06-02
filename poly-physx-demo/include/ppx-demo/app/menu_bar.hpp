@@ -9,9 +9,6 @@
 #define PPX_DEMO_LAST_SAVE_FILENAME "ppx-last.yaml"
 #define PPX_DEMO_DEFAULT_SAVE_FILENAME "ppx-default.yaml"
 
-#define PPX_DEMO_CONFIG_FILENAME "config.yaml"
-#define PPX_DEMO_DEFAULT_CONFIG_FILENAME "default-config.yaml"
-
 namespace ppx::demo
 {
 class menu_bar : public demo_layer

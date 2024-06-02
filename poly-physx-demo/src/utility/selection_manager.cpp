@@ -53,11 +53,11 @@ void selection_manager::update()
         shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
         if (m_selected_bodies.contains(collider->body()))
         {
-            if (!compare_colors(shape->outline_color(), body_selection_color))
-                shape->outline_color(body_selection_color);
+            if (!compare_colors(shape->outline_color(), m_app.style.body_selection_color))
+                shape->outline_color(m_app.style.body_selection_color);
         }
-        else if (!compare_colors(shape->outline_color(), collider_selection_color))
-            shape->outline_color(collider_selection_color);
+        else if (!compare_colors(shape->outline_color(), m_app.style.collider_selection_color))
+            shape->outline_color(m_app.style.collider_selection_color);
     }
     if (!m_selecting)
         return;
@@ -87,11 +87,11 @@ void selection_manager::update()
         shape->outline_thickness = oscillating_thickness(m_app.world.integrator.elapsed);
         if (std::find(bodies.begin(), bodies.end(), collider->body()) != bodies.end())
         {
-            if (!compare_colors(shape->outline_color(), body_selection_color))
-                shape->outline_color(body_selection_color);
+            if (!compare_colors(shape->outline_color(), m_app.style.body_selection_color))
+                shape->outline_color(m_app.style.body_selection_color);
         }
-        else if (!compare_colors(shape->outline_color(), collider_selection_color))
-            shape->outline_color(collider_selection_color);
+        else if (!compare_colors(shape->outline_color(), m_app.style.collider_selection_color))
+            shape->outline_color(m_app.style.collider_selection_color);
     }
 }
 void selection_manager::render() const

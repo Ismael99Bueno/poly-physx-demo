@@ -5,14 +5,23 @@
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/physics/physics_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
+#include "ppx-app/serialization/serialization.hpp"
 #include "lynx/geometry/camera.hpp"
+
+#define CONFIG_FILENAME "config.yaml"
+#define DEFAULT_CONFIG_FILENAME "default-config.yaml"
 
 namespace ppx::demo
 {
+// static constexpr const char *CONFIG_DIRECTORY = PPX_DEMO_ROOT_PATH "config/";
+static constexpr const char *CONFIG_FILEPATH = PPX_DEMO_ROOT_PATH "config/" CONFIG_FILENAME;
+static constexpr const char *DEFAULT_CONFIG_FILEPATH = PPX_DEMO_ROOT_PATH "config/" DEFAULT_CONFIG_FILENAME;
+
 demo_app::demo_app()
     : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.f / 60.f, 1.f / 480.f, 1.f / 30.f)),
       selector(*this), grouper(*this)
 {
+    parse_config_file();
     actions = push_layer<actions_panel>();
     engine = push_layer<engine_panel>();
     performance = push_layer<performance_panel>();
@@ -22,12 +31,13 @@ demo_app::demo_app()
 
 void demo_app::on_late_start()
 {
+    add_walls();
+    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
+
     if (!std::filesystem::exists(menu_bar::SAVES_DIRECTORY))
         std::filesystem::create_directory(menu_bar::SAVES_DIRECTORY);
 
     const bool last_exists = std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH);
-    add_walls();
-    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
     if (last_exists)
         deserialize(menu_bar::LAST_SAVE_FILEPATH);
 }
@@ -122,6 +132,31 @@ void demo_app::remove_selected()
     const auto selected_colliders = selector.selected_colliders();
     for (collider2D *collider : selected_colliders)
         world.colliders.remove(collider);
+}
+
+void demo_app::parse_config_file()
+{
+    std::string path = CONFIG_FILEPATH;
+    if (!std::filesystem::exists(path))
+        path = DEFAULT_CONFIG_FILEPATH;
+    if (!std::filesystem::exists(path))
+        throw std::runtime_error("No config file found");
+
+    const YAML::Node node = YAML::LoadFile(path);
+    const YAML::Node nstyle = node["Style"];
+
+    window()->background_color = nstyle["Background color"].as<lynx::color>();
+    style.collider_color = nstyle["Default collider color"].as<lynx::color>();
+    style.joint_color = nstyle["Default joint color"].as<lynx::color>();
+
+    style.body_selection_color = nstyle["Body selection color"].as<lynx::color>();
+    style.collider_selection_color = nstyle["Collider selection color"].as<lynx::color>();
+    style.quad_tree_color = nstyle["Quad tree color"].as<lynx::color>();
+    style.contact_color = nstyle["Contact color"].as<lynx::color>();
+    style.normal_color = nstyle["Normal color"].as<lynx::color>();
+    style.ray_color = nstyle["Ray cast color"].as<lynx::color>();
+    for (const YAML::Node n : nstyle["Island colors"])
+        style.island_colors.push_back(n.as<lynx::color>());
 }
 
 void demo_app::add_walls()

@@ -21,11 +21,8 @@ void islands_tab::update()
 {
     if (!m_draw_islands || !m_app->world.islands.enabled())
         return;
+
     std::size_t index = 0;
-    static lynx::color colors[9] = {
-        lynx::color::red,  lynx::color::green,  lynx::color::blue,   lynx::color::yellow, lynx::color::magenta,
-        lynx::color::cyan, lynx::color::orange, lynx::color::purple, lynx::color::pink,
-    };
     static std::size_t color_index = 0;
 
     for (const island2D *island : m_app->world.islands)
@@ -44,9 +41,9 @@ void islands_tab::update()
             for (std::size_t i = 0; i < points.size(); i++)
                 m_island_lines[index][i].position = points[i];
         else
-            m_island_lines.emplace_back(points, colors[color_index]);
+            m_island_lines.emplace_back(points, m_app->style.island_colors[color_index]);
         index++;
-        color_index = (color_index + 1) % 9;
+        color_index = (color_index + 1) % m_app->style.island_colors.size();
     }
 }
 

@@ -22,9 +22,6 @@ class selection_manager
   public:
     selection_manager(demo_app &app);
 
-    lynx::color collider_selection_color{225u, 152u, 152u};
-    lynx::color body_selection_color{155u, 207u, 83u};
-
     void update();
     void render() const;
 

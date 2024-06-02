@@ -22,7 +22,7 @@ struct collider_utils
         float width = 5.f, height = 5.f, ngon_radius = 3.f;
         std::uint32_t ngon_sides = 3;
         proxy_type type = proxy_type::RECT;
-        lynx::color color = app::DEFAULT_COLLIDER_COLOR;
+        lynx::color color = app::collider_color;
     };
 
     static void render_shape_types_and_properties(proxy &prx);
