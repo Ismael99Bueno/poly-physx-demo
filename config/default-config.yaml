@@ -1,0 +1,19 @@
+Style:
+  Background color: "black"
+  Default collider color: [123, 143, 161]
+  Default joint color: [207, 185, 151]
+  Body selection color: [155, 207, 83]
+  Collider selection color: [225, 152, 152]
+  Quad tree color: "white"
+  Contact color: "green"
+  Normal color: "magenta"
+  Ray cast color: "cyan"
+  Island colors:
+    - [255, 0, 0]
+    - [0, 255, 0]
+    - [0, 0, 255]
+    - [255, 255, 0]
+    - [255, 0, 255]
+    - [0, 255, 255]
+    - [255, 255, 255]
+    - [0, 0, 0]
