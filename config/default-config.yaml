@@ -8,6 +8,10 @@ Style:
   Contact color: "green"
   Normal color: "magenta"
   Ray cast color: "cyan"
+  Selection outline color: "white"
+  Distance joint stretch color: "#3E7CB1"
+  Distance joint relax color: "#D1E3DD"
+  Distance joint compress color: "#C16E70"
   Island colors:
     - [255, 0, 0]
     - [0, 255, 0]

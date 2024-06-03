@@ -6,6 +6,7 @@
 #include "ppx-demo/physics/physics_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
 #include "ppx-app/serialization/serialization.hpp"
+#include "ppx-app/drawables/joints/distance_repr2D.hpp"
 #include "lynx/geometry/camera.hpp"
 
 #define CONFIG_FILENAME "config.yaml"
@@ -19,9 +20,8 @@ static constexpr const char *DEFAULT_CONFIG_FILEPATH = PPX_DEMO_ROOT_PATH "confi
 
 demo_app::demo_app()
     : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.f / 60.f, 1.f / 480.f, 1.f / 30.f)),
-      selector(*this), grouper(*this)
+      style(parse_config_file()), selector(*this), grouper(*this)
 {
-    parse_config_file();
     actions = push_layer<actions_panel>();
     engine = push_layer<engine_panel>();
     performance = push_layer<performance_panel>();
@@ -134,7 +134,7 @@ void demo_app::remove_selected()
         world.colliders.remove(collider);
 }
 
-void demo_app::parse_config_file()
+demo_app::style_settings demo_app::parse_config_file()
 {
     std::string path = CONFIG_FILEPATH;
     if (!std::filesystem::exists(path))
@@ -144,10 +144,11 @@ void demo_app::parse_config_file()
 
     const YAML::Node node = YAML::LoadFile(path);
     const YAML::Node nstyle = node["Style"];
+    style_settings style;
 
     window()->background_color = nstyle["Background color"].as<lynx::color>();
-    style.collider_color = nstyle["Default collider color"].as<lynx::color>();
-    style.joint_color = nstyle["Default joint color"].as<lynx::color>();
+    *style.collider_color = nstyle["Default collider color"].as<lynx::color>();
+    *style.joint_color = nstyle["Default joint color"].as<lynx::color>();
 
     style.body_selection_color = nstyle["Body selection color"].as<lynx::color>();
     style.collider_selection_color = nstyle["Collider selection color"].as<lynx::color>();
@@ -155,8 +156,20 @@ void demo_app::parse_config_file()
     style.contact_color = nstyle["Contact color"].as<lynx::color>();
     style.normal_color = nstyle["Normal color"].as<lynx::color>();
     style.ray_color = nstyle["Ray cast color"].as<lynx::color>();
+    style.selection_outline_color = nstyle["Selection outline color"].as<lynx::color>();
+    distance_repr2D::stretch = nstyle["Distance joint stretch color"].as<lynx::color>();
+    distance_repr2D::relax = nstyle["Distance joint relax color"].as<lynx::color>();
+    distance_repr2D::compress = nstyle["Distance joint compress color"].as<lynx::color>();
+
     for (const YAML::Node n : nstyle["Island colors"])
         style.island_colors.push_back(n.as<lynx::color>());
+    return style;
+}
+
+void demo_app::reload_config_file()
+{
+    style = parse_config_file();
+    selector.m_selection_outline.color(style.selection_outline_color);
 }
 
 void demo_app::add_walls()

@@ -588,13 +588,13 @@ void joints_tab::begin_joint_attach()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        m_preview = kit::make_scope<spring_line2D>(mpos, mpos, m_app->style.joint_color);
+        m_preview = kit::make_scope<spring_line2D>(mpos, mpos, *m_app->style.joint_color);
         break;
     case joint_type::PRISMATIC:
-        m_preview = kit::make_scope<lynx::thin_line2D>(mpos, mpos, m_app->style.joint_color);
+        m_preview = kit::make_scope<lynx::thin_line2D>(mpos, mpos, *m_app->style.joint_color);
         break;
     case joint_type::DISTANCE:
-        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, m_app->style.joint_color);
+        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, *m_app->style.joint_color);
         break;
     case joint_type::WELD:
     case joint_type::REVOLUTE:
@@ -611,7 +611,7 @@ void joints_tab::begin_joint_attach()
     case joint_type::ROTOR:
     case joint_type::BALL:
     case joint_type::MOTOR:
-        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, m_app->style.joint_color);
+        m_preview = kit::make_scope<thick_line2D>(mpos, mpos, *m_app->style.joint_color);
         break;
     default:
         break;

@@ -8,7 +8,8 @@
 namespace ppx::demo
 {
 selection_manager::selection_manager(demo_app &app)
-    : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}})
+    : m_app(app), m_selection_outline({{-1.f, -1.f}, {1.f, -1.f}, {1.f, 1.f}, {-1.f, 1.f}, {-1.f, -1.f}},
+                                      app.style.selection_outline_color)
 {
     m_window = m_app.window();
     app.world.bodies.events.on_removal += [this](body2D &body) { m_selected_bodies.erase(&body); };

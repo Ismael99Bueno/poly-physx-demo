@@ -78,5 +78,7 @@ class selection_manager
     template <typename Joint> void add_joint_on_remove_callback();
     template <typename Joint> void update_selected_joints();
     void update_selected_joints();
+
+    friend class demo_app;
 };
 } // namespace ppx::demo
