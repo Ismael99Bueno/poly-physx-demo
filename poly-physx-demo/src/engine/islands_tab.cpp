@@ -64,8 +64,16 @@ void islands_tab::render_imgui_tab()
 
     ImGui::Checkbox("Multithreaded", &m_app->world.islands.params.multithreaded);
     ImGui::Checkbox("Split", &m_app->world.islands.params.enable_split);
-    ImGui::SliderFloat("Sleep energy threshold", &m_app->world.islands.params.sleep_energy_threshold, 0.0001f, 10.f,
-                       "%.4f", ImGuiSliderFlags_Logarithmic);
+
+    ImGui::SliderFloat("Lower sleep energy threshold", &m_app->world.islands.params.lower_sleep_energy_threshold,
+                       0.0001f, m_app->world.islands.params.upper_sleep_energy_threshold, "%.4f",
+                       ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("Upper sleep energy threshold", &m_app->world.islands.params.upper_sleep_energy_threshold,
+                       m_app->world.islands.params.lower_sleep_energy_threshold, 1.f, "%.4f",
+                       ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderInt("Body count mid threshold reference",
+                     (int *)&m_app->world.islands.params.body_count_mid_threshold_reference, 1, 6000);
+
     ImGui::SliderFloat("Sleep time threshold", &m_app->world.islands.params.sleep_time_threshold, 0.0001f, 5.f, "%.4f",
                        ImGuiSliderFlags_Logarithmic);
     ImGui::Checkbox("Draw islands", &m_draw_islands);
@@ -81,6 +89,8 @@ void islands_tab::render_imgui_tab()
                 ImGui::Text("Time still: %.4f", island->time_still());
                 ImGui::Text("Solved positions: %s", island->solved_positions() ? "true" : "false");
                 ImGui::Text("Asleep: %s", island->asleep() ? "true" : "false");
+                ImGui::Text("About to sleep: %s", island->about_to_sleep() ? "true" : "false");
+                ImGui::Text("Sleep energy threshold: %.4f", m_app->world.islands.sleep_energy_threshold(island));
                 ImGui::Text("Wants to split: %s", island->may_split ? "true" : "false");
                 ImGui::Text("Actuators count: %zu", island->actuators().size());
                 ImGui::Text("Constraints count: %zu", island->constraints().size());
