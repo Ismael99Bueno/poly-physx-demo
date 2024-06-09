@@ -67,7 +67,7 @@ void collision_tab::render_imgui_tab()
         }
 
 #ifndef KIT_PROFILE
-        ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->multithreaded);
+        ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->params.multithreaded);
 #endif
 
         if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
@@ -80,8 +80,8 @@ void collision_tab::render_imgui_tab()
         ImGui::Text("The contacts solver will be responsible for solving the contacts between colliders if islands are "
                     "disabled");
         ImGui::Checkbox("Enable", &m_app->world.collisions.contacts()->enabled);
-        ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->contact_lifetime, 0.01f, 5.f,
-                           "%.2f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->params.lifetime, 0.01f, 5.f, "%.2f",
+                           ImGuiSliderFlags_Logarithmic);
         render_contact_solvers_list();
 
         if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())

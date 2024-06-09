@@ -18,9 +18,18 @@ namespace ppx::demo
 static constexpr const char *CONFIG_FILEPATH = PPX_DEMO_ROOT_PATH "config/" CONFIG_FILENAME;
 static constexpr const char *DEFAULT_CONFIG_FILEPATH = PPX_DEMO_ROOT_PATH "config/" DEFAULT_CONFIG_FILENAME;
 
-demo_app::demo_app()
-    : app("poly-physx-demo", rk::butcher_tableau<float>::rk1, rk::timestep<float>(1.f / 60.f, 1.f / 480.f, 1.f / 30.f)),
-      style(parse_config_file()), selector(*this), grouper(*this)
+static app::specs create_app_specs()
+{
+    app::specs spc;
+    spc.window.name = "poly-physx-demo";
+    spc.window.width = 800;
+    spc.window.height = 600;
+    spc.world.integrator.tableau = rk::butcher_tableau<float>::rk1;
+    spc.world.integrator.timestep = rk::timestep<float>(1.f / 60.f, 1.f / 480.f, 1.f / 30.f);
+    return spc;
+}
+
+demo_app::demo_app() : app(create_app_specs()), style(parse_config_file()), selector(*this), grouper(*this)
 {
     actions = push_layer<actions_panel>();
     engine = push_layer<engine_panel>();
