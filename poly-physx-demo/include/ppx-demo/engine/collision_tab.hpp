@@ -114,7 +114,8 @@ class collision_tab
     void render_pp_manifold_list() const;
 
     void render_bounding_boxes() const;
-
     void render_quad_tree_lines() const;
+
+    friend class demo_app;
 };
 } // namespace ppx::demo

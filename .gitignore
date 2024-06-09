@@ -13,7 +13,8 @@
 # VS-VSCode config
 .vscode/
 .vs/
-config/config.yaml
+config/*config.yaml
+!config/default-config.yaml
 
 # Python environments
 *env/

@@ -39,7 +39,9 @@ void collision_tab::update()
 
 void collision_tab::render_imgui_tab()
 {
-    ImGui::Checkbox("Enabled", &m_app->world.collisions.enabled);
+    bool enabled = m_app->world.collisions.enabled();
+    if (ImGui::Checkbox("Enabled##Collisions", &enabled))
+        m_app->world.collisions.enabled(enabled);
 
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
@@ -57,7 +59,7 @@ void collision_tab::render_imgui_tab()
 
     if (ImGui::CollapsingHeader("Detection"))
     {
-        ImGui::Checkbox("Enabled", &m_app->world.collisions.detection()->enabled);
+        ImGui::Checkbox("Enabled##Detection", &m_app->world.collisions.detection()->enabled);
         render_collision_detection_list();
         if (ImGui::TreeNode("Narrow detection"))
         {
@@ -79,7 +81,11 @@ void collision_tab::render_imgui_tab()
     {
         ImGui::Text("The contacts solver will be responsible for solving the contacts between colliders if islands are "
                     "disabled");
-        ImGui::Checkbox("Enable", &m_app->world.collisions.contacts()->enabled);
+
+        enabled = m_app->world.collisions.contacts()->enabled();
+        if (ImGui::Checkbox("Enabled##Contacts", &enabled))
+            m_app->world.collisions.contacts()->enabled(enabled);
+
         ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->params.lifetime, 0.01f, 5.f, "%.2f",
                            ImGuiSliderFlags_Logarithmic);
         render_contact_solvers_list();
@@ -253,6 +259,7 @@ void collision_tab::render_pp_manifold_list() const
 void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
 {
     ImGui::Checkbox("Force square shape", &qtdet.force_square_shape);
+    ImGui::Checkbox("Include non dynamic", &qtdet.include_non_dynamic);
 
     auto &props = qtdet.quad_tree().props();
     ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
@@ -312,7 +319,7 @@ void collision_tab::update_quad_tree_lines(const quad_tree::node &qtnode)
             for (std::size_t i = 0; i < points.size(); i++)
                 m_qt_lines[m_qt_active_partitions][i].position = points[i];
         else
-            m_qt_lines.emplace_back(points);
+            m_qt_lines.emplace_back(points, m_app->style.quad_tree_color);
         m_qt_active_partitions++;
     }
 }

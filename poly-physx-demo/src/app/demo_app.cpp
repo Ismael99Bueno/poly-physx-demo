@@ -179,6 +179,8 @@ void demo_app::reload_config_file()
 {
     style = parse_config_file();
     selector.m_selection_outline.color(style.selection_outline_color);
+    for (auto &qtline : engine->collision.m_qt_lines)
+        qtline.color(style.quad_tree_color);
 }
 
 void demo_app::add_walls()

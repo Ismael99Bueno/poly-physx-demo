@@ -1,23 +1,20 @@
 Style:
-  Background color: "black"
-  Default collider color: [123, 143, 161]
-  Default joint color: [207, 185, 151]
-  Body selection color: [155, 207, 83]
-  Collider selection color: [225, 152, 152]
-  Quad tree color: "white"
-  Contact color: "green"
-  Normal color: "magenta"
+  Background color: "#32292F"
+  Default collider color: "#7389AE"
+  Default joint color: "#C16E70"
+  Body selection color: "#FED766"
+  Collider selection color: "#A0CED9"
+  Quad tree color: "#E5D0CC"
+  Contact color: "#252627"
+  Normal color: "#F2EFE9"
   Ray cast color: "cyan"
-  Selection outline color: "white"
+  Selection outline color: "#FED766"
   Distance joint stretch color: "#3E7CB1"
   Distance joint relax color: "#D1E3DD"
   Distance joint compress color: "#C16E70"
   Island colors:
-    - [255, 0, 0]
-    - [0, 255, 0]
-    - [0, 0, 255]
-    - [255, 255, 0]
-    - [255, 0, 255]
-    - [0, 255, 255]
-    - [255, 255, 255]
-    - [0, 0, 0]
+    - "#FEF6C9"
+    - "#D4DFC7"
+    - "#96C0B7"
+    - "#878E88"
+    - "#725752"
