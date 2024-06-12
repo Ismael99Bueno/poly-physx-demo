@@ -191,12 +191,8 @@ YAML::Node contraption_tab::encode() const
     node["Chain spacing"] = m_chain_spacing;
     node["Chain fixed start"] = m_chain_fixed_start;
     node["Chain fixed end"] = m_chain_fixed_end;
-    spring_joint2D::specs spspecs;
-    spspecs.props = m_spring_props;
-    node["Spring properties"] = spspecs;
-    distance_joint2D::specs djspecs;
-    djspecs.props = m_distance_props;
-    node["Distance properties"] = djspecs;
+    node["Spring properties"] = m_spring_props;
+    node["Distance properties"] = m_distance_props;
 
     return node;
 }
@@ -212,8 +208,8 @@ void contraption_tab::decode(const YAML::Node &node)
     m_chain_spacing = node["Chain spacing"].as<float>();
     m_chain_fixed_start = node["Chain fixed start"].as<bool>();
     m_chain_fixed_end = node["Chain fixed end"].as<bool>();
-    m_spring_props = node["Spring properties"].as<spring_joint2D::specs>().props;
-    m_distance_props = node["Distance properties"].as<distance_joint2D::specs>().props;
+    m_spring_props = node["Spring properties"].as<spring_joint2D::specs::properties>();
+    m_distance_props = node["Distance properties"].as<distance_joint2D::specs::properties>();
 }
 
 } // namespace ppx::demo
