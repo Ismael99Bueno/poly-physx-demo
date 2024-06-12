@@ -40,11 +40,11 @@ demo_app::demo_app() : app(create_app_specs()), style(parse_config_file()), sele
 
 void demo_app::on_late_start()
 {
-    add_walls();
-    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
-
     if (!std::filesystem::exists(menu_bar::SAVES_DIRECTORY))
         std::filesystem::create_directory(menu_bar::SAVES_DIRECTORY);
+
+    add_walls();
+    serialize(menu_bar::DEFAULT_SAVE_FILEPATH);
 
     const bool last_exists = std::filesystem::exists(menu_bar::LAST_SAVE_FILEPATH);
     if (last_exists)

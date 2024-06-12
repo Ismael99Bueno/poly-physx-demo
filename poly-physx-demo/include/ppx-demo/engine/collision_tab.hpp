@@ -23,6 +23,7 @@ class collision_tab
 
     void render_imgui_tab();
     void update();
+    void render();
 
     YAML::Node encode() const;
     void decode(const YAML::Node &node);

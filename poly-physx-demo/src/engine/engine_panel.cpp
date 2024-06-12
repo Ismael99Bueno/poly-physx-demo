@@ -65,6 +65,7 @@ void engine_panel::on_update(const float ts)
 
 void engine_panel::on_render(const float ts)
 {
+    collision.render();
     islands.render();
     if (ImGui::Begin("Engine"))
     {

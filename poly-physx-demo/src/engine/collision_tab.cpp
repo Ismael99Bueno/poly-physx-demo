@@ -36,13 +36,8 @@ void collision_tab::update()
         update_quad_tree_lines(qtdet->quad_tree().root());
     }
 }
-
-void collision_tab::render_imgui_tab()
+void collision_tab::render()
 {
-    bool enabled = m_app->world.collisions.enabled();
-    if (ImGui::Checkbox("Enabled##Collisions", &enabled))
-        m_app->world.collisions.enabled(enabled);
-
     if (m_draw_bounding_boxes)
         render_bounding_boxes();
     if (m_draw_contacts)
@@ -52,6 +47,15 @@ void collision_tab::render_imgui_tab()
         else if (auto spring = m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
             render_contact_lines(spring->contacts());
     }
+    if (m_visualize_qtree)
+        render_quad_tree_lines();
+}
+
+void collision_tab::render_imgui_tab()
+{
+    bool enabled = m_app->world.collisions.enabled();
+    if (ImGui::Checkbox("Enabled##Collisions", &enabled))
+        m_app->world.collisions.enabled(enabled);
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw contacts", &m_draw_contacts);
@@ -267,8 +271,6 @@ void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
     ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
 
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
-    if (m_visualize_qtree)
-        render_quad_tree_lines();
 }
 
 void collision_tab::render_nonpen_contact_solver_parameters()
