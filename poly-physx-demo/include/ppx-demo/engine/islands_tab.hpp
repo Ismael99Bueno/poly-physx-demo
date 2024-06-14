@@ -18,6 +18,9 @@ class islands_tab
 
     void render_imgui_tab();
 
+    YAML::Node encode() const;
+    void decode(const YAML::Node &node);
+
   private:
     demo_app *m_app;
     lynx::window2D *m_window;

@@ -111,4 +111,16 @@ void islands_tab::render_imgui_tab()
         ImGui::TreePop();
     }
 }
+
+YAML::Node islands_tab::encode() const
+{
+    YAML::Node node;
+    node["Draw islands"] = m_draw_islands;
+    return node;
+}
+void islands_tab::decode(const YAML::Node &node)
+{
+    m_draw_islands = node["Draw islands"].as<bool>();
+}
+
 } // namespace ppx::demo

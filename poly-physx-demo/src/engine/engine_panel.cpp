@@ -90,6 +90,7 @@ YAML::Node engine_panel::encode() const
 
     node["Integration tab"] = integration.encode();
     node["Collision tab"] = collision.encode();
+    node["Islands tab"] = islands.encode();
 
     return node;
 }
@@ -100,6 +101,7 @@ bool engine_panel::decode(const YAML::Node &node)
 
     integration.decode(node["Integration tab"]);
     collision.decode(node["Collision tab"]);
+    islands.decode(node["Islands tab"]);
 
     return true;
 }
