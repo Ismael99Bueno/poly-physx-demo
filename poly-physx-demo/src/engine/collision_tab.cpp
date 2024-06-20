@@ -3,12 +3,9 @@
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/actions/actions_panel.hpp"
 
-#include "ppx/collision/detection/narrow/gjk_epa_detection2D.hpp"
+#include "ppx/collision/narrow/gjk_epa_narrow2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
 #include "ppx/collision/contacts/spring_contact2D.hpp"
-
-#include "ppx/collision/manifold/clipping_algorithm_manifold2D.hpp"
-#include "ppx/collision/manifold/mtv_support_manifold2D.hpp"
 
 namespace ppx::demo
 {
@@ -23,17 +20,17 @@ void collision_tab::update()
         update_bounding_boxes();
     if (m_draw_contacts)
     {
-        if (auto nonpen = m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+        if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
             update_contact_lines(nonpen->contacts());
-        else if (auto spring = m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+        else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             update_contact_lines(spring->contacts());
     }
 
-    auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>();
-    if (m_visualize_qtree && qtdet)
+    auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>();
+    if (m_visualize_qtree && qtbroad)
     {
         m_qt_active_partitions = 0;
-        update_quad_tree_lines(qtdet->quad_tree().root());
+        update_quad_tree_lines(qtbroad->quad_tree().root());
     }
 }
 void collision_tab::render()
@@ -42,9 +39,9 @@ void collision_tab::render()
         render_bounding_boxes();
     if (m_draw_contacts)
     {
-        if (auto nonpen = m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+        if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
             render_contact_lines(nonpen->contacts());
-        else if (auto spring = m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+        else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             render_contact_lines(spring->contacts());
     }
     if (m_visualize_qtree)
@@ -61,42 +58,44 @@ void collision_tab::render_imgui_tab()
     ImGui::Checkbox("Draw contacts", &m_draw_contacts);
     render_collisions_and_contacts_list();
 
-    if (ImGui::CollapsingHeader("Detection"))
+    if (ImGui::CollapsingHeader("Broad phase"))
     {
-        ImGui::Checkbox("Enabled##Detection", &m_app->world.collisions.detection()->enabled);
-        render_collision_detection_list();
-        if (ImGui::TreeNode("Narrow detection"))
-        {
-            render_cp_narrow_list();
-            render_pp_narrow_list();
-            ImGui::TreePop();
-        }
-
+        ImGui::Checkbox("Enabled##Detection", &m_app->world.collisions.broad()->enabled);
+        render_broad_methods_list();
 #ifndef KIT_PROFILE
-        ImGui::Checkbox("Multithreading", &m_app->world.collisions.detection()->params.multithreaded);
+        ImGui::Checkbox("Multithreading", &m_app->world.collisions.broad()->params.multithreaded);
 #endif
 
-        if (auto qtdet = m_app->world.collisions.detection<quad_tree_detection2D>())
-            render_quad_tree_parameters(*qtdet);
+        if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
+            render_quad_tree_parameters(*qtbroad);
     }
 
-    render_pp_manifold_list();
-    if (ImGui::CollapsingHeader("Contacts solver"))
+    if (ImGui::CollapsingHeader("Narrow phase"))
+    {
+        render_cp_narrow_list();
+        render_pp_narrow_list();
+    }
+
+    if (ImGui::CollapsingHeader("Contact solver"))
     {
         ImGui::Text("The contacts solver will be responsible for solving the contacts between colliders if islands are "
                     "disabled");
 
-        enabled = m_app->world.collisions.contacts()->enabled();
+        enabled = m_app->world.collisions.contact_solver()->enabled();
         if (ImGui::Checkbox("Enabled##Contacts", &enabled))
-            m_app->world.collisions.contacts()->enabled(enabled);
+            m_app->world.collisions.contact_solver()->enabled(enabled);
 
-        ImGui::SliderFloat("Contact lifetime", &m_app->world.collisions.contacts()->params.lifetime, 0.01f, 5.f, "%.2f",
-                           ImGuiSliderFlags_Logarithmic);
+        ImGui::Text("Contact lifetime: %.2f", m_app->world.collisions.contact_solver()->contact_lifetime());
+        ImGui::SliderFloat("Base contact lifetime", &m_app->world.collisions.contact_solver()->params.base_lifetime,
+                           0.f, 1.f, "%.2f");
+        ImGui::SliderFloat("Per contact lifetime reduction",
+                           &m_app->world.collisions.contact_solver()->params.per_contact_lifetime_reduction, 0.f, 1.f,
+                           "%.2f");
         render_contact_solvers_list();
 
-        if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+        if (m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
             render_nonpen_contact_solver_parameters();
-        else if (m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+        else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             render_spring_contact_solver_parameters();
     }
 }
@@ -133,9 +132,9 @@ void collision_tab::render_collisions_and_contacts_list() const
             }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)", m_app->world.collisions.contacts()->size()))
+    if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)", m_app->world.collisions.contact_solver()->size()))
     {
-        const auto contacts = m_app->world.collisions.contacts()->create_contacts_list();
+        const auto contacts = m_app->world.collisions.contact_solver()->create_contacts_list();
         for (const contact2D *contact : contacts)
             if (ImGui::TreeNode(contact, "%s - %s (%u)", kit::uuid::name_from_ptr(contact->collider1()).c_str(),
                                 kit::uuid::name_from_ptr(contact->collider2()).c_str(), contact->point().id.key))
@@ -175,33 +174,33 @@ lynx::color collision_tab::normal_color(bool faded) const
     return faded ? m_app->style.normal_color * 0.6f : m_app->style.normal_color;
 }
 
-void collision_tab::render_collision_detection_list() const
+void collision_tab::render_broad_methods_list() const
 {
     int det_method;
-    if (m_app->world.collisions.detection<brute_force_detection2D>())
+    if (m_app->world.collisions.broad<brute_force_broad2D>())
         det_method = 0;
-    else if (m_app->world.collisions.detection<quad_tree_detection2D>())
+    else if (m_app->world.collisions.broad<quad_tree_broad2D>())
         det_method = 1;
-    else if (m_app->world.collisions.detection<sort_sweep_detection2D>())
+    else if (m_app->world.collisions.broad<sort_sweep_broad2D>())
         det_method = 2;
 
     if (ImGui::Combo("Collision detection", &det_method, "Brute force\0Quad tree\0Sort and sweep\0\0"))
     {
         if (det_method == 0)
-            m_app->world.collisions.set_detection<brute_force_detection2D>();
+            m_app->world.collisions.set_broad<brute_force_broad2D>();
         else if (det_method == 1)
-            m_app->world.collisions.set_detection<quad_tree_detection2D>();
+            m_app->world.collisions.set_broad<quad_tree_broad2D>();
         else if (det_method == 2)
-            m_app->world.collisions.set_detection<sort_sweep_detection2D>();
+            m_app->world.collisions.set_broad<sort_sweep_broad2D>();
     }
 }
 
 void collision_tab::render_contact_solvers_list() const
 {
     int csolver_method;
-    if (m_app->world.collisions.contacts<contact_solver2D<nonpen_contact2D>>())
+    if (m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
         csolver_method = 0;
-    else if (m_app->world.collisions.contacts<contact_solver2D<spring_contact2D>>())
+    else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
         csolver_method = 1;
     if (ImGui::Combo("Collision contacts", &csolver_method, "Non-penetration contact\0Spring contact\0\0"))
     {
@@ -215,13 +214,13 @@ void collision_tab::render_contact_solvers_list() const
 void collision_tab::render_cp_narrow_list() const
 {
     int alg;
-    gjk_epa_detection2D *gjk;
-    if ((gjk = m_app->world.collisions.detection()->cp_narrow_detection<gjk_epa_detection2D>()))
+    gjk_epa_narrow2D *gjk;
+    if ((gjk = m_app->world.collisions.cp_narrow<gjk_epa_narrow2D>()))
         alg = 0;
     if (ImGui::Combo("C-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
     {
         if (alg == 0)
-            m_app->world.collisions.detection()->set_cp_narrow_detection<gjk_epa_detection2D>();
+            m_app->world.collisions.set_cp_narrow<gjk_epa_narrow2D>();
     }
     if (gjk)
         ImGui::SliderFloat("C-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
@@ -231,41 +230,25 @@ void collision_tab::render_cp_narrow_list() const
 void collision_tab::render_pp_narrow_list() const
 {
     int alg;
-    gjk_epa_detection2D *gjk;
-    if ((gjk = m_app->world.collisions.detection()->pp_narrow_detection<gjk_epa_detection2D>()))
+    gjk_epa_narrow2D *gjk;
+    if ((gjk = m_app->world.collisions.pp_narrow<gjk_epa_narrow2D>()))
         alg = 0;
     if (ImGui::Combo("P-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
     {
         if (alg == 0)
-            m_app->world.collisions.detection()->set_pp_narrow_detection<gjk_epa_detection2D>();
+            m_app->world.collisions.set_pp_narrow<gjk_epa_narrow2D>();
     }
     if (gjk)
         ImGui::SliderFloat("P-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
 }
 
-void collision_tab::render_pp_manifold_list() const
+void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
 {
-    int alg;
-    if (m_app->world.collisions.detection()->pp_manifold_algorithm<clipping_algorithm_manifold2D>())
-        alg = 0;
-    else if (m_app->world.collisions.detection()->pp_manifold_algorithm<mtv_support_manifold2D>())
-        alg = 1;
-    if (ImGui::Combo("P-P Manifold algorithm", &alg, "Clipping\0MTV Support\0\0"))
-    {
-        if (alg == 0)
-            m_app->world.collisions.detection()->set_pp_manifold_algorithm<clipping_algorithm_manifold2D>();
-        else if (alg == 1)
-            m_app->world.collisions.detection()->set_pp_manifold_algorithm<mtv_support_manifold2D>();
-    }
-}
+    ImGui::Checkbox("Force square shape", &qtbroad.force_square_shape);
+    ImGui::Checkbox("Include non dynamic", &qtbroad.include_non_dynamic);
 
-void collision_tab::render_quad_tree_parameters(quad_tree_detection2D &qtdet)
-{
-    ImGui::Checkbox("Force square shape", &qtdet.force_square_shape);
-    ImGui::Checkbox("Include non dynamic", &qtdet.include_non_dynamic);
-
-    auto &props = qtdet.quad_tree().props();
+    auto &props = qtbroad.quad_tree().props();
     ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
     ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
     ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);

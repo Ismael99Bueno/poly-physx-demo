@@ -70,6 +70,7 @@ void demo_app::on_render(const float ts)
     grouper.render();
 #ifdef DEBUG
     ImGui::ShowDemoWindow();
+    ImPlot::ShowDemoWindow();
 #endif
 }
 

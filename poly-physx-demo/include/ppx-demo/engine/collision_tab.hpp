@@ -2,9 +2,9 @@
 
 #include "lynx/app/window.hpp"
 
-#include "ppx/collision/detection/brute_force_detection2D.hpp"
-#include "ppx/collision/detection/quad_tree_detection2D.hpp"
-#include "ppx/collision/detection/sort_sweep_detection2D.hpp"
+#include "ppx/collision/broad/brute_force_broad2D.hpp"
+#include "ppx/collision/broad/quad_tree_broad2D.hpp"
+#include "ppx/collision/broad/sort_sweep_broad2D.hpp"
 #include "ppx/collision/contacts/contact_solver2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
 #include "ppx/collision/contacts/spring_contact2D.hpp"
@@ -52,7 +52,7 @@ class collision_tab
 
     std::unordered_map<contact_key, collision_repr> m_contact_lines;
 
-    void render_quad_tree_parameters(quad_tree_detection2D &qtdet);
+    void render_quad_tree_parameters(quad_tree_broad2D &qtbroad);
     void render_nonpen_contact_solver_parameters();
     void render_spring_contact_solver_parameters();
 
@@ -105,14 +105,12 @@ class collision_tab
         }
     }
 
-    void render_collision_detection_list() const;
+    void render_broad_methods_list() const;
     void render_collisions_and_contacts_list() const;
     void render_contact_solvers_list() const;
 
     void render_cp_narrow_list() const;
     void render_pp_narrow_list() const;
-
-    void render_pp_manifold_list() const;
 
     void render_bounding_boxes() const;
     void render_quad_tree_lines() const;
