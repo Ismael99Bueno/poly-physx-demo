@@ -62,7 +62,11 @@ void islands_tab::render_imgui_tab()
     if (ImGui::Checkbox("Enabled", &enabled))
         m_app->world.islands.enabled(enabled);
 
+#ifndef KIT_PROFILE
     ImGui::Checkbox("Multithreaded", &m_app->world.islands.params.multithreaded);
+#else
+    ImGui::Text("Multithreading is disabled on profile builds");
+#endif
     ImGui::Checkbox("Split", &m_app->world.islands.params.enable_split);
 
     ImGui::SliderFloat("Lower sleep energy threshold", &m_app->world.islands.params.lower_sleep_energy_threshold,

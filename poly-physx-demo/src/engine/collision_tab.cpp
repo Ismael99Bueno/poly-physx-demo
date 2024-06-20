@@ -63,7 +63,9 @@ void collision_tab::render_imgui_tab()
         ImGui::Checkbox("Enabled##Detection", &m_app->world.collisions.broad()->enabled);
         render_broad_methods_list();
 #ifndef KIT_PROFILE
-        ImGui::Checkbox("Multithreading", &m_app->world.collisions.broad()->params.multithreaded);
+        ImGui::Checkbox("Multithreaded", &m_app->world.collisions.broad()->params.multithreaded);
+#else
+        ImGui::Text("Multithreading is disabled on profile builds");
 #endif
 
         if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
