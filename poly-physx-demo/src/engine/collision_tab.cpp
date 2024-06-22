@@ -4,6 +4,7 @@
 #include "ppx-demo/actions/actions_panel.hpp"
 
 #include "ppx/collision/narrow/gjk_epa_narrow2D.hpp"
+#include "ppx/collision/narrow/sat_narrow2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
 #include "ppx/collision/contacts/spring_contact2D.hpp"
 
@@ -136,7 +137,7 @@ void collision_tab::render_collisions_and_contacts_list() const
     }
     if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)", m_app->world.collisions.contact_solver()->size()))
     {
-        const auto contacts = m_app->world.collisions.contact_solver()->create_contacts_list();
+        const auto contacts = m_app->world.collisions.contact_solver()->create_contact_list();
         for (const contact2D *contact : contacts)
             if (ImGui::TreeNode(contact, "%s - %s (%u)", kit::uuid::name_from_ptr(contact->collider1()).c_str(),
                                 kit::uuid::name_from_ptr(contact->collider2()).c_str(), contact->point().id.key))
@@ -219,10 +220,14 @@ void collision_tab::render_cp_narrow_list() const
     gjk_epa_narrow2D *gjk;
     if ((gjk = m_app->world.collisions.cp_narrow<gjk_epa_narrow2D>()))
         alg = 0;
-    if (ImGui::Combo("C-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
+    if (m_app->world.collisions.cp_narrow<sat_narrow2D>())
+        alg = 1;
+    if (ImGui::Combo("C-P Narrow algorithm", &alg, "GJK-EPA\0SAT\0\0"))
     {
         if (alg == 0)
             m_app->world.collisions.set_cp_narrow<gjk_epa_narrow2D>();
+        else if (alg == 1)
+            m_app->world.collisions.set_cp_narrow<sat_narrow2D>();
     }
     if (gjk)
         ImGui::SliderFloat("C-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
@@ -235,10 +240,14 @@ void collision_tab::render_pp_narrow_list() const
     gjk_epa_narrow2D *gjk;
     if ((gjk = m_app->world.collisions.pp_narrow<gjk_epa_narrow2D>()))
         alg = 0;
-    if (ImGui::Combo("P-P Narrow algorithm", &alg, "GJK-EPA\0\0"))
+    if (m_app->world.collisions.pp_narrow<sat_narrow2D>())
+        alg = 1;
+    if (ImGui::Combo("P-P Narrow algorithm", &alg, "GJK-EPA\0SAT\0\0"))
     {
         if (alg == 0)
             m_app->world.collisions.set_pp_narrow<gjk_epa_narrow2D>();
+        else if (alg == 1)
+            m_app->world.collisions.set_pp_narrow<sat_narrow2D>();
     }
     if (gjk)
         ImGui::SliderFloat("P-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",

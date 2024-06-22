@@ -21,14 +21,16 @@ class performance_panel : public demo_layer
 
     time_unit m_time_unit = time_unit::MILLISECONDS;
     float m_smoothness = 0.f;
-
     float m_time_plot_speed = 0.02f;
+    bool m_expand_hot_path = false;
 
     std::array<kit::perf::time, 4> m_time_measurements;
     std::array<kit::perf::time, 4> m_max_time_measurements;
 
     std::unordered_map<std::string, kit::perf::time> m_hierarchy_max_elapsed;
     std::unordered_map<std::string, kit::perf::measurement::metrics> m_hierarchy_metrics;
+    std::unordered_map<std::string, std::pair<const char *, float>> m_current_hotpath;
+    std::unordered_map<std::string, std::pair<const char *, float>> m_last_hotpath;
 
     void on_update(float ts) override;
     void on_render(float ts) override;

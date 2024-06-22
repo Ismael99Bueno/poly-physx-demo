@@ -14,6 +14,8 @@ void performance_panel::on_update(const float ts)
     m_time_measurements[1] = m_smoothness * m_time_measurements[1] + (1.f - m_smoothness) * m_app->update_time();
     m_time_measurements[2] = m_smoothness * m_time_measurements[2] + (1.f - m_smoothness) * m_app->render_time();
     m_time_measurements[3] = m_smoothness * m_time_measurements[3] + (1.f - m_smoothness) * m_app->physics_time();
+    m_current_hotpath.swap(m_last_hotpath);
+    m_current_hotpath.clear();
 }
 
 void performance_panel::on_render(const float ts)
@@ -22,8 +24,10 @@ void performance_panel::on_render(const float ts)
     {
         ImGui::Combo("Time unit", (int *)&m_time_unit, "Nanoseconds\0Microseconds\0Milliseconds\0Seconds\0\0");
         ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");
+
         render_fps();
 #ifdef KIT_PROFILE
+        ImGui::Checkbox("Expand hot path", &m_expand_hot_path);
         render_profile_hierarchy();
 #else
         render_summary();
@@ -81,7 +85,8 @@ void performance_panel::render_performance_pie_plot(const kit::perf::node &paren
         labels[index] = node.name();
         const kit::perf::measurement::metrics metrics = smooth_out_average_metrics(node);
 
-        usage_percents[index] = metrics.relative_percent * 100.f;
+        const float call_load_over_parent = (float)node.size() / (float)parent.size();
+        usage_percents[index] = metrics.relative_percent * 100.f * call_load_over_parent;
         unprofiled_percent -= usage_percents[index++];
     }
     labels[partitions] = "Unprofiled";
@@ -106,17 +111,41 @@ void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, 
     const float over_calls = per_call * calls;
     const float max_over_calls = max_per_call * calls;
 
+    const float call_load_over_parent = (float)calls / (float)parent_calls;
+    const float relative_percent_over_calls = metrics.relative_percent * call_load_over_parent;
+    const float total_percent_over_calls = metrics.total_percent * calls;
+
+    if (node.has_parent())
+    {
+        const auto it = m_current_hotpath.find(node.parent().name_hash());
+        if (it == m_current_hotpath.end())
+            m_current_hotpath.emplace(node.parent().name_hash(), std::make_pair(name, total_percent_over_calls));
+        else if (it->second.second < total_percent_over_calls)
+        {
+            it->second.first = name;
+            it->second.second = total_percent_over_calls;
+        }
+        if (m_expand_hot_path)
+        {
+            const auto ithot = m_last_hotpath.find(node.parent().name_hash());
+            if (ithot != m_last_hotpath.end() && ithot->second.first == name)
+                ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+        }
+    }
+    else if (m_expand_hot_path)
+        ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+
     if (ImGui::TreeNode(name, "%s (%.2f %s, %.2f%%, max: %.2f %s)", name, over_calls, unit,
-                        metrics.relative_percent * 100.f, max_over_calls, unit))
+                        relative_percent_over_calls * 100.f, max_over_calls, unit))
     {
         const auto children = node.children();
         if (ImGui::CollapsingHeader("Details"))
         {
             ImGui::Text("Duration per execution: %.2f %s (max: %.2f %s)", per_call, unit, max_per_call, unit);
             ImGui::Text("Overall performance impact: %.2f %s (%.2f%%, max: %.2f %s)", over_calls, unit,
-                        metrics.total_percent * 100.f, max_over_calls, unit);
-            ImGui::Text("Calls (current process): %zu", calls / parent_calls);
-            ImGui::Text("Calls (overall): %zu", calls);
+                        total_percent_over_calls * 100.f, max_over_calls, unit);
+            ImGui::Text("Times called for current process (call load): %.2f", call_load_over_parent);
+            ImGui::Text("Total calls: %zu", calls);
 
             ImGui::PushID(name);
             if (ImPlot::BeginPlot("##Performance pie", ImVec2(-1, 0), ImPlotFlags_Equal | ImPlotFlags_NoMouseText))
@@ -125,6 +154,7 @@ void performance_panel::render_hierarchy_recursive(const kit::perf::node &node, 
                 ImPlot::EndPlot();
             }
             ImGui::PopID();
+            ImGui::TreePop();
         }
         for (const std::string &child : children)
             render_hierarchy_recursive<TimeUnit>(node[child], unit, calls);
