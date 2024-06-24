@@ -53,6 +53,7 @@ class collision_tab
     std::unordered_map<contact_key, collision_repr> m_contact_lines;
 
     void render_quad_tree_parameters(quad_tree_broad2D &qtbroad);
+    void render_quad_tree_node(const quad_tree::node &node);
     void render_nonpen_contact_solver_parameters();
     void render_spring_contact_solver_parameters();
 

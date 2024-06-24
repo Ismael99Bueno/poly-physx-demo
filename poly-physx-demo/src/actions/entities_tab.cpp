@@ -72,6 +72,7 @@ void entities_tab::render_colliders_list()
 
 void entities_tab::render_single_body_properties(body2D *body)
 {
+    ImGui::Text("Name: %s", kit::uuid::name_from_ptr(body).c_str());
     if (m_app->selector.is_selected(body) && ImGui::Button("Deselect"))
         m_app->selector.deselect(body);
     if (!m_app->selector.is_selected(body) && ImGui::Button("Select"))
@@ -79,8 +80,6 @@ void entities_tab::render_single_body_properties(body2D *body)
 
     if (ImGui::Button("Remove"))
         m_app->world.bodies.remove(body);
-
-    ImGui::Text("Name: %s", kit::uuid::name_from_ptr(body).c_str());
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
@@ -166,6 +165,12 @@ static void display_vertices(const kit::dynarray<glm::vec2, PPX_MAX_VERTICES> &v
 
 void entities_tab::render_single_collider_properties(collider2D *collider)
 {
+    ImGui::Text("Name: %s", kit::uuid::name_from_ptr(collider).c_str());
+    if (ImGui::TreeNode(collider, "Parent body (%s)", kit::uuid::name_from_ptr(collider->body()).c_str()))
+    {
+        render_single_body_properties(collider->body());
+        ImGui::TreePop();
+    }
     if (m_app->selector.is_selected(collider) && ImGui::Button("Deselect"))
         m_app->selector.deselect(collider);
     if (!m_app->selector.is_selected(collider) && ImGui::Button("Select"))

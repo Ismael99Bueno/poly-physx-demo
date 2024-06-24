@@ -61,13 +61,13 @@ void collision_tab::render_imgui_tab()
 
     if (ImGui::CollapsingHeader("Broad phase"))
     {
-        ImGui::Checkbox("Enabled##Detection", &m_app->world.collisions.broad()->enabled);
-        render_broad_methods_list();
+        ImGui::Checkbox("Enabled##Broad", &m_app->world.collisions.broad()->enabled);
 #ifndef KIT_PROFILE
         ImGui::Checkbox("Multithreaded", &m_app->world.collisions.broad()->params.multithreaded);
 #else
         ImGui::Text("Multithreading is disabled on profile builds");
 #endif
+        render_broad_methods_list();
 
         if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
             render_quad_tree_parameters(*qtbroad);
@@ -107,7 +107,7 @@ void collision_tab::render_collisions_and_contacts_list() const
 {
     if (ImGui::TreeNode(&m_app, "Collisions (%zu)", m_app->world.collisions.size()))
     {
-        for (const auto &[hash, col] : m_app->world.collisions)
+        for (const collision2D &col : m_app->world.collisions)
             if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
                                 kit::uuid::name_from_ptr(col.collider2).c_str()))
             {
@@ -135,9 +135,10 @@ void collision_tab::render_collisions_and_contacts_list() const
             }
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)", m_app->world.collisions.contact_solver()->size()))
+    if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)",
+                        m_app->world.collisions.contact_solver()->total_contacts_count()))
     {
-        const auto contacts = m_app->world.collisions.contact_solver()->create_contact_list();
+        const auto contacts = m_app->world.collisions.contact_solver()->create_total_contacts_list();
         for (const contact2D *contact : contacts)
             if (ImGui::TreeNode(contact, "%s - %s (%u)", kit::uuid::name_from_ptr(contact->collider1()).c_str(),
                                 kit::uuid::name_from_ptr(contact->collider2()).c_str(), contact->point().id.key))
@@ -187,7 +188,7 @@ void collision_tab::render_broad_methods_list() const
     else if (m_app->world.collisions.broad<sort_sweep_broad2D>())
         det_method = 2;
 
-    if (ImGui::Combo("Collision detection", &det_method, "Brute force\0Quad tree\0Sort and sweep\0\0"))
+    if (ImGui::Combo("Broad phase algorithm", &det_method, "Brute force\0Quad tree\0Sort and sweep\0\0"))
     {
         if (det_method == 0)
             m_app->world.collisions.set_broad<brute_force_broad2D>();
@@ -254,6 +255,30 @@ void collision_tab::render_pp_narrow_list() const
                            ImGuiSliderFlags_Logarithmic);
 }
 
+void collision_tab::render_quad_tree_node(const quad_tree::node &node)
+{
+    if (ImGui::TreeNode(&node, "Colliders (%zu)", node.elements.size()))
+    {
+        for (collider2D *collider : node.elements)
+            if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
+            {
+                m_app->actions->entities.render_single_collider_properties(collider);
+                ImGui::TreePop();
+            }
+        ImGui::TreePop();
+    }
+    if (node.partitioned && ImGui::TreeNode("Children"))
+    {
+        for (const auto &child : node.children)
+            if (ImGui::TreeNode(child, "Child (%zu)", child->elements.size()))
+            {
+                render_quad_tree_node(*child);
+                ImGui::TreePop();
+            }
+        ImGui::TreePop();
+    }
+}
+
 void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
 {
     ImGui::Checkbox("Force square shape", &qtbroad.force_square_shape);
@@ -265,6 +290,11 @@ void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
     ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
 
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
+    if (ImGui::TreeNode("Quad tree root"))
+    {
+        render_quad_tree_node(qtbroad.quad_tree().root());
+        ImGui::TreePop();
+    }
 }
 
 void collision_tab::render_nonpen_contact_solver_parameters()
