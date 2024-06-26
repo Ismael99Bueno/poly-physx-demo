@@ -23,6 +23,8 @@ class performance_panel : public demo_layer
     float m_smoothness = 0.f;
     float m_time_plot_speed = 0.02f;
     bool m_expand_hot_path = false;
+    bool m_limit_fps = true;
+    std::uint32_t m_fps_cap = 60;
 
     std::array<kit::perf::time, 4> m_time_measurements;
     std::array<kit::perf::time, 4> m_max_time_measurements;
@@ -32,10 +34,11 @@ class performance_panel : public demo_layer
     std::unordered_map<std::string, std::pair<const char *, float>> m_current_hotpath;
     std::unordered_map<std::string, std::pair<const char *, float>> m_last_hotpath;
 
+    void on_attach() override;
     void on_update(float ts) override;
     void on_render(float ts) override;
 
-    void render_fps() const;
+    void render_fps();
 
     void render_summary();
     template <typename TimeUnit, typename T> void render_measurements_summary(const char *format);

@@ -106,6 +106,7 @@ class collision_tab
         }
     }
 
+    void render_broad_metrics() const;
     void render_broad_methods_list() const;
     void render_collisions_and_contacts_list() const;
     void render_contact_solvers_list() const;

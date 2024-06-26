@@ -44,6 +44,9 @@ class demo_app : public app
     style_settings parse_config_file();
     void reload_config_file();
 
+    std::size_t thread_count() const;
+    void thread_count(std::size_t count);
+
   private:
     void on_late_start() override;
     void on_late_shutdown() override;
@@ -56,5 +59,8 @@ class demo_app : public app
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;
+
+    kit::scope<kit::mt::thread_pool> m_thread_pool;
+    std::size_t m_thread_count;
 };
 } // namespace ppx::demo

@@ -31,11 +31,24 @@ static app::specs create_app_specs()
 
 demo_app::demo_app() : app(create_app_specs()), style(parse_config_file()), selector(*this), grouper(*this)
 {
+    thread_count(std::thread::hardware_concurrency());
     actions = push_layer<actions_panel>();
     engine = push_layer<engine_panel>();
     performance = push_layer<performance_panel>();
     physics = push_layer<physics_panel>();
     menu = push_layer<menu_bar>();
+}
+
+std::size_t demo_app::thread_count() const
+{
+    return m_thread_count;
+}
+
+void demo_app::thread_count(const std::size_t count)
+{
+    m_thread_count = count;
+    m_thread_pool = kit::make_scope<kit::mt::thread_pool>(count);
+    world.thread_pool = m_thread_pool.get();
 }
 
 void demo_app::on_late_start()
@@ -237,6 +250,7 @@ YAML::Node demo_app::encode() const
     YAML::Node node = app::encode();
     node["Selector"] = selector.encode();
     node["Group manager"] = grouper.encode();
+    node["Thread count"] = m_thread_count;
     return node;
 }
 bool demo_app::decode(const YAML::Node &node)
@@ -245,6 +259,7 @@ bool demo_app::decode(const YAML::Node &node)
         return false;
     selector.decode(node["Selector"]);
     grouper.decode(node["Group manager"]);
+    thread_count(node["Thread count"].as<std::size_t>());
     return true;
 }
 } // namespace ppx::demo

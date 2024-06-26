@@ -2,8 +2,10 @@ require "export-compile-commands"
 
 workspace "poly-physx-demo"
 configurations {
+   "dist",
    "release",
    "debug",
+   "dist-profile",
    "release-profile",
    "debug-profile"
 }
@@ -67,6 +69,12 @@ filter "configurations:debug*"
    symbols "On"
 
 filter "configurations:release*"
+   defines "NDEBUG"
+   runtime "Release"
+   optimize "On"
+   symbols "On"
+
+filter "configurations:dist*"
    defines "NDEBUG"
    runtime "Release"
    optimize "On"

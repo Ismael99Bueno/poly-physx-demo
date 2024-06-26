@@ -8,6 +8,13 @@ performance_panel::performance_panel() : demo_layer("Performance panel")
 {
 }
 
+void performance_panel::on_attach()
+{
+    demo_layer::on_attach();
+    if (m_limit_fps)
+        m_app->limit_framerate(m_fps_cap);
+}
+
 void performance_panel::on_update(const float ts)
 {
     m_time_measurements[0] = m_smoothness * m_time_measurements[0] + (1.f - m_smoothness) * m_app->frame_time();
@@ -210,13 +217,17 @@ void performance_panel::render_profile_hierarchy()
     }
 }
 
-void performance_panel::render_fps() const
+void performance_panel::render_fps()
 {
-    const float frame_time = m_time_measurements[0].as<kit::perf::time::seconds, float>();
-    if (kit::approaches_zero(frame_time))
+    const std::uint32_t fps = m_app->framerate();
+    if (fps == 0)
         return;
-    const std::uint32_t fps = (std::uint32_t)(1.f / m_time_measurements[0].as<kit::perf::time::seconds, float>());
     ImGui::Text("FPS: %u", fps);
+    if (ImGui::Checkbox("Limit FPS", &m_limit_fps))
+        m_app->limit_framerate(m_limit_fps ? m_fps_cap : 0);
+
+    if (m_limit_fps && ImGui::SliderInt("Target FPS", (int *)&m_fps_cap, 30, 480))
+        m_app->limit_framerate(m_fps_cap);
 }
 
 template <typename TimeUnit, typename T> void performance_panel::render_measurements_summary(const char *format)
@@ -287,6 +298,8 @@ YAML::Node performance_panel::encode() const
     node["Time unit"] = (std::uint32_t)m_time_unit;
     node["Measurement smoothness"] = m_smoothness;
     node["Time plot speed"] = m_time_plot_speed;
+    node["Limit FPS"] = m_limit_fps;
+    node["FPS Cap"] = m_fps_cap;
 
     return node;
 }
@@ -298,6 +311,8 @@ bool performance_panel::decode(const YAML::Node &node)
     m_time_unit = (time_unit)node["Time unit"].as<std::uint32_t>();
     m_smoothness = node["Measurement smoothness"].as<float>();
     m_time_plot_speed = node["Time plot speed"].as<float>();
+    m_limit_fps = node["Limit FPS"].as<bool>();
+    m_fps_cap = node["FPS Cap"].as<std::uint32_t>();
 
     return true;
 }

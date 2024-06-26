@@ -61,12 +61,15 @@ void collision_tab::render_imgui_tab()
 
     if (ImGui::CollapsingHeader("Broad phase"))
     {
-        ImGui::Checkbox("Enabled##Broad", &m_app->world.collisions.broad()->enabled);
+        broad_phase2D *bp = m_app->world.collisions.broad();
+        ImGui::Checkbox("Enabled##Broad", &bp->enabled);
 #ifndef KIT_PROFILE
-        ImGui::Checkbox("Multithreaded", &m_app->world.collisions.broad()->params.multithreaded);
+        ImGui::Checkbox("Multithreaded", &bp->params.multithreaded);
+        ImGui::SliderInt("Workload count", (int *)&bp->params.parallel_workloads, 2, 16);
 #else
         ImGui::Text("Multithreading is disabled on profile builds");
 #endif
+        render_broad_metrics();
         render_broad_methods_list();
 
         if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
@@ -100,6 +103,31 @@ void collision_tab::render_imgui_tab()
             render_nonpen_contact_solver_parameters();
         else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             render_spring_contact_solver_parameters();
+    }
+}
+
+static void render_metrics(const broad_phase2D::metrics &metrics)
+{
+    ImGui::Text("Total collision checks: %u", metrics.total_collision_checks);
+    ImGui::Text("Positive collision checks: %u", metrics.positive_collision_checks);
+    ImGui::Text("Broad phase quality: %.2f%%", metrics.accuracy() * 100.f);
+}
+
+void collision_tab::render_broad_metrics() const
+{
+    const broad_phase2D *bp = m_app->world.collisions.broad();
+    const auto metrics = bp->collision_metrics();
+    render_metrics(metrics);
+    if (bp->params.multithreaded && ImGui::TreeNode("Per-workload metrics"))
+    {
+        const auto mt_metrics = bp->collision_metrics_per_mt_workload();
+        for (std::size_t i = 0; i < bp->params.parallel_workloads; i++)
+            if (ImGui::TreeNode(&i + i, "Workload %zu", i))
+            {
+                render_metrics(mt_metrics[i]);
+                ImGui::TreePop();
+            }
+        ImGui::TreePop();
     }
 }
 
@@ -259,10 +287,10 @@ void collision_tab::render_quad_tree_node(const quad_tree::node &node)
 {
     if (ImGui::TreeNode(&node, "Colliders (%zu)", node.elements.size()))
     {
-        for (collider2D *collider : node.elements)
-            if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
+        for (const qt_element &qtelm : node.elements)
+            if (ImGui::TreeNode(qtelm.collider, "%s", kit::uuid::name_from_ptr(qtelm.collider).c_str()))
             {
-                m_app->actions->entities.render_single_collider_properties(collider);
+                m_app->actions->entities.render_single_collider_properties(qtelm.collider);
                 ImGui::TreePop();
             }
         ImGui::TreePop();

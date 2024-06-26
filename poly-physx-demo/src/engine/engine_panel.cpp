@@ -70,6 +70,9 @@ void engine_panel::on_render(const float ts)
     if (ImGui::Begin("Engine"))
     {
         ImGui::Text("Bodies: %zu", m_app->world.bodies.size());
+        std::size_t thread_count = m_app->thread_count();
+        if (ImGui::SliderInt("Thread count", (int *)&thread_count, 1, 2 * std::thread::hardware_concurrency()))
+            m_app->thread_count(thread_count);
 
         ImGui::BeginTabBar("Actions tab bar");
         render_imgui_tab("Integration", "Manage integration parameters", integration);
