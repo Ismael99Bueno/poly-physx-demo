@@ -219,9 +219,11 @@ void performance_panel::render_profile_hierarchy()
 
 void performance_panel::render_fps()
 {
-    const std::uint32_t fps = m_app->framerate();
-    if (fps == 0)
+    const float frame_time = m_time_measurements[0].as<kit::perf::time::seconds, float>();
+    if (kit::approaches_zero(frame_time))
         return;
+
+    const std::uint32_t fps = (std::uint32_t)(1.f / frame_time);
     ImGui::Text("FPS: %u", fps);
     if (ImGui::Checkbox("Limit FPS", &m_limit_fps))
         m_app->limit_framerate(m_limit_fps ? m_fps_cap : 0);
