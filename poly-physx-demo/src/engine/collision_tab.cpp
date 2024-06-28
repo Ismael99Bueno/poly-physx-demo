@@ -173,6 +173,8 @@ void collision_tab::render_collisions_and_contacts_list() const
             {
                 const glm::vec2 &normal = contact->normal();
                 const auto &point = contact->point();
+                ImGui::Text("Enabled: %s", contact->enabled ? "true" : "false");
+                ImGui::Text("Asleep: %s", contact->asleep() ? "true" : "false");
                 ImGui::Text("Normal - x: %.5f, y: %.5f", normal.x, normal.y);
                 ImGui::Text("Point - x: %.5f, y: %.5f", point.point.x, point.point.y);
                 ImGui::Text("Applied force - x: %.5f, y: %.5f", contact->reactive_force().x,
@@ -344,6 +346,23 @@ void collision_tab::render_nonpen_contact_solver_parameters()
     if (ImGui::SliderFloat("Restitution", &restitution, 0.f, 1.f))
         for (collider2D *collider : m_app->world.colliders)
             collider->restitution = restitution;
+
+    auto &npprops = nonpen_contact2D::global_props;
+    auto &fprops = nonpen_friction2D::global_props;
+
+    ImGui::Checkbox("Soft non-penetration", &npprops.is_soft);
+    if (npprops.is_soft)
+    {
+        ImGui::DragFloat("Frequency##NP", &npprops.frequency, 0.01f, 0.f, FLT_MAX);
+        ImGui::DragFloat("Damping ratio##NP", &npprops.damping_ratio, 0.4f, 0.f, FLT_MAX);
+    }
+    ImGui::Spacing();
+    ImGui::Checkbox("Soft friction", &fprops.is_soft);
+    if (fprops.is_soft)
+    {
+        ImGui::DragFloat("Frequency##F", &fprops.frequency, 0.01f, 0.f, FLT_MAX);
+        ImGui::DragFloat("Damping ratio##F", &fprops.damping_ratio, 0.4f, 0.f, FLT_MAX);
+    }
 }
 
 void collision_tab::render_spring_contact_solver_parameters()

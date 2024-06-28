@@ -46,12 +46,14 @@ float joints_tab::current_joint_length() const
 template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
 {
     if (ImGui::Button("Remove"))
+    {
         m_app->world.joints.remove(joint);
+        return;
+    }
 
     ImGui::Text("Name: %s", kit::uuid::name_from_ptr(joint).c_str());
     ImGui::Text("Attached to: %s - %s", kit::uuid::name_from_ptr(joint->body1()).c_str(),
                 kit::uuid::name_from_ptr(joint->body2()).c_str());
-    ImGui::Checkbox("Bodies collide##Single", &joint->bodies_collide);
     if constexpr (PVConstraint2D<Joint>)
     {
         const auto stress = joint->constraint_position();
@@ -62,13 +64,10 @@ template <typename Joint> void joints_tab::render_full_joint(Joint *joint)
         else if constexpr (Joint::DIMENSION == 3)
             ImGui::Text("Stress - x: %.5f, y: %.5f, z: %.5f", stress.x, stress.y, stress.z);
     }
-    if constexpr (!std::is_same_v<Joint, revolute_joint2D> && !std::is_same_v<Joint, weld_joint2D>)
-    {
-        using Props = typename Joint::specs::properties;
-        Props props = joint->props();
-        if (render_joint_properties(props))
-            joint->props(props);
-    }
+    using Props = typename Joint::specs::properties;
+    Props props = joint->props();
+    if (render_joint_properties<Joint>(props))
+        joint->props(props);
 }
 
 template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_selected_properties()
@@ -95,11 +94,11 @@ template <typename Joint> const std::unordered_set<Joint *> *joints_tab::render_
 
         bool bodies_collide = true;
         for (Joint *joint : selected)
-            bodies_collide &= joint->bodies_collide;
+            bodies_collide &= joint->bodies_collide();
 
         if (ImGui::Checkbox("Bodies collide##Multiple", &bodies_collide))
             for (Joint *joint : selected)
-                joint->bodies_collide = bodies_collide;
+                joint->bodies_collide(bodies_collide);
 
         return &selected;
     }
@@ -356,15 +355,31 @@ void joints_tab::render_selected_prismatic_joint_properties()
     ImGui::TreePop();
 }
 
-template <typename T> bool joints_tab::render_joint_properties(T &props, bool render_deduced_props) // This is dodgy
+template <typename Joint>
+bool joints_tab::render_joint_properties(typename Joint::specs::properties &props,
+                                         bool render_deduced_props) // This is dodgy
 {
-    constexpr float drag_speed = 0.4f;
-    constexpr const char *format = "%.1f";
     bool changed = false;
-    if constexpr (std::is_same_v<T, spring_joint2D::specs::properties>)
+
+    if constexpr (!std::is_same_v<Joint, revolute_joint2D> && !std::is_same_v<Joint, weld_joint2D>)
+        changed |= ImGui::Checkbox("Bodies collide", &props.bodies_collide);
+    else
+        ImGui::Text("Revolute and weld joints are unstable when bodies are allowed to collide");
+
+    if constexpr (Constraint2D<Joint>)
+    {
+        changed |= ImGui::Checkbox("Soft constraint", &props.is_soft);
+        if (props.is_soft)
+        {
+            changed |= ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
+            changed |= ImGui::DragFloat("Damping ratio", &props.damping_ratio, 0.01f, 0.f, FLT_MAX, "%.3f");
+        }
+    }
+
+    if constexpr (std::is_same_v<Joint, spring_joint2D>)
     {
         changed |= ImGui::DragFloat("Frequency", &props.frequency, 0.01f, 0.f, FLT_MAX, "%.3f");
-        changed |= ImGui::DragFloat("Damping", &props.damping_ratio, drag_speed, 0.f, FLT_MAX, "%.3f");
+        changed |= ImGui::DragFloat("Damping", &props.damping_ratio, 0.01f, 0.f, FLT_MAX, "%.3f");
         changed |= ImGui::SliderInt("Non linear terms", (int *)&props.non_linear_terms, 0, 8);
         changed |= ImGui::SliderFloat("Non linear contribution", &props.non_linear_contribution, 0.f, 1.f, "%.4f",
                                       ImGuiSliderFlags_Logarithmic);
@@ -375,16 +390,16 @@ template <typename T> bool joints_tab::render_joint_properties(T &props, bool re
         changed |= ImGui::Checkbox("Single length", &single_length);
         if (!single_length)
         {
-            changed |= ImGui::DragFloat("Min length", &props.min_length, drag_speed, 0.f, props.max_length, "%.1f");
-            changed |= ImGui::DragFloat("Max length", &props.max_length, drag_speed, props.min_length, FLT_MAX, "%.1f");
+            changed |= ImGui::DragFloat("Min length", &props.min_length, 0.4f, 0.f, props.max_length, "%.1f");
+            changed |= ImGui::DragFloat("Max length", &props.max_length, 0.4f, props.min_length, FLT_MAX, "%.1f");
         }
-        else if (ImGui::DragFloat("Length", &props.min_length, drag_speed, 0.f, FLT_MAX, format))
+        else if (ImGui::DragFloat("Length", &props.min_length, 0.4f, 0.f, FLT_MAX, "%.1f"))
         {
             props.max_length = props.min_length;
             changed = true;
         }
     }
-    else if constexpr (std::is_same_v<T, distance_joint2D::specs::properties>)
+    else if constexpr (std::is_same_v<Joint, distance_joint2D>)
     {
         if (!render_deduced_props)
             return changed;
@@ -396,18 +411,18 @@ template <typename T> bool joints_tab::render_joint_properties(T &props, bool re
             changed |= ImGui::DragFloat("Min distance", &props.min_distance, 0.3f, 0.f, props.max_distance, "%.1f");
             changed |= ImGui::DragFloat("Max distance", &props.max_distance, 0.3f, props.min_distance, FLT_MAX, "%.1f");
         }
-        else if (ImGui::DragFloat("Distance", &props.min_distance, 0.3f, 0.f, FLT_MAX, format))
+        else if (ImGui::DragFloat("Distance##Param", &props.min_distance, 0.3f, 0.f, FLT_MAX, "%.1f"))
         {
             props.max_distance = props.min_distance;
             changed = true;
         }
     }
-    else if constexpr (std::is_same_v<T, rotor_joint2D::specs::properties>)
+    else if constexpr (std::is_same_v<Joint, rotor_joint2D>)
     {
-        changed |= ImGui::DragFloat("Torque", &props.torque, drag_speed, 0.f, FLT_MAX, format);
+        changed |= ImGui::DragFloat("Torque", &props.torque, 0.4f, 0.f, FLT_MAX, "%.1f");
         changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
                                       ImGuiSliderFlags_Logarithmic);
-        changed |= ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
+        changed |= ImGui::DragFloat("Target speed", &props.target_speed, 0.4f, -FLT_MAX, FLT_MAX, "%.1f");
 
         static bool single_angle = false;
         changed |= ImGui::Checkbox("Single angle", &single_angle);
@@ -424,16 +439,16 @@ template <typename T> bool joints_tab::render_joint_properties(T &props, bool re
         }
         changed |= ImGui::Checkbox("Spin indefinitely", &props.spin_indefinitely);
     }
-    else if constexpr (std::is_same_v<T, motor_joint2D::specs::properties>)
+    else if constexpr (std::is_same_v<Joint, motor_joint2D>)
     {
-        changed |= ImGui::DragFloat("Force", &props.force, drag_speed, 0.f, FLT_MAX, format);
+        changed |= ImGui::DragFloat("Force", &props.force, 0.4f, 0.f, FLT_MAX, "%.1f");
         changed |= ImGui::SliderFloat("Correction factor", &props.correction_factor, 0.f, 1.f, "%.4f",
                                       ImGuiSliderFlags_Logarithmic);
-        changed |= ImGui::DragFloat("Target speed", &props.target_speed, drag_speed, -FLT_MAX, FLT_MAX, format);
-        changed |= ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), drag_speed, -FLT_MAX,
-                                     FLT_MAX, format);
+        changed |= ImGui::DragFloat("Target speed", &props.target_speed, 0.4f, -FLT_MAX, FLT_MAX, "%.1f");
+        changed |=
+            ImGui::DragFloat2("Target offset", glm::value_ptr(props.target_offset), 0.4f, -FLT_MAX, FLT_MAX, "%.1f");
     }
-    else if constexpr (std::is_same_v<T, ball_joint2D::specs::properties>)
+    else if constexpr (std::is_same_v<Joint, ball_joint2D>)
     {
         if (!render_deduced_props)
             return changed;
@@ -451,7 +466,7 @@ template <typename T> bool joints_tab::render_joint_properties(T &props, bool re
             changed = true;
         }
     }
-    else if constexpr (std::is_same_v<T, prismatic_joint2D::specs::properties>)
+    else if constexpr (std::is_same_v<Joint, prismatic_joint2D>)
     {
         if (!render_deduced_props)
             return changed;
@@ -460,31 +475,30 @@ template <typename T> bool joints_tab::render_joint_properties(T &props, bool re
     return changed;
 }
 
-template <typename T> void joints_tab::render_joint_specs(T &specs)
+template <typename Joint> void joints_tab::render_joint_specs(typename Joint::specs &specs)
 {
     bool render_deduced_props = true;
-    if constexpr (std::is_same_v<T, spring_joint2D::specs>)
+    if constexpr (std::is_same_v<Joint, spring_joint2D>)
     {
         ImGui::Checkbox("Deduce length", &specs.deduce_length);
         render_deduced_props = !specs.deduce_length;
     }
-    else if constexpr (std::is_same_v<T, distance_joint2D::specs>)
+    else if constexpr (std::is_same_v<Joint, distance_joint2D>)
     {
         ImGui::Checkbox("Deduce distance", &specs.deduce_distance);
         render_deduced_props = !specs.deduce_distance;
     }
-    else if constexpr (std::is_same_v<T, ball_joint2D::specs>)
+    else if constexpr (std::is_same_v<Joint, ball_joint2D>)
     {
         ImGui::Checkbox("Deduce angle", &specs.deduce_angle);
         render_deduced_props = !specs.deduce_angle;
     }
-    else if constexpr (std::is_same_v<T, prismatic_joint2D::specs>)
+    else if constexpr (std::is_same_v<Joint, prismatic_joint2D>)
     {
         ImGui::Checkbox("Deduce axis", &specs.deduce_axis);
         render_deduced_props = !specs.deduce_axis;
     }
-    ImGui::Checkbox("Bodies collide##Specs", &specs.bodies_collide);
-    render_joint_properties(specs.props, render_deduced_props);
+    render_joint_properties<Joint>(specs.props, render_deduced_props);
 }
 
 void joints_tab::render_imgui_tab()
@@ -495,22 +509,28 @@ void joints_tab::render_imgui_tab()
     switch (m_joint_type)
     {
     case joint_type::SPRING:
-        render_joint_specs(std::get<spring_joint2D::specs>(m_specs));
+        render_joint_specs<spring_joint2D>(std::get<spring_joint2D::specs>(m_specs));
         break;
     case joint_type::DISTANCE:
-        render_joint_specs(std::get<distance_joint2D::specs>(m_specs));
+        render_joint_specs<distance_joint2D>(std::get<distance_joint2D::specs>(m_specs));
         break;
     case joint_type::ROTOR:
-        render_joint_specs(std::get<rotor_joint2D::specs>(m_specs));
+        render_joint_specs<rotor_joint2D>(std::get<rotor_joint2D::specs>(m_specs));
         break;
     case joint_type::MOTOR:
-        render_joint_specs(std::get<motor_joint2D::specs>(m_specs));
+        render_joint_specs<motor_joint2D>(std::get<motor_joint2D::specs>(m_specs));
         break;
     case joint_type::BALL:
-        render_joint_specs(std::get<ball_joint2D::specs>(m_specs));
+        render_joint_specs<ball_joint2D>(std::get<ball_joint2D::specs>(m_specs));
         break;
     case joint_type::PRISMATIC:
-        render_joint_specs(std::get<prismatic_joint2D::specs>(m_specs));
+        render_joint_specs<prismatic_joint2D>(std::get<prismatic_joint2D::specs>(m_specs));
+        break;
+    case joint_type::REVOLUTE:
+        render_joint_specs<revolute_joint2D>(std::get<revolute_joint2D::specs>(m_specs));
+        break;
+    case joint_type::WELD:
+        render_joint_specs<weld_joint2D>(std::get<weld_joint2D::specs>(m_specs));
         break;
     default:
         break;
@@ -641,7 +661,7 @@ template <typename Joint> bool joints_tab::attach_bodies_to_joint_specs(typename
     }
 
     if constexpr (std::is_same_v<Joint, revolute_joint2D> || std::is_same_v<Joint, weld_joint2D>)
-        specs.bodies_collide = false;
+        specs.props.bodies_collide = false;
 
     specs.bindex1 = m_body1->index;
     specs.bindex2 = body2->index;

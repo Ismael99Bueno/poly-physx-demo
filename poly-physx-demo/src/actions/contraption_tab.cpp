@@ -65,13 +65,13 @@ void contraption_tab::render_properties(std::uint32_t &segments, float &spacing,
 void contraption_tab::render_rope_properties()
 {
     render_properties(m_rope_segments, m_rope_spacing, m_rope_fixed_start, m_rope_fixed_end);
-    joints_tab::render_joint_properties(m_spring_props);
+    joints_tab::render_joint_properties<spring_joint2D>(m_spring_props);
 }
 
 void contraption_tab::render_chain_properties()
 {
     render_properties(m_chain_segments, m_chain_spacing, m_chain_fixed_start, m_chain_fixed_end);
-    joints_tab::render_joint_properties(m_distance_props, false);
+    joints_tab::render_joint_properties<distance_joint2D>(m_distance_props, false);
 }
 
 void contraption_tab::begin_contraption_spawn()

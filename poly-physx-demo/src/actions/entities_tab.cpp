@@ -79,7 +79,10 @@ void entities_tab::render_single_body_properties(body2D *body)
         m_app->selector.select(body);
 
     if (ImGui::Button("Remove"))
+    {
         m_app->world.bodies.remove(body);
+        return;
+    }
 
     static constexpr float drag_speed = 0.3f;
     static constexpr const char *format = "%.1f";
@@ -177,7 +180,10 @@ void entities_tab::render_single_collider_properties(collider2D *collider)
         m_app->selector.select(collider);
 
     if (ImGui::Button("Remove"))
+    {
         m_app->world.colliders.remove(collider);
+        return;
+    }
 
     if (ImGui::TreeNode("Collision groups"))
     {

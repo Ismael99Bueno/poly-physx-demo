@@ -49,7 +49,7 @@ template <typename T> typename T::specs grab_tab::create_joint_grab_specs(const 
         specs.ganchor1 = mpos;
         specs.ganchor2 = mpos;
     }
-    specs.bodies_collide = false;
+    specs.props.bodies_collide = false;
     return specs;
 }
 

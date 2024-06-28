@@ -1,5 +1,6 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/physics/behaviours.hpp"
+#include "ppx/world2D.hpp"
 
 namespace ppx::demo
 {
@@ -14,8 +15,9 @@ float gravity::potential_energy(const body2D &body) const
 
 glm::vec3 drag::force(const body2D &body) const
 {
-    const glm::vec2 force = -magnitude * body.velocity();
-    const float torque = -angular_magnitude * body.angular_velocity();
+    const float ts = world.rk_substep_timestep();
+    const glm::vec2 force = -body.velocity() * magnitude / (1.f + magnitude * ts);
+    const float torque = -body.angular_velocity() * angular_magnitude / (1.f + angular_magnitude * ts);
     return glm::vec3(force, torque);
 }
 
