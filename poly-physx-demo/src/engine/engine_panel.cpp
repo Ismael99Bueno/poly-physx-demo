@@ -70,6 +70,7 @@ void engine_panel::on_render(const float ts)
     if (ImGui::Begin("Engine"))
     {
         ImGui::Text("Bodies: %zu", m_app->world.bodies.size());
+        ImGui::Text("Step count: %u", m_app->world.step_count());
         std::size_t thread_count = m_app->thread_count();
         if (ImGui::SliderInt("Thread count", (int *)&thread_count, 1, 2 * std::thread::hardware_concurrency()))
             m_app->thread_count(thread_count);

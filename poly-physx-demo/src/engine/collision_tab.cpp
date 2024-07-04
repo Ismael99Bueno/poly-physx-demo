@@ -45,7 +45,7 @@ void collision_tab::render()
         else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             render_contact_lines(spring->contacts());
     }
-    if (m_visualize_qtree)
+    if (m_visualize_qtree && m_app->world.collisions.broad<quad_tree_broad2D>())
         render_quad_tree_lines();
 }
 
@@ -297,7 +297,7 @@ void collision_tab::render_quad_tree_node(const quad_tree::node &node)
             }
         ImGui::TreePop();
     }
-    if (node.partitioned && ImGui::TreeNode("Children"))
+    if (node.partitioned() && ImGui::TreeNode("Children"))
     {
         for (const auto &child : node.children)
             if (ImGui::TreeNode(child, "Child (%zu)", child->elements.size()))
@@ -312,12 +312,17 @@ void collision_tab::render_quad_tree_node(const quad_tree::node &node)
 void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
 {
     ImGui::Checkbox("Force square shape", &qtbroad.force_square_shape);
-    ImGui::Checkbox("Include non dynamic", &qtbroad.include_non_dynamic);
+    ImGui::SliderFloat("Bounding box anticipation", &qtbroad.bounding_box_anticipation, 0.f, 0.5f);
+    ImGui::SliderFloat("Rebuild time threshold", &qtbroad.rebuild_time_threshold, 1.f, 10.f);
+    ImGui::Text("Rebuild count: %u", qtbroad.rebuild_count());
 
-    auto &props = qtbroad.quad_tree().props();
-    ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
-    ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
-    ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
+    auto props = qtbroad.quad_tree().props();
+    bool changed = ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
+    changed = ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
+    changed = ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
+
+    if (changed)
+        qtbroad.quad_tree().props(props);
 
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
     if (ImGui::TreeNode("Quad tree root"))
@@ -382,7 +387,7 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 
 void collision_tab::update_quad_tree_lines(const quad_tree::node &qtnode)
 {
-    if (qtnode.partitioned)
+    if (qtnode.partitioned())
         for (auto child : qtnode.children)
             update_quad_tree_lines(*child);
     else
