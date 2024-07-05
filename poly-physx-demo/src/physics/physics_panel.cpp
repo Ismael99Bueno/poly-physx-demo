@@ -25,11 +25,15 @@ void physics_panel::on_attach()
     m_attractive->exponent = 1;
     m_attractive->magnitude = -20.f;
 
-    m_app->world.bodies.events.on_addition += [this](body2D *body) {
-        for (behaviour2D *bhv : m_behaviours)
-            if ((!body->is_kinematic() || !m_exclude_kinematic) && (!body->is_static() || !m_exclude_static))
-                bhv->add(body);
-    };
+    m_app->world.bodies.events.on_addition += [this](body2D *body) { add(body); };
+}
+
+void physics_panel::add(body2D *body)
+{
+    for (behaviour2D *bhv : m_behaviours)
+        if ((!body->is_kinematic() || !m_exclude_kinematic) && (!body->is_static() || !m_exclude_static) &&
+            !bhv->contains(body))
+            bhv->add(body);
 }
 
 template <typename T> bool physics_panel::render_behaviour(T *bhv, const float magdrag)

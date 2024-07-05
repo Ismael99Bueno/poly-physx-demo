@@ -17,6 +17,7 @@ void engine_panel::on_attach()
     constraints = constraints_tab(m_app);
     islands = islands_tab(m_app);
     m_ray_line = thick_line2D(m_app->style.ray_color, 0.4f);
+    m_ray_normal_line = thick_line2D(m_app->style.ray_color, 0.2f);
     m_ray_line.p1(glm::vec2(0.f));
 }
 
@@ -61,6 +62,8 @@ void engine_panel::on_update(const float ts)
         distance = glm::length(camera->transform.position - m_origin) + glm::length(camera->size());
     }
     m_ray_line.p2(m_origin + ray.direction() * distance);
+    m_ray_normal_line.p1(m_ray_line.p2());
+    m_ray_normal_line.p2(m_ray_line.p2() + glm::normalize(hit.normal) * 2.f);
 }
 
 void engine_panel::on_render(const float ts)
@@ -86,6 +89,7 @@ void engine_panel::on_render(const float ts)
     if (!m_casting)
         return;
     m_window->draw(m_ray_line);
+    m_window->draw(m_ray_normal_line);
 }
 
 YAML::Node engine_panel::encode() const

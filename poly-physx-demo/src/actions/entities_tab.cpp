@@ -2,6 +2,7 @@
 #include "ppx-demo/actions/entities_tab.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/actions/collider_utils.hpp"
+#include "ppx-demo/physics/physics_panel.hpp"
 
 namespace ppx::demo
 {
@@ -89,7 +90,10 @@ void entities_tab::render_single_body_properties(body2D *body)
 
     auto tp = body->type();
     if (ImGui::Combo("Type", (int *)&tp, "Dynamic\0Kinematic\0Static\0\0"))
+    {
         body->type(tp);
+        m_app->physics->add(body);
+    }
 
     float mass = body->props().nondynamic.mass;
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))

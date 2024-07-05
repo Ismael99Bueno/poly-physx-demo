@@ -26,6 +26,7 @@ class engine_panel : public demo_layer
 
     bool m_casting = false;
     thick_line2D m_ray_line;
+    thick_line2D m_ray_normal_line;
     glm::vec2 m_origin{0.f};
 
     void on_attach() override;

@@ -10,6 +10,8 @@ class physics_panel : public demo_layer
   public:
     physics_panel();
 
+    void add(body2D *body);
+
   private:
     static inline constexpr std::size_t POTENTIAL_PLOT_POINTS_COUNT = 500;
 
