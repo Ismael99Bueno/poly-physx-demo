@@ -35,6 +35,7 @@ class performance_panel final : public demo_layer
     {
         bool recording = false;
         bool dump_hot_path_only = false;
+        bool append_datetime = false;
 
         std::uint32_t frame_count = 0;
 

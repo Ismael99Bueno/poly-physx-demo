@@ -66,6 +66,7 @@ void performance_panel::on_render(const float ts)
 #ifdef KIT_PROFILE
             ImGui::Checkbox("Dump hot path only", &m_record.dump_hot_path_only);
 #endif
+            ImGui::Checkbox("Append datetime", &m_record.append_datetime);
 
             static char buffer[24] = "\0";
             if (ImGui::InputTextWithHint("Dump performance recording", "Filename", buffer, 24,
@@ -74,6 +75,9 @@ void performance_panel::on_render(const float ts)
             {
                 std::string name = buffer;
                 std::replace(name.begin(), name.end(), ' ', '-');
+
+                if (m_record.append_datetime)
+                    name += " - " + std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
                 name += PPX_DEMO_EXTENSION;
                 dump_recording(name);
                 buffer[0] = '\0';
@@ -390,6 +394,7 @@ performance_panel::recording performance_panel::generate_average_recording(const
     {
         record.recording = m_record.recording;
         record.dump_hot_path_only = m_record.dump_hot_path_only;
+        record.append_datetime = m_record.append_datetime;
         record.frame_count = m_record.frame_count;
         record.time_measurements = m_record.time_measurements;
         record.max_time_measurements = m_record.max_time_measurements;
