@@ -63,7 +63,7 @@ void islands_tab::render_imgui_tab()
         m_app->world.islands.enabled(enabled);
 
 #ifndef KIT_PROFILE
-    ImGui::Checkbox("Multithreaded", &m_app->world.islands.params.multithreaded);
+    ImGui::Checkbox("Multithreading", &m_app->world.islands.params.multithreading);
 #else
     ImGui::Text("Multithreading is disabled on profile builds");
 #endif

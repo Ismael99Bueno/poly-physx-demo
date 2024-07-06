@@ -66,7 +66,7 @@ void collision_tab::render_imgui_tab()
         if (ImGui::Checkbox("Enabled##Broad", &enabled))
             bp->enabled(enabled);
 #ifndef KIT_PROFILE
-        ImGui::Checkbox("Multithreaded", &bp->params.multithreaded);
+        ImGui::Checkbox("Multithreading", &bp->params.multithreading);
         ImGui::SliderInt("Workload count", (int *)&bp->params.parallel_workloads, 2, 16);
 #else
         ImGui::Text("Multithreading is disabled on profile builds");
@@ -120,7 +120,7 @@ void collision_tab::render_broad_metrics() const
     const broad_phase2D *bp = m_app->world.collisions.broad();
     const auto metrics = bp->collision_metrics();
     render_metrics(metrics);
-    if (bp->params.multithreaded && ImGui::TreeNode("Per-workload metrics"))
+    if (bp->params.multithreading && ImGui::TreeNode("Per-workload metrics"))
     {
         const auto mt_metrics = bp->collision_metrics_per_mt_workload();
         for (std::size_t i = 0; i < bp->params.parallel_workloads; i++)

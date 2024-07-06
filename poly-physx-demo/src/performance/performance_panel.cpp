@@ -2,6 +2,7 @@
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
+#include "ppx/serialization/serialization.hpp"
 
 namespace ppx::demo
 {
@@ -454,11 +455,13 @@ void performance_panel::dump_recording(const std::string &filename, const record
     node["Collisions"] = m_app->world.collisions.size();
     node["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
     node["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
+    node["Constraint settings"] = m_app->world.joints.constraints.params;
     if (m_app->world.islands.enabled())
     {
         node["Islands"] = m_app->world.islands.size();
-        node["Sleep"] = m_app->world.islands.params.enable_sleep;
+        node["Island settings"] = m_app->world.islands.params;
     }
+    node["Collision settings"] = m_app->world.collisions;
 
     node["Summary"] = encode_summary_recording<TimeUnit, T>(record);
 #ifdef KIT_PROFILE
