@@ -70,6 +70,8 @@ void engine_panel::on_render(const float ts)
 {
     collision.render();
     islands.render();
+    if (!window_toggle)
+        return;
     if (ImGui::Begin("Engine", &window_toggle))
     {
         ImGui::Text("Bodies: %zu", m_app->world.bodies.size());

@@ -80,6 +80,8 @@ void physics_panel::render_exclude(const char *name, bool &exclude, const body2D
 
 void physics_panel::on_render(const float ts)
 {
+    if (!window_toggle)
+        return;
     if (ImGui::Begin("Physics", &window_toggle))
     {
         render_exclude("Exclude static", m_exclude_static, body2D::btype::STATIC);

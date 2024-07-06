@@ -27,6 +27,8 @@ void performance_panel::on_update(const float ts)
 
 void performance_panel::on_render(const float ts)
 {
+    if (!window_toggle)
+        return;
     if (ImGui::Begin("Performance", &window_toggle))
     {
         ImGui::Combo("Time unit", (int *)&m_time_unit, "Nanoseconds\0Microseconds\0Milliseconds\0Seconds\0\0");

@@ -42,6 +42,8 @@ void actions_panel::on_render(const float ts)
     bodies.render();
     joints.render();
     contraptions.render();
+    if (!window_toggle)
+        return;
     if (ImGui::Begin("Actions", &window_toggle, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
