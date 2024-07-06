@@ -42,7 +42,7 @@ void actions_panel::on_render(const float ts)
     bodies.render();
     joints.render();
     contraptions.render();
-    if (ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_MenuBar))
+    if (ImGui::Begin("Actions", &window_toggle, ImGuiWindowFlags_MenuBar))
     {
         ImGui::BeginTabBar("Actions tab bar");
         render_imgui_tab("Body", "Edit bodies", bodies);

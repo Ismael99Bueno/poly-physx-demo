@@ -205,9 +205,9 @@ YAML::Node selection_manager::encode() const
 {
     YAML::Node node;
     for (const body2D *body : m_selected_bodies)
-        node["Bodies"].push_back(body->index);
+        node["Bodies"].push_back(body->meta.index);
     for (const collider2D *collider : m_selected_colliders)
-        node["Colliders"].push_back(collider->index);
+        node["Colliders"].push_back(collider->meta.index);
 
     node["Bodies"].SetStyle(YAML::EmitterStyle::Flow);
     node["Colliders"].SetStyle(YAML::EmitterStyle::Flow);

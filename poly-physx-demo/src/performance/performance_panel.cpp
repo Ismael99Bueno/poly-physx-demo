@@ -27,7 +27,7 @@ void performance_panel::on_update(const float ts)
 
 void performance_panel::on_render(const float ts)
 {
-    if (ImGui::Begin("Performance"))
+    if (ImGui::Begin("Performance", &window_toggle))
     {
         ImGui::Combo("Time unit", (int *)&m_time_unit, "Nanoseconds\0Microseconds\0Milliseconds\0Seconds\0\0");
         ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");

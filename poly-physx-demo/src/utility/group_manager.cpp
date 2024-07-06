@@ -143,7 +143,7 @@ void group_manager::paste_group()
         specs.props.colliders.clear();
 
         body2D *body = m_app.world.bodies.add(specs);
-        added_indices.push_back(body->index);
+        added_indices.push_back(body->meta.index);
         body->begin_density_update();
         for (std::size_t i = 0; i < colliders.size(); i++)
         {

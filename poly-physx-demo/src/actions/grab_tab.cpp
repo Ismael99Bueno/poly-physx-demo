@@ -40,8 +40,8 @@ void grab_tab::render_imgui_tab()
 template <typename T> typename T::specs grab_tab::create_joint_grab_specs(const glm::vec2 &mpos) const
 {
     typename T::specs specs;
-    specs.bindex1 = m_grabbed->index;
-    specs.bindex2 = m_mouse->index;
+    specs.bindex1 = m_grabbed->meta.index;
+    specs.bindex2 = m_mouse->meta.index;
     if constexpr (std::is_same_v<T, revolute_joint2D>)
         specs.ganchor = mpos;
     else

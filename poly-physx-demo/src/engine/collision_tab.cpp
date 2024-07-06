@@ -62,7 +62,9 @@ void collision_tab::render_imgui_tab()
     if (ImGui::CollapsingHeader("Broad phase"))
     {
         broad_phase2D *bp = m_app->world.collisions.broad();
-        ImGui::Checkbox("Enabled##Broad", &bp->enabled);
+        bool enabled = bp->enabled();
+        if (ImGui::Checkbox("Enabled##Broad", &enabled))
+            bp->enabled(enabled);
 #ifndef KIT_PROFILE
         ImGui::Checkbox("Multithreaded", &bp->params.multithreaded);
         ImGui::SliderInt("Workload count", (int *)&bp->params.parallel_workloads, 2, 16);
@@ -173,7 +175,7 @@ void collision_tab::render_collisions_and_contacts_list() const
             {
                 const glm::vec2 &normal = contact->normal();
                 const auto &point = contact->point();
-                ImGui::Text("Enabled: %s", contact->enabled ? "true" : "false");
+                ImGui::Text("Enabled: %s", contact->enabled() ? "true" : "false");
                 ImGui::Text("Asleep: %s", contact->asleep() ? "true" : "false");
                 ImGui::Text("Normal - x: %.5f, y: %.5f", normal.x, normal.y);
                 ImGui::Text("Point - x: %.5f, y: %.5f", point.point.x, point.point.y);

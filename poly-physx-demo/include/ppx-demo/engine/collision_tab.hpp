@@ -82,8 +82,8 @@ class collision_tab
             repr->second.point.transform.position = point.point;
             repr->second.normal.p1(point.point);
             repr->second.normal.p2(point.point + dir);
-            repr->second.point.color(contact_color(!cnt->enabled || cnt->asleep()));
-            repr->second.normal.color(normal_color(!cnt->enabled || cnt->asleep()));
+            repr->second.point.color(contact_color(!cnt->enabled() || cnt->asleep()));
+            repr->second.normal.color(normal_color(!cnt->enabled() || cnt->asleep()));
         }
     }
 

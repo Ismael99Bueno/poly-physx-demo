@@ -663,8 +663,8 @@ template <typename Joint> bool joints_tab::attach_bodies_to_joint_specs(typename
     if constexpr (std::is_same_v<Joint, revolute_joint2D> || std::is_same_v<Joint, weld_joint2D>)
         specs.props.bodies_collide = false;
 
-    specs.bindex1 = m_body1->index;
-    specs.bindex2 = body2->index;
+    specs.bindex1 = m_body1->meta.index;
+    specs.bindex2 = body2->meta.index;
 
     return true;
 }

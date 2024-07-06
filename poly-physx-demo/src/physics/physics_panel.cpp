@@ -39,10 +39,14 @@ void physics_panel::add(body2D *body)
 template <typename T> bool physics_panel::render_behaviour(T *bhv, const float magdrag)
 {
     ImGui::PushID(bhv);
-    bool changed = ImGui::Checkbox("##Behaviour enabled", &bhv->enabled);
+    bool enabled = bhv->enabled();
+    bool changed = ImGui::Checkbox("##Behaviour enabled", &enabled);
+    if (changed)
+        bhv->enabled(enabled);
+
     ImGui::PopID();
     ImGui::SameLine();
-    if (ImGui::TreeNode(bhv, "%s", bhv->id.c_str()))
+    if (ImGui::TreeNode(bhv, "%s", bhv->id().c_str()))
     {
         changed |= ImGui::DragFloat("Magnitude", &bhv->magnitude, magdrag, -FLT_MAX, FLT_MAX, "%.1f");
         if constexpr (std::is_same_v<T, electrical>)
@@ -76,7 +80,7 @@ void physics_panel::render_exclude(const char *name, bool &exclude, const body2D
 
 void physics_panel::on_render(const float ts)
 {
-    if (ImGui::Begin("Physics"))
+    if (ImGui::Begin("Physics", &window_toggle))
     {
         render_exclude("Exclude static", m_exclude_static, body2D::btype::STATIC);
         render_exclude("Exclude kinematic", m_exclude_kinematic, body2D::btype::KINEMATIC);
@@ -179,7 +183,7 @@ void physics_panel::update_potential_data()
     static constexpr glm::vec2 pos_reference{1.f, 0.f};
     static const body2D unit{m_app->world};
     for (std::size_t i = 2; i < m_behaviours.size(); i++)
-        if (m_behaviours[i]->enabled)
+        if (m_behaviours[i]->enabled())
         {
             const interaction2D *interaction = dynamic_cast<const interaction2D *>(m_behaviours[i]);
             const float potential_preference = interaction->potential(unit, pos_reference);

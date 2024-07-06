@@ -70,7 +70,7 @@ void engine_panel::on_render(const float ts)
 {
     collision.render();
     islands.render();
-    if (ImGui::Begin("Engine"))
+    if (ImGui::Begin("Engine", &window_toggle))
     {
         ImGui::Text("Bodies: %zu", m_app->world.bodies.size());
         ImGui::Text("Step count: %u", m_app->world.step_count());

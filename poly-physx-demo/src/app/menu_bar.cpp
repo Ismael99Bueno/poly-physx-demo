@@ -2,6 +2,11 @@
 #include "ppx-demo/app/menu_bar.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 
+#include "ppx-demo/actions/actions_panel.hpp"
+#include "ppx-demo/engine/engine_panel.hpp"
+#include "ppx-demo/performance/performance_panel.hpp"
+#include "ppx-demo/physics/physics_panel.hpp"
+
 #define EXTENSION ".yaml"
 
 namespace ppx::demo
@@ -70,6 +75,14 @@ void menu_bar::on_render(const float ts)
             if (ImGui::MenuItem("Reload config file"))
                 m_app->reload_config_file();
 
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Windows"))
+        {
+            ImGui::MenuItem("Actions", nullptr, &m_app->actions->window_toggle);
+            ImGui::MenuItem("Engine", nullptr, &m_app->engine->window_toggle);
+            ImGui::MenuItem("Performance", nullptr, &m_app->performance->window_toggle);
+            ImGui::MenuItem("Physics", nullptr, &m_app->physics->window_toggle);
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
