@@ -11,7 +11,7 @@
 
 namespace ppx::demo
 {
-class menu_bar : public demo_layer
+class menu_bar final : public demo_layer
 {
   public:
     menu_bar();

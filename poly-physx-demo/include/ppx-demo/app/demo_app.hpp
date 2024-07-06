@@ -12,7 +12,7 @@ class performance_panel;
 class physics_panel;
 class menu_bar;
 
-class demo_app : public app
+class demo_app final : public app
 {
   public:
     demo_app();

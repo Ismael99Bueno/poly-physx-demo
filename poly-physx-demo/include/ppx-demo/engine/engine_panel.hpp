@@ -11,7 +11,7 @@
 
 namespace ppx::demo
 {
-class engine_panel : public demo_layer
+class engine_panel final : public demo_layer
 {
   public:
     engine_panel();

@@ -9,7 +9,7 @@
 
 namespace ppx::demo
 {
-class actions_panel : public demo_layer
+class actions_panel final : public demo_layer
 {
   public:
     actions_panel();

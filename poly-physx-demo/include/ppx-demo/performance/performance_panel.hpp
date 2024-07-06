@@ -5,7 +5,7 @@
 
 namespace ppx::demo
 {
-class performance_panel : public demo_layer
+class performance_panel final : public demo_layer
 {
   public:
     performance_panel();

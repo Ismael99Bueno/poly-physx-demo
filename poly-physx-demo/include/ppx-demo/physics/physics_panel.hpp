@@ -5,7 +5,7 @@
 
 namespace ppx::demo
 {
-class physics_panel : public demo_layer
+class physics_panel final : public demo_layer
 {
   public:
     physics_panel();

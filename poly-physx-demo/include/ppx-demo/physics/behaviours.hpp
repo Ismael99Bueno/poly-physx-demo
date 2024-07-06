@@ -5,7 +5,7 @@
 
 namespace ppx::demo
 {
-class gravity : public force2D
+class gravity final : public force2D
 {
   public:
     using force2D::force2D;
@@ -18,7 +18,7 @@ class gravity : public force2D
     bool decode(const YAML::Node &node) override;
 };
 
-class drag : public force2D
+class drag final : public force2D
 {
   public:
     using force2D::force2D;
@@ -31,7 +31,7 @@ class drag : public force2D
     bool decode(const YAML::Node &node) override;
 };
 
-class gravitational : public interaction2D
+class gravitational final : public interaction2D
 {
   public:
     using interaction2D::interaction2D;
@@ -45,7 +45,7 @@ class gravitational : public interaction2D
     bool decode(const YAML::Node &node) override;
 };
 
-class electrical : public interaction2D
+class electrical final : public interaction2D
 {
   public:
     using interaction2D::interaction2D;
@@ -60,7 +60,7 @@ class electrical : public interaction2D
     bool decode(const YAML::Node &node) override;
 };
 
-class exponential : public interaction2D
+class exponential final : public interaction2D
 {
   public:
     using interaction2D::interaction2D;
