@@ -7,8 +7,6 @@
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/physics/physics_panel.hpp"
 
-#define EXTENSION ".yaml"
-
 namespace ppx::demo
 {
 menu_bar::menu_bar() : demo_layer("Menu bar")
@@ -129,11 +127,11 @@ void menu_bar::load_new_session()
 }
 void menu_bar::save()
 {
-    m_serialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+    m_serialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_EXTENSION;
 }
 void menu_bar::load()
 {
-    m_deserialize_path = SAVES_DIRECTORY + m_session + EXTENSION;
+    m_deserialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_EXTENSION;
 }
 
 void menu_bar::save_as()
@@ -146,7 +144,7 @@ void menu_bar::save_as()
         std::string name = buffer;
         std::replace(name.begin(), name.end(), ' ', '-');
 
-        const std::string filename = name + EXTENSION;
+        const std::string filename = name + PPX_DEMO_EXTENSION;
         if (filename == PPX_DEMO_LAST_SAVE_FILENAME || filename == PPX_DEMO_DEFAULT_SAVE_FILENAME)
             return;
         m_session = name;
@@ -180,7 +178,7 @@ void menu_bar::load_as(const char *path)
         if (ImGui::Button("X"))
         {
             std::filesystem::remove(path);
-            if (filename == m_session + EXTENSION)
+            if (filename == m_session + PPX_DEMO_EXTENSION)
                 m_session.clear();
             return;
         }
