@@ -3,14 +3,14 @@
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/actions/body_tab.hpp"
 #include "ppx-demo/actions/joints_tab.hpp"
+#include "ppx-demo/actions/actions_panel.hpp"
 #include "ppx-app/drawables/lines/thick_line2D.hpp"
 #include "ppx-app/drawables/lines/spring_line2D.hpp"
 #include "ppx/serialization/serialization.hpp"
 
 namespace ppx::demo
 {
-contraption_tab::contraption_tab(demo_app *app, const body_tab *m_btab)
-    : m_app(app), m_window(app->window()), m_btab(m_btab)
+contraption_tab::contraption_tab(demo_app *app) : m_app(app), m_window(app->window())
 {
 }
 
@@ -96,8 +96,8 @@ void contraption_tab::end_contraption_spawn()
     if (!m_spawning)
         return;
     m_spawning = false;
-    auto bprops = m_btab->m_current_proxy.specs.props;
-    for (auto &cproxy : m_btab->m_current_proxy.cproxies)
+    auto bprops = m_app->actions->bodies.current_proxy().specs.props;
+    for (auto &cproxy : m_app->actions->bodies.current_proxy().cproxies)
         bprops.colliders.push_back(cproxy.specs);
     switch (m_type)
     {
@@ -138,7 +138,7 @@ template <typename Line> void contraption_tab::create_preview_objects(const std:
     m_preview_lines.reserve(segments + 1);
     for (std::size_t i = 0; i < segments + 2; i++)
     {
-        for (auto &cproxy : m_btab->m_current_proxy.cproxies)
+        for (auto &cproxy : m_app->actions->bodies.current_proxy().cproxies)
         {
             if (cproxy.specs.props.shape == collider2D::stype::CIRCLE)
                 m_preview_shapes.push_back(

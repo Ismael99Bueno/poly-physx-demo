@@ -4,6 +4,7 @@
 #include "ppx-demo/engine/engine_panel.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
 #include "ppx-demo/physics/physics_panel.hpp"
+#include "ppx-demo/scenarios/scenarios_panel.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
 #include "ppx-app/serialization/serialization.hpp"
 #include "ppx-app/drawables/joints/distance_repr2D.hpp"
@@ -36,6 +37,7 @@ demo_app::demo_app() : app(create_app_specs()), style(parse_config_file()), sele
     engine = push_layer<engine_panel>();
     performance = push_layer<performance_panel>();
     physics = push_layer<physics_panel>();
+    scenarios = push_layer<scenarios_panel>();
     menu = push_layer<menu_bar>();
 }
 

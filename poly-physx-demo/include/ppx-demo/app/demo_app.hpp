@@ -10,6 +10,7 @@ class actions_panel;
 class engine_panel;
 class performance_panel;
 class physics_panel;
+class scenarios_panel;
 class menu_bar;
 
 class demo_app final : public app
@@ -38,6 +39,7 @@ class demo_app final : public app
     engine_panel *engine;
     performance_panel *performance;
     physics_panel *physics;
+    scenarios_panel *scenarios;
     menu_bar *menu;
 
     void add_walls();

@@ -10,12 +10,11 @@
 namespace ppx::demo
 {
 class demo_app;
-class body_tab;
 class contraption_tab
 {
   public:
     contraption_tab() = default;
-    contraption_tab(demo_app *app, const body_tab *btab);
+    contraption_tab(demo_app *app);
 
     void update();
     void render();
@@ -38,7 +37,6 @@ class contraption_tab
 
     demo_app *m_app;
     lynx::window2D *m_window;
-    const body_tab *m_btab;
 
     contraption_type m_type = contraption_type::ROPE;
 

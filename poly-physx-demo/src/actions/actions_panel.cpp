@@ -15,7 +15,7 @@ void actions_panel::on_attach()
     joints = joints_tab(m_app);
     grab = grab_tab(m_app);
     entities = entities_tab(m_app);
-    contraptions = contraption_tab(m_app, &bodies);
+    contraptions = contraption_tab(m_app);
 }
 void actions_panel::on_update(float ts)
 {

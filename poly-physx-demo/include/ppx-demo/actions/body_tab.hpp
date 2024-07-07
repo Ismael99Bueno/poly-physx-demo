@@ -10,6 +10,13 @@ namespace ppx::demo
 class demo_app;
 class body_tab
 {
+    struct proxy
+    {
+        body2D::specs specs;
+        std::vector<collider_utils::proxy> cproxies{1};
+        std::string name;
+    };
+
   public:
     body_tab() = default;
     body_tab(demo_app *app);
@@ -25,14 +32,9 @@ class body_tab
     YAML::Node encode() const;
     void decode(const YAML::Node &node);
 
-  private:
-    struct proxy
-    {
-        body2D::specs specs;
-        std::vector<collider_utils::proxy> cproxies{1};
-        std::string name;
-    };
+    const proxy &current_proxy() const;
 
+  private:
     demo_app *m_app;
     lynx::window2D *m_window;
 
@@ -62,7 +64,5 @@ class body_tab
 
     static YAML::Node encode_proxy(const proxy &prx);
     static proxy decode_proxy(const YAML::Node &node);
-
-    friend class contraption_tab;
 };
 } // namespace ppx::demo

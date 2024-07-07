@@ -10,6 +10,11 @@ body_tab::body_tab(demo_app *app) : m_app(app), m_window(app->window())
 {
 }
 
+const body_tab::proxy &body_tab::current_proxy() const
+{
+    return m_current_proxy;
+}
+
 void body_tab::begin_body_spawn()
 {
     if (m_spawning)
@@ -75,7 +80,7 @@ void body_tab::update()
     if (m_current_proxy.specs.props.type != body2D::btype::STATIC)
         m_current_proxy.specs.velocity = velocity;
 
-    const float angle = atan2f(velocity.y, velocity.x) + 0.5f * glm::pi<float>();
+    const float angle = atan2f(velocity.y, velocity.x);
     m_preview_transform.rotation = angle;
     m_current_proxy.specs.rotation = angle;
 }
