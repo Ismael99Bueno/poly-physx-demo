@@ -1,5 +1,6 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/performance/performance_panel.hpp"
+#include "ppx-demo/scenarios/scenarios_panel.hpp"
 #include "ppx-demo/app/demo_app.hpp"
 #include "ppx-demo/app/menu_bar.hpp"
 #include "ppx/serialization/serialization.hpp"
@@ -448,6 +449,8 @@ void performance_panel::dump_recording(const std::string &filename, const record
 {
     YAML::Node node;
     YAML::Node settings = node["Simulation settings"];
+    settings["Timestep"] = m_app->world.timestep();
+    settings["Hertz"] = m_app->world.hertz();
     settings["Bodies"] = m_app->world.bodies.size();
     settings["Colliders"] = m_app->world.colliders.size();
     settings["Joints"] = m_app->world.joints.size();
@@ -455,6 +458,10 @@ void performance_panel::dump_recording(const std::string &filename, const record
     settings["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
     settings["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
     settings["Constraint settings"] = m_app->world.joints.constraints.params;
+    const scenario *sc = m_app->scenarios->current_scenario();
+    if (sc && !sc->expired())
+        node["Active scenario"] = *sc;
+
     if (m_app->world.islands.enabled())
     {
         settings["Islands"] = m_app->world.islands.size();

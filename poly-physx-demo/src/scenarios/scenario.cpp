@@ -9,11 +9,15 @@ scenario::scenario(demo_app *app) : m_app(app)
 
 void scenario::start()
 {
-    m_expired = false;
+    m_stopped = false;
+}
+void scenario::stop() // if a scenario is stopped, it wont show up on a performance record
+{
+    m_stopped = true;
 }
 
 bool scenario::expired() const
 {
-    return m_expired;
+    return m_stopped;
 }
 } // namespace ppx::demo

@@ -8,6 +8,11 @@ scenarios_panel::scenarios_panel() : demo_layer("Scenarios panel")
 {
 }
 
+const scenario *scenarios_panel::current_scenario() const
+{
+    return m_current_scenario.get();
+}
+
 void scenarios_panel::on_attach()
 {
     demo_layer::on_attach();
@@ -17,7 +22,7 @@ void scenarios_panel::on_attach()
 void scenarios_panel::on_update(const float ts)
 {
     if (m_current_scenario && !m_current_scenario->expired())
-        m_current_scenario->update();
+        m_current_scenario->update(ts);
 }
 
 void scenarios_panel::on_render(const float ts)
@@ -39,6 +44,9 @@ void scenarios_panel::render_dropdown_and_scenario_info()
         update_scenario_type();
     if (ImGui::Button("Start scenario"))
         m_current_scenario->start();
+    if (!m_current_scenario->expired() && ImGui::Button("Stop scenario"))
+        m_current_scenario->stop();
+
     m_current_scenario->on_imgui_window_render();
 }
 

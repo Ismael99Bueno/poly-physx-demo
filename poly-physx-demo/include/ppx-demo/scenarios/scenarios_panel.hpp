@@ -16,6 +16,8 @@ class scenarios_panel final : public demo_layer
   public:
     scenarios_panel();
 
+    const scenario *current_scenario() const;
+
   private:
     void on_attach() override;
     void on_update(float ts) override;
