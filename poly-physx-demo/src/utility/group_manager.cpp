@@ -147,7 +147,7 @@ void group_manager::paste_group()
         body->begin_density_update();
         for (std::size_t i = 0; i < colliders.size(); i++)
         {
-            *m_app.style.collider_color = lynx::color{bproxy.colors[i], 255u};
+            *m_app.style.collider_color = bproxy.colors[i];
             body->add(colliders[i]);
         }
         body->end_density_update();
