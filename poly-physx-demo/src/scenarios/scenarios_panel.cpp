@@ -4,7 +4,7 @@
 
 namespace ppx::demo
 {
-scenarios_panel::scenarios_panel() : demo_layer("Scenarios Panel")
+scenarios_panel::scenarios_panel() : demo_layer("Scenarios panel")
 {
 }
 

@@ -197,7 +197,7 @@ void physics_panel::update_potential_data()
 
 YAML::Node physics_panel::encode() const
 {
-    YAML::Node node;
+    YAML::Node node = demo_layer::encode();
     node["Exclude kinematic"] = m_exclude_kinematic;
     node["Exclude static"] = m_exclude_static;
     node["Logarithmic magnitude"] = m_exp_mag_log;
@@ -205,6 +205,8 @@ YAML::Node physics_panel::encode() const
 }
 bool physics_panel::decode(const YAML::Node &node)
 {
+    if (!demo_layer::decode(node))
+        return false;
     m_exclude_kinematic = node["Exclude kinematic"].as<bool>();
     m_exclude_static = node["Exclude static"].as<bool>();
     m_exp_mag_log = node["Logarithmic magnitude"].as<bool>();

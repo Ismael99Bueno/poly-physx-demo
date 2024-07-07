@@ -130,7 +130,7 @@ bool actions_panel::on_event(const lynx::event2D &event)
 
 YAML::Node actions_panel::encode() const
 {
-    YAML::Node node;
+    YAML::Node node = demo_layer::encode();
     node["Spawn tab"] = bodies.encode();
     node["Joints tab"] = joints.encode();
     node["Grab tab"] = grab.encode();
@@ -139,6 +139,8 @@ YAML::Node actions_panel::encode() const
 }
 bool actions_panel::decode(const YAML::Node &node)
 {
+    if (!demo_layer::decode(node))
+        return false;
     bodies.decode(node["Spawn tab"]);
     joints.decode(node["Joints tab"]);
     grab.decode(node["Grab tab"]);
