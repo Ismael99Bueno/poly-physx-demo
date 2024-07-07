@@ -447,23 +447,24 @@ template <typename TimeUnit, typename T>
 void performance_panel::dump_recording(const std::string &filename, const recording &record, const char *unit) const
 {
     YAML::Node node;
-    node["Frames recorded"] = record.frame_count;
-    node["Unit"] = unit;
-    node["Bodies"] = m_app->world.bodies.size();
-    node["Colliders"] = m_app->world.colliders.size();
-    node["Joints"] = m_app->world.joints.size();
-    node["Collisions"] = m_app->world.collisions.size();
-    node["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
-    node["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
-    node["Constraint settings"] = m_app->world.joints.constraints.params;
+    YAML::Node settings = node["Simulation settings"];
+    settings["Bodies"] = m_app->world.bodies.size();
+    settings["Colliders"] = m_app->world.colliders.size();
+    settings["Joints"] = m_app->world.joints.size();
+    settings["Collisions"] = m_app->world.collisions.size();
+    settings["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
+    settings["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
+    settings["Constraint settings"] = m_app->world.joints.constraints.params;
     if (m_app->world.islands.enabled())
     {
-        node["Islands"] = m_app->world.islands.size();
-        node["Island settings"] = m_app->world.islands.params;
+        settings["Islands"] = m_app->world.islands.size();
+        settings["Island settings"] = m_app->world.islands.params;
     }
-    node["Collision settings"] = m_app->world.collisions;
+    settings["Collision settings"] = m_app->world.collisions;
 
-    node["Summary"] = encode_summary_recording<TimeUnit, T>(record);
+    node["Frames recorded"] = record.frame_count;
+    node["Unit"] = unit;
+    node["Performance summary"] = encode_summary_recording<TimeUnit, T>(record);
 #ifdef KIT_PROFILE
     const auto &head = kit::perf::instrumentor::head_node(kit::perf::instrumentor::current_session());
     YAML::Node hierarchy = node["Hierarchy"];
