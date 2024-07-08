@@ -452,23 +452,19 @@ void performance_panel::dump_report(const std::string &foldername, const report 
     encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string out_folder = PPX_DEMO_ROOT_PATH + std::string("output/");
-    if (!std::filesystem::exists(out_folder))
-        std::filesystem::create_directory(out_folder);
-
-    const std::string folder = out_folder + foldername;
+    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmarks/" + foldername);
     if (!std::filesystem::exists(folder))
-        std::filesystem::create_directory(folder);
+        std::filesystem::create_directories(folder);
 
     YAML::Emitter out;
     out << node;
 
-    std::ofstream summary_file{out_folder + (foldername + "/summary") + PPX_DEMO_YAML_EXTENSION};
+    std::ofstream summary_file{(folder + "/summary") + PPX_DEMO_YAML_EXTENSION};
     summary_file << out.c_str();
     if (!rep.include_per_frame_data)
         return;
 
-    std::ofstream per_frame_file{out_folder + foldername + "/per-frame-data.csv"};
+    std::ofstream per_frame_file{folder + "/per-frame-data.csv"};
     per_frame_file << "Timestep,Frame time,Update time,Render time,Physics time,Bodies,Colliders,Joints,Collisions,"
                       "Total contacts,Active contacts,Total collision checks,Positive collision checks\n";
     for (const auto &entry : *rep.entries)
