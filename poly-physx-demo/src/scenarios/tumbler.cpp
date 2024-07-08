@@ -146,7 +146,7 @@ YAML::Node tumbler::encode() const
     node["Addition wait time"] = m_addition_wait_time;
     node["Total spawns"] = m_total_spawns;
     node["Use body from action panel"] = m_use_body_from_action_panel;
-    node["Body specs"] = m_body_specs;
+    node["Body properties"] = m_body_props;
     return node;
 }
 

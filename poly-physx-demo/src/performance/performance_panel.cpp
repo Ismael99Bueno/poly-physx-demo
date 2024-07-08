@@ -74,6 +74,7 @@ void performance_panel::on_render(const float ts)
             ImGui::Checkbox("Dump hot path only", &m_report.dump_hot_path_only);
 #endif
             ImGui::Checkbox("Append datetime", &m_report.append_datetime);
+            ImGui::Text("Report will be written to output/benchmark-data/ (relative to the project root)");
 
             static char buffer[24] = "\0";
             if (ImGui::InputTextWithHint("Dump performance report", "Report name", buffer, 24,
@@ -443,17 +444,14 @@ void performance_panel::dump_report(const std::string &foldername, const report 
         settings["Island settings"] = m_app->world.islands.params;
     }
     settings["Collision settings"] = m_app->world.collisions;
-
-    node["Frames recorded"] = rep.frame_count;
-    node["Unit"] = unit;
-    node["Performance summary"] = encode_summary_report<TimeUnit, T>(rep);
+    node["Performance summary"] = encode_summary_report<TimeUnit, T>(rep, unit);
 #ifdef KIT_PROFILE
     const auto &head = kit::perf::instrumentor::head_node(kit::perf::instrumentor::current_session());
     YAML::Node hierarchy = node["Hierarchy"];
     encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmarks/" + foldername);
+    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark-data/" + foldername);
     if (!std::filesystem::exists(folder))
         std::filesystem::create_directories(folder);
 
@@ -479,9 +477,12 @@ void performance_panel::dump_report(const std::string &foldername, const report 
                        << entry.broad_metrics.positive_collision_checks << '\n';
 }
 
-template <typename TimeUnit, typename T> YAML::Node performance_panel::encode_summary_report(const report &rep) const
+template <typename TimeUnit, typename T>
+YAML::Node performance_panel::encode_summary_report(const report &rep, const char *unit) const
 {
     YAML::Node node;
+    node["Frames recorded"] = rep.frame_count;
+    node["Unit"] = unit;
     for (std::size_t i = 0; i < 4; i++)
     {
         const kit::perf::time &average = rep.avg_time_measurements[i];

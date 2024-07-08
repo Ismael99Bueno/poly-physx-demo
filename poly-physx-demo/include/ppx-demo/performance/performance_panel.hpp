@@ -79,7 +79,8 @@ class performance_panel final : public demo_layer
     template <typename TimeUnit, typename T>
     void dump_report(const std::string &foldername, const report &rep, const char *unit) const;
 
-    template <typename TimeUnit, typename T> YAML::Node encode_summary_report(const report &rep) const;
+    template <typename TimeUnit, typename T>
+    YAML::Node encode_summary_report(const report &rep, const char *unit) const;
     template <typename TimeUnit, typename T>
     void encode_hierarchy_recursive(const report &rep, const std::string &name_hash, YAML::Node &node) const;
 
