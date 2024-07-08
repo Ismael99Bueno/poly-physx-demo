@@ -60,6 +60,8 @@ class performance_panel final : public demo_layer
 
         kit::ref<std::vector<entry>> entries;
     };
+    void start_recording();
+    void stop_recording();
 
   private:
     void on_attach() override;
@@ -68,10 +70,8 @@ class performance_panel final : public demo_layer
 
     void render_fps();
 
-    void start_recording();
     void record();
     void record_hierarchy_recursive(const kit::perf::node &node, std::size_t parent_calls = 1);
-    void stop_recording();
 
     report generate_average_report() const;
 

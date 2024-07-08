@@ -17,14 +17,13 @@ class scenario : public kit::yaml::encodeable
     virtual void render()
     {
     }
-    virtual void on_imgui_window_render()
-    {
-    }
+    virtual void on_imgui_window_render();
 
     bool expired() const;
 
   protected:
     demo_app *m_app;
     bool m_stopped = true;
+    bool m_start_performance_report = true;
 };
 } // namespace ppx::demo
