@@ -42,5 +42,5 @@ output/
 
 
 # Scripts
-scripts/
+scripts/*.sh
 !.dockerignore
