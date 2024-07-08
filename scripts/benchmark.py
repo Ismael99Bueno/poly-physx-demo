@@ -71,7 +71,8 @@ def main() -> None:
             continue
 
         output_folder = reports_folder / f.relative_to(benchmark_data).parent
-        shutil.rmtree(output_folder)
+        if output_folder.exists():
+            shutil.rmtree(output_folder)
 
         output_folder.mkdir(parents=True, exist_ok=True)
 
