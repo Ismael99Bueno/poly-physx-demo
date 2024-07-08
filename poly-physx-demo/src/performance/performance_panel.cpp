@@ -422,6 +422,7 @@ template <typename TimeUnit, typename T>
 void performance_panel::dump_report(const std::string &foldername, const report &rep, const char *unit) const
 {
     YAML::Node node;
+    node["Date"] = std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
     YAML::Node settings = node["Simulation settings"];
     settings["Timestep"] = m_app->world.timestep();
     settings["Hertz"] = m_app->world.hertz();
