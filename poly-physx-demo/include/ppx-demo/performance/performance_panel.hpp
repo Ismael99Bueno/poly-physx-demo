@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ppx-demo/app/demo_layer.hpp"
+#include "ppx/collision/broad/broad_phase2D.hpp"
 #include "kit/profiling/instrumentor.hpp"
 
 namespace ppx::demo
@@ -31,17 +32,33 @@ class performance_panel final : public demo_layer
         float total_percent_over_calls;
     };
 
-    struct recording
+    struct report
     {
         bool recording = false;
         bool dump_hot_path_only = false;
         bool append_datetime = false;
+        bool include_per_frame_data = true;
 
         std::uint32_t frame_count = 0;
 
-        std::array<kit::perf::time, 4> time_measurements;
+        std::array<kit::perf::time, 4> avg_time_measurements;
         std::array<kit::perf::time, 4> max_time_measurements;
-        std::unordered_map<std::string, detailed_metrics> cum_metrics;
+        std::unordered_map<std::string, detailed_metrics> avg_metrics;
+
+        struct entry
+        {
+            float timestep;
+            std::array<kit::perf::time, 4> time_measurements;
+            std::size_t body_count;
+            std::size_t collider_count;
+            std::size_t joint_count;
+            std::size_t collision_count;
+            std::size_t total_contact_count;
+            std::size_t active_contact_count;
+            broad_phase2D::metrics broad_metrics;
+        };
+
+        kit::ref<std::vector<entry>> entries;
     };
 
   private:
@@ -56,18 +73,15 @@ class performance_panel final : public demo_layer
     void record_hierarchy_recursive(const kit::perf::node &node, std::size_t parent_calls = 1);
     void stop_recording();
 
-    void render_ongoing_recording();
-    template <typename TimeUnit, typename T> void render_ongoing_recording(const char *format) const;
+    report generate_average_report() const;
 
-    recording generate_average_recording(bool include_hierarchy = false) const;
-
-    void dump_recording(const std::string &filename) const;
+    void dump_report(const std::string &foldername) const;
     template <typename TimeUnit, typename T>
-    void dump_recording(const std::string &filename, const recording &record, const char *unit) const;
+    void dump_report(const std::string &foldername, const report &rep, const char *unit) const;
 
-    template <typename TimeUnit, typename T> YAML::Node encode_summary_recording(const recording &record) const;
+    template <typename TimeUnit, typename T> YAML::Node encode_summary_report(const report &rep) const;
     template <typename TimeUnit, typename T>
-    void encode_hierarchy_recursive(const recording &record, const std::string &name_hash, YAML::Node &node) const;
+    void encode_hierarchy_recursive(const report &rep, const std::string &name_hash, YAML::Node &node) const;
 
     void render_measurements_summary();
     template <typename TimeUnit, typename T> void render_measurements_summary(const char *format) const;
@@ -89,14 +103,14 @@ class performance_panel final : public demo_layer
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;
 
-    time_unit m_time_unit = time_unit::MILLISECONDS;
+    time_unit m_time_unit = time_unit::MICROSECONDS;
     float m_smoothness = 0.f;
     float m_time_plot_speed = 0.02f;
     bool m_expand_hot_path = false;
     bool m_limit_fps = true;
     std::uint32_t m_fps_cap = 60;
 
-    recording m_record;
+    report m_report;
 
     std::array<kit::perf::time, 4> m_raw_time_measurements;
     std::array<kit::perf::time, 4> m_time_measurements;

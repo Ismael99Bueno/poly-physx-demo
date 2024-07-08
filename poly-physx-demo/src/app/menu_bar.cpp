@@ -127,11 +127,11 @@ void menu_bar::load_new_session()
 }
 void menu_bar::save()
 {
-    m_serialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_EXTENSION;
+    m_serialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_YAML_EXTENSION;
 }
 void menu_bar::load()
 {
-    m_deserialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_EXTENSION;
+    m_deserialize_path = SAVES_DIRECTORY + m_session + PPX_DEMO_YAML_EXTENSION;
 }
 
 void menu_bar::save_as()
@@ -144,7 +144,7 @@ void menu_bar::save_as()
         std::string name = buffer;
         std::replace(name.begin(), name.end(), ' ', '-');
 
-        const std::string filename = name + PPX_DEMO_EXTENSION;
+        const std::string filename = name + PPX_DEMO_YAML_EXTENSION;
         if (filename == PPX_DEMO_LAST_SAVE_FILENAME || filename == PPX_DEMO_DEFAULT_SAVE_FILENAME)
             return;
         m_session = name;
@@ -178,7 +178,7 @@ void menu_bar::load_as(const char *path)
         if (ImGui::Button("X"))
         {
             std::filesystem::remove(path);
-            if (filename == m_session + PPX_DEMO_EXTENSION)
+            if (filename == m_session + PPX_DEMO_YAML_EXTENSION)
                 m_session.clear();
             return;
         }

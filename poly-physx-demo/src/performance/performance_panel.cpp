@@ -36,7 +36,7 @@ void performance_panel::on_update(const float ts)
     m_current_hotpath.swap(m_last_hotpath);
     m_current_hotpath.clear();
 #endif
-    if (m_record.recording)
+    if (m_report.recording)
         record();
 }
 
@@ -58,59 +58,39 @@ void performance_panel::on_render(const float ts)
 #else
         render_measurements_summary();
 #endif
-        if (!m_record.recording && ImGui::Button("Start recording"))
-            start_recording();
-        else if (m_record.recording && ImGui::Button("Stop recording"))
+        if (!m_report.recording)
+        {
+            ImGui::Checkbox("Include per frame data", &m_report.include_per_frame_data);
+            if (ImGui::Button("Start recording"))
+                start_recording();
+        }
+        else if (m_report.recording && ImGui::Button("Stop recording"))
             stop_recording();
 
-        if (m_record.frame_count > 0)
+        if (m_report.frame_count > 0)
         {
+            ImGui::Text("Frames recorded: %u", m_report.frame_count);
 #ifdef KIT_PROFILE
-            ImGui::Checkbox("Dump hot path only", &m_record.dump_hot_path_only);
+            ImGui::Checkbox("Dump hot path only", &m_report.dump_hot_path_only);
 #endif
-            ImGui::Checkbox("Append datetime", &m_record.append_datetime);
+            ImGui::Checkbox("Append datetime", &m_report.append_datetime);
 
             static char buffer[24] = "\0";
-            if (ImGui::InputTextWithHint("Dump performance recording", "Filename", buffer, 24,
+            if (ImGui::InputTextWithHint("Dump performance report", "Report name", buffer, 24,
                                          ImGuiInputTextFlags_EnterReturnsTrue) &&
                 buffer[0] != '\0')
             {
                 std::string name = buffer;
                 std::replace(name.begin(), name.end(), ' ', '-');
 
-                if (m_record.append_datetime)
+                if (m_report.append_datetime)
                     name += " - " + std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
-                name += PPX_DEMO_EXTENSION;
-                dump_recording(name);
+                dump_report(name);
                 buffer[0] = '\0';
             }
-
-            if (ImGui::CollapsingHeader("Ongoing recording"))
-                render_ongoing_recording();
         }
     }
     ImGui::End();
-}
-
-void performance_panel::render_ongoing_recording()
-{
-    switch (m_time_unit)
-    {
-    case time_unit::NANOSECONDS:
-        render_ongoing_recording<kit::perf::time::nanoseconds, long long>("%s: %lld ns (max: %lld ns)");
-        break;
-    case time_unit::MICROSECONDS:
-        render_ongoing_recording<kit::perf::time::microseconds, long long>("%s: %lld us (max: %lld us)");
-        break;
-    case time_unit::MILLISECONDS:
-        render_ongoing_recording<kit::perf::time::milliseconds, long>("%s: %lld ms (max: %lld ms)");
-        break;
-    case time_unit::SECONDS:
-        render_ongoing_recording<kit::perf::time::seconds, float>("%s: %.2f s (max: %.2f s)");
-        break;
-    default:
-        break;
-    }
 }
 
 void performance_panel::render_measurements_summary()
@@ -320,36 +300,56 @@ void performance_panel::render_fps()
 
 void performance_panel::start_recording()
 {
-    m_record.recording = true;
-    m_record.cum_metrics.clear();
-    for (kit::perf::time &time : m_record.time_measurements)
+    m_report.recording = true;
+    m_report.avg_metrics.clear();
+    for (kit::perf::time &time : m_report.avg_time_measurements)
         time = kit::perf::time{};
-    m_record.frame_count = 0;
+    m_report.frame_count = 0;
+    if (!m_report.entries)
+    {
+        m_report.entries = kit::make_ref<std::vector<report::entry>>();
+        m_report.entries->reserve(1000);
+    }
+    else
+        m_report.entries->clear();
 }
 
 void performance_panel::record()
 {
     for (std::size_t i = 0; i < 4; i++)
     {
-        m_record.time_measurements[i] += m_raw_time_measurements[i];
-        if (m_raw_time_measurements[i] > m_record.max_time_measurements[i])
-            m_record.max_time_measurements[i] = m_record.time_measurements[i];
+        m_report.avg_time_measurements[i] += m_raw_time_measurements[i];
+        if (m_raw_time_measurements[i] > m_report.max_time_measurements[i])
+            m_report.max_time_measurements[i] = m_report.avg_time_measurements[i];
     }
-    m_record.frame_count++;
+    m_report.frame_count++;
+
 #ifdef KIT_PROFILE
     const char *session = kit::perf::instrumentor::current_session();
     const kit::perf::node &head = kit::perf::instrumentor::head_node(session);
     record_hierarchy_recursive(head);
 #endif
+    if (!m_report.include_per_frame_data)
+        return;
+    auto &entry = m_report.entries->emplace_back();
+    entry.timestep = m_app->world.timestep();
+    entry.time_measurements = m_raw_time_measurements;
+    entry.body_count = m_app->world.bodies.size();
+    entry.collider_count = m_app->world.colliders.size();
+    entry.joint_count = m_app->world.joints.size();
+    entry.collision_count = m_app->world.collisions.size();
+    entry.total_contact_count = m_app->world.collisions.contact_solver()->total_contacts_count();
+    entry.active_contact_count = m_app->world.collisions.contact_solver()->active_contacts_count();
+    entry.broad_metrics = m_app->world.collisions.broad()->collision_metrics();
 }
 
 void performance_panel::record_hierarchy_recursive(const kit::perf::node &node, const std::size_t parent_calls)
 {
     const auto metrics = node.average_metrics();
     const auto detailed = generate_detailed_metrics(node, metrics, parent_calls);
-    const auto it = m_record.cum_metrics.find(node.name_hash());
-    if (it == m_record.cum_metrics.end())
-        m_record.cum_metrics.emplace(node.name_hash(), detailed);
+    const auto it = m_report.avg_metrics.find(node.name_hash());
+    if (it == m_report.avg_metrics.end())
+        m_report.avg_metrics.emplace(node.name_hash(), detailed);
     else
     {
         it->second.per_call += detailed.per_call;
@@ -368,76 +368,50 @@ void performance_panel::record_hierarchy_recursive(const kit::perf::node &node, 
 
 void performance_panel::stop_recording()
 {
-    m_record.recording = false;
+    m_report.recording = false;
 }
 
 static const std::array<const char *, 4> s_measurement_names = {"LYNX:Frame", "LYNX:On-update", "LYNX:On-render",
                                                                 "PPX-APP:Physics"};
 
-template <typename TimeUnit, typename T> void performance_panel::render_ongoing_recording(const char *format) const
+performance_panel::report performance_panel::generate_average_report() const
 {
-    const recording record = generate_average_recording();
-    ImGui::Text("Frames recorded: %u", record.frame_count);
+    report record = m_report;
     for (std::size_t i = 0; i < 4; i++)
+        record.avg_time_measurements[i] /= record.frame_count;
+    for (auto &cum : record.avg_metrics)
     {
-        const kit::perf::time &average = record.time_measurements[i];
-        const kit::perf::time &max = record.max_time_measurements[i];
-
-        ImGui::Text(format, s_measurement_names[i], average.as<TimeUnit, T>(), max.as<TimeUnit, T>());
+        cum.second.per_call /= record.frame_count;
+        cum.second.max_per_call /= record.frame_count;
+        cum.second.over_calls /= record.frame_count;
+        cum.second.max_over_calls /= record.frame_count;
+        cum.second.call_load_over_parent /= record.frame_count;
+        cum.second.relative_percent_over_calls /= record.frame_count;
+        cum.second.total_percent_over_calls /= record.frame_count;
     }
-}
-
-performance_panel::recording performance_panel::generate_average_recording(const bool include_hierarchy) const
-{
-    recording record;
-    if (include_hierarchy)
-        record = m_record;
-    else
-    {
-        record.recording = m_record.recording;
-        record.dump_hot_path_only = m_record.dump_hot_path_only;
-        record.append_datetime = m_record.append_datetime;
-        record.frame_count = m_record.frame_count;
-        record.time_measurements = m_record.time_measurements;
-        record.max_time_measurements = m_record.max_time_measurements;
-    }
-
-    for (std::size_t i = 0; i < 4; i++)
-        record.time_measurements[i] /= record.frame_count;
-    if (include_hierarchy)
-        for (auto &cum : record.cum_metrics)
-        {
-            cum.second.per_call /= record.frame_count;
-            cum.second.max_per_call /= record.frame_count;
-            cum.second.over_calls /= record.frame_count;
-            cum.second.max_over_calls /= record.frame_count;
-            cum.second.call_load_over_parent /= record.frame_count;
-            cum.second.relative_percent_over_calls /= record.frame_count;
-            cum.second.total_percent_over_calls /= record.frame_count;
-        }
 
     return record;
 }
 
-void performance_panel::dump_recording(const std::string &filename) const
+void performance_panel::dump_report(const std::string &foldername) const
 {
-    if (m_record.frame_count == 0)
+    if (m_report.frame_count == 0)
         return;
 
-    const recording record = generate_average_recording(true);
+    const report record = generate_average_report();
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        dump_recording<kit::perf::time::nanoseconds, long long>(filename, record, "Nanoseconds");
+        dump_report<kit::perf::time::nanoseconds, long long>(foldername, record, "Nanoseconds");
         break;
     case time_unit::MICROSECONDS:
-        dump_recording<kit::perf::time::microseconds, long long>(filename, record, "Microseconds");
+        dump_report<kit::perf::time::microseconds, long long>(foldername, record, "Microseconds");
         break;
     case time_unit::MILLISECONDS:
-        dump_recording<kit::perf::time::milliseconds, long>(filename, record, "Milliseconds");
+        dump_report<kit::perf::time::milliseconds, long>(foldername, record, "Milliseconds");
         break;
     case time_unit::SECONDS:
-        dump_recording<kit::perf::time::seconds, float>(filename, record, "Seconds");
+        dump_report<kit::perf::time::seconds, float>(foldername, record, "Seconds");
         break;
     default:
         break;
@@ -445,7 +419,7 @@ void performance_panel::dump_recording(const std::string &filename) const
 }
 
 template <typename TimeUnit, typename T>
-void performance_panel::dump_recording(const std::string &filename, const recording &record, const char *unit) const
+void performance_panel::dump_report(const std::string &foldername, const report &rep, const char *unit) const
 {
     YAML::Node node;
     YAML::Node settings = node["Simulation settings"];
@@ -469,34 +443,52 @@ void performance_panel::dump_recording(const std::string &filename, const record
     }
     settings["Collision settings"] = m_app->world.collisions;
 
-    node["Frames recorded"] = record.frame_count;
+    node["Frames recorded"] = rep.frame_count;
     node["Unit"] = unit;
-    node["Performance summary"] = encode_summary_recording<TimeUnit, T>(record);
+    node["Performance summary"] = encode_summary_report<TimeUnit, T>(rep);
 #ifdef KIT_PROFILE
     const auto &head = kit::perf::instrumentor::head_node(kit::perf::instrumentor::current_session());
     YAML::Node hierarchy = node["Hierarchy"];
-    encode_hierarchy_recursive<TimeUnit, T>(record, head.name_hash(), hierarchy);
+    encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string folder = PPX_DEMO_ROOT_PATH + std::string("output/");
+    const std::string out_folder = PPX_DEMO_ROOT_PATH + std::string("output/");
+    if (!std::filesystem::exists(out_folder))
+        std::filesystem::create_directory(out_folder);
+
+    const std::string folder = out_folder + foldername;
     if (!std::filesystem::exists(folder))
         std::filesystem::create_directory(folder);
 
     YAML::Emitter out;
     out << node;
 
-    std::ofstream file{folder + filename};
-    file << out.c_str();
+    std::ofstream summary_file{out_folder + (foldername + "/summary") + PPX_DEMO_YAML_EXTENSION};
+    summary_file << out.c_str();
+    if (!rep.include_per_frame_data)
+        return;
+
+    std::ofstream per_frame_file{out_folder + foldername + "/per-frame-data.csv"};
+    per_frame_file << "Timestep,Frame time,Update time,Render time,Physics time,Bodies,Colliders,Joints,Collisions,"
+                      "Total contacts,Active contacts,Total collision checks,Positive collision checks\n";
+    for (const auto &entry : *rep.entries)
+        per_frame_file << entry.timestep << ',' << entry.time_measurements[0].as<TimeUnit, T>() << ','
+                       << entry.time_measurements[1].as<TimeUnit, T>() << ','
+                       << entry.time_measurements[2].as<TimeUnit, T>() << ','
+                       << entry.time_measurements[3].as<TimeUnit, T>() << ',' << entry.body_count << ','
+                       << entry.collider_count << ',' << entry.joint_count << ',' << entry.collision_count << ','
+                       << entry.total_contact_count << ',' << entry.active_contact_count << ','
+                       << entry.broad_metrics.total_collision_checks << ','
+                       << entry.broad_metrics.positive_collision_checks << '\n';
 }
 
-template <typename TimeUnit, typename T>
-YAML::Node performance_panel::encode_summary_recording(const recording &record) const
+template <typename TimeUnit, typename T> YAML::Node performance_panel::encode_summary_report(const report &rep) const
 {
     YAML::Node node;
     for (std::size_t i = 0; i < 4; i++)
     {
-        const kit::perf::time &average = record.time_measurements[i];
-        const kit::perf::time &max = record.max_time_measurements[i];
+        const kit::perf::time &average = rep.avg_time_measurements[i];
+        const kit::perf::time &max = rep.max_time_measurements[i];
 
         YAML::Node child = node[s_measurement_names[i]];
         child["Average"] = average.as<TimeUnit, T>();
@@ -513,13 +505,13 @@ struct entry
 };
 
 template <typename TimeUnit, typename T>
-void performance_panel::encode_hierarchy_recursive(const recording &record, const std::string &name_hash,
+void performance_panel::encode_hierarchy_recursive(const report &rep, const std::string &name_hash,
                                                    YAML::Node &node) const
 {
     std::map<float, entry, std::greater<float>> hot_path;
 
     const std::size_t child_count = std::count(name_hash.begin(), name_hash.end(), '$') + 1;
-    for (const auto &[hash, metrics] : record.cum_metrics)
+    for (const auto &[hash, metrics] : rep.avg_metrics)
     {
         const std::size_t count = std::count(hash.begin(), hash.end(), '$');
         if (count != child_count)
@@ -541,8 +533,8 @@ void performance_panel::encode_hierarchy_recursive(const recording &record, cons
         child["Relative percent over calls"] =
             std::format("{:.2f}%", entry.metrics.relative_percent_over_calls * 100.f);
         child["Total percent over calls"] = std::format("{:.2f}%", entry.metrics.total_percent_over_calls * 100.f);
-        if (!m_record.dump_hot_path_only || index++ == 0)
-            encode_hierarchy_recursive<TimeUnit, T>(record, entry.name_hash, child);
+        if (!m_report.dump_hot_path_only || index++ == 0)
+            encode_hierarchy_recursive<TimeUnit, T>(rep, entry.name_hash, child);
     }
 }
 

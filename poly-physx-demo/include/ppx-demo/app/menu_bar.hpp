@@ -9,7 +9,7 @@
 #define PPX_DEMO_LAST_SAVE_FILENAME "ppx-last.yaml"
 #define PPX_DEMO_DEFAULT_SAVE_FILENAME "ppx-default.yaml"
 
-#define PPX_DEMO_EXTENSION ".yaml"
+#define PPX_DEMO_YAML_EXTENSION ".yaml"
 
 namespace ppx::demo
 {
