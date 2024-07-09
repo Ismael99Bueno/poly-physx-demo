@@ -93,12 +93,8 @@ void collision_tab::render_imgui_tab()
         if (ImGui::Checkbox("Enabled##Contacts", &enabled))
             m_app->world.collisions.contact_solver()->enabled(enabled);
 
-        ImGui::Text("Contact lifetime: %.2f", m_app->world.collisions.contact_solver()->contact_lifetime());
-        ImGui::SliderFloat("Base contact lifetime", &m_app->world.collisions.contact_solver()->params.base_lifetime,
-                           0.f, 1.f, "%.2f");
-        ImGui::SliderFloat("Per contact lifetime reduction",
-                           &m_app->world.collisions.contact_solver()->params.per_contact_lifetime_reduction, 0.f, 1.f,
-                           "%.2f");
+        ImGui::SliderInt("Contact lifetime", (int *)&m_app->world.collisions.contact_solver()->params.contact_lifetime,
+                         1, 12);
         render_contact_solvers_list();
 
         if (m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
@@ -184,7 +180,7 @@ void collision_tab::render_collisions_and_contacts_list() const
                 ImGui::Text("Penetration: %.5f", point.penetration);
                 ImGui::Text("Restitution: %.5f", contact->restitution());
                 ImGui::Text("Friction: %.5f", contact->friction());
-                ImGui::Text("Lifetime left: %.5f", contact->life_expectancy());
+                ImGui::Text("Lifetime left: %u", contact->life_expectancy());
                 if (ImGui::TreeNode("Collider 1"))
                 {
                     m_app->actions->entities.render_single_collider_properties(contact->collider1());
