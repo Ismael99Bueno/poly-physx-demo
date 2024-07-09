@@ -1,6 +1,7 @@
 #include "ppx-demo/internal/pch.hpp"
 #include "ppx-demo/scenarios/scenarios_panel.hpp"
 #include "ppx-demo/scenarios/tumbler.hpp"
+#include "ppx-demo/scenarios/scenario_evaluator.hpp"
 
 namespace ppx::demo
 {
@@ -27,9 +28,6 @@ void scenarios_panel::on_update(const float ts)
 
 void scenarios_panel::on_render(const float ts)
 {
-    if (m_current_scenario && !m_current_scenario->stopped())
-        m_current_scenario->render();
-
     if (!window_toggle)
         return;
 
@@ -40,7 +38,7 @@ void scenarios_panel::on_render(const float ts)
 
 void scenarios_panel::render_dropdown_and_scenario_info()
 {
-    if (ImGui::Combo("Scenario", (int *)&m_sctype, "Tumbler\0\0"))
+    if (ImGui::Combo("Scenario", (int *)&m_sctype, "Tumbler\0Tumbler (performance evaluation)\0\0"))
         update_scenario_type();
     if (ImGui::Button("Start scenario"))
         m_current_scenario->start();
@@ -56,6 +54,9 @@ void scenarios_panel::update_scenario_type()
     {
     case scenario_type::TUMBLER:
         m_current_scenario = kit::make_scope<tumbler>(m_app);
+        break;
+    case scenario_type::TUMBLER_PERF:
+        m_current_scenario = kit::make_scope<scenario_evaluator<tumbler>>(m_app);
         break;
     default:
         break;

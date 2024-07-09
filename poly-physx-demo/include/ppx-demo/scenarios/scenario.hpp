@@ -14,20 +14,18 @@ class scenario : public kit::yaml::encodeable
     virtual void start();
     virtual void stop();
     virtual void update(float ts) = 0;
-    virtual void render()
-    {
-    }
-    virtual void on_imgui_window_render();
+    virtual void cleanup() = 0;
 
-    bool stopped() const;
-    virtual bool expired() const
-    {
-        return false;
-    }
+    virtual const char *name() const = 0;
+    virtual std::string format() const = 0;
+
+    virtual void on_imgui_window_render() = 0;
+
+    bool stopped() const;             // when the scenario will no longer be included in a perf report
+    virtual bool expired() const = 0; // when the scenario has finished its doings
 
   protected:
     demo_app *m_app;
     bool m_stopped = true;
-    bool m_start_performance_report = true;
 };
 } // namespace ppx::demo

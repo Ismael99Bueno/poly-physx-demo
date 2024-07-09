@@ -10,7 +10,8 @@ class scenarios_panel final : public demo_layer
 {
     enum class scenario_type
     {
-        TUMBLER
+        TUMBLER,
+        TUMBLER_PERF
     };
 
   public:

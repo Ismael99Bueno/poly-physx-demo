@@ -62,6 +62,7 @@ class performance_panel final : public demo_layer
     };
     void start_recording();
     void stop_recording();
+    void dump_report(const std::string &path) const;
 
   private:
     void on_attach() override;
@@ -75,7 +76,6 @@ class performance_panel final : public demo_layer
 
     report generate_average_report() const;
 
-    void dump_report(const std::string &path) const;
     template <typename TimeUnit, typename T>
     void dump_report(const std::string &path, const report &rep, const char *unit) const;
 

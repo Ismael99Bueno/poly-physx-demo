@@ -5,21 +5,24 @@
 
 namespace ppx::demo
 {
-class tumbler final : public scenario
+class tumbler : public scenario
 {
   public:
     using scenario::scenario;
 
-  private:
-    void start() override;
-    void update(float ts) override;
+  protected:
+    virtual void start() override;
+    virtual void update(float ts) override;
+    virtual void cleanup() override;
 
-    void on_imgui_window_render() override;
-    bool expired() const override;
+    virtual void on_imgui_window_render() override;
+    virtual bool expired() const override;
+
+    const char *name() const override;
+    std::string format() const override;
 
     body2D::specs::properties create_chamber();
     body2D::specs::properties from_actions_panel();
-    body2D::specs::properties create_capsule();
 
     YAML::Node encode() const override;
 
@@ -35,7 +38,6 @@ class tumbler final : public scenario
 
     std::uint32_t m_total_spawns = 1500;
     std::uint32_t m_body_count = 0;
-    bool m_use_body_from_action_panel = false;
 
     body2D::specs::properties m_body_props{};
     std::vector<body2D::specs> m_body_specs;

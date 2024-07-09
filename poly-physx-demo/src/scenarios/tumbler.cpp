@@ -10,13 +10,8 @@ namespace ppx::demo
 void tumbler::start()
 {
     scenario::start();
-    m_body_count = 0;
-    world2D &w = m_app->world;
-    w.bodies.clear();
-    m_body_specs.clear();
-
     const auto chamber = create_chamber();
-    m_body_props = m_use_body_from_action_panel ? from_actions_panel() : create_capsule();
+    m_body_props = from_actions_panel();
 
     const float cdx = 1.5f * m_width;
     const float cxstart = -0.5f * cdx * (m_tumblers - 1);
@@ -28,14 +23,12 @@ void tumbler::start()
     body2D::specs body_specs{};
     body_specs.props = m_body_props;
     body_specs.velocity = m_init_vel;
-    if (!m_use_body_from_action_panel)
-        body_specs.rotation = glm::half_pi<float>();
 
     for (std::uint32_t i = 0; i < m_tumblers; i++)
     {
         const float cx = cxstart + i * cdx;
         chamber_specs.position = {cx, 0.f};
-        w.bodies.add(chamber_specs);
+        m_app->world.bodies.add(chamber_specs);
 
         const float sdx = 20.f;
         const float sxstart = cx - 0.5f * sdx * (m_spawn_points - 1);
@@ -63,6 +56,25 @@ void tumbler::update(const float ts)
         m_app->world.bodies.add(specs);
 }
 
+void tumbler::cleanup()
+{
+    m_app->world.bodies.clear();
+    m_body_specs.clear();
+    m_body_count = 0;
+    m_body_specs.clear();
+}
+
+const char *tumbler::name() const
+{
+    return "tumbler";
+}
+
+std::string tumbler::format() const
+{
+    return std::format("tumblers-{}-spawns-{}-angvel-{:.1f}-w-{:.1f}-h-{:.1f}", m_tumblers, m_total_spawns,
+                       m_angular_velocity, m_width, m_height);
+}
+
 bool tumbler::expired() const
 {
     return m_body_count >= m_total_spawns;
@@ -70,14 +82,12 @@ bool tumbler::expired() const
 
 void tumbler::on_imgui_window_render()
 {
-    scenario::on_imgui_window_render();
     ImGui::SliderFloat("Addition wait time", &m_addition_wait_time, 0.f, 1.f, "%.2f");
     ImGui::SliderInt("Final bodies", (int *)&m_total_spawns, 0, 5000);
     if (m_stopped)
     {
         ImGui::SliderInt("Tumblers", (int *)&m_tumblers, 1, 10);
         ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 10);
-        ImGui::Checkbox("Use body from action panel", &m_use_body_from_action_panel);
         ImGui::SliderFloat("Angular speed", &m_angular_velocity, 0.f, 0.8f, "%.3f");
         ImGui::SliderFloat("Width", &m_width, 0.f, 500.f, "%.1f");
         ImGui::SliderFloat("Height", &m_height, 0.f, 500.f, "%.1f");
@@ -117,28 +127,6 @@ body2D::specs::properties tumbler::from_actions_panel()
     return props;
 }
 
-body2D::specs::properties tumbler::create_capsule()
-{
-    const float capsule_width = 5.f;
-    const float capsule_height = 15.f;
-
-    collider2D::specs rect{};
-    rect.props.shape = collider2D::stype::POLYGON;
-    rect.props.vertices = polygon::rect(capsule_width, capsule_height);
-
-    collider2D::specs circle1{};
-    circle1.props.shape = collider2D::stype::CIRCLE;
-    circle1.props.radius = 0.5f * capsule_width;
-    circle1.position = {0.f, 0.5f * capsule_height};
-
-    collider2D::specs circle2 = circle1;
-    circle2.position = {0.f, -0.5f * capsule_height};
-
-    body2D::specs::properties props{};
-    props.colliders.insert(props.colliders.end(), {rect, circle1, circle2});
-    return props;
-}
-
 YAML::Node tumbler::encode() const
 {
     YAML::Node node;
@@ -150,7 +138,6 @@ YAML::Node tumbler::encode() const
     node["Height"] = m_height;
     node["Addition wait time"] = m_addition_wait_time;
     node["Total spawns"] = m_total_spawns;
-    node["Use body from action panel"] = m_use_body_from_action_panel;
     node["Body properties"] = m_body_props;
     return node;
 }
