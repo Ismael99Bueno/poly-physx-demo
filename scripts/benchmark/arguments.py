@@ -1,8 +1,9 @@
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
+from collections.abc import Sequence
 
 
-def create_and_parse_args() -> Namespace:
+def create_and_parse_args(args: Sequence[str] | None = None) -> Namespace:
     parser = ArgumentParser(
         description="Generate benchmark reports from performance data",
         epilog="The output will be saved in the 'output/benchmark-reports' folder",
@@ -54,4 +55,4 @@ def create_and_parse_args() -> Namespace:
         default=False,
         help="If toggled, the -i argument will be a regex that will match trying to match folders in 'output/benchmark/data'",
     )
-    return parser.parse_args()
+    return parser.parse_args(args)

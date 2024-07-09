@@ -1,6 +1,7 @@
 from pathlib import Path
 from argparse import Namespace
 from typing import Any
+from collections.abc import Mapping
 
 from md import write_markdown_recursive
 from plots import create_plot_from_df
@@ -12,7 +13,7 @@ import markdown
 
 
 def generate_report(
-    output_folder: Path, summary, csvs: dict[Path, pd.DataFrame]
+    output_folder: Path, summary, csvs: Mapping[Path, pd.DataFrame]
 ) -> None:
     print(f"Generating report at '{output_folder}'")
 
@@ -23,7 +24,7 @@ def generate_report(
 
         content += f"\n## Benchmark plots ({time_unit})\n"
         for filename, fig in create_plot_from_df(csvs[output_folder]).items():
-            print(f"    Writing '{filename}' plot")
+            print(f"    Writing '{filename}' plot to '{output_folder}'")
             fig.write_html(output_folder / f"{filename}.html")
             fig.write_image(output_folder / f"{filename}.png")
             content += f"![{filename}](./{filename}.png)\n"
@@ -37,21 +38,21 @@ def generate_report(
 
 
 def generate_combined_report(
-    summaries: dict[Path, Any], csvs: dict[Path, pd.DataFrame], args: Namespace
+    summaries: Mapping[str, Any], csvs: Mapping[str, pd.DataFrame], args: Namespace
 ) -> None:
-    print("Generating combine report")
+    print("Generating combined report")
     big_summary: dict[str, Any] = {}
     plots: dict[str, go.Figure] = {}
 
     plotly_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
     cindex = 0
-    for output_folder, summary in summaries.items():
-        big_summary[output_folder.name] = summary
-        if output_folder in csvs:
+    for name, summary in summaries.items():
+        big_summary[name] = summary
+        if name in csvs:
             for title, fig in create_plot_from_df(
-                csvs[output_folder],
+                csvs[name],
                 color=plotly_colors[cindex],
-                name=output_folder.name,
+                name=name,
             ).items():
                 if title not in plots:
                     plots[title] = fig
@@ -63,7 +64,7 @@ def generate_combined_report(
     content = write_markdown_recursive(big_summary)
 
     def write_figures(filename: str, fig: go.Figure) -> None:
-        print(f"    Writing '{filename}' plot")
+        print(f"    Writing '{filename}' plot to '{args.output}'")
         fig.write_html(args.output / f"{filename}.html")
         fig.write_image(args.output / f"{filename}.png")
 

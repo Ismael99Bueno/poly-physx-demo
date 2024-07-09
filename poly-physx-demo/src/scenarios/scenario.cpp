@@ -29,7 +29,7 @@ void scenario::on_imgui_window_render()
         ImGui::Checkbox("Run performance report on start", &m_start_performance_report);
 }
 
-bool scenario::expired() const
+bool scenario::stopped() const
 {
     return m_stopped;
 }

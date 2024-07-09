@@ -19,7 +19,11 @@ class scenario : public kit::yaml::encodeable
     }
     virtual void on_imgui_window_render();
 
-    bool expired() const;
+    bool stopped() const;
+    virtual bool expired() const
+    {
+        return false;
+    }
 
   protected:
     demo_app *m_app;

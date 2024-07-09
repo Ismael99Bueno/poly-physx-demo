@@ -394,7 +394,7 @@ performance_panel::report performance_panel::generate_average_report() const
     return record;
 }
 
-void performance_panel::dump_report(const std::string &foldername) const
+void performance_panel::dump_report(const std::string &path) const
 {
     if (m_report.frame_count == 0)
         return;
@@ -403,16 +403,16 @@ void performance_panel::dump_report(const std::string &foldername) const
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        dump_report<kit::perf::time::nanoseconds, long long>(foldername, record, "Nanoseconds");
+        dump_report<kit::perf::time::nanoseconds, long long>(path, record, "Nanoseconds");
         break;
     case time_unit::MICROSECONDS:
-        dump_report<kit::perf::time::microseconds, long long>(foldername, record, "Microseconds");
+        dump_report<kit::perf::time::microseconds, long long>(path, record, "Microseconds");
         break;
     case time_unit::MILLISECONDS:
-        dump_report<kit::perf::time::milliseconds, long>(foldername, record, "Milliseconds");
+        dump_report<kit::perf::time::milliseconds, long>(path, record, "Milliseconds");
         break;
     case time_unit::SECONDS:
-        dump_report<kit::perf::time::seconds, float>(foldername, record, "Seconds");
+        dump_report<kit::perf::time::seconds, float>(path, record, "Seconds");
         break;
     default:
         break;
@@ -420,7 +420,7 @@ void performance_panel::dump_report(const std::string &foldername) const
 }
 
 template <typename TimeUnit, typename T>
-void performance_panel::dump_report(const std::string &foldername, const report &rep, const char *unit) const
+void performance_panel::dump_report(const std::string &path, const report &rep, const char *unit) const
 {
     YAML::Node node;
     node["Date"] = std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
@@ -435,7 +435,7 @@ void performance_panel::dump_report(const std::string &foldername, const report 
     settings["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
     settings["Constraint settings"] = m_app->world.joints.constraints.params;
     const scenario *sc = m_app->scenarios->current_scenario();
-    if (sc && !sc->expired())
+    if (sc && !sc->stopped())
         node["Active scenario"] = *sc;
 
     if (m_app->world.islands.enabled())
@@ -451,7 +451,7 @@ void performance_panel::dump_report(const std::string &foldername, const report 
     encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark/data/" + foldername);
+    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark/data/" + path);
     if (!std::filesystem::exists(folder))
         std::filesystem::create_directories(folder);
 

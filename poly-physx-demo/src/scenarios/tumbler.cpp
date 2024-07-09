@@ -63,6 +63,11 @@ void tumbler::update(const float ts)
         m_app->world.bodies.add(specs);
 }
 
+bool tumbler::expired() const
+{
+    return m_body_count >= m_total_spawns;
+}
+
 void tumbler::on_imgui_window_render()
 {
     scenario::on_imgui_window_render();

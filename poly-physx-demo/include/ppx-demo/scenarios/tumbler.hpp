@@ -15,6 +15,7 @@ class tumbler final : public scenario
     void update(float ts) override;
 
     void on_imgui_window_render() override;
+    bool expired() const override;
 
     body2D::specs::properties create_chamber();
     body2D::specs::properties from_actions_panel();

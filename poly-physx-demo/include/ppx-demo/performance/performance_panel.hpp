@@ -75,9 +75,9 @@ class performance_panel final : public demo_layer
 
     report generate_average_report() const;
 
-    void dump_report(const std::string &foldername) const;
+    void dump_report(const std::string &path) const;
     template <typename TimeUnit, typename T>
-    void dump_report(const std::string &foldername, const report &rep, const char *unit) const;
+    void dump_report(const std::string &path, const report &rep, const char *unit) const;
 
     template <typename TimeUnit, typename T>
     YAML::Node encode_summary_report(const report &rep, const char *unit) const;

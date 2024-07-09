@@ -21,13 +21,13 @@ void scenarios_panel::on_attach()
 
 void scenarios_panel::on_update(const float ts)
 {
-    if (m_current_scenario && !m_current_scenario->expired())
+    if (m_current_scenario && !m_current_scenario->stopped())
         m_current_scenario->update(ts);
 }
 
 void scenarios_panel::on_render(const float ts)
 {
-    if (m_current_scenario && !m_current_scenario->expired())
+    if (m_current_scenario && !m_current_scenario->stopped())
         m_current_scenario->render();
 
     if (!window_toggle)
@@ -44,7 +44,7 @@ void scenarios_panel::render_dropdown_and_scenario_info()
         update_scenario_type();
     if (ImGui::Button("Start scenario"))
         m_current_scenario->start();
-    if (!m_current_scenario->expired() && ImGui::Button("Stop scenario"))
+    if (!m_current_scenario->stopped() && ImGui::Button("Stop scenario"))
         m_current_scenario->stop();
 
     m_current_scenario->on_imgui_window_render();
