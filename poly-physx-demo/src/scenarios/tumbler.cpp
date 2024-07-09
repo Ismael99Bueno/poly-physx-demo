@@ -71,7 +71,7 @@ const char *tumbler::name() const
 
 std::string tumbler::format() const
 {
-    return std::format("tumblers-{}-spawns-{}-angvel-{:.1f}-w-{:.1f}-h-{:.1f}", m_tumblers, m_total_spawns,
+    return std::format("tumblers-{}-spawns-{}-angvel-{:.1f}-w-{:.0f}-h-{:.0f}", m_tumblers, m_total_spawns,
                        m_angular_velocity, m_width, m_height);
 }
 

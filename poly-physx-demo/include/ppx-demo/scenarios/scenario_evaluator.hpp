@@ -32,7 +32,7 @@ template <Scenario T> class scenario_evaluator final : public T
     }
     void update(float ts) override
     {
-        if (!T::expired())
+        if (!T::expired() && !m_stabilizing)
         {
             T::update(ts);
             return;
@@ -52,7 +52,7 @@ template <Scenario T> class scenario_evaluator final : public T
         {
             if (!cycle())
             {
-                stop();
+                this->stop();
                 return;
             }
             m_stabilizing = false;
@@ -67,48 +67,63 @@ template <Scenario T> class scenario_evaluator final : public T
     void on_imgui_window_render() override
     {
         if (!this->m_stopped)
-            ImGui::Text("Cycle: %u/4", m_cycle_index + 1);
-        T::on_imgui_window_render();
-        if (this->m_stopped)
+        {
+            ImGui::Text("Cycle: %u/6", m_cycle_index);
+            if (!T::expired() && !m_stabilizing)
+                ImGui::Text("Running with: %s", m_run_info);
+
+            if (m_latent && T::expired())
+                ImGui::Text("Waiting a bit to record more data... (%.1f/%.1f seconds)", m_timer, m_latent_time);
+            if (m_stabilizing)
+                ImGui::Text("Stabilizing... (%.1f/%.1f seconds)", m_timer, m_stabilization_time);
+        }
+        else
         {
             ImGui::SliderFloat("Stabilization time", &m_stabilization_time, 0.5f, 5.f, "%.1f");
             ImGui::SliderFloat("Latent time", &m_latent_time, 0.5f, 20.f, "%.1f");
+            T::on_imgui_window_render();
         }
     }
     bool cycle()
     {
         world2D &world = this->m_app->world;
-        switch (m_cycle_index)
+        switch (m_cycle_index++)
         {
         case 0:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(true);
             m_run_name = "qt-isl";
+            m_run_info = "Quad tree broad phase with island detection";
             return true;
         case 1:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(false);
             m_run_name = "qt-nisl";
+            m_run_info = "Quad tree broad phase without island detection";
             return true;
         case 2:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(true);
             m_run_name = "ss-isl";
+            m_run_info = "Sort and sweep broad phase with island detection";
             return true;
         case 3:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(false);
             m_run_name = "ss-nisl";
+            m_run_info = "Sort and sweep broad phase without island detection";
             return true;
         case 4:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(true);
             m_run_name = "bf-isl";
+            m_run_info = "Brute force broad phase with island detection";
             return true;
         case 5:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(false);
             m_run_name = "bf-nisl";
+            m_run_info = "Brute force broad phase without island detection";
             return true;
         default:
             return false;
@@ -117,6 +132,7 @@ template <Scenario T> class scenario_evaluator final : public T
 
     std::uint32_t m_cycle_index = 0;
     const char *m_run_name = nullptr;
+    const char *m_run_info = nullptr;
 
     float m_stabilization_time = 1.5f; // wait time between cycles, with simulation cleaned up
     float m_latent_time = 10.f;        // wait time between cycles, with scenario still active but expired
