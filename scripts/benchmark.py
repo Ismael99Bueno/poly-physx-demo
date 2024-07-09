@@ -97,13 +97,14 @@ def generate_report(data: tuple[Path, Any], csvs: dict[Path, pd.DataFrame]) -> N
     output_folder, summary = data
     print(f"Generating report for '{output_folder}'")
 
+    summary = {output_folder.name: summary}
     content = write_markdown_recursive(summary)
     if output_folder in csvs:
-        time_unit = summary["Performance summary"]["Unit"]
+        time_unit = summary[output_folder.name]["Performance summary"]["Unit"]
 
         content += f"\n## Benchmark plots ({time_unit})\n"
         for filename, fig in create_plot_from_df(csvs[output_folder]).items():
-            print(f"    Writing '{filename}' plots")
+            print(f"    Writing '{filename}' plot")
             fig.write_html(output_folder / f"{filename}.html")
             fig.write_image(output_folder / f"{filename}.png")
             content += f"![{filename}](./{filename}.png)\n"
@@ -144,7 +145,7 @@ def generate_combined_report(
 
     def write_figures(data: tuple[str, go.Figure]) -> None:
         filename, fig = data
-        print(f"    Writing '{filename}' plots")
+        print(f"    Writing '{filename}' plot")
         fig.write_html(args.output / f"{filename}.html")
         fig.write_image(args.output / f"{filename}.png")
 
