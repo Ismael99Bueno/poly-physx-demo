@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from utility.buddy import Buddy
 
 
-def build_and_retrieve_arguments() -> tuple[str, bool]:
+def create_and_parse_args() -> tuple[str, bool]:
     bud = Buddy()
 
     parser = ArgumentParser(

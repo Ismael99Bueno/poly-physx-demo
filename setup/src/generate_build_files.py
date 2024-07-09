@@ -3,7 +3,7 @@ from validation.python_validation import validate_python_version
 validate_python_version()
 
 from pathlib import Path
-from utility.arguments import build_and_retrieve_arguments
+from utility.arguments import create_and_parse_args
 from utility.buddy import Buddy
 from validation.exceptions import GeneratorNotSupportedError
 
@@ -71,7 +71,7 @@ def clean(generator: str) -> None:
 
 
 def main() -> None:
-    generator, cleanse = build_and_retrieve_arguments()
+    generator, cleanse = create_and_parse_args()
     if cleanse:
         clean(generator)
     else:
