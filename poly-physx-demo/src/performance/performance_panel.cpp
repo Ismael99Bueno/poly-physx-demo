@@ -74,7 +74,7 @@ void performance_panel::on_render(const float ts)
             ImGui::Checkbox("Dump hot path only", &m_report.dump_hot_path_only);
 #endif
             ImGui::Checkbox("Append datetime", &m_report.append_datetime);
-            ImGui::Text("Report will be written to output/benchmark-data/ (relative to the project root)");
+            ImGui::Text("Report will be written to output/benchmark/data (relative to the project's root)");
 
             static char buffer[24] = "\0";
             if (ImGui::InputTextWithHint("Dump performance report", "Report name", buffer, 24,
@@ -451,7 +451,7 @@ void performance_panel::dump_report(const std::string &foldername, const report 
     encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark-data/" + foldername);
+    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark/data/" + foldername);
     if (!std::filesystem::exists(folder))
         std::filesystem::create_directories(folder);
 
