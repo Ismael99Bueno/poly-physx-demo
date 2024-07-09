@@ -10,11 +10,28 @@ import multiprocess as mp
 import yaml
 import shutil
 import functools
+import re
 
 
 def main() -> None:
     t1 = perf_counter()
     args = create_and_parse_args()
+    if not args.regex:
+        input_paths = args.input
+    else:
+        folder = Path("output/benchmark/data")
+        regex = args.input
+        input_paths = []
+        for f in folder.rglob("*"):
+            if f.is_dir() or f.name.startswith("."):
+                continue
+            if any([re.match(str(rx), f.parent.name) for rx in regex]):
+                input_paths.append(f.parent)
+
+        if len(input_paths) == 0:
+            raise FileNotFoundError(
+                f"No folders in '{folder}' match the regex '{args.regex}'"
+            )
 
     output_path: Path = args.output.resolve()
     if args.combine:
@@ -30,7 +47,7 @@ def main() -> None:
 
     csvs: dict[Path, pd.DataFrame] = {}
     summaries: dict[Path, Any] = {}
-    for input_path in args.input:
+    for input_path in input_paths:
         input_path: Path = input_path.resolve()
         if not input_path.is_dir():
             raise NotADirectoryError(f"Input path '{input_path}' is not a directory")

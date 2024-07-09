@@ -46,4 +46,12 @@ def create_and_parse_args() -> Namespace:
         default=False,
         help="Combine all reports into a single ffile",
     )
+    parser.add_argument(
+        "-rx",
+        "--regex",
+        dest="regex",
+        action="store_true",
+        default=False,
+        help="If toggled, the -i argument will be a regex that will match trying to match folders in 'output/benchmark/data'",
+    )
     return parser.parse_args()
