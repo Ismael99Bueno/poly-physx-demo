@@ -27,6 +27,14 @@ template <Scenario T> class scenario_evaluator final : public T
         m_timer = 0.f;
         m_stabilizing = false;
         m_latent = true;
+
+        const std::string &bfolder = this->m_app->performance->benchmark_data_folder();
+        do
+        {
+            m_scenario_report_path =
+                this->name() + ("/" + this->format() + "-id-" + std::to_string(m_scenario_report_id++) + "/");
+        } while (std::filesystem::exists(bfolder + m_scenario_report_path));
+
         this->m_app->performance->start_recording();
         cycle();
     }
@@ -44,7 +52,8 @@ template <Scenario T> class scenario_evaluator final : public T
             m_stabilizing = true;
             m_timer = 0.f;
             this->m_app->performance->stop_recording();
-            const std::string path = this->name() + ("/" + this->format() + "/") + m_run_name;
+
+            const std::string path = m_scenario_report_path + m_run_name;
             this->m_app->performance->dump_report(path);
             this->cleanup();
         }
@@ -93,37 +102,37 @@ template <Scenario T> class scenario_evaluator final : public T
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(true);
             m_run_name = "qt-isl";
-            m_run_info = "Quad tree broad phase with island detection";
+            m_run_info = "Quad tree broad phase with islands";
             return true;
         case 1:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(false);
             m_run_name = "qt-nisl";
-            m_run_info = "Quad tree broad phase without island detection";
+            m_run_info = "Quad tree broad phase without islands";
             return true;
         case 2:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(true);
             m_run_name = "ss-isl";
-            m_run_info = "Sort and sweep broad phase with island detection";
+            m_run_info = "Sort and sweep broad phase with islands";
             return true;
         case 3:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(false);
             m_run_name = "ss-nisl";
-            m_run_info = "Sort and sweep broad phase without island detection";
+            m_run_info = "Sort and sweep broad phase without islands";
             return true;
         case 4:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(true);
             m_run_name = "bf-isl";
-            m_run_info = "Brute force broad phase with island detection";
+            m_run_info = "Brute force broad phase with islands";
             return true;
         case 5:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(false);
             m_run_name = "bf-nisl";
-            m_run_info = "Brute force broad phase without island detection";
+            m_run_info = "Brute force broad phase without islands";
             return true;
         default:
             return false;
@@ -131,6 +140,9 @@ template <Scenario T> class scenario_evaluator final : public T
     }
 
     std::uint32_t m_cycle_index = 0;
+    std::uint32_t m_scenario_report_id = 0;
+    std::string m_scenario_report_path;
+
     const char *m_run_name = nullptr;
     const char *m_run_info = nullptr;
 

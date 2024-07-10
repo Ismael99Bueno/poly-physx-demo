@@ -394,7 +394,7 @@ performance_panel::report performance_panel::generate_average_report() const
     return record;
 }
 
-void performance_panel::dump_report(const std::string &path) const
+void performance_panel::dump_report(const std::string &relpath) const
 {
     if (m_report.frame_count == 0)
         return;
@@ -403,24 +403,29 @@ void performance_panel::dump_report(const std::string &path) const
     switch (m_time_unit)
     {
     case time_unit::NANOSECONDS:
-        dump_report<kit::perf::time::nanoseconds, long long>(path, record, "Nanoseconds");
+        dump_report<kit::perf::time::nanoseconds, long long>(relpath, record, "Nanoseconds");
         break;
     case time_unit::MICROSECONDS:
-        dump_report<kit::perf::time::microseconds, long long>(path, record, "Microseconds");
+        dump_report<kit::perf::time::microseconds, long long>(relpath, record, "Microseconds");
         break;
     case time_unit::MILLISECONDS:
-        dump_report<kit::perf::time::milliseconds, long>(path, record, "Milliseconds");
+        dump_report<kit::perf::time::milliseconds, long>(relpath, record, "Milliseconds");
         break;
     case time_unit::SECONDS:
-        dump_report<kit::perf::time::seconds, float>(path, record, "Seconds");
+        dump_report<kit::perf::time::seconds, float>(relpath, record, "Seconds");
         break;
     default:
         break;
     }
 }
 
+const std::string &performance_panel::benchmark_data_folder() const
+{
+    return m_benchmark_data_folder;
+}
+
 template <typename TimeUnit, typename T>
-void performance_panel::dump_report(const std::string &path, const report &rep, const char *unit) const
+void performance_panel::dump_report(const std::string &relpath, const report &rep, const char *unit) const
 {
     YAML::Node node;
     node["Date"] = std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
@@ -451,19 +456,19 @@ void performance_panel::dump_report(const std::string &path, const report &rep, 
     encode_hierarchy_recursive<TimeUnit, T>(rep, head.name_hash(), hierarchy);
 #endif
 
-    const std::string folder = PPX_DEMO_ROOT_PATH + ("output/benchmark/data/" + path);
-    if (!std::filesystem::exists(folder))
-        std::filesystem::create_directories(folder);
+    const std::string path = m_benchmark_data_folder + relpath;
+    if (!std::filesystem::exists(path))
+        std::filesystem::create_directories(path);
 
     YAML::Emitter out;
     out << node;
 
-    std::ofstream summary_file{(folder + "/summary") + PPX_DEMO_YAML_EXTENSION};
+    std::ofstream summary_file{(path + "/summary") + PPX_DEMO_YAML_EXTENSION};
     summary_file << out.c_str();
     if (!rep.include_per_frame_data)
         return;
 
-    std::ofstream per_frame_file{folder + "/per-frame-data.csv"};
+    std::ofstream per_frame_file{path + "/per-frame-data.csv"};
     per_frame_file << "Timestep,Frame time,Update time,Render time,Physics time,Bodies,Colliders,Joints,Collisions,"
                       "Total contacts,Active contacts,Total collision checks,Positive collision checks\n";
     for (const auto &entry : *rep.entries)

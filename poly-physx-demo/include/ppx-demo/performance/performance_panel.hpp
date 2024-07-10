@@ -62,7 +62,9 @@ class performance_panel final : public demo_layer
     };
     void start_recording();
     void stop_recording();
-    void dump_report(const std::string &path) const;
+    void dump_report(const std::string &relpath) const;
+
+    const std::string &benchmark_data_folder() const;
 
   private:
     void on_attach() override;
@@ -77,7 +79,7 @@ class performance_panel final : public demo_layer
     report generate_average_report() const;
 
     template <typename TimeUnit, typename T>
-    void dump_report(const std::string &path, const report &rep, const char *unit) const;
+    void dump_report(const std::string &relpath, const report &rep, const char *unit) const;
 
     template <typename TimeUnit, typename T>
     YAML::Node encode_summary_report(const report &rep, const char *unit) const;
@@ -112,6 +114,7 @@ class performance_panel final : public demo_layer
     std::uint32_t m_fps_cap = 60;
 
     report m_report;
+    std::string m_benchmark_data_folder = std::string(PPX_DEMO_ROOT_PATH) + "output/benchmark/data/";
 
     std::array<kit::perf::time, 4> m_raw_time_measurements;
     std::array<kit::perf::time, 4> m_time_measurements;
