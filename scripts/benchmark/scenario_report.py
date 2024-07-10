@@ -54,6 +54,8 @@ def main() -> None:
                 common_cycles[ccycle_relpath].append(cycle)
 
     for ccycle_relpath, folders in common_cycles.items():
+        if len(folders) == 1:
+            continue
         genargs = common_args.copy()
         genargs.extend(
             [
