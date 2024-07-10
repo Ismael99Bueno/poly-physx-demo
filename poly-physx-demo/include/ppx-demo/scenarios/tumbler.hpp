@@ -37,7 +37,7 @@ class tumbler : public scenario
     std::uint32_t m_spawn_points = 1;
 
     std::uint32_t m_total_spawns = 1500;
-    std::uint32_t m_body_count = 0;
+    std::size_t m_body_count = 0;
 
     body2D::specs::properties m_body_props{};
     std::vector<body2D::specs> m_body_specs;
