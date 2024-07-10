@@ -65,7 +65,6 @@ def main(args: Sequence[str] | None = None) -> None:
                     shutil.rmtree(key)
                 elif key.exists() and not args.combine:
                     continue
-                key.mkdir(parents=True, exist_ok=True)
 
             if f.suffix == ".csv":
                 data = pd.read_csv(f.absolute())

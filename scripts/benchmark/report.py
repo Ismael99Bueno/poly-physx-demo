@@ -20,6 +20,7 @@ def generate_report(
     summary = {output_folder.name: summary}
     content = write_markdown_recursive(summary)
     if output_folder in csvs:
+        output_folder.mkdir(parents=True, exist_ok=True)
         time_unit = summary[output_folder.name]["Performance summary"]["Unit"]
 
         content += f"\n## Benchmark plots ({time_unit})\n"
