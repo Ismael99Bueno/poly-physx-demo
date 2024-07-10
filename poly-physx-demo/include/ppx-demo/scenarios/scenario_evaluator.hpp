@@ -78,7 +78,7 @@ template <Scenario T> class scenario_evaluator final : public T
         if (!this->m_stopped)
         {
             ImGui::Text("Cycle: %u/6", m_cycle_index);
-            if (!T::expired() && !m_stabilizing)
+            if (!m_stabilizing)
                 ImGui::Text("Running with: %s", m_run_info);
 
             if (m_latent && T::expired())
