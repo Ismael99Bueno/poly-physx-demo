@@ -35,8 +35,10 @@ template <Scenario T> class scenario_evaluator final : public T
             for (const auto &entry : std::filesystem::directory_iterator(scenario_folder))
                 if (entry.is_directory())
                     scenario_report_index++;
+
+        const std::string run_name = m_run_name.empty() ? "" : "-" + m_run_name;
         m_scenario_report_path =
-            this->name() + ("/" + std::to_string(scenario_report_index) + "-" + this->format() + "/");
+            this->name() + ("/" + std::to_string(scenario_report_index) + run_name + "-" + this->format() + "/");
 
         this->m_app->performance->start_recording();
         cycle();
@@ -91,6 +93,12 @@ template <Scenario T> class scenario_evaluator final : public T
         }
         else
         {
+            static char buffer[24] = "\0";
+            if (ImGui::InputTextWithHint("##Run name", "Run name (optional)", buffer, 24))
+            {
+                m_run_name = buffer;
+                std::replace(m_run_name.begin(), m_run_name.end(), ' ', '-');
+            }
             ImGui::SliderFloat("Stabilization time", &m_stabilization_time, 0.5f, 5.f, "%.1f");
             ImGui::SliderFloat("Latent time", &m_latent_time, 0.5f, 20.f, "%.1f");
             T::on_imgui_window_render();
@@ -144,6 +152,7 @@ template <Scenario T> class scenario_evaluator final : public T
 
     std::uint32_t m_cycle_index = 0;
     std::string m_scenario_report_path;
+    std::string m_run_name;
 
     const char *m_run_name = nullptr;
     const char *m_run_info = nullptr;

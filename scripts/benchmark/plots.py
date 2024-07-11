@@ -15,7 +15,7 @@ def create_plot_from_df(
 
     titles = [f"{yaxis} VS {x}" for x in xaxis]
 
-    marker = dict(color=color) if color is not None else None
+    marker = {"color": color, "size": 3} if color is not None else None
     plots = {
         title.lower().replace(" ", "-"): go.Figure(
             data=[
@@ -27,16 +27,30 @@ def create_plot_from_df(
         )
         for title, x in zip(titles, xaxis)
     }
-    plots["bodies-vs-total-contacts"] = go.Figure(
+    plots["total-collisions-vs-positive-collisions"] = go.Figure(
         data=[
             go.Scatter(
-                x=df["Total contacts"],
-                y=df["Bodies"],
+                x=df["Positive collision checks"],
+                y=df["Total collision checks"],
                 mode="markers",
                 marker=marker,
                 name=name,
             )
         ],
-        layout_title="Bodies VS Total contacts",
+        layout_title="Total collisions VS Positive collisions",
+    )
+    for k in plots:
+        plots[k].update_layout(yaxis={"type": "log"})
+    plots["total-contacts-vs-bodies"] = go.Figure(
+        data=[
+            go.Scatter(
+                x=df["Bodies"],
+                y=df["Total contacts"],
+                mode="markers",
+                marker=marker,
+                name=name,
+            )
+        ],
+        layout_title="Total contacts VS Bodies",
     )
     return plots
