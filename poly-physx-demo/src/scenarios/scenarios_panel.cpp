@@ -142,6 +142,7 @@ YAML::Node scenarios_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
 
+    node["Auto stop"] = m_auto_stop;
     node["Current scenario"] = *m_current_scenario;
     node["Current scenario"]["ID"] = (int)m_sctype;
 
@@ -161,6 +162,7 @@ bool scenarios_panel::decode(const YAML::Node &node)
     if (!demo_layer::decode(node))
         return false;
 
+    m_auto_stop = node["Auto stop"].as<bool>();
     m_sctype = (scenario_type)node["Current scenario"]["ID"].as<int>();
     m_current_scenario = create_scenario_from_type(m_sctype);
     node["Current scenario"].as<scenario>(*m_current_scenario);
