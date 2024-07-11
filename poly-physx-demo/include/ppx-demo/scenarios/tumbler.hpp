@@ -31,6 +31,7 @@ class tumbler : public scenario
     float m_height = 500.f;
     float m_addition_wait_time = 0.06f;
     float m_addition_timer = 0.f;
+    float m_spawn_height = 80.f;
 
     glm::vec2 m_init_vel = {0.f, -200.f};
     std::uint32_t m_tumblers = 1;
