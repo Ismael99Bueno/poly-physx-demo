@@ -5,7 +5,7 @@
 namespace ppx::demo
 {
 class demo_app;
-class scenario : public kit::yaml::encodeable
+class scenario : public kit::yaml::codecable
 {
   public:
     scenario(demo_app *app);

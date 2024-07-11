@@ -25,6 +25,7 @@ class tumbler : public scenario
     body2D::specs::properties from_actions_panel();
 
     YAML::Node encode() const override;
+    bool decode(const YAML::Node &node) override;
 
     float m_angular_velocity = 0.2f;
     float m_width = 500.f;

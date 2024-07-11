@@ -150,6 +150,28 @@ template <Scenario T> class scenario_evaluator final : public T
         }
     }
 
+    bool expired() const override
+    {
+        return m_cycle_index >= 6;
+    }
+
+    YAML::Node encode() const override
+    {
+        YAML::Node node = T::encode();
+        node["Run name"] = m_run_name;
+        node["Stabilization time"] = m_stabilization_time;
+        node["Latent time"] = m_latent_time;
+        return node;
+    }
+
+    bool decode(const YAML::Node &node) override
+    {
+        m_run_name = node["Run name"].as<std::string>();
+        m_stabilization_time = node["Stabilization time"].as<float>();
+        m_latent_time = node["Latent time"].as<float>();
+        return true;
+    }
+
     std::uint32_t m_cycle_index = 0;
     std::string m_scenario_report_path;
     std::string m_run_name;

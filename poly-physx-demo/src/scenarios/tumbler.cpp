@@ -142,4 +142,17 @@ YAML::Node tumbler::encode() const
     return node;
 }
 
+bool tumbler::decode(const YAML::Node &node)
+{
+    m_tumblers = node["Tumblers"].as<std::uint32_t>();
+    m_spawn_points = node["Spawn points"].as<std::uint32_t>();
+    m_angular_velocity = node["Angular velocity"].as<float>();
+    m_width = node["Width"].as<float>();
+    m_height = node["Height"].as<float>();
+    m_addition_wait_time = node["Addition wait time"].as<float>();
+    m_total_spawns = node["Total spawns"].as<std::uint32_t>();
+    m_body_props = node["Body properties"].as<body2D::specs::properties>();
+    return true;
+}
+
 } // namespace ppx::demo
