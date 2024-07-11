@@ -53,6 +53,8 @@ void tumbler::update(const float ts)
 
     for (const auto &specs : m_body_specs)
         m_app->world.bodies.add(specs);
+    if (m_body_count > m_total_spawns)
+        m_body_count = m_total_spawns;
 }
 
 void tumbler::cleanup()

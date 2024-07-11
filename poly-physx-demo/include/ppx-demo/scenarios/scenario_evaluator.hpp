@@ -84,12 +84,10 @@ template <Scenario T> class scenario_evaluator final : public T
         {
             if (!m_run_name.empty())
                 ImGui::Text("Run: %s", m_run_name.c_str());
-
-            const std::string cycle_status = std::format("Cycle: {}/6", m_cycle_index);
-            ImGui::ProgressBar((float)m_cycle_index / 6.f, ImVec2(0.f, 0.f), cycle_status.c_str());
-
             if (!m_stabilizing)
                 ImGui::Text("Running with: %s", m_cycle_info);
+            const std::string cycle_status = std::format("Cycle: {}/6", m_cycle_index);
+            ImGui::ProgressBar((float)m_cycle_index / 6.f, ImVec2(0.f, 0.f), cycle_status.c_str());
 
             if (m_latent && T::expired())
             {
@@ -117,7 +115,8 @@ template <Scenario T> class scenario_evaluator final : public T
             ImGui::SliderFloat("Stabilization time", &m_stabilization_time, 0.5f, 5.f, "%.1f");
             ImGui::SliderFloat("Latent time", &m_latent_time, 0.5f, 20.f, "%.1f");
         }
-        T::on_imgui_window_render();
+        if (!m_stabilizing)
+            T::on_imgui_window_render();
     }
     bool cycle()
     {
