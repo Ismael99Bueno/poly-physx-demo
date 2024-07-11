@@ -151,6 +151,7 @@ YAML::Node tumbler::encode() const
     node["Addition wait time"] = m_addition_wait_time;
     node["Total spawns"] = m_total_spawns;
     node["Body properties"] = m_body_props;
+    node["Spawn height"] = m_spawn_height;
     return node;
 }
 
@@ -164,6 +165,7 @@ bool tumbler::decode(const YAML::Node &node)
     m_addition_wait_time = node["Addition wait time"].as<float>();
     m_total_spawns = node["Total spawns"].as<std::uint32_t>();
     m_body_props = node["Body properties"].as<body2D::specs::properties>();
+    m_spawn_height = node["Spawn height"].as<float>();
     return true;
 }
 
