@@ -34,7 +34,10 @@ class scenarios_panel final : public demo_layer
     kit::scope<scenario> m_current_scenario = nullptr;
     std::vector<std::pair<scenario_type, kit::scope<scenario>>> m_queued_scenarios;
     scenario_type m_sctype = scenario_type::TUMBLER;
+
+    std::size_t m_initial_queue_size = 0;
     bool m_was_running = false;
     bool m_auto_stop = true;
+    bool m_render_queue_progress = false;
 };
 } // namespace ppx::demo

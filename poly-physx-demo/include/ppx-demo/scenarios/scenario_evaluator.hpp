@@ -91,17 +91,13 @@ template <Scenario T> class scenario_evaluator final : public T
 
             if (m_latent && T::expired())
             {
-                ImGui::Text("Waiting a bit to record more data...");
+                ImGui::Text("Waiting a bit to record more data... %.1f seconds", m_latent_time - m_timer);
                 ImGui::ProgressBar(m_timer / m_latent_time, ImVec2(0.f, 0.f));
-                ImGui::SameLine();
-                ImGui::Text("%.1f seconds", m_latent_time - m_timer);
             }
             if (m_stabilizing)
             {
-                ImGui::Text("Stabilizing...");
+                ImGui::Text("Stabilizing... %.1f seconds", m_stabilization_time - m_timer);
                 ImGui::ProgressBar(m_timer / m_stabilization_time, ImVec2(0.f, 0.f));
-                ImGui::SameLine();
-                ImGui::Text("%.1f seconds", m_stabilization_time - m_timer);
             }
         }
         else

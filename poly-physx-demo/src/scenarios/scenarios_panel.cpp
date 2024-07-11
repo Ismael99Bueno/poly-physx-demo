@@ -39,7 +39,10 @@ void scenarios_panel::on_update(const float ts)
         m_current_scenario->start();
     }
     else if (m_queued_scenarios.empty())
+    {
         m_was_running = false;
+        m_render_queue_progress = false;
+    }
 }
 
 static const char *scenario_names[] = {"Tumbler", "Tumbler (performance evaluation)"};
@@ -75,14 +78,24 @@ void scenarios_panel::on_render(const float ts)
 
 void scenarios_panel::render_dropdown_and_scenario_info()
 {
-    ImGui::Checkbox("Auto stop scenario when finished", &m_auto_stop);
+    if (m_render_queue_progress)
+    {
+        ImGui::Text("Queue progress");
+        ImGui::ProgressBar((float)(m_initial_queue_size - m_queued_scenarios.size()) / m_initial_queue_size,
+                           ImVec2(0.f, 0.f));
+    }
     if (ImGui::Combo("Scenario", (int *)&m_sctype, scenario_names, 2))
         m_current_scenario = create_scenario_from_type(m_sctype);
+    ImGui::Checkbox("Auto stop scenario when finished", &m_auto_stop);
     if (ImGui::Button("Add to queue"))
         m_queued_scenarios.emplace_back(m_sctype, create_copied_scenario_from_current_type());
 
     if (m_current_scenario->stopped() && ImGui::Button("Start scenario"))
+    {
         m_current_scenario->start();
+        m_render_queue_progress = !m_queued_scenarios.empty();
+        m_initial_queue_size = m_queued_scenarios.size();
+    }
     else if (!m_current_scenario->stopped() && ImGui::Button("Stop scenario"))
         m_current_scenario->stop();
 
