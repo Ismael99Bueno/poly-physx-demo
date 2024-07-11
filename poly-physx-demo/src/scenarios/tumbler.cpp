@@ -96,8 +96,12 @@ void tumbler::on_imgui_window_render()
     }
     else
     {
-        ImGui::Text("Tumbler scenario progress (%.2f seconds)",
-                    (m_total_spawns - m_body_count) * m_addition_wait_time / (m_spawn_points * m_tumblers));
+        const float time_remaining =
+            (m_total_spawns - m_body_count) * m_addition_wait_time / (m_spawn_points * m_tumblers);
+        if (time_remaining < 180.f)
+            ImGui::Text("Tumbler scenario progress (%.2f seconds)", time_remaining);
+        else
+            ImGui::Text("Tumbler scenario progress (%.2f minutes)", time_remaining / 60.f);
         ImGui::ProgressBar((float)m_body_count / m_total_spawns, ImVec2(0.f, 0.f));
     }
 }
