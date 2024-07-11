@@ -18,7 +18,8 @@ def main() -> None:
     if args.groups is not None:
         groups: dict[str, list[int]] = {}
         for group in args.groups:
-            groups[group] = [int(cycle) for cycle in group]
+            sgroup = "".join(sorted(group))
+            groups[sgroup] = [int(cycle) for cycle in sgroup]
 
     # standalone report generation
     if args.standalone:
