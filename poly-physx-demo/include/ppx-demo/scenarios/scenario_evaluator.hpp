@@ -91,12 +91,12 @@ template <Scenario T> class scenario_evaluator final : public T
 
             if (m_latent && T::expired())
             {
-                ImGui::Text("Waiting a bit to record more data... %.1f seconds", m_latent_time - m_timer);
+                ImGui::Text("Waiting a bit to record more data... (%.1f seconds)", m_latent_time - m_timer);
                 ImGui::ProgressBar(m_timer / m_latent_time, ImVec2(0.f, 0.f));
             }
             if (m_stabilizing)
             {
-                ImGui::Text("Stabilizing... %.1f seconds", m_stabilization_time - m_timer);
+                ImGui::Text("Stabilizing... (%.1f seconds)", m_stabilization_time - m_timer);
                 ImGui::ProgressBar(m_timer / m_stabilization_time, ImVec2(0.f, 0.f));
             }
         }
@@ -168,6 +168,7 @@ template <Scenario T> class scenario_evaluator final : public T
     YAML::Node encode() const override
     {
         YAML::Node node = T::encode();
+        node["Auto stop"] = m_auto_stop;
         node["Run name"] = m_run_name;
         node["Stabilization time"] = m_stabilization_time;
         node["Latent time"] = m_latent_time;
@@ -177,6 +178,7 @@ template <Scenario T> class scenario_evaluator final : public T
     bool decode(const YAML::Node &node) override
     {
         T::decode(node);
+        m_auto_stop = node["Auto stop"].as<bool>();
         m_run_name = node["Run name"].as<std::string>();
         m_stabilization_time = node["Stabilization time"].as<float>();
         m_latent_time = node["Latent time"].as<float>();
