@@ -34,7 +34,7 @@ void tumbler::start()
         for (std::uint32_t j = 0; j < m_spawn_points; j++)
         {
             const float sx = sxstart + j * sdx;
-            body_specs.position = {sx, 15.f};
+            body_specs.position = {sx, 0.4f * m_height};
             m_body_specs.push_back(body_specs);
         }
     }
