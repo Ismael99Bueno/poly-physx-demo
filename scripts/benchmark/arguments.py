@@ -22,7 +22,7 @@ def create_and_parse_generate_report_args(
         "--combine",
         action="store_true",
         default=False,
-        help="Combine all reports into a single ffile",
+        help="Combine all reports into a single file",
     )
     __add_common_arguments(parser)
 
@@ -35,12 +35,22 @@ def create_and_parse_scenario_report_args() -> Namespace:
         epilog="The output will be saved in the 'output/benchmark/reports' folder",
     )
 
+    parser.add_argument("--name", required=True, help="Name of the scenario", type=str)
     parser.add_argument(
-        "-n", "--name", required=True, help="Name of the scenario", type=str
+        "--scenario-runs",
+        type=str,
+        default=None,
+        help="Scenario runs to consider. Default is all of them",
     )
     parser.add_argument(
-        "-g",
-        "--groups",
+        "--scenario-groups",
+        nargs="+",
+        type=str,
+        default=None,
+        help="Groups of scenario runs to combine",
+    )
+    parser.add_argument(
+        "--cycle-groups",
         nargs="+",
         help="Groups of scenario cycles to combine",
         type=str,
@@ -52,20 +62,6 @@ def create_and_parse_scenario_report_args() -> Namespace:
         action="store_true",
         default=False,
         help="Generate standalone reports for each of the scenario cycles",
-    )
-    parser.add_argument(
-        "-fc",
-        "--full-combined",
-        action="store_true",
-        default=False,
-        help="Generate full combined report between cycles of the same scenario run",
-    )
-    parser.add_argument(
-        "-cc",
-        "--common-combined",
-        action="store_true",
-        default=False,
-        help="Generate combined reports between common cycles of different scenario runs",
     )
 
     __add_common_arguments(parser)
@@ -88,7 +84,7 @@ def __add_common_arguments(parser: ArgumentParser) -> None:
         default=False,
     )
     parser.add_argument(
-        "-ow",
+        "-w",
         "--overwrite",
         action="store_true",
         help="Overwrite existing report files",

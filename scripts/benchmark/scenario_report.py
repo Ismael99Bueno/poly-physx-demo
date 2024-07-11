@@ -15,82 +15,78 @@ def main() -> None:
     input_path = Path(f"output/benchmark/data/{args.name}")
     output_path: Path = args.output / args.name
 
-    if args.groups is not None:
-        groups: dict[str, list[int]] = {}
-        for group in args.groups:
+    def create_groups(groups: list[str]) -> dict[str, list[int]]:
+        parsed_groups: dict[str, list[int]] = {}
+        for group in set(groups):
             sgroup = "".join(sorted(group))
-            groups[sgroup] = [int(cycle) for cycle in sgroup]
+            parsed_groups[sgroup] = [int(g) for g in sgroup]
+        return parsed_groups
+
+    if args.scenario_groups is not None:
+        scenario_groups = create_groups(args.scenario_groups)
+
+    if args.cycle_groups is not None:
+        cycle_groups = create_groups(args.cycle_groups)
+
+    input_runs = sorted([folder for folder in input_path.glob("*") if folder.is_dir()])
+
+    if args.scenario_runs is not None:
+        scenario_runs = sorted({int(index) for index in args.scenario_runs})
+        input_runs = [input_runs[i] for i in scenario_runs]
 
     # standalone report generation
     if args.standalone:
         genargs = common_args.copy()
-
-        genargs.extend(["-i", str(input_path), "-o", str(output_path)])
+        genargs.extend(
+            [
+                "-i",
+                *[str(folder) for folder in input_path],
+                "-o",
+                *[str(output_path / folder.name) for folder in input_runs],
+            ]
+        )
         generate_report.main(genargs, verbose=False)
 
     common_args.append("-c")
-    common_cycles: dict[Path, list[str]] = {}
-    for folder in sorted(input_path.glob("*")):
-        if folder.is_file():
-            continue
+    # for every group, a dict of inputs and outputs with the cycle name as key
+    grouped_scenarios: dict[str, dict[str, tuple[list[str], str]]] = {}
+    for scindex, run_folder in enumerate(input_runs):
+        cycle_folders = sorted(
+            [folder for folder in run_folder.glob("*") if folder.is_dir()]
+        )
 
-        # full combined report between cycles
-        if args.full_combined:
-            genargs = common_args.copy()
-            genargs.extend(["-i", str(folder), "-o", str(output_path / folder.name)])
-            generate_report.main(genargs, verbose=False)
+        if args.cycle_groups is not None:
+            grouped_cycles: dict[str, list[str]] = {}
+            for cindex, cycle in enumerate(cycle_folders):
+                for group_str, group_ints in cycle_groups.items():
+                    if cindex in group_ints:
+                        grouped_cycles.setdefault(group_str, []).append(str(cycle))
+            for group_str, cycles in grouped_cycles.items():
+                genargs = common_args.copy()
+                genargs.extend(
+                    [
+                        "-i",
+                        *cycles,
+                        "-o",
+                        str(output_path / run_folder.name / group_str),
+                    ]
+                )
+                generate_report.main(genargs, verbose=False)
 
-        grouped_cycle_paths: dict[str, list[str]] = {}
-
-        crun_name = Path(folder.name.rsplit("-", 1)[0].removesuffix("-id"))
-        for cycle in sorted(folder.glob("*")):
-            if cycle.is_file():
-                continue
-
-            ccycle_relpath = crun_name / cycle.name
-            if ccycle_relpath not in common_cycles:
-                common_cycles[ccycle_relpath] = [str(cycle)]
-            else:
-                common_cycles[ccycle_relpath].append(str(cycle))
-            if args.groups is None:
-                continue
-
-            cycle_id = int(cycle.name.split("-")[0])
-            for group_str, group_ints in groups.items():
-                if cycle_id not in group_ints:
+        if args.scenario_groups is not None:
+            for group_str, group_ints in scenario_groups.items():
+                if scindex not in group_ints:
                     continue
-                if group_str not in grouped_cycle_paths:
-                    grouped_cycle_paths[group_str] = [str(cycle)]
-                else:
-                    grouped_cycle_paths[group_str].append(str(cycle))
+                for cycle in cycle_folders:
+                    grouped_scenarios.setdefault(group_str, {}).setdefault(
+                        cycle.name,
+                        ([], str(output_path / group_str / cycle.name)),
+                    )[0].append(str(cycle))
 
-        # combined report for user defined groups
-        for group_str, cycles in grouped_cycle_paths.items():
+    for cycles in grouped_scenarios.values():
+        for inputs, output in cycles.values():
             genargs = common_args.copy()
-            genargs.extend(
-                [
-                    "-i",
-                    *cycles,
-                    "-o",
-                    str(output_path / f"{folder.name}-{group_str}"),
-                ]
-            )
-            generate_report.main(genargs, verbose=False)
-
-    # combined report between common cycles in different scenario runs
-    if args.common_combined:
-        for ccycle_relpath, folders in common_cycles.items():
-            if len(folders) == 1:
-                continue
-            genargs = common_args.copy()
-            genargs.extend(
-                [
-                    "-i",
-                    *folders,
-                    "-o",
-                    str(output_path / ccycle_relpath),
-                ]
-            )
+            genargs.extend(["-i", *inputs, "-o", output])
             generate_report.main(genargs, verbose=False)
 
     print(f"Done in {perf_counter() - t1:.2f} seconds")

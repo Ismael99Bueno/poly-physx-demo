@@ -84,17 +84,17 @@ def generate_combined_report(
     cindex = 0
     common_path = os.path.commonpath(csvs.keys())
 
-    for parent, summary in summaries.items():
-        big_summary[parent.relative_to(common_path)] = summary
+    for data_folder, summary in summaries.items():
+        big_summary[data_folder.relative_to(common_path)] = summary
 
-        if parent in csvs:
+        if data_folder in csvs:
             time_unit = __short_unit(summary["Performance summary"]["Unit"])
-            shortened_name = str(parent.relative_to(common_path))
+            shortened_name = str(data_folder.relative_to(common_path))
             if len(shortened_name) > 12:
                 shortened_name = f"...{shortened_name[-9:]}"
 
             for title, fig in create_plot_from_df(
-                csvs[parent],
+                csvs[data_folder],
                 color=plotly_colors[cindex],
                 name=f"{shortened_name} ({time_unit})",
             ).items():
