@@ -28,12 +28,15 @@ template <Scenario T> class scenario_evaluator final : public T
         m_stabilizing = false;
         m_latent = true;
 
-        const std::string &bfolder = this->m_app->performance->benchmark_data_folder();
-        do
-        {
-            m_scenario_report_path =
-                this->name() + ("/" + this->format() + "-id-" + std::to_string(m_scenario_report_id++) + "/");
-        } while (std::filesystem::exists(bfolder + m_scenario_report_path));
+        const std::string scenario_folder = this->m_app->performance->benchmark_data_folder() + this->name();
+        std::uint32_t scenario_report_index = 0;
+
+        if (std::filesystem::exists(scenario_folder))
+            for (const auto &entry : std::filesystem::directory_iterator(scenario_folder))
+                if (entry.is_directory())
+                    scenario_report_index++;
+        m_scenario_report_path =
+            this->name() + ("/" + std::to_string(scenario_report_index) + "-" + this->format() + "/");
 
         this->m_app->performance->start_recording();
         cycle();
@@ -140,7 +143,6 @@ template <Scenario T> class scenario_evaluator final : public T
     }
 
     std::uint32_t m_cycle_index = 0;
-    std::uint32_t m_scenario_report_id = 0;
     std::string m_scenario_report_path;
 
     const char *m_run_name = nullptr;
