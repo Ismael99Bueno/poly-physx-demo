@@ -1,9 +1,9 @@
 Style:
   Background color: "#32292F"
-  Default collider color: "#7389AE"
-  Default joint color: "#C16E70"
-  Body selection color: "#FED766"
-  Collider selection color: "#A0CED9"
+  Default collider color: "#7389AEB4"
+  Default joint color: "#C16E70B4"
+  Body selection color: "#FED766B4"
+  Collider selection color: "#A0CED9B4"
   Quad tree color: "#E5D0CC"
   Contact color: "#252627"
   Normal color: "#F2EFE9"
