@@ -58,7 +58,7 @@ template <Scenario T> class scenario_evaluator final : public T
             m_timer = 0.f;
             this->m_app->performance->stop_recording();
 
-            const std::string path = m_scenario_report_path + m_run_name;
+            const std::string path = m_scenario_report_path + m_cycle_name;
             this->m_app->performance->dump_report(path);
             this->cleanup();
         }
@@ -84,7 +84,7 @@ template <Scenario T> class scenario_evaluator final : public T
         {
             ImGui::Text("Cycle: %u/6", m_cycle_index);
             if (!m_stabilizing)
-                ImGui::Text("Running with: %s", m_run_info);
+                ImGui::Text("Running with: %s", m_cycle_info);
 
             if (m_latent && T::expired())
                 ImGui::Text("Waiting a bit to record more data... (%.1f/%.1f seconds)", m_timer, m_latent_time);
@@ -112,38 +112,38 @@ template <Scenario T> class scenario_evaluator final : public T
         case 0:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "0-qt-isl";
-            m_run_info = "Quad tree broad phase with islands";
+            m_cycle_name = "0-qt-isl";
+            m_cycle_info = "Quad tree broad phase with islands";
             return true;
         case 1:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "1-qt-nisl";
-            m_run_info = "Quad tree broad phase without islands";
+            m_cycle_name = "1-qt-nisl";
+            m_cycle_info = "Quad tree broad phase without islands";
             return true;
         case 2:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "2-ss-isl";
-            m_run_info = "Sort and sweep broad phase with islands";
+            m_cycle_name = "2-ss-isl";
+            m_cycle_info = "Sort and sweep broad phase with islands";
             return true;
         case 3:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "3-ss-nisl";
-            m_run_info = "Sort and sweep broad phase without islands";
+            m_cycle_name = "3-ss-nisl";
+            m_cycle_info = "Sort and sweep broad phase without islands";
             return true;
         case 4:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "4-bf-isl";
-            m_run_info = "Brute force broad phase with islands";
+            m_cycle_name = "4-bf-isl";
+            m_cycle_info = "Brute force broad phase with islands";
             return true;
         case 5:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "5-bf-nisl";
-            m_run_info = "Brute force broad phase without islands";
+            m_cycle_name = "5-bf-nisl";
+            m_cycle_info = "Brute force broad phase without islands";
             return true;
         default:
             return false;
@@ -154,8 +154,8 @@ template <Scenario T> class scenario_evaluator final : public T
     std::string m_scenario_report_path;
     std::string m_run_name;
 
-    const char *m_run_name = nullptr;
-    const char *m_run_info = nullptr;
+    const char *m_cycle_name = nullptr;
+    const char *m_cycle_info = nullptr;
 
     float m_stabilization_time = 1.5f; // wait time between cycles, with simulation cleaned up
     float m_latent_time = 10.f;        // wait time between cycles, with scenario still active but expired
