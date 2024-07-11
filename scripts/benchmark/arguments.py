@@ -12,7 +12,6 @@ def create_and_parse_generate_report_args(
     parser.add_argument(
         "-i",
         "--input",
-        dest="input",
         help="Path(s) where the data to process is. Default is 'output/benchmark/data'",
         default=[Path("output/benchmark/data")],
         type=Path,
@@ -27,7 +26,7 @@ def create_and_parse_generate_report_args(
     )
     __add_common_arguments(parser)
 
-    return parser.parse_args(args)
+    return parser.parse_known_args(args)[0]
 
 
 def create_and_parse_scenario_report_args() -> Namespace:
@@ -47,6 +46,27 @@ def create_and_parse_scenario_report_args() -> Namespace:
         type=str,
         default=None,
     )
+    parser.add_argument(
+        "-s",
+        "--standalone",
+        action="store_true",
+        default=False,
+        help="Generate standalone reports for each of the scenario cycles",
+    )
+    parser.add_argument(
+        "-fc",
+        "--full-combined",
+        action="store_true",
+        default=False,
+        help="Generate full combined report between cycles of the same scenario run",
+    )
+    parser.add_argument(
+        "-cc",
+        "--common-combined",
+        action="store_true",
+        default=False,
+        help="Generate combined reports between common cycles of different scenario runs",
+    )
 
     __add_common_arguments(parser)
     return parser.parse_args()
@@ -56,7 +76,6 @@ def __add_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument(
         "-j",
         "--jobs",
-        dest="jobs",
         type=int,
         default=None,
         help="Number of jobs to run in parallel. Default is single threaded",
@@ -78,7 +97,6 @@ def __add_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument(
         "-o",
         "--output",
-        dest="output",
         help="Output folder. Default is 'output/benchmark/reports'",
         default=Path("output/benchmark/reports"),
         type=Path,

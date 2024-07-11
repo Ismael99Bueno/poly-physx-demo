@@ -9,7 +9,7 @@ def create_plot_from_df(
     yaxis = "Physics time"
     xaxis = (
         df.filter(regex="^(?!.*time).*$")
-        .drop(["APP timestep", "Physics timestep"], axis=1)
+        .drop(["APP timestep", "Physics timestep"], axis=1, errors="ignore")
         .columns
     )
 

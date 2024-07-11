@@ -474,7 +474,7 @@ void performance_panel::dump_report(const std::string &relpath, const report &re
                       "time,Bodies,Colliders,Joints,Collisions,"
                       "Total contacts,Active contacts,Total collision checks,Positive collision checks\n";
     for (const auto &entry : *rep.entries)
-        per_frame_file << entry.app_timestep << entry.physics_timestep << ','
+        per_frame_file << entry.app_timestep << ',' << entry.physics_timestep << ','
                        << entry.time_measurements[0].as<TimeUnit, T>() << ','
                        << entry.time_measurements[1].as<TimeUnit, T>() << ','
                        << entry.time_measurements[2].as<TimeUnit, T>() << ','
