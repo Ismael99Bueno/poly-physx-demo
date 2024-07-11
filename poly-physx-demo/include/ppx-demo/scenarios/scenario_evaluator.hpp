@@ -103,6 +103,8 @@ template <Scenario T> class scenario_evaluator final : public T
         else
         {
             static char buffer[24] = "\0";
+            if (buffer[0] == '\0' && !m_run_name.empty())
+                std::copy(m_run_name.begin(), m_run_name.end(), buffer);
             if (ImGui::InputTextWithHint("##Run name", "Run name (optional)", buffer, 24))
             {
                 m_run_name = buffer;
