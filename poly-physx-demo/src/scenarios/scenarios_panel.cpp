@@ -162,6 +162,7 @@ bool scenarios_panel::decode(const YAML::Node &node)
     if (!demo_layer::decode(node))
         return false;
 
+    m_queued_scenarios.clear();
     m_auto_stop = node["Auto stop"].as<bool>();
     m_sctype = (scenario_type)node["Current scenario"]["ID"].as<int>();
     m_current_scenario = create_scenario_from_type(m_sctype);
