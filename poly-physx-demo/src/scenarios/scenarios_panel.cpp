@@ -17,7 +17,7 @@ const scenario *scenarios_panel::current_scenario() const
 void scenarios_panel::on_attach()
 {
     demo_layer::on_attach();
-    update_scenario();
+    m_current_scenario = create_scenario_from_type(m_sctype);
 }
 
 void scenarios_panel::on_update(const float ts)
@@ -77,7 +77,7 @@ void scenarios_panel::render_dropdown_and_scenario_info()
 {
     ImGui::Checkbox("Auto stop scenario when finished", &m_auto_stop);
     if (ImGui::Combo("Scenario", (int *)&m_sctype, scenario_names, 2))
-        update_scenario();
+        m_current_scenario = create_scenario_from_type(m_sctype);
     if (ImGui::Button("Add to queue"))
         m_queued_scenarios.emplace_back(m_sctype, create_copied_scenario_from_current_type());
 
@@ -125,19 +125,6 @@ kit::scope<scenario> scenarios_panel::create_scenario_from_type(const scenario_t
     }
 }
 
-void scenarios_panel::update_scenario()
-{
-    switch (m_sctype)
-    {
-    case scenario_type::TUMBLER:
-        m_current_scenario = kit::make_scope<tumbler>(m_app);
-        break;
-    case scenario_type::TUMBLER_PERF:
-        m_current_scenario = kit::make_scope<scenario_evaluator<tumbler>>(m_app);
-        break;
-    }
-}
-
 YAML::Node scenarios_panel::encode() const
 {
     YAML::Node node = demo_layer::encode();
@@ -162,7 +149,7 @@ bool scenarios_panel::decode(const YAML::Node &node)
         return false;
 
     m_sctype = (scenario_type)node["Current scenario"]["ID"].as<int>();
-    update_scenario();
+    m_current_scenario = create_scenario_from_type(m_sctype);
     node["Current scenario"].as<scenario>(*m_current_scenario);
 
     if (node["Scenarios"])

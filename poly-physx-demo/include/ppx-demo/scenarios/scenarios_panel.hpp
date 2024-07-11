@@ -27,7 +27,6 @@ class scenarios_panel final : public demo_layer
     void render_dropdown_and_scenario_info();
     kit::scope<scenario> create_copied_scenario_from_current_type();
     kit::scope<scenario> create_scenario_from_type(scenario_type sctype);
-    void update_scenario();
 
     YAML::Node encode() const override;
     bool decode(const YAML::Node &node) override;
