@@ -6,7 +6,6 @@
 
 namespace ppx::demo
 {
-
 void tumbler::start()
 {
     scenario::start();
