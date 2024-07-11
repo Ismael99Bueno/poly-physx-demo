@@ -81,13 +81,13 @@ bool tumbler::expired() const
 
 void tumbler::on_imgui_window_render()
 {
-    ImGui::DragFloat("Addition wait time", &m_addition_wait_time, 0.01f, 0.f, 1.f, "%.2f");
-    ImGui::DragInt("Final bodies", (int *)&m_total_spawns, 1.f, 0, INT32_MAX);
     if (m_stopped)
     {
+        ImGui::DragInt("Total bodies", (int *)&m_total_spawns, 1.f, 0, INT32_MAX);
         ImGui::SliderInt("Tumblers", (int *)&m_tumblers, 1, 24);
         ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 32);
         ImGui::SliderFloat("Spawn height", &m_spawn_height, 0.f, 0.4f * m_height, "%.1f");
+        ImGui::DragFloat("Addition wait time", &m_addition_wait_time, 0.01f, 0.f, 1.f, "%.2f");
         ImGui::DragFloat("Angular speed", &m_angular_velocity, 0.01f, 0.f, FLT_MAX, "%.3f");
         ImGui::DragFloat("Width", &m_width, 1.f, 0.f, FLT_MAX, "%.1f");
         ImGui::DragFloat("Height", &m_height, 1.f, 0.f, FLT_MAX, "%.1f");

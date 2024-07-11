@@ -116,8 +116,8 @@ template <Scenario T> class scenario_evaluator final : public T
             }
             ImGui::SliderFloat("Stabilization time", &m_stabilization_time, 0.5f, 5.f, "%.1f");
             ImGui::SliderFloat("Latent time", &m_latent_time, 0.5f, 20.f, "%.1f");
-            T::on_imgui_window_render();
         }
+        T::on_imgui_window_render();
     }
     bool cycle()
     {
@@ -181,6 +181,7 @@ template <Scenario T> class scenario_evaluator final : public T
 
     bool decode(const YAML::Node &node) override
     {
+        T::decode(node);
         m_run_name = node["Run name"].as<std::string>();
         m_stabilization_time = node["Stabilization time"].as<float>();
         m_latent_time = node["Latent time"].as<float>();
