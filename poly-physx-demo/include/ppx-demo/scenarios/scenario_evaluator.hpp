@@ -101,37 +101,37 @@ template <Scenario T> class scenario_evaluator final : public T
         case 0:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "qt-isl";
+            m_run_name = "0-qt-isl";
             m_run_info = "Quad tree broad phase with islands";
             return true;
         case 1:
             world.collisions.set_broad<quad_tree_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "qt-nisl";
+            m_run_name = "1-qt-nisl";
             m_run_info = "Quad tree broad phase without islands";
             return true;
         case 2:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "ss-isl";
+            m_run_name = "2-ss-isl";
             m_run_info = "Sort and sweep broad phase with islands";
             return true;
         case 3:
             world.collisions.set_broad<sort_sweep_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "ss-nisl";
+            m_run_name = "3-ss-nisl";
             m_run_info = "Sort and sweep broad phase without islands";
             return true;
         case 4:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(true);
-            m_run_name = "bf-isl";
+            m_run_name = "4-bf-isl";
             m_run_info = "Brute force broad phase with islands";
             return true;
         case 5:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(false);
-            m_run_name = "bf-nisl";
+            m_run_name = "5-bf-nisl";
             m_run_info = "Brute force broad phase without islands";
             return true;
         default:

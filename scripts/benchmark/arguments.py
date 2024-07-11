@@ -39,6 +39,14 @@ def create_and_parse_scenario_report_args() -> Namespace:
     parser.add_argument(
         "-n", "--name", required=True, help="Name of the scenario", type=str
     )
+    parser.add_argument(
+        "-g",
+        "--groups",
+        nargs="+",
+        help="Groups of scenario cycles to combine",
+        type=str,
+        default=None,
+    )
 
     __add_common_arguments(parser)
     return parser.parse_args()
