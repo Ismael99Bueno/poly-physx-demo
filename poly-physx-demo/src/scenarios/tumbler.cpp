@@ -45,7 +45,7 @@ void tumbler::update(const float ts)
     if (m_body_count >= m_total_spawns || m_app->paused)
         return;
 
-    m_addition_timer += m_app->world.timestep(); // so that at lower framerates bodies do not overlap
+    m_addition_timer += ts; // so that at lower framerates bodies do not overlap
     if (m_addition_timer < m_addition_wait_time)
         return;
     m_body_count += m_body_specs.size();

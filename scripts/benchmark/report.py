@@ -1,7 +1,7 @@
 from pathlib import Path
 from argparse import Namespace
 from typing import Any
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 
 from md import write_markdown_recursive
 from plots import create_plot_from_df

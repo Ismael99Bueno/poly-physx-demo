@@ -47,7 +47,8 @@ class performance_panel final : public demo_layer
 
         struct entry
         {
-            float timestep;
+            float app_timestep;
+            float physics_timestep;
             std::array<kit::perf::time, 4> time_measurements;
             std::size_t body_count;
             std::size_t collider_count;
@@ -73,7 +74,7 @@ class performance_panel final : public demo_layer
 
     void render_fps();
 
-    void record();
+    void record(float ts);
     void record_hierarchy_recursive(const kit::perf::node &node, std::size_t parent_calls = 1);
 
     report generate_average_report() const;

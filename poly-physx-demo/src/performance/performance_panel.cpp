@@ -37,7 +37,7 @@ void performance_panel::on_update(const float ts)
     m_current_hotpath.clear();
 #endif
     if (m_report.recording)
-        record();
+        record(ts);
 }
 
 void performance_panel::on_render(const float ts)
@@ -315,7 +315,7 @@ void performance_panel::start_recording()
         m_report.entries->clear();
 }
 
-void performance_panel::record()
+void performance_panel::record(const float ts)
 {
     for (std::size_t i = 0; i < 4; i++)
     {
@@ -333,7 +333,8 @@ void performance_panel::record()
     if (!m_report.include_per_frame_data)
         return;
     auto &entry = m_report.entries->emplace_back();
-    entry.timestep = m_app->world.timestep();
+    entry.app_timestep = ts;
+    entry.physics_timestep = m_app->world.timestep();
     entry.time_measurements = m_raw_time_measurements;
     entry.body_count = m_app->world.bodies.size();
     entry.collider_count = m_app->world.colliders.size();
@@ -430,7 +431,7 @@ void performance_panel::dump_report(const std::string &relpath, const report &re
     YAML::Node node;
     node["Date"] = std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
     YAML::Node settings = node["Simulation settings"];
-    settings["Timestep"] = m_app->world.timestep();
+    settings["Physics timestep"] = m_app->world.timestep();
     settings["Hertz"] = m_app->world.hertz();
     settings["Bodies"] = m_app->world.bodies.size();
     settings["Colliders"] = m_app->world.colliders.size();
@@ -469,10 +470,12 @@ void performance_panel::dump_report(const std::string &relpath, const report &re
         return;
 
     std::ofstream per_frame_file{path + "/per-frame-data.csv"};
-    per_frame_file << "Timestep,Frame time,Update time,Render time,Physics time,Bodies,Colliders,Joints,Collisions,"
+    per_frame_file << "APP timestep,Physics timestep,Frame time,Update time,Render time,Physics "
+                      "time,Bodies,Colliders,Joints,Collisions,"
                       "Total contacts,Active contacts,Total collision checks,Positive collision checks\n";
     for (const auto &entry : *rep.entries)
-        per_frame_file << entry.timestep << ',' << entry.time_measurements[0].as<TimeUnit, T>() << ','
+        per_frame_file << entry.app_timestep << entry.physics_timestep << ','
+                       << entry.time_measurements[0].as<TimeUnit, T>() << ','
                        << entry.time_measurements[1].as<TimeUnit, T>() << ','
                        << entry.time_measurements[2].as<TimeUnit, T>() << ','
                        << entry.time_measurements[3].as<TimeUnit, T>() << ',' << entry.body_count << ','
