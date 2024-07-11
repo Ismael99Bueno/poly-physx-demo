@@ -86,7 +86,7 @@ void tumbler::on_imgui_window_render()
     if (m_stopped)
     {
         ImGui::SliderInt("Tumblers", (int *)&m_tumblers, 1, 24);
-        ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 10);
+        ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 16);
         ImGui::DragFloat("Angular speed", &m_angular_velocity, 0.01f, 0.f, FLT_MAX, "%.3f");
         ImGui::DragFloat("Width", &m_width, 1.f, 0.f, FLT_MAX, "%.1f");
         ImGui::DragFloat("Height", &m_height, 1.f, 0.f, FLT_MAX, "%.1f");
