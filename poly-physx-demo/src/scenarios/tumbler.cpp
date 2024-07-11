@@ -29,7 +29,7 @@ void tumbler::start()
         chamber_specs.position = {cx, 0.f};
         m_app->world.bodies.add(chamber_specs);
 
-        const float sdx = 20.f;
+        const float sdx = 15.f;
         const float sxstart = cx - 0.5f * sdx * (m_spawn_points - 1);
         for (std::uint32_t j = 0; j < m_spawn_points; j++)
         {
@@ -86,11 +86,17 @@ void tumbler::on_imgui_window_render()
     if (m_stopped)
     {
         ImGui::SliderInt("Tumblers", (int *)&m_tumblers, 1, 24);
-        ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 16);
+        ImGui::SliderInt("Spawn points", (int *)&m_spawn_points, 1, 32);
         ImGui::SliderFloat("Spawn height", &m_spawn_height, 0.f, 0.4f * m_height, "%.1f");
         ImGui::DragFloat("Angular speed", &m_angular_velocity, 0.01f, 0.f, FLT_MAX, "%.3f");
         ImGui::DragFloat("Width", &m_width, 1.f, 0.f, FLT_MAX, "%.1f");
         ImGui::DragFloat("Height", &m_height, 1.f, 0.f, FLT_MAX, "%.1f");
+    }
+    else
+    {
+        ImGui::ProgressBar((float)m_body_count / m_total_spawns, ImVec2(0.f, 0.f));
+        ImGui::SameLine();
+        ImGui::Text("%.2f seconds", (m_total_spawns - m_body_count) * m_addition_wait_time);
     }
 }
 

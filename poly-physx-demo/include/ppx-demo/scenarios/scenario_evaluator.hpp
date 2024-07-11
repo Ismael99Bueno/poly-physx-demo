@@ -82,14 +82,29 @@ template <Scenario T> class scenario_evaluator final : public T
     {
         if (!this->m_stopped)
         {
-            ImGui::Text("Cycle: %u/6", m_cycle_index);
+            if (!m_run_name.empty())
+                ImGui::Text("Run: %s", m_run_name.c_str());
+
+            const std::string cycle_status = std::format("Cycle: {}/6", m_cycle_index);
+            ImGui::ProgressBar((float)m_cycle_index / 6.f, ImVec2(0.f, 0.f), cycle_status.c_str());
+
             if (!m_stabilizing)
                 ImGui::Text("Running with: %s", m_cycle_info);
 
             if (m_latent && T::expired())
-                ImGui::Text("Waiting a bit to record more data... (%.1f/%.1f seconds)", m_timer, m_latent_time);
+            {
+                ImGui::Text("Waiting a bit to record more data...");
+                ImGui::ProgressBar(m_timer / m_latent_time, ImVec2(0.f, 0.f));
+                ImGui::SameLine();
+                ImGui::Text("%.1f seconds", m_latent_time - m_timer);
+            }
             if (m_stabilizing)
-                ImGui::Text("Stabilizing... (%.1f/%.1f seconds)", m_timer, m_stabilization_time);
+            {
+                ImGui::Text("Stabilizing...");
+                ImGui::ProgressBar(m_timer / m_stabilization_time, ImVec2(0.f, 0.f));
+                ImGui::SameLine();
+                ImGui::Text("%.1f seconds", m_stabilization_time - m_timer);
+            }
         }
         else
         {
