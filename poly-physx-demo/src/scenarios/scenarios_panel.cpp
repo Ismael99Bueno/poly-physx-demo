@@ -22,9 +22,6 @@ void scenarios_panel::on_attach()
 
 void scenarios_panel::on_update(const float ts)
 {
-    if (m_auto_stop && m_current_scenario->expired())
-        m_current_scenario->stop();
-
     if (!m_current_scenario->stopped())
     {
         m_was_running = true;
@@ -43,6 +40,8 @@ void scenarios_panel::on_update(const float ts)
         m_was_running = false;
         m_render_queue_progress = false;
     }
+    if (m_auto_stop && m_current_scenario->expired())
+        m_current_scenario->stop();
 }
 
 static const char *scenario_names[] = {"Tumbler", "Tumbler (performance evaluation)"};
