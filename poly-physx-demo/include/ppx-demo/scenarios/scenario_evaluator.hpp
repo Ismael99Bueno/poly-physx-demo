@@ -164,7 +164,7 @@ template <Scenario T> class scenario_evaluator final : public T
 
     bool expired() const override
     {
-        return m_cycle_index >= 6;
+        return m_cycle_index > 6;
     }
 
     YAML::Node encode() const override
