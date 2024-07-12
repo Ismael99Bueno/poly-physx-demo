@@ -31,7 +31,9 @@ def generate_report(
         )
 
         content += f"\n## Benchmark plots ({time_unit})\n"
-        for filename, fig in create_plot_from_df(csvs[output_folder]).items():
+        for filename, fig in create_plot_from_df(
+            csvs[output_folder], log=args.logarithmic
+        ).items():
             html_path = output_folder / f"{filename}.html"
             png_path = output_folder / f"{filename}.png"
 
@@ -97,6 +99,7 @@ def generate_combined_report(
                 csvs[data_folder],
                 color=plotly_colors[cindex],
                 name=f"{shortened_name} ({time_unit})",
+                log=args.logarithmic,
             ).items():
                 if title not in plots:
                     plots[title] = fig
