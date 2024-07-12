@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def create_plot_from_df(
-    df: pd.DataFrame, color=None, name: str = None
+    df: pd.DataFrame, color=None, name: str = None, log: bool = False
 ) -> dict[str, go.Figure]:
     df["Time"] = df["APP timestep"].cumsum().fillna(0.0)
     yaxis = "Physics time"
@@ -39,8 +39,9 @@ def create_plot_from_df(
         ],
         layout_title="Total collisions VS Positive collisions",
     )
-    for k in plots:
-        plots[k].update_layout(yaxis={"type": "log"})
+    if log:
+        for k in plots:
+            plots[k].update_layout(yaxis={"type": "log"})
     plots["total-contacts-vs-bodies"] = go.Figure(
         data=[
             go.Scatter(

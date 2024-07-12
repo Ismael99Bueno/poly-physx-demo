@@ -63,6 +63,13 @@ def create_and_parse_scenario_report_args() -> Namespace:
         default=False,
         help="Generate standalone reports for each of the scenario cycles",
     )
+    parser.add_argument(
+        "-l",
+        "--logarithmic",
+        action="store_true",
+        default=False,
+        help="Use logarithmic scale",
+    )
 
     __add_common_arguments(parser)
     return parser.parse_args()
