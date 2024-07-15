@@ -171,6 +171,9 @@ void performance_panel::start_recording()
 
 void performance_panel::record(const float ts)
 {
+    auto &entry = m_report.per_frame_data.emplace_back();
+    entry.app_timestep = ts;
+    entry.physics_timestep = m_app->world.timestep();
 #ifndef KIT_PROFILE
     for (std::size_t i = 0; i < 4; i++)
     {
@@ -179,6 +182,7 @@ void performance_panel::record(const float ts)
         if (m_raw_measurements[i] > m_report.max_measurements[i])
             m_report.max_measurements[i] = m_report.avg_measurements[i];
     }
+    entry.measurements = m_raw_measurements;
 #else
     const kit::perf::instrumentor &instrumentor = kit::perf::instrumentor::main();
     for (const auto &ms : instrumentor)
@@ -190,15 +194,8 @@ void performance_panel::record(const float ts)
         const auto it = m_report.max_measurements.find(ms.name);
         if (it == m_report.max_measurements.end() || ms.average > it->second.average)
             m_report.max_measurements[ms.name] = ms;
+        entry.measurements.emplace(ms.name, ms);
     }
-#endif
-    auto &entry = m_report.per_frame_data.emplace_back();
-    entry.app_timestep = ts;
-    entry.physics_timestep = m_app->world.timestep();
-#ifndef KIT_PROFILE
-    entry.measurements = m_raw_measurements;
-#else
-    entry.measurements = kit::perf::instrumentor::main().measurements();
 #endif
     entry.body_count = m_app->world.bodies.size();
     entry.collider_count = m_app->world.colliders.size();
@@ -304,8 +301,13 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
         for (const kit::perf::time &time : entry.measurements)
             per_frame_file << ',' << time.as<TimeUnit, T>();
 #else
-        for (const auto &ms : entry.measurements)
-            per_frame_file << ',' << ms.cumulative.as<TimeUnit, T>();
+        for (const auto &pair : m_report.avg_measurements)
+        {
+            const auto it = entry.measurements.find(pair.first);
+            per_frame_file << ",";
+            if (it != entry.measurements.end())
+                per_frame_file << it->second.cumulative.as<TimeUnit, T>();
+        }
 #endif
         per_frame_file << '\n';
     }

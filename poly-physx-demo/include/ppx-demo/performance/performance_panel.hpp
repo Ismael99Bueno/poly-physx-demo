@@ -28,7 +28,7 @@ class performance_panel final : public demo_layer
 #ifndef KIT_PROFILE
             std::array<kit::perf::time, 4> measurements;
 #else
-            std::vector<kit::perf::measurement> measurements;
+            std::unordered_map<const char *, kit::perf::measurement> measurements;
 #endif
             std::size_t body_count;
             std::size_t collider_count;
