@@ -88,15 +88,8 @@ class performance_panel final : public demo_layer
     report m_report;
     std::string m_benchmark_data_folder = std::string(PPX_DEMO_ROOT_PATH) + "output/benchmark/data/";
 
-#ifndef KIT_PROFILE
     std::array<kit::perf::time, 4> m_raw_measurements;
     std::array<kit::perf::time, 4> m_max_measurements;
     std::array<kit::perf::time, 4> m_measurements;
-#else
-    std::unordered_map<const char *, kit::perf::measurement> m_measurements; // map bc these are smoothed
-    std::unordered_map<const char *, kit::perf::measurement> m_last_measurements;
-    std::unordered_map<const char *, kit::perf::measurement> m_max_measurements;
-    std::vector<kit::perf::measurement> m_sorted_measurements;
-#endif
 };
 } // namespace ppx::demo

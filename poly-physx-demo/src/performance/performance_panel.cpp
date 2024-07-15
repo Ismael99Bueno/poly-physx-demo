@@ -28,34 +28,19 @@ void performance_panel::on_update(const float ts)
     m_raw_measurements[1] = m_app->update_time();
     m_raw_measurements[2] = m_app->render_time();
     m_raw_measurements[3] = m_app->physics_time();
+#else
+    const kit::perf::instrumentor &instrumentor = kit::perf::instrumentor::main();
+    for (std::size_t i = 0; i < 4; i++)
+        if (instrumentor.contains(s_measurement_names[i]))
+            m_raw_measurements[i] = instrumentor[s_measurement_names[i]].cumulative;
+#endif
+
     for (std::size_t i = 0; i < 4; i++)
     {
         m_measurements[i] = m_smoothness * m_measurements[i] + (1.f - m_smoothness) * m_raw_measurements[i];
         if (m_measurements[i] > m_max_measurements[i])
             m_max_measurements[i] = m_measurements[i];
     }
-#else
-    m_measurements.swap(m_last_measurements);
-    m_measurements.clear();
-    m_sorted_measurements.clear();
-
-    kit::perf::instrumentor &instrumentor = kit::perf::instrumentor::main();
-    for (const kit::perf::measurement &ms : instrumentor)
-    {
-        auto &smoothed = m_measurements.emplace(ms.name, ms).first->second;
-        const auto it = m_last_measurements.find(ms.name);
-        if (it != m_measurements.end())
-        {
-            smoothed.average = m_smoothness * it->second.average + (1.f - m_smoothness) * ms.average;
-            smoothed.cumulative = m_smoothness * it->second.cumulative + (1.f - m_smoothness) * ms.cumulative;
-            smoothed.percent = m_smoothness * it->second.percent + (1.f - m_smoothness) * ms.percent;
-        }
-        m_sorted_measurements.push_back(smoothed);
-        const auto itmax = m_max_measurements.find(ms.name);
-        if (itmax == m_max_measurements.end() || ms.average > itmax->second.average)
-            m_max_measurements[ms.name] = ms;
-    }
-#endif
 
     if (m_report.recording)
         record(ts);
@@ -71,8 +56,7 @@ void performance_panel::on_render(const float ts)
         ImGui::SliderFloat("Measurement smoothness", &m_smoothness, 0.f, 0.99f, "%.2f");
 
         render_fps();
-        if (ImGui::CollapsingHeader("Performance measurements"))
-            render_measurements();
+        render_measurements();
 
         if (!m_report.recording && ImGui::Button("Start recording"))
             start_recording();
@@ -106,12 +90,8 @@ void performance_panel::on_render(const float ts)
 void performance_panel::render_measurements()
 {
     if (ImGui::Button("Reset maximums"))
-#ifndef KIT_PROFILE
         for (kit::perf::time &max : m_max_measurements)
             max = kit::perf::time();
-#else
-        m_max_measurements.clear();
-#endif
 
     switch (m_time_unit)
     {
@@ -148,7 +128,6 @@ template <typename TimeUnit, typename T>
 void performance_panel::render_measurements(const char *unit, const char *format)
 {
     const std::string text = std::format("%s: {} {} (max: {} {})", format, unit, format, unit);
-#ifndef KIT_PROFILE
     for (std::size_t i = 0; i < 4; i++)
     {
         const kit::perf::time &current = m_measurements[i];
@@ -156,41 +135,11 @@ void performance_panel::render_measurements(const char *unit, const char *format
 
         ImGui::Text(text.c_str(), s_measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
-#else
-    std::sort(
-        m_sorted_measurements.begin(), m_sorted_measurements.end(),
-        [](const kit::perf::measurement &a, const kit::perf::measurement &b) { return a.cumulative > b.cumulative; });
-
-    const std::string treetext = std::format("%s: {} {} (%.2f%%)", format, unit);
-    const std::size_t top = glm::min(m_sorted_measurements.size(), (std::size_t)10);
-    for (std::size_t i = 0; i < top; i++)
-    {
-        const kit::perf::measurement &ms = m_sorted_measurements[i];
-        const auto itmax = m_max_measurements.find(ms.name);
-        const kit::perf::measurement &max = itmax != m_max_measurements.end() ? itmax->second : ms;
-
-        if (ImGui::TreeNode(&ms, treetext.c_str(), ms.name, ms.cumulative.as<TimeUnit, T>(), ms.percent * 100.f))
-        {
-            ImGui::Text(text.c_str(), "Cumulative", ms.cumulative.as<TimeUnit, T>(), max.cumulative.as<TimeUnit, T>());
-            ImGui::Text(text.c_str(), "Average (per call)", ms.average.as<TimeUnit, T>(),
-                        max.average.as<TimeUnit, T>());
-            ImGui::Text("Calls: %u", ms.calls);
-            ImGui::TreePop();
-        }
-    }
-#endif
 }
 
 void performance_panel::render_fps()
 {
-#ifndef KIT_PROFILE
     const float frame_time = m_measurements[0].as<kit::perf::time::seconds, float>();
-#else
-    const auto it = m_measurements.find(s_measurement_names[0]);
-    if (it == m_measurements.end())
-        return;
-    const float frame_time = it->second.average.as<kit::perf::time::seconds, float>();
-#endif
     if (kit::approaches_zero(frame_time))
         return;
 
@@ -231,16 +180,16 @@ void performance_panel::record(const float ts)
             m_report.max_measurements[i] = m_report.avg_measurements[i];
     }
 #else
-    for (const auto &[name, ms] : m_measurements)
+    const kit::perf::instrumentor &instrumentor = kit::perf::instrumentor::main();
+    for (const auto &ms : instrumentor)
     {
-        auto &avg = m_report.avg_measurements.emplace(name, ms).first->second;
+        auto &avg = m_report.avg_measurements.emplace(ms.name, ms).first->second;
         avg.average = (m_report.frame_count * avg.average + ms.average) / (m_report.frame_count + 1);
         avg.cumulative = (m_report.frame_count * avg.cumulative + ms.cumulative) / (m_report.frame_count + 1);
-        avg.percent = (m_report.frame_count * avg.percent + ms.percent) / (m_report.frame_count + 1);
 
-        const auto it = m_report.max_measurements.find(name);
+        const auto it = m_report.max_measurements.find(ms.name);
         if (it == m_report.max_measurements.end() || ms.average > it->second.average)
-            m_report.max_measurements[name] = ms;
+            m_report.max_measurements[ms.name] = ms;
     }
 #endif
     auto &entry = m_report.per_frame_data.emplace_back();
@@ -390,6 +339,7 @@ template <typename TimeUnit, typename T> YAML::Node performance_panel::encode_re
         const kit::perf::measurement &max = itmax != m_report.max_measurements.end() ? itmax->second : ms;
 
         YAML::Node child = node[ms.name];
+        child["Calls"] = ms.calls;
         child["Average"]["Per call"] = ms.average.as<TimeUnit, T>();
         child["Average"]["Cumulative"] = ms.cumulative.as<TimeUnit, T>();
         child["Max"]["Per call"] = max.average.as<TimeUnit, T>();
@@ -414,12 +364,7 @@ template <typename TimeUnit> void performance_panel::render_time_plot(const std:
     const std::size_t graph_index = overflow ? offset : current_size;
 
     for (std::size_t i = 0; i < 4; i++)
-#ifndef KIT_PROFILE
         time_graph_measures[i][graph_index] = {time, m_measurements[i].as<TimeUnit, float>()};
-#else
-        time_graph_measures[i][graph_index] = {
-            time, m_measurements.at(s_measurement_names[i]).cumulative.as<TimeUnit, float>()};
-#endif
 
     offset = overflow ? (offset + 1) % buffer_size : 0;
     if (!overflow)
