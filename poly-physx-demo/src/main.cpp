@@ -3,7 +3,6 @@
 
 int main()
 {
-    KIT_PERF_SESSION("ppx-demo-app")
     ppx::demo::demo_app app;
     app.run();
 }
