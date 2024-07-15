@@ -58,33 +58,37 @@ void performance_panel::on_render(const float ts)
         render_fps();
         render_measurements();
 
+        if (ImGui::CollapsingHeader("Profiling"))
+        {
 #ifndef KIT_PROFILE
-        ImGui::Text("Performance profiling is limited on this build. Enable KIT_PROFILE to get more detailed metrics");
+            ImGui::Text(
+                "Performance profiling is limited on this build. Enable KIT_PROFILE to get more detailed metrics");
 #endif
 
-        if (!m_report.recording && ImGui::Button("Start recording"))
-            start_recording();
-        else if (m_report.recording && ImGui::Button("Stop recording"))
-            stop_recording();
+            if (!m_report.recording && ImGui::Button("Start recording"))
+                start_recording();
+            else if (m_report.recording && ImGui::Button("Stop recording"))
+                stop_recording();
 
-        if (m_report.frame_count > 0)
-        {
-            ImGui::Text("Frames recorded: %u", m_report.frame_count);
-            ImGui::Checkbox("Append datetime", &m_report.append_datetime);
-            ImGui::Text("Report will be written to output/benchmark/data (relative to the project's root)");
-
-            static char buffer[24] = "\0";
-            if (ImGui::InputTextWithHint("Dump performance report", "Report name", buffer, 24,
-                                         ImGuiInputTextFlags_EnterReturnsTrue) &&
-                buffer[0] != '\0')
+            if (m_report.frame_count > 0)
             {
-                std::string name = buffer;
-                std::replace(name.begin(), name.end(), ' ', '-');
+                ImGui::Text("Frames recorded: %u", m_report.frame_count);
+                ImGui::Checkbox("Append datetime", &m_report.append_datetime);
+                ImGui::Text("Report will be written to output/benchmark/data (relative to the project's root)");
 
-                if (m_report.append_datetime)
-                    name += " - " + std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
-                dump_report(name);
-                buffer[0] = '\0';
+                static char buffer[24] = "\0";
+                if (ImGui::InputTextWithHint("Dump performance report", "Report name", buffer, 24,
+                                             ImGuiInputTextFlags_EnterReturnsTrue) &&
+                    buffer[0] != '\0')
+                {
+                    std::string name = buffer;
+                    std::replace(name.begin(), name.end(), ' ', '-');
+
+                    if (m_report.append_datetime)
+                        name += " - " + std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
+                    dump_report(name);
+                    buffer[0] = '\0';
+                }
             }
         }
     }
