@@ -283,10 +283,10 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
                       "total_contacts,active_contacts,total_collision_checks,positive_collision_checks";
 #ifndef KIT_PROFILE
     for (const char *name : s_measurement_names)
-        per_frame_file << ',' << name;
+        per_frame_file << ",tm::" << name;
 #else
     for (const auto &[name, ms] : m_report.avg_measurements)
-        per_frame_file << ',' << name;
+        per_frame_file << ",tm::" << name;
 #endif
     per_frame_file << '\n';
 
@@ -342,10 +342,18 @@ template <typename TimeUnit, typename T> YAML::Node performance_panel::encode_re
 
         YAML::Node child = node[ms.name];
         child["Calls"] = ms.calls;
-        child["Average"]["Per call"] = ms.average.as<TimeUnit, T>();
-        child["Average"]["Cumulative"] = ms.cumulative.as<TimeUnit, T>();
-        child["Max"]["Per call"] = max.average.as<TimeUnit, T>();
-        child["Max"]["Cumulative"] = max.cumulative.as<TimeUnit, T>();
+        if (ms.calls > 1)
+        {
+            child["Average"]["Per call"] = ms.average.as<TimeUnit, T>();
+            child["Average"]["Cumulative"] = ms.cumulative.as<TimeUnit, T>();
+            child["Max"]["Per call"] = max.average.as<TimeUnit, T>();
+            child["Max"]["Cumulative"] = max.cumulative.as<TimeUnit, T>();
+        }
+        else
+        {
+            child["Average"] = ms.cumulative.as<TimeUnit, T>();
+            child["Max"] = max.cumulative.as<TimeUnit, T>();
+        }
     }
 #endif
     return node;
