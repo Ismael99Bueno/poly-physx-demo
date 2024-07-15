@@ -58,6 +58,10 @@ void performance_panel::on_render(const float ts)
         render_fps();
         render_measurements();
 
+#ifndef KIT_PROFILE
+        ImGui::Text("Performance profiling is limited on this build. Enable KIT_PROFILE to get more detailed metrics");
+#endif
+
         if (!m_report.recording && ImGui::Button("Start recording"))
             start_recording();
         else if (m_report.recording && ImGui::Button("Stop recording"))
