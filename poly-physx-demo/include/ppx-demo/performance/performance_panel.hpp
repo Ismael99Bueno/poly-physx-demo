@@ -73,7 +73,7 @@ class performance_panel final : public demo_layer
     template <typename TimeUnit, typename T> YAML::Node encode_report(const char *unit) const;
 
     void render_measurements();
-    template <typename TimeUnit, typename T> void render_measurements(const char *unit, const char *format) const;
+    template <typename TimeUnit, typename T> void render_measurements(const char *unit, const char *format);
     template <typename TimeUnit> void render_time_plot(const std::string &unit);
 
     YAML::Node encode() const override;

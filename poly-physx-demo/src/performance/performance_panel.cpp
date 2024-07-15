@@ -7,8 +7,8 @@
 
 namespace ppx::demo
 {
-static const std::array<const char *, 4> s_measurement_names = {"LYNX::Frame", "LYNX::On-update", "LYNX::On-render",
-                                                                "PPX-APP::Physics"};
+static const std::array<const char *, 4> s_measurement_names = {"lynx::app::next_frame", "lynx::app::on_update",
+                                                                "lynx::app::on_render", "ppx::app::physics"};
 
 performance_panel::performance_panel() : demo_layer("Performance panel")
 {
@@ -145,7 +145,7 @@ void performance_panel::render_measurements()
 }
 
 template <typename TimeUnit, typename T>
-void performance_panel::render_measurements(const char *unit, const char *format) const
+void performance_panel::render_measurements(const char *unit, const char *format)
 {
     const std::string text = std::format("%s: {} {} (max: {} {})", format, unit, format, unit);
 #ifndef KIT_PROFILE
@@ -157,17 +157,19 @@ void performance_panel::render_measurements(const char *unit, const char *format
         ImGui::Text(text.c_str(), s_measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
 #else
-    std::sort(m_sorted_measurements.begin(), m_sorted_measurements.end(),
-              [](const kit::perf::measurement &a, const kit::perf::measurement &b) { return a.average > b.average; });
+    std::sort(
+        m_sorted_measurements.begin(), m_sorted_measurements.end(),
+        [](const kit::perf::measurement &a, const kit::perf::measurement &b) { return a.cumulative > b.cumulative; });
 
     const std::string treetext = std::format("%s: {} {} (%.2f%%)", format, unit);
-    for (const auto &ms : m_sorted_measurements)
+    const std::size_t top = glm::min(m_sorted_measurements.size(), (std::size_t)10);
+    for (std::size_t i = 0; i < top; i++)
     {
+        const kit::perf::measurement &ms = m_sorted_measurements[i];
         const auto itmax = m_max_measurements.find(ms.name);
         const kit::perf::measurement &max = itmax != m_max_measurements.end() ? itmax->second : ms;
 
-        if (ImGui::TreeNode(&ms, treetext.c_str(), ms.name, ms.cumulative.as<TimeUnit, T>(),
-                            max.cumulative.as<TimeUnit, T>()))
+        if (ImGui::TreeNode(&ms, treetext.c_str(), ms.name, ms.cumulative.as<TimeUnit, T>(), ms.percent * 100.f))
         {
             ImGui::Text(text.c_str(), "Cumulative", ms.cumulative.as<TimeUnit, T>(), max.cumulative.as<TimeUnit, T>());
             ImGui::Text(text.c_str(), "Average (per call)", ms.average.as<TimeUnit, T>(),
@@ -184,10 +186,10 @@ void performance_panel::render_fps()
 #ifndef KIT_PROFILE
     const float frame_time = m_measurements[0].as<kit::perf::time::seconds, float>();
 #else
-    if (m_measurements.empty())
+    const auto it = m_measurements.find(s_measurement_names[0]);
+    if (it == m_measurements.end())
         return;
-
-    const float frame_time = m_measurements.at(s_measurement_names[0]).average.as<kit::perf::time::seconds, float>();
+    const float frame_time = it->second.average.as<kit::perf::time::seconds, float>();
 #endif
     if (kit::approaches_zero(frame_time))
         return;
@@ -331,8 +333,8 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     summary_file << out.c_str();
 
     std::ofstream per_frame_file{path + "/data.csv"};
-    per_frame_file << "APP timestep,Bodies,Colliders,Joints,Collisions,"
-                      "Total contacts,Active contacts,Total collision checks,Positive collision checks";
+    per_frame_file << "app_timestep,physics_timestep,bodies,colliders,joints,collisions,"
+                      "total_contacts,active_contacts,total_collision_checks,positive_collision_checks";
 #ifndef KIT_PROFILE
     for (const char *name : s_measurement_names)
         per_frame_file << ',' << name;
@@ -353,7 +355,7 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
         for (const kit::perf::time &time : entry.measurements)
             per_frame_file << ',' << time.as<TimeUnit, T>();
 #else
-        for (const auto &[name, ms] : entry.measurements)
+        for (const auto &ms : entry.measurements)
             per_frame_file << ',' << ms.cumulative.as<TimeUnit, T>();
 #endif
         per_frame_file << '\n';
@@ -379,8 +381,9 @@ template <typename TimeUnit, typename T> YAML::Node performance_panel::encode_re
     std::vector<kit::perf::measurement> sorted;
     for (const auto &[name, ms] : m_report.avg_measurements)
         sorted.push_back(ms);
-    std::sort(sorted.begin(), sorted.end(),
-              [](const kit::perf::measurement &a, const kit::perf::measurement &b) { return a.average > b.average; });
+    std::sort(sorted.begin(), sorted.end(), [](const kit::perf::measurement &a, const kit::perf::measurement &b) {
+        return a.cumulative > b.cumulative;
+    });
     for (const kit::perf::measurement &ms : sorted)
     {
         const auto itmax = m_report.max_measurements.find(ms.name);

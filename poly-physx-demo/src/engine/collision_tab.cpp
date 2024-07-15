@@ -65,12 +65,9 @@ void collision_tab::render_imgui_tab()
         bool enabled = bp->enabled();
         if (ImGui::Checkbox("Enabled##Broad", &enabled))
             bp->enabled(enabled);
-#ifndef KIT_PROFILE
         ImGui::Checkbox("Multithreading", &bp->params.multithreading);
         ImGui::SliderInt("Workload count", (int *)&bp->params.parallel_workloads, 2, 16);
-#else
-        ImGui::Text("Multithreading is disabled on profile builds");
-#endif
+
         render_broad_metrics();
         render_broad_methods_list();
 

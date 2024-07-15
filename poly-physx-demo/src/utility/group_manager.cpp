@@ -63,6 +63,7 @@ void group_manager::update_preview_from_current_group()
     m_bodies_preview_transforms.clear();
     m_bodies_preview_transforms.reserve(m_current_group.bproxies.size()); // avoid realloc and pointer invalidation
 
+    constexpr std::uint32_t alpha = 120;
     for (const body_proxy &bproxy : m_current_group.bproxies)
     {
         m_bodies_preview_transforms.push_back(kit::transform2D<float>::builder()
@@ -73,7 +74,7 @@ void group_manager::update_preview_from_current_group()
         for (std::size_t i = 0; i < bproxy.specs.props.colliders.size(); i++)
         {
             auto &cspecs = bproxy.specs.props.colliders[i];
-            auto &color = bproxy.colors[i];
+            auto color = lynx::color{bproxy.colors[i], alpha};
             lynx::shape2D *shape;
             if (cspecs.props.shape == collider2D::stype::POLYGON)
             {
@@ -187,7 +188,6 @@ group_manager::group group_manager::create_group_from_selected()
 {
     group fresh_group{};
     const auto &selected = m_app.selector.selected_bodies();
-    constexpr std::uint32_t alpha = 120;
 
     std::vector<const body2D *> selected_bodies;
     for (body2D *body : selected)
@@ -195,7 +195,7 @@ group_manager::group group_manager::create_group_from_selected()
         body_proxy bproxy;
         bproxy.specs = body2D::specs::from_instance(*body);
         for (collider2D *collider : *body)
-            bproxy.colors.push_back(lynx::color{m_app.shapes().at(collider).color, alpha});
+            bproxy.colors.push_back(m_app.shapes().at(collider).color);
         fresh_group.bproxies.push_back(bproxy);
         fresh_group.mean_position += body->gposition();
         selected_bodies.push_back(body);
