@@ -36,7 +36,7 @@ class performance_panel final : public demo_layer
             std::size_t collision_count;
             std::size_t total_contact_count;
             std::size_t active_contact_count;
-            broad_phase2D::metrics broad_metrics;
+            std::size_t pair_count;
         };
 
         bool recording = false;

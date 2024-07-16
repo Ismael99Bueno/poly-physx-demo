@@ -65,10 +65,10 @@ void collision_tab::render_imgui_tab()
         bool enabled = bp->enabled();
         if (ImGui::Checkbox("Enabled##Broad", &enabled))
             bp->enabled(enabled);
+        ImGui::SliderFloat("Bounding box anticipation", &m_app->world.colliders.params.bbox_enlargement, 0.f, 0.5f);
         ImGui::Checkbox("Multithreading", &bp->params.multithreading);
-        ImGui::SliderInt("Workload count", (int *)&bp->params.parallel_workloads, 2, 16);
 
-        render_broad_metrics();
+        ImGui::Text("Potential pairs count: %zu", bp->pairs().size());
         render_broad_methods_list();
 
         if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
@@ -77,8 +77,14 @@ void collision_tab::render_imgui_tab()
 
     if (ImGui::CollapsingHeader("Narrow phase"))
     {
-        render_cp_narrow_list();
-        render_pp_narrow_list();
+        narrow_phase2D *np = m_app->world.collisions.narrow();
+        bool enabled = np->enabled();
+        if (ImGui::Checkbox("Enabled##Broad", &enabled))
+            np->enabled(enabled);
+
+        ImGui::Checkbox("Multithreading", &np->params.multithreading);
+        ImGui::SliderInt("Workload count", (int *)&np->params.parallel_workloads, 2, 16);
+        render_narrow_methods_list();
     }
 
     if (ImGui::CollapsingHeader("Contact solver"))
@@ -98,31 +104,6 @@ void collision_tab::render_imgui_tab()
             render_nonpen_contact_solver_parameters();
         else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
             render_spring_contact_solver_parameters();
-    }
-}
-
-static void render_metrics(const broad_phase2D::metrics &metrics)
-{
-    ImGui::Text("Total collision checks: %u", metrics.total_collision_checks);
-    ImGui::Text("Positive collision checks: %u", metrics.positive_collision_checks);
-    ImGui::Text("Broad phase quality: %.2f%%", metrics.accuracy() * 100.f);
-}
-
-void collision_tab::render_broad_metrics() const
-{
-    const broad_phase2D *bp = m_app->world.collisions.broad();
-    const auto metrics = bp->collision_metrics();
-    render_metrics(metrics);
-    if (bp->params.multithreading && ImGui::TreeNode("Per-workload metrics"))
-    {
-        const auto mt_metrics = bp->collision_metrics_per_mt_workload();
-        for (std::size_t i = 0; i < bp->params.parallel_workloads; i++)
-            if (ImGui::TreeNode(&i + i, "Workload %zu", i))
-            {
-                render_metrics(mt_metrics[i]);
-                ImGui::TreePop();
-            }
-        ImGui::TreePop();
     }
 }
 
@@ -240,62 +221,42 @@ void collision_tab::render_contact_solvers_list() const
     }
 }
 
-void collision_tab::render_cp_narrow_list() const
+void collision_tab::render_narrow_methods_list() const
 {
     int alg;
     gjk_epa_narrow2D *gjk;
-    if ((gjk = m_app->world.collisions.cp_narrow<gjk_epa_narrow2D>()))
+    if ((gjk = m_app->world.collisions.narrow<gjk_epa_narrow2D>()))
         alg = 0;
-    if (m_app->world.collisions.cp_narrow<sat_narrow2D>())
+    if (m_app->world.collisions.narrow<sat_narrow2D>())
         alg = 1;
     if (ImGui::Combo("C-P Narrow algorithm", &alg, "GJK-EPA\0SAT\0\0"))
     {
         if (alg == 0)
-            m_app->world.collisions.set_cp_narrow<gjk_epa_narrow2D>();
+            m_app->world.collisions.set_narrow<gjk_epa_narrow2D>();
         else if (alg == 1)
-            m_app->world.collisions.set_cp_narrow<sat_narrow2D>();
+            m_app->world.collisions.set_narrow<sat_narrow2D>();
     }
     if (gjk)
         ImGui::SliderFloat("C-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
                            ImGuiSliderFlags_Logarithmic);
 }
 
-void collision_tab::render_pp_narrow_list() const
-{
-    int alg;
-    gjk_epa_narrow2D *gjk;
-    if ((gjk = m_app->world.collisions.pp_narrow<gjk_epa_narrow2D>()))
-        alg = 0;
-    if (m_app->world.collisions.pp_narrow<sat_narrow2D>())
-        alg = 1;
-    if (ImGui::Combo("P-P Narrow algorithm", &alg, "GJK-EPA\0SAT\0\0"))
-    {
-        if (alg == 0)
-            m_app->world.collisions.set_pp_narrow<gjk_epa_narrow2D>();
-        else if (alg == 1)
-            m_app->world.collisions.set_pp_narrow<sat_narrow2D>();
-    }
-    if (gjk)
-        ImGui::SliderFloat("P-P EPA Threshold", &gjk->epa_threshold, 1.e-4f, 1.e-1f, "%.4f",
-                           ImGuiSliderFlags_Logarithmic);
-}
-
 void collision_tab::render_quad_tree_node(const quad_tree::node &node)
 {
-    if (ImGui::TreeNode(&node, "Colliders (%zu)", node.elements.size()))
+    if (node.leaf() && ImGui::TreeNode(&node, "Colliders (%zu)", node.elements().size()))
     {
-        for (const qt_element &qtelm : node.elements)
-            if (ImGui::TreeNode(qtelm.collider, "%s", kit::uuid::name_from_ptr(qtelm.collider).c_str()))
+        for (collider2D *collider : node.elements())
+            if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
             {
-                m_app->actions->entities.render_single_collider_properties(qtelm.collider);
+                m_app->actions->entities.render_single_collider_properties(collider);
                 ImGui::TreePop();
             }
         ImGui::TreePop();
     }
-    if (node.partitioned() && ImGui::TreeNode("Children"))
+    if (!node.leaf() && ImGui::TreeNode("Children"))
     {
-        for (const auto &child : node.children)
-            if (ImGui::TreeNode(child, "Child (%zu)", child->elements.size()))
+        for (const auto &child : node.children())
+            if (ImGui::TreeNode(child, "Child (%zu)", child->elements().size()))
             {
                 render_quad_tree_node(*child);
                 ImGui::TreePop();
@@ -307,7 +268,6 @@ void collision_tab::render_quad_tree_node(const quad_tree::node &node)
 void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
 {
     ImGui::Checkbox("Force square shape", &qtbroad.force_square_shape);
-    ImGui::SliderFloat("Bounding box anticipation", &qtbroad.bounding_box_anticipation, 0.f, 0.5f);
     ImGui::SliderFloat("Rebuild time threshold", &qtbroad.rebuild_time_threshold, 1.f, 10.f);
     ImGui::Text("Rebuild count: %u", qtbroad.rebuild_count());
 
@@ -382,12 +342,12 @@ static std::vector<glm::vec2> get_bbox_points(const aabb2D &aabb)
 
 void collision_tab::update_quad_tree_lines(const quad_tree::node &qtnode)
 {
-    if (qtnode.partitioned())
-        for (auto child : qtnode.children)
+    if (!qtnode.leaf())
+        for (auto child : qtnode.children())
             update_quad_tree_lines(*child);
     else
     {
-        const std::vector<glm::vec2> points = get_bbox_points(qtnode.aabb);
+        const std::vector<glm::vec2> points = get_bbox_points(qtnode.aabb());
         if (m_qt_active_partitions < m_qt_lines.size())
             for (std::size_t i = 0; i < points.size(); i++)
                 m_qt_lines[m_qt_active_partitions][i].position = points[i];
@@ -401,7 +361,7 @@ void collision_tab::update_bounding_boxes()
 {
     for (std::size_t i = 0; i < m_app->world.colliders.size(); i++)
     {
-        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.colliders[i]->bounding_box());
+        const std::vector<glm::vec2> points = get_bbox_points(m_app->world.colliders[i]->fat_bbox());
         if (i < m_bbox_lines.size())
             for (std::size_t j = 0; j < points.size(); j++)
                 m_bbox_lines[i][j].position = points[j];

@@ -32,9 +32,9 @@ void islands_tab::update()
         for (const body2D *body : island->bodies())
             for (const collider2D *collider : *body)
                 if (colindex++ == 0)
-                    aabb = collider->bounding_box();
+                    aabb = collider->tight_bbox();
                 else
-                    aabb += collider->bounding_box();
+                    aabb += collider->tight_bbox();
         const auto points = get_bbox_points(aabb);
 
         if (index < m_island_lines.size())

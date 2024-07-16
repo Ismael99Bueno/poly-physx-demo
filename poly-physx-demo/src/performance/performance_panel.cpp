@@ -211,7 +211,7 @@ void performance_panel::record(const float ts)
     entry.collision_count = m_app->world.collisions.size();
     entry.total_contact_count = m_app->world.collisions.contact_solver()->total_contacts_count();
     entry.active_contact_count = m_app->world.collisions.contact_solver()->active_contacts_count();
-    entry.broad_metrics = m_app->world.collisions.broad()->collision_metrics();
+    entry.pair_count = m_app->world.collisions.broad()->pairs().size();
     m_report.frame_count++;
 }
 
@@ -288,7 +288,7 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
 
     std::ofstream per_frame_file{path + "/data.csv"};
     per_frame_file << "app_timestep,physics_timestep,bodies,colliders,joints,collisions,"
-                      "total_contacts,active_contacts,total_collision_checks,positive_collision_checks";
+                      "total_contacts,active_contacts,pair_count";
 #ifndef KIT_PROFILE
     for (const char *name : s_measurement_names)
         per_frame_file << ",tm::" << name;
@@ -302,9 +302,7 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     {
         per_frame_file << entry.app_timestep << ',' << entry.physics_timestep << ',' << entry.body_count << ','
                        << entry.collider_count << ',' << entry.joint_count << ',' << entry.collision_count << ','
-                       << entry.total_contact_count << ',' << entry.active_contact_count << ','
-                       << entry.broad_metrics.total_collision_checks << ','
-                       << entry.broad_metrics.positive_collision_checks;
+                       << entry.total_contact_count << ',' << entry.active_contact_count << ',' << entry.pair_count;
 #ifndef KIT_PROFILE
         for (const kit::perf::time &time : entry.measurements)
             per_frame_file << ',' << time.as<TimeUnit, T>();

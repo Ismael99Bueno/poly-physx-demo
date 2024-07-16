@@ -106,13 +106,11 @@ class collision_tab
         }
     }
 
-    void render_broad_metrics() const;
     void render_broad_methods_list() const;
     void render_collisions_and_contacts_list() const;
     void render_contact_solvers_list() const;
 
-    void render_cp_narrow_list() const;
-    void render_pp_narrow_list() const;
+    void render_narrow_methods_list() const;
 
     void render_bounding_boxes() const;
     void render_quad_tree_lines() const;
