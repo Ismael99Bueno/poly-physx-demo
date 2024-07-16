@@ -91,5 +91,8 @@ class performance_panel final : public demo_layer
     std::array<kit::perf::time, 4> m_raw_measurements;
     std::array<kit::perf::time, 4> m_max_measurements;
     std::array<kit::perf::time, 4> m_measurements;
+#ifdef KIT_PROFILE
+    std::unordered_map<const char *, kit::perf::measurement> m_detailed_measurements;
+#endif
 };
 } // namespace ppx::demo

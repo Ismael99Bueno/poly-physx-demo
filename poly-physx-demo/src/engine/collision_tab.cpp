@@ -57,6 +57,10 @@ void collision_tab::render_imgui_tab()
 
     ImGui::Checkbox("Draw bounding boxes", &m_draw_bounding_boxes);
     ImGui::Checkbox("Draw contacts", &m_draw_contacts);
+    ImGui::SliderFloat("Bounding box enlargement", &m_app->world.colliders.params.bbox_enlargement, 0.f, 0.5f, "%.3f",
+                       ImGuiSliderFlags_Logarithmic);
+    ImGui::SliderFloat("Bounding box buffer", &m_app->world.colliders.params.bbox_buffer, 0.f, 5.f, "%.3f",
+                       ImGuiSliderFlags_Logarithmic);
     render_collisions_and_contacts_list();
 
     if (ImGui::CollapsingHeader("Broad phase"))
@@ -66,9 +70,10 @@ void collision_tab::render_imgui_tab()
         if (ImGui::Checkbox("Enabled##Broad", &enabled))
             bp->enabled(enabled);
         ImGui::SliderFloat("Bounding box anticipation", &m_app->world.colliders.params.bbox_enlargement, 0.f, 0.5f);
-        ImGui::Checkbox("Multithreading", &bp->params.multithreading);
+        ImGui::Checkbox("Multithreading##Broad", &bp->params.multithreading);
 
         ImGui::Text("Potential pairs count: %zu", bp->pairs().size());
+        ImGui::Text("Pending collider updates: %zu", bp->pending_updates());
         render_broad_methods_list();
 
         if (auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>())
@@ -79,10 +84,10 @@ void collision_tab::render_imgui_tab()
     {
         narrow_phase2D *np = m_app->world.collisions.narrow();
         bool enabled = np->enabled();
-        if (ImGui::Checkbox("Enabled##Broad", &enabled))
+        if (ImGui::Checkbox("Enabled##Narrow", &enabled))
             np->enabled(enabled);
 
-        ImGui::Checkbox("Multithreading", &np->params.multithreading);
+        ImGui::Checkbox("Multithreading##Narrow", &np->params.multithreading);
         ImGui::SliderInt("Workload count", (int *)&np->params.parallel_workloads, 2, 16);
         render_narrow_methods_list();
     }
@@ -245,18 +250,19 @@ void collision_tab::render_quad_tree_node(const quad_tree::node &node)
 {
     if (node.leaf() && ImGui::TreeNode(&node, "Colliders (%zu)", node.elements().size()))
     {
-        for (collider2D *collider : node.elements())
-            if (ImGui::TreeNode(collider, "%s", kit::uuid::name_from_ptr(collider).c_str()))
+        for (auto &entry : node.elements())
+            if (ImGui::TreeNode(entry.element, "%s", kit::uuid::name_from_ptr(entry.element).c_str()))
             {
-                m_app->actions->entities.render_single_collider_properties(collider);
+                m_app->actions->entities.render_single_collider_properties(entry.element);
                 ImGui::TreePop();
             }
         ImGui::TreePop();
     }
-    if (!node.leaf() && ImGui::TreeNode("Children"))
+    else if (!node.leaf() && ImGui::TreeNode("Children"))
     {
+        std::size_t index = 0;
         for (const auto &child : node.children())
-            if (ImGui::TreeNode(child, "Child (%zu)", child->elements().size()))
+            if (ImGui::TreeNode(child, "Child %zu", index++))
             {
                 render_quad_tree_node(*child);
                 ImGui::TreePop();

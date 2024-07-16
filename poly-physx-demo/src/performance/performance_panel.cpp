@@ -33,6 +33,17 @@ void performance_panel::on_update(const float ts)
     for (std::size_t i = 0; i < 4; i++)
         if (instrumentor.contains(s_measurement_names[i]))
             m_raw_measurements[i] = instrumentor[s_measurement_names[i]].cumulative;
+    for (const auto &ms : instrumentor)
+    {
+        const auto it = m_detailed_measurements.find(ms.name);
+        if (it == m_detailed_measurements.end())
+            m_detailed_measurements.emplace(ms.name, ms);
+        else
+        {
+            it->second.average = m_smoothness * it->second.average + (1.f - m_smoothness) * ms.average;
+            it->second.cumulative = m_smoothness * it->second.cumulative + (1.f - m_smoothness) * ms.cumulative;
+        }
+    }
 #endif
 
     for (std::size_t i = 0; i < 4; i++)
@@ -143,6 +154,27 @@ void performance_panel::render_measurements(const char *unit, const char *format
 
         ImGui::Text(text.c_str(), s_measurement_names[i], current.as<TimeUnit, T>(), max.as<TimeUnit, T>());
     }
+#ifdef KIT_PROFILE
+
+    const std::string text1 = std::format("%s: {} {}", format, unit);
+    const std::string text2 = std::format("%s: {} {} (calls: %u, per call: {} {})", format, unit, format, unit);
+    if (ImGui::CollapsingHeader("Detailed measurements"))
+    {
+        static char lookup[64] = "\0";
+        ImGui::InputText("Search", lookup, 64);
+        for (const auto &[name, ms] : m_detailed_measurements)
+        {
+            if (lookup[0] != '\0' && std::string(name).find(lookup) == std::string::npos)
+                continue;
+            if (ms.calls == 1)
+                ImGui::Text(text1.c_str(), name, ms.cumulative.as<TimeUnit, T>(), unit);
+            else
+                ImGui::Text(text2.c_str(), name, ms.cumulative.as<TimeUnit, T>(), unit, ms.calls,
+                            ms.average.as<TimeUnit, T>(), unit);
+        }
+    }
+
+#endif
 }
 
 void performance_panel::render_fps()
