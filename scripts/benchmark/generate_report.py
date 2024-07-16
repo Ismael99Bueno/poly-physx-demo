@@ -22,6 +22,8 @@ def main(args: Sequence[str] | None = None, *, verbose: bool = True) -> None:
 
     if not output_path.is_dir():
         raise NotADirectoryError(f"Output path '{output_path}' is not a directory")
+    if len(args.x_labels) != len(args.y_labels):
+        raise ValueError("The number of x labels and y labels must be the same")
 
     csvs: dict[Path, pd.DataFrame] = {}
     summaries: dict[Path, Any] = {}
@@ -55,7 +57,7 @@ def main(args: Sequence[str] | None = None, *, verbose: bool = True) -> None:
             pool.starmap(fn, summaries.items())
     else:
         for output_folder, summary in summaries.items():
-            generate_report((output_folder, summary), csvs)
+            generate_report(output_folder, summary, csvs, args)
 
     if verbose:
         print(f"Done in {perf_counter() - t1:.2f} seconds")

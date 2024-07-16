@@ -70,6 +70,20 @@ def create_and_parse_scenario_report_args() -> Namespace:
 
 def __add_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument(
+        "--x-labels",
+        nargs="+",
+        help="One or more regex matching the x labels of the plots to be generated. Must be the same length as the y labels",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
+        "--y-labels",
+        nargs="+",
+        help="One or more regex matching the y labels of the plots to be generated. Must be the same length as the x labels",
+        type=str,
+        required=True,
+    )
+    parser.add_argument(
         "-j",
         "--jobs",
         type=int,
@@ -100,7 +114,7 @@ def __add_common_arguments(parser: ArgumentParser) -> None:
     parser.add_argument(
         "-l",
         "--logarithmic",
-        action="store_true",
-        default=False,
-        help="Use logarithmic scale",
+        default=None,
+        type=str,
+        help="Set which of the plots should have a logarithmic scale. Must be the same length as the x and y labels. Usage: 0010 (4th plot will have a logarithmic scale)",
     )

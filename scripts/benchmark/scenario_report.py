@@ -40,7 +40,7 @@ def main() -> None:
         genargs.extend(
             [
                 "-i",
-                *[str(folder) for folder in input_path],
+                *[str(folder) for folder in input_runs],
                 "-o",
                 *[str(output_path / folder.name) for folder in input_runs],
             ]

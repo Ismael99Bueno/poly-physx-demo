@@ -26,13 +26,12 @@ def generate_report(
     content = write_markdown_recursive(summary)
     if output_folder in csvs:
         output_folder.mkdir(parents=True, exist_ok=True)
-        time_unit = __short_unit(
-            summary[output_folder.name]["Performance summary"]["Unit"]
-        )
-
-        content += f"\n## Benchmark plots ({time_unit})\n"
+        content += f"\n## Benchmark plots\n"
         for filename, fig in create_plot_from_df(
-            csvs[output_folder], log=args.logarithmic
+            csvs[output_folder],
+            args.x_labels,
+            args.y_labels,
+            args.logarithmic,
         ).items():
             html_path = output_folder / f"{filename}.html"
             png_path = output_folder / f"{filename}.png"
@@ -90,16 +89,18 @@ def generate_combined_report(
         big_summary[data_folder.relative_to(common_path)] = summary
 
         if data_folder in csvs:
-            time_unit = __short_unit(summary["Performance summary"]["Unit"])
+            time_unit = __short_unit(summary["Performance"]["Unit"])
             shortened_name = str(data_folder.relative_to(common_path))
             if len(shortened_name) > 12:
                 shortened_name = f"...{shortened_name[-9:]}"
 
             for title, fig in create_plot_from_df(
                 csvs[data_folder],
+                args.x_labels,
+                args.y_labels,
+                args.logarithmic,
                 color=plotly_colors[cindex],
                 name=f"{shortened_name} ({time_unit})",
-                log=args.logarithmic,
             ).items():
                 if title not in plots:
                     plots[title] = fig
