@@ -88,7 +88,6 @@ void collision_tab::render_imgui_tab()
             np->enabled(enabled);
 
         ImGui::Checkbox("Multithreading##Narrow", &np->params.multithreading);
-        ImGui::SliderInt("Workload count", (int *)&np->params.parallel_workloads, 2, 16);
         ImGui::Text("Potential pairs count: %zu", np->pairs().size());
         render_narrow_methods_list();
     }
