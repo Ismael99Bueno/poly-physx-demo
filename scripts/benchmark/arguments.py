@@ -40,19 +40,19 @@ def create_and_parse_scenario_report_args() -> Namespace:
         "--scenario-runs",
         type=str,
         default=None,
-        help="Scenario runs to consider, for example 0-1-3. Default is all of them",
+        help="Scenario runs to consider, for example 0_1_3. Default is all of them",
     )
     parser.add_argument(
         "--scenario-groups",
         nargs="+",
         type=str,
         default=None,
-        help="Groups of scenario runs to combine, for example 0-1-3",
+        help="Groups of scenario runs to combine, for example 0_1_3",
     )
     parser.add_argument(
         "--cycle-groups",
         nargs="+",
-        help="Groups of scenario cycles to combine, for example 0-1-3",
+        help="Groups of scenario cycles to combine, for example 0_1_3",
         type=str,
         default=None,
     )

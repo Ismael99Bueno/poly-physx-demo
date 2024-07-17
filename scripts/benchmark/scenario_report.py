@@ -18,7 +18,7 @@ def main() -> None:
     def create_groups(groups: list[str]) -> dict[str, list[int]]:
         parsed_groups: dict[str, list[int]] = {}
         for group in set(groups):
-            sgroup = sorted({int(g) for g in group.split("-")})
+            sgroup = sorted({int(g) for g in group.split("_")})
             parsed_groups["-".join([str(g) for g in sgroup])] = sgroup
         return parsed_groups
 
@@ -31,7 +31,7 @@ def main() -> None:
     input_runs = sorted([folder for folder in input_path.glob("*") if folder.is_dir()])
 
     if args.scenario_runs is not None:
-        scenario_runs = sorted({int(index) for index in args.scenario_runs.split("-")})
+        scenario_runs = sorted({int(index) for index in args.scenario_runs.split("_")})
         selected_runs = []
         for run in input_runs:
             index = int(str(run).split("-")[0])
