@@ -33,7 +33,9 @@ def create_plot_from_df(
         for col1 in df.filter(regex=xreg).columns:
             for col2 in df.filter(regex=yreg).columns:
                 if col1 != col2:
-                    title = f"{col1} VS {col2}"
+                    title = (
+                        f"{col2.removeprefix('tm::')} VS {col1.removeprefix('tm::')}"
+                    )
                     plots[title] = go.Figure(
                         data=[
                             go.Scatter(

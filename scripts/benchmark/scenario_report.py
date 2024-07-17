@@ -50,7 +50,9 @@ def main() -> None:
     common_args.append("-c")
     # for every group, a dict of inputs and outputs with the cycle name as key
     grouped_scenarios: dict[str, dict[str, tuple[list[str], str]]] = {}
-    for scindex, run_folder in enumerate(input_runs):
+    for run_folder in input_runs:
+        scindex = int(run_folder.name[0])
+
         cycle_folders = sorted(
             [folder for folder in run_folder.glob("*") if folder.is_dir()]
         )
