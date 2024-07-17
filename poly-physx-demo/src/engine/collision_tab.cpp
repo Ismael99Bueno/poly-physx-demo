@@ -72,7 +72,8 @@ void collision_tab::render_imgui_tab()
         ImGui::SliderFloat("Bounding box anticipation", &m_app->world.colliders.params.bbox_enlargement, 0.f, 0.5f);
         ImGui::Checkbox("Multithreading##Broad", &bp->params.multithreading);
 
-        ImGui::Text("New potential pairs count: %zu", bp->new_pairs().size());
+        ImGui::Text("New potential pairs count: %zu", bp->new_pairs_count());
+        ImGui::Text("Potential pairs count: %zu", bp->pairs().size());
         ImGui::Text("Pending collider updates: %zu", bp->pending_updates());
         render_broad_methods_list();
 
@@ -88,7 +89,6 @@ void collision_tab::render_imgui_tab()
             np->enabled(enabled);
 
         ImGui::Checkbox("Multithreading##Narrow", &np->params.multithreading);
-        ImGui::Text("Potential pairs count: %zu", np->pairs().size());
         render_narrow_methods_list();
     }
 
@@ -282,7 +282,7 @@ void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
     auto props = qtbroad.props();
     bool changed = ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
     changed |= ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
-    changed |= ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 50.f);
+    changed |= ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 100.f);
 
     if (changed)
         qtbroad.props(props);
