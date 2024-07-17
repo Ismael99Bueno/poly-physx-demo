@@ -196,17 +196,13 @@ void collision_tab::render_broad_methods_list() const
         det_method = 0;
     else if (m_app->world.collisions.broad<quad_tree_broad2D>())
         det_method = 1;
-    else if (m_app->world.collisions.broad<sort_sweep_broad2D>())
-        det_method = 2;
 
-    if (ImGui::Combo("Broad phase algorithm", &det_method, "Brute force\0Quad tree\0Sort and sweep\0\0"))
+    if (ImGui::Combo("Broad phase algorithm", &det_method, "Brute force\0Quad tree\0\0"))
     {
         if (det_method == 0)
             m_app->world.collisions.set_broad<brute_force_broad2D>();
         else if (det_method == 1)
             m_app->world.collisions.set_broad<quad_tree_broad2D>();
-        else if (det_method == 2)
-            m_app->world.collisions.set_broad<sort_sweep_broad2D>();
     }
 }
 

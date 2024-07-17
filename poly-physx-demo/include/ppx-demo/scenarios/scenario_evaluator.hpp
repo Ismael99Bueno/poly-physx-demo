@@ -136,27 +136,15 @@ template <Scenario T> class scenario_evaluator final : public T
             m_cycle_info = "Quad tree broad phase without islands";
             return true;
         case 2:
-            world.collisions.set_broad<sort_sweep_broad2D>();
-            world.islands.enabled(true);
-            m_cycle_name = "2-ss-isl";
-            m_cycle_info = "Sort and sweep broad phase with islands";
-            return true;
-        case 3:
-            world.collisions.set_broad<sort_sweep_broad2D>();
-            world.islands.enabled(false);
-            m_cycle_name = "3-ss-nisl";
-            m_cycle_info = "Sort and sweep broad phase without islands";
-            return true;
-        case 4:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(true);
-            m_cycle_name = "4-bf-isl";
+            m_cycle_name = "2-bf-isl";
             m_cycle_info = "Brute force broad phase with islands";
             return true;
-        case 5:
+        case 3:
             world.collisions.set_broad<brute_force_broad2D>();
             world.islands.enabled(false);
-            m_cycle_name = "5-bf-nisl";
+            m_cycle_name = "3-bf-nisl";
             m_cycle_info = "Brute force broad phase without islands";
             return true;
         default:

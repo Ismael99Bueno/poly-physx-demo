@@ -4,7 +4,6 @@
 
 #include "ppx/collision/broad/brute_force_broad2D.hpp"
 #include "ppx/collision/broad/quad_tree_broad2D.hpp"
-#include "ppx/collision/broad/sort_sweep_broad2D.hpp"
 #include "ppx/collision/contacts/contact_solver2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
 #include "ppx/collision/contacts/spring_contact2D.hpp"
