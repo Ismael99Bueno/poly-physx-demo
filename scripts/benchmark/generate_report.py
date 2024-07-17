@@ -12,7 +12,7 @@ import yaml
 import functools
 
 
-def main(args: Sequence[str] | None = None, *, verbose: bool = True) -> None:
+def main(args: Sequence[str] | None = None, *, log_duration: bool = True) -> None:
     t1 = perf_counter()
     args = create_and_parse_generate_report_args(args)
     input_paths = args.input
@@ -59,7 +59,7 @@ def main(args: Sequence[str] | None = None, *, verbose: bool = True) -> None:
         for output_folder, summary in summaries.items():
             generate_report(output_folder, summary, csvs, args)
 
-    if verbose:
+    if log_duration:
         print(f"Done in {perf_counter() - t1:.2f} seconds")
 
 

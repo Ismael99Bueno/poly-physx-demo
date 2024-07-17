@@ -43,6 +43,12 @@ def create_and_parse_scenario_report_args() -> Namespace:
         help="Scenario runs to consider, for example 0_1_3. Default is all of them",
     )
     parser.add_argument(
+        "--cycle-runs",
+        type=str,
+        default=None,
+        help="Scenario cycles to consider, for example 0_1_3. Default is all of them",
+    )
+    parser.add_argument(
         "--scenario-groups",
         nargs="+",
         type=str,
