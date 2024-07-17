@@ -45,13 +45,13 @@ template <Scenario T> class scenario_evaluator final : public T
     }
     void update(float ts) override
     {
-        if (!T::expired() && !m_stabilizing)
+        if (!T::expired() && !m_stabilizing && !m_skip_cycle)
         {
             T::update(ts);
             return;
         }
         m_timer += ts;
-        if (m_latent && m_timer >= m_latent_time)
+        if (m_skip_cycle || (m_latent && m_timer >= m_latent_time))
         {
             m_latent = false;
             m_stabilizing = true;
@@ -72,6 +72,7 @@ template <Scenario T> class scenario_evaluator final : public T
             m_stabilizing = false;
             m_timer = 0.f;
             m_latent = true;
+            m_skip_cycle = false;
 
             T::start();
             this->m_app->performance->start_recording();
@@ -86,6 +87,7 @@ template <Scenario T> class scenario_evaluator final : public T
                 ImGui::Text("Run: %s", m_run_name.c_str());
             if (!m_stabilizing)
                 ImGui::Text("Running with: %s", m_cycle_info);
+            m_skip_cycle = ImGui::Button("Skip cycle");
             const std::string cycle_status = std::format("Cycle: {}/6", m_cycle_index);
             ImGui::ProgressBar((float)m_cycle_index / 6.f, ImVec2(0.f, 0.f), cycle_status.c_str());
 
@@ -198,5 +200,6 @@ template <Scenario T> class scenario_evaluator final : public T
 
     bool m_stabilizing = false;
     bool m_latent = false;
+    bool m_skip_cycle = false;
 };
 } // namespace ppx::demo

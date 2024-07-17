@@ -72,7 +72,7 @@ void collision_tab::render_imgui_tab()
         ImGui::SliderFloat("Bounding box anticipation", &m_app->world.colliders.params.bbox_enlargement, 0.f, 0.5f);
         ImGui::Checkbox("Multithreading##Broad", &bp->params.multithreading);
 
-        ImGui::Text("Potential pairs count: %zu", bp->pairs().size());
+        ImGui::Text("New potential pairs count: %zu", bp->new_pairs().size());
         ImGui::Text("Pending collider updates: %zu", bp->pending_updates());
         render_broad_methods_list();
 
@@ -89,6 +89,7 @@ void collision_tab::render_imgui_tab()
 
         ImGui::Checkbox("Multithreading##Narrow", &np->params.multithreading);
         ImGui::SliderInt("Workload count", (int *)&np->params.parallel_workloads, 2, 16);
+        ImGui::Text("Potential pairs count: %zu", np->pairs().size());
         render_narrow_methods_list();
     }
 
@@ -276,6 +277,8 @@ void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
     ImGui::Checkbox("Force square shape", &qtbroad.force_square_shape);
     ImGui::SliderFloat("Rebuild time threshold", &qtbroad.rebuild_time_threshold, 1.f, 10.f);
     ImGui::Text("Rebuild count: %u", qtbroad.rebuild_count());
+    if (ImGui::Button("Rebuild"))
+        qtbroad.build_tree_from_scratch();
 
     auto props = qtbroad.quad_tree().props();
     bool changed = ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);

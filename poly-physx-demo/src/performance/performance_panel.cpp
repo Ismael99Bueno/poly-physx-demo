@@ -243,7 +243,7 @@ void performance_panel::record(const float ts)
     entry.collision_count = m_app->world.collisions.size();
     entry.total_contact_count = m_app->world.collisions.contact_solver()->total_contacts_count();
     entry.active_contact_count = m_app->world.collisions.contact_solver()->active_contacts_count();
-    entry.pair_count = m_app->world.collisions.broad()->pairs().size();
+    entry.pair_count = m_app->world.collisions.narrow()->pairs().size();
     m_report.frame_count++;
 }
 
