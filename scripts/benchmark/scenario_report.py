@@ -18,8 +18,8 @@ def main() -> None:
     def create_groups(groups: list[str]) -> dict[str, list[int]]:
         parsed_groups: dict[str, list[int]] = {}
         for group in set(groups):
-            sgroup = "".join(sorted(group))
-            parsed_groups[sgroup] = [int(g) for g in sgroup]
+            sgroup = sorted({int(g) for g in group.split("-")})
+            parsed_groups["-".join([str(g) for g in sgroup])] = sgroup
         return parsed_groups
 
     if args.scenario_groups is not None:
@@ -31,8 +31,13 @@ def main() -> None:
     input_runs = sorted([folder for folder in input_path.glob("*") if folder.is_dir()])
 
     if args.scenario_runs is not None:
-        scenario_runs = sorted({int(index) for index in args.scenario_runs})
-        input_runs = [input_runs[i] for i in scenario_runs]
+        scenario_runs = sorted({int(index) for index in args.scenario_runs.split("-")})
+        selected_runs = []
+        for run in input_runs:
+            index = int(str(run).split("-")[0])
+            if index in scenario_runs:
+                selected_runs.append(run)
+        input_runs = selected_runs
 
     # standalone report generation
     if args.standalone:
@@ -51,7 +56,7 @@ def main() -> None:
     # for every group, a dict of inputs and outputs with the cycle name as key
     grouped_scenarios: dict[str, dict[str, tuple[list[str], str]]] = {}
     for run_folder in input_runs:
-        scindex = int(run_folder.name[0])
+        scindex = int(str(run_folder).split("-")[0])
 
         cycle_folders = sorted(
             [folder for folder in run_folder.glob("*") if folder.is_dir()]
