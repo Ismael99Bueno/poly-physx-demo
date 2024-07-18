@@ -54,10 +54,11 @@ void scenarios_panel::on_render(const float ts)
     if (ImGui::Begin("Scenarios", &window_toggle))
     {
         render_dropdown_and_scenario_info();
+        int index = 0;
         for (auto it = m_queued_scenarios.begin(); it != m_queued_scenarios.end();)
         {
             const auto &[sctype, scenario] = *it;
-            ImGui::PushID((int)sctype);
+            ImGui::PushID(index++);
             const bool to_remove = ImGui::Button("X");
             ImGui::PopID();
             ImGui::SameLine();
