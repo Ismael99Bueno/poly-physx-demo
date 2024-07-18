@@ -244,9 +244,8 @@ void performance_panel::record(const float ts)
     entry.body_count = m_app->world.bodies.size();
     entry.collider_count = m_app->world.colliders.size();
     entry.joint_count = m_app->world.joints.size();
-    entry.collision_count = m_app->world.collisions.size();
     entry.total_contact_count = m_app->world.collisions.contact_solver()->total_contacts_count();
-    entry.active_contact_count = m_app->world.collisions.contact_solver()->active_contacts_count();
+    entry.active_contact_count = m_app->world.collisions.contact_solver()->create_active_contacts_list().size();
     entry.pair_count = m_app->world.collisions.broad()->pairs().size();
     m_report.frame_count++;
 }
@@ -296,9 +295,8 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     settings["Bodies"] = m_app->world.bodies.size();
     settings["Colliders"] = m_app->world.colliders.size();
     settings["Joints"] = m_app->world.joints.size();
-    settings["Collisions"] = m_app->world.collisions.size();
     settings["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
-    settings["Active contacts"] = m_app->world.collisions.contact_solver()->active_contacts_count();
+    settings["Active contacts"] = m_app->world.collisions.contact_solver()->create_active_contacts_list().size();
     settings["Constraint settings"] = m_app->world.joints.constraints.params;
     const scenario *sc = m_app->scenarios->current_scenario();
     if (sc && !sc->stopped())
@@ -323,7 +321,7 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     summary_file << out.c_str();
 
     std::ofstream per_frame_file{path + "/data.csv"};
-    per_frame_file << "app_timestep,physics_timestep,bodies,colliders,joints,collisions,"
+    per_frame_file << "app_timestep,physics_timestep,bodies,colliders,joints,"
                       "total_contacts,active_contacts,pair_count";
 #ifndef KIT_PROFILE
     for (const char *name : s_measurement_names)
@@ -337,8 +335,8 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     for (const auto &entry : m_report.per_frame_data)
     {
         per_frame_file << entry.app_timestep << ',' << entry.physics_timestep << ',' << entry.body_count << ','
-                       << entry.collider_count << ',' << entry.joint_count << ',' << entry.collision_count << ','
-                       << entry.total_contact_count << ',' << entry.active_contact_count << ',' << entry.pair_count;
+                       << entry.collider_count << ',' << entry.joint_count << ',' << entry.total_contact_count << ','
+                       << entry.active_contact_count << ',' << entry.pair_count;
 #ifndef KIT_PROFILE
         for (const kit::perf::time &time : entry.measurements)
             per_frame_file << ',' << time.as<TimeUnit, T>();

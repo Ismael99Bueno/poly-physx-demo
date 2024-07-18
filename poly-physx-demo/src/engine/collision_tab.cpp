@@ -22,9 +22,9 @@ void collision_tab::update()
     if (m_draw_contacts)
     {
         if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
-            update_contact_lines(nonpen->contacts());
+            update_contact_lines(nonpen->contacts_map());
         else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
-            update_contact_lines(spring->contacts());
+            update_contact_lines(spring->contacts_map());
     }
 
     auto qtbroad = m_app->world.collisions.broad<quad_tree_broad2D>();
@@ -41,9 +41,9 @@ void collision_tab::render()
     if (m_draw_contacts)
     {
         if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
-            render_contact_lines(nonpen->contacts());
+            render_contact_lines(nonpen->contacts_map());
         else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
-            render_contact_lines(spring->contacts());
+            render_contact_lines(spring->contacts_map());
     }
     if (m_visualize_qtree && m_app->world.collisions.broad<quad_tree_broad2D>())
         render_quad_tree_lines();
@@ -61,7 +61,7 @@ void collision_tab::render_imgui_tab()
                        ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Bounding box buffer", &m_app->world.colliders.params.bbox_buffer, 0.f, 5.f, "%.3f",
                        ImGuiSliderFlags_Logarithmic);
-    render_collisions_and_contacts_list();
+    render_contacts_list();
 
     if (ImGui::CollapsingHeader("Broad phase"))
     {
@@ -112,38 +112,8 @@ void collision_tab::render_imgui_tab()
     }
 }
 
-void collision_tab::render_collisions_and_contacts_list() const
+void collision_tab::render_contacts_list() const
 {
-    if (ImGui::TreeNode(&m_app, "Collisions (%zu)", m_app->world.collisions.size()))
-    {
-        for (const collision2D &col : m_app->world.collisions)
-            if (ImGui::TreeNode(&col, "%s - %s", kit::uuid::name_from_ptr(col.collider1).c_str(),
-                                kit::uuid::name_from_ptr(col.collider2).c_str()))
-            {
-                ImGui::Text("Contacts: %zu", col.manifold.size());
-                ImGui::Text("MTV - x: %.5f, y: %.5f", col.mtv.x, col.mtv.y);
-                if (ImGui::TreeNode("Collider 1"))
-                {
-                    m_app->actions->entities.render_single_collider_properties(col.collider1);
-                    ImGui::TreePop();
-                }
-                if (ImGui::TreeNode("Collider 2"))
-                {
-                    m_app->actions->entities.render_single_collider_properties(col.collider2);
-                    ImGui::TreePop();
-                }
-
-                ImGui::Spacing();
-
-                for (std::size_t i = 0; i < col.manifold.size(); i++)
-                {
-                    const glm::vec2 &point = col.manifold[i].point;
-                    ImGui::Text("Contact ID: %u - x: %.5f, y: %.5f", col.manifold[i].id.key, point.x, point.y);
-                }
-                ImGui::TreePop();
-            }
-        ImGui::TreePop();
-    }
     if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)",
                         m_app->world.collisions.contact_solver()->total_contacts_count()))
     {

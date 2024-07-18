@@ -51,7 +51,8 @@ void islands_tab::render()
 {
     if (!m_draw_islands || !m_app->world.islands.enabled())
         return;
-    for (std::size_t i = 0; i < m_app->world.islands.size(); i++)
+    const std::size_t end = glm::min(m_app->world.islands.size(), m_island_lines.size());
+    for (std::size_t i = 0; i < end; i++)
         m_window->draw(m_island_lines[i]);
 }
 
