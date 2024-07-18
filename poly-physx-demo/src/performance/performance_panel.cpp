@@ -42,6 +42,7 @@ void performance_panel::on_update(const float ts)
         {
             it->second.average = m_smoothness * it->second.average + (1.f - m_smoothness) * ms.average;
             it->second.cumulative = m_smoothness * it->second.cumulative + (1.f - m_smoothness) * ms.cumulative;
+            it->second.calls = ms.calls;
         }
     }
 #endif
@@ -160,6 +161,9 @@ void performance_panel::render_measurements(const char *unit, const char *format
     const std::string text2 = std::format("%s: {} {} (calls: %u, per call: {} {})", format, unit, format, unit);
     if (ImGui::CollapsingHeader("Detailed measurements"))
     {
+        if (ImGui::Button("Clear"))
+            m_detailed_measurements.clear();
+
         static char lookup[64] = "\0";
         ImGui::InputText("Search", lookup, 64);
         for (const auto &[name, ms] : m_detailed_measurements)
@@ -167,10 +171,10 @@ void performance_panel::render_measurements(const char *unit, const char *format
             if (lookup[0] != '\0' && std::string(name).find(lookup) == std::string::npos)
                 continue;
             if (ms.calls == 1)
-                ImGui::Text(text1.c_str(), name, ms.cumulative.as<TimeUnit, T>(), unit);
+                ImGui::Text(text1.c_str(), name, ms.cumulative.as<TimeUnit, T>());
             else
-                ImGui::Text(text2.c_str(), name, ms.cumulative.as<TimeUnit, T>(), unit, ms.calls,
-                            ms.average.as<TimeUnit, T>(), unit);
+                ImGui::Text(text2.c_str(), name, ms.cumulative.as<TimeUnit, T>(), ms.calls,
+                            ms.average.as<TimeUnit, T>());
         }
     }
 
