@@ -81,10 +81,8 @@ void islands_tab::render_imgui_tab()
 
     if (enabled && ImGui::TreeNode(&m_app, "Islands (%zu)", m_app->world.islands.size()))
     {
-        std::size_t id = 0;
         for (const island2D *island : m_app->world.islands)
-            if (ImGui::TreeNode(&id + ++id, "%s (%zu)", kit::uuid::name_from_ptr(island).c_str(),
-                                island->bodies().size()))
+            if (ImGui::TreeNode(island, "%s (%zu)", kit::uuid::name_from_ptr(island).c_str(), island->bodies().size()))
             {
                 ImGui::Text("Energy: %.4f", island->energy());
                 ImGui::Text("Time still: %.4f", island->time_still());
@@ -95,7 +93,7 @@ void islands_tab::render_imgui_tab()
                 ImGui::Text("Actuators count: %zu", island->actuators().size());
                 ImGui::Text("Constraints count: %zu", island->constraints().size());
 
-                if (ImGui::TreeNode(&id + id, "Bodies (%zu)", island->bodies().size()))
+                if (ImGui::TreeNode(island, "Bodies (%zu)", island->bodies().size()))
                 {
                     for (body2D *body : island->bodies())
                         if (ImGui::TreeNode(body, "%s", kit::uuid::name_from_ptr(body).c_str()))
