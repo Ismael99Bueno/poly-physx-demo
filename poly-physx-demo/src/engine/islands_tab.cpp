@@ -63,8 +63,6 @@ void islands_tab::render_imgui_tab()
         m_app->world.islands.enabled(enabled);
 
     ImGui::Checkbox("Multithreading", &m_app->world.islands.params.multithreading);
-
-    ImGui::Checkbox("Split", &m_app->world.islands.params.enable_split);
     ImGui::Checkbox("Sleep", &m_app->world.islands.params.enable_sleep);
 
     ImGui::SliderFloat("Lower sleep energy threshold", &m_app->world.islands.params.lower_sleep_energy_threshold,
@@ -93,7 +91,6 @@ void islands_tab::render_imgui_tab()
                 ImGui::Text("Asleep: %s", island->asleep() ? "true" : "false");
                 ImGui::Text("About to sleep: %s", island->about_to_sleep() ? "true" : "false");
                 ImGui::Text("Sleep energy threshold: %.4f", m_app->world.islands.sleep_energy_threshold(island));
-                ImGui::Text("Wants to split: %s", island->may_split ? "true" : "false");
                 ImGui::Text("Actuators count: %zu", island->actuators().size());
                 ImGui::Text("Constraints count: %zu", island->constraints().size());
 
