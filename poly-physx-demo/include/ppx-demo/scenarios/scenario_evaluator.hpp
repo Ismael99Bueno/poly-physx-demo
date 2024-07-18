@@ -88,8 +88,8 @@ template <Scenario T> class scenario_evaluator final : public T
             if (!m_stabilizing)
                 ImGui::Text("Running with: %s", m_cycle_info);
             m_skip_cycle = ImGui::Button("Skip cycle");
-            const std::string cycle_status = std::format("Cycle: {}/6", m_cycle_index);
-            ImGui::ProgressBar((float)m_cycle_index / 6.f, ImVec2(0.f, 0.f), cycle_status.c_str());
+            const std::string cycle_status = std::format("Cycle: {}/4", m_cycle_index);
+            ImGui::ProgressBar((float)m_cycle_index / 4.f, ImVec2(0.f, 0.f), cycle_status.c_str());
 
             if (m_latent && T::expired())
             {
