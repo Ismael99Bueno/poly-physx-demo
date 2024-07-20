@@ -76,7 +76,7 @@ filter "configurations:release*"
 filter "configurations:dist*"
    defines "NDEBUG"
    runtime "Release"
-   optimize "On"
+   buildoptions {"-Ofast"}
 
 filter "configurations:*profile"
    defines "KIT_PROFILE"

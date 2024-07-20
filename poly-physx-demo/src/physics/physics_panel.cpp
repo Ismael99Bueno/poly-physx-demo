@@ -182,7 +182,7 @@ void physics_panel::update_potential_data()
     for (std::size_t i = 0; i < POTENTIAL_PLOT_POINTS_COUNT; i++)
         m_potential_data[i] = {m_x_limits.x + i * dx, 0.f};
 
-    static constexpr glm::vec2 pos_reference{1.f, 0.f};
+    static const glm::vec2 pos_reference{1.f, 0.f};
     static const body2D unit{m_app->world};
     for (std::size_t i = 2; i < m_behaviours.size(); i++)
         if (m_behaviours[i]->enabled())
