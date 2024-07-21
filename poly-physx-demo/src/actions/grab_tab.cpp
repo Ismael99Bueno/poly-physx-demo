@@ -23,7 +23,7 @@ void grab_tab::update()
     if (m_jtype != joint_type::SPRING)
     {
         const auto [_, damping] =
-            spring_joint2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_grabbed->props().nondynamic.mass);
+            spring_joint2D::stiffness_and_damping(m_frequency, m_damping_ratio, m_grabbed->mass());
         m_grabbed->add_force(-damping * m_grabbed->velocity());
     }
 }

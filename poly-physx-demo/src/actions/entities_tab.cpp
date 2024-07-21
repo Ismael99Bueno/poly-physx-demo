@@ -95,7 +95,7 @@ void entities_tab::render_single_body_properties(body2D *body)
         m_app->physics->add(body);
     }
 
-    float mass = body->props().nondynamic.mass;
+    float mass = body->mass();
     if (ImGui::DragFloat("Mass", &mass, drag_speed, 0.f, FLT_MAX, format))
         body->mass(mass);
 
@@ -103,7 +103,7 @@ void entities_tab::render_single_body_properties(body2D *body)
     if (ImGui::DragFloat("Charge", &charge, drag_speed, 0.f, 0.f, format))
         body->charge(charge);
 
-    ImGui::Text("Inertia: %.1f", body->props().nondynamic.inertia);
+    ImGui::Text("Inertia: %.1f", body->inertia());
 
     const glm::vec2 &lpos = body->lposition();
     ImGui::Text("Local position: (%.1f, %.1f)", lpos.x, lpos.y);
@@ -134,15 +134,9 @@ void entities_tab::render_single_body_properties(body2D *body)
     if (body->asleep() && ImGui::Button("Body is asleep. Wake up!"))
         body->awake();
 
-    const glm::vec2 force = body->force();
-    ImGui::Text("Force: (%.1f, %.1f)", force.x, force.y);
-
     glm::vec2 persistent_force = body->persistent_force();
     if (ImGui::DragFloat2("Persistent force", glm::value_ptr(persistent_force), drag_speed, 0.f, 0.f, format))
         body->persistent_force(persistent_force);
-
-    const float torque = body->torque();
-    ImGui::Text("Torque: %.1f", torque);
 
     float persistent_torque = body->persistent_torque();
     if (ImGui::DragFloat("Persistent torque", &persistent_torque, drag_speed, 0.f, 0.f, format))
@@ -273,7 +267,7 @@ void entities_tab::render_selected_bodies_properties()
 
         for (body2D *body : selected)
         {
-            mass += body->props().nondynamic.mass;
+            mass += body->mass();
             charge += body->charge();
         }
         mass /= selected.size();

@@ -15,7 +15,7 @@ void joints_tab::update()
     if (!m_body1 || !m_preview)
         return;
 
-    const glm::vec2 ganchor = m_body1->global_position_point(m_lanchor1);
+    const glm::vec2 ganchor = m_body1->state().global_position_point(m_lanchor1);
     m_preview->p1(ganchor);
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
@@ -33,7 +33,7 @@ void joints_tab::render()
 
 float joints_tab::current_joint_length() const
 {
-    const glm::vec2 ganchor1 = m_body1->local_position_point(m_lanchor1);
+    const glm::vec2 ganchor1 = m_body1->state().local_position_point(m_lanchor1);
 
     const bool center_anchor2 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
     const glm::vec2 mpos = m_app->world_mouse_position();
@@ -602,8 +602,8 @@ void joints_tab::begin_joint_attach()
     m_body1 = at_mpos.front();
 
     const bool center_anchor1 = !lynx::input2D::key_pressed(lynx::input2D::key::LEFT_CONTROL);
-    m_lanchor1 =
-        center_anchor1 ? m_body1->local_position_point(mpos) : m_body1->local_position_point(m_body1->centroid());
+    m_lanchor1 = center_anchor1 ? m_body1->state().local_position_point(mpos)
+                                : m_body1->state().local_position_point(m_body1->centroid());
 
     switch (m_joint_type)
     {
@@ -656,7 +656,7 @@ template <typename Joint> bool joints_tab::attach_bodies_to_joint_specs(typename
         specs.ganchor = center_anchor2 ? mpos : body2->centroid();
     else if constexpr (Joint::ANCHORS == 2)
     {
-        specs.ganchor1 = m_body1->global_position_point(m_lanchor1);
+        specs.ganchor1 = m_body1->state().global_position_point(m_lanchor1);
         specs.ganchor2 = center_anchor2 ? mpos : body2->centroid();
     }
 

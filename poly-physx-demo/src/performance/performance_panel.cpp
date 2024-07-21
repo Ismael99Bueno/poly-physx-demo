@@ -217,7 +217,7 @@ void performance_panel::record(const float ts)
 {
     auto &entry = m_report.per_frame_data.emplace_back();
     entry.app_timestep = ts;
-    entry.physics_timestep = m_app->world.timestep();
+    entry.physics_timestep = m_app->world.integrator.ts.value;
 #ifndef KIT_PROFILE
     for (std::size_t i = 0; i < 4; i++)
     {
@@ -290,7 +290,7 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     YAML::Node node;
     node["Date"] = std::format("{:%Y-%m-%d %H:%M}", std::chrono::system_clock::now());
     YAML::Node settings = node["Simulation settings"];
-    settings["Physics timestep"] = m_app->world.timestep();
+    settings["Physics timestep"] = m_app->world.integrator.ts.value;
     settings["Hertz"] = m_app->world.hertz();
     settings["Bodies"] = m_app->world.bodies.size();
     settings["Colliders"] = m_app->world.colliders.size();
