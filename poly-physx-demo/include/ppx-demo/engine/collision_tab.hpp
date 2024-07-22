@@ -4,9 +4,9 @@
 
 #include "ppx/collision/broad/brute_force_broad2D.hpp"
 #include "ppx/collision/broad/quad_tree_broad2D.hpp"
-#include "ppx/collision/contacts/contact_solver2D.hpp"
 #include "ppx/collision/contacts/nonpen_contact2D.hpp"
 #include "ppx/collision/contacts/spring_contact2D.hpp"
+#include "ppx/collision/contacts/contact_manager2D.hpp"
 
 #include "lynx/drawing/line.hpp"
 #include "ppx-app/drawables/lines/thick_line2D.hpp"
@@ -45,7 +45,7 @@ class collision_tab
         lynx::ellipse2D point;
         thick_line2D normal;
     };
-    using contact_key = collision_contacts2D::contact_key;
+    using contact_key = icontact_manager2D::contact_key;
     using nonpen_cmap = contact_manager2D<nonpen_contact2D>::contact_map;
     using spring_cmap = contact_manager2D<spring_contact2D>::contact_map;
 

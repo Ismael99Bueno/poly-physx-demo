@@ -21,9 +21,9 @@ void collision_tab::update()
         update_bounding_boxes();
     if (m_draw_contacts)
     {
-        if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
+        if (auto nonpen = m_app->world.collisions.contact_manager<contact_constraint_manager2D<nonpen_contact2D>>())
             update_contact_lines(nonpen->contacts_map());
-        else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
+        else if (auto spring = m_app->world.collisions.contact_manager<contact_actuator_manager2D<spring_contact2D>>())
             update_contact_lines(spring->contacts_map());
     }
 
@@ -40,9 +40,9 @@ void collision_tab::render()
         render_bounding_boxes();
     if (m_draw_contacts)
     {
-        if (auto nonpen = m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
+        if (auto nonpen = m_app->world.collisions.contact_manager<contact_constraint_manager2D<nonpen_contact2D>>())
             render_contact_lines(nonpen->contacts_map());
-        else if (auto spring = m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
+        else if (auto spring = m_app->world.collisions.contact_manager<contact_actuator_manager2D<spring_contact2D>>())
             render_contact_lines(spring->contacts_map());
     }
     if (m_visualize_qtree && m_app->world.collisions.broad<quad_tree_broad2D>())
@@ -97,17 +97,17 @@ void collision_tab::render_imgui_tab()
         ImGui::Text("The contacts solver will be responsible for solving the contacts between colliders if islands are "
                     "disabled");
 
-        enabled = m_app->world.collisions.contact_solver()->enabled();
+        enabled = m_app->world.collisions.contact_manager()->enabled();
         if (ImGui::Checkbox("Enabled##Contacts", &enabled))
-            m_app->world.collisions.contact_solver()->enabled(enabled);
+            m_app->world.collisions.contact_manager()->enabled(enabled);
 
-        ImGui::SliderInt("Contact lifetime", (int *)&m_app->world.collisions.contact_solver()->params.contact_lifetime,
+        ImGui::SliderInt("Contact lifetime", (int *)&m_app->world.collisions.contact_manager()->params.contact_lifetime,
                          1, 12);
         render_contact_solvers_list();
 
-        if (m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
+        if (m_app->world.collisions.contact_manager<contact_constraint_manager2D<nonpen_contact2D>>())
             render_nonpen_contact_solver_parameters();
-        else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
+        else if (m_app->world.collisions.contact_manager<contact_actuator_manager2D<spring_contact2D>>())
             render_spring_contact_solver_parameters();
     }
 }
@@ -115,9 +115,9 @@ void collision_tab::render_imgui_tab()
 void collision_tab::render_contacts_list() const
 {
     if (ImGui::TreeNode(&m_app->world, "Contacts (%zu)",
-                        m_app->world.collisions.contact_solver()->total_contacts_count()))
+                        m_app->world.collisions.contact_manager()->total_contacts_count()))
     {
-        const auto contacts = m_app->world.collisions.contact_solver()->create_total_contacts_list();
+        const auto contacts = m_app->world.collisions.contact_manager()->create_total_contacts_list();
         for (const contact2D *contact : contacts)
             if (ImGui::TreeNode(contact, "%s - %s (%u)", kit::uuid::name_from_ptr(contact->collider1()).c_str(),
                                 kit::uuid::name_from_ptr(contact->collider2()).c_str(), contact->point().id.key))
@@ -179,16 +179,16 @@ void collision_tab::render_broad_methods_list() const
 void collision_tab::render_contact_solvers_list() const
 {
     int csolver_method;
-    if (m_app->world.collisions.contact_solver<contact_solver2D<nonpen_contact2D>>())
+    if (m_app->world.collisions.contact_manager<contact_constraint_manager2D<nonpen_contact2D>>())
         csolver_method = 0;
-    else if (m_app->world.collisions.contact_solver<contact_solver2D<spring_contact2D>>())
+    else if (m_app->world.collisions.contact_manager<contact_actuator_manager2D<spring_contact2D>>())
         csolver_method = 1;
     if (ImGui::Combo("Collision contacts", &csolver_method, "Non-penetration contact\0Spring contact\0\0"))
     {
         if (csolver_method == 0)
-            m_app->world.collisions.set_contact_solver<contact_solver2D<nonpen_contact2D>>();
+            m_app->world.collisions.set_contact_manager<contact_constraint_manager2D<nonpen_contact2D>>();
         else if (csolver_method == 1)
-            m_app->world.collisions.set_contact_solver<contact_solver2D<spring_contact2D>>();
+            m_app->world.collisions.set_contact_manager<contact_actuator_manager2D<spring_contact2D>>();
     }
 }
 

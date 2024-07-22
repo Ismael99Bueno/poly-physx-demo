@@ -244,8 +244,8 @@ void performance_panel::record(const float ts)
     entry.body_count = m_app->world.bodies.size();
     entry.collider_count = m_app->world.colliders.size();
     entry.joint_count = m_app->world.joints.size();
-    entry.total_contact_count = m_app->world.collisions.contact_solver()->total_contacts_count();
-    entry.active_contact_count = m_app->world.collisions.contact_solver()->create_active_contacts_list().size();
+    entry.total_contact_count = m_app->world.collisions.contact_manager()->total_contacts_count();
+    entry.active_contact_count = m_app->world.collisions.contact_manager()->create_active_contacts_list().size();
     entry.pair_count = m_app->world.collisions.broad()->pairs().size();
     m_report.frame_count++;
 }
@@ -295,8 +295,8 @@ void performance_panel::dump_report(const std::string &relpath, const char *unit
     settings["Bodies"] = m_app->world.bodies.size();
     settings["Colliders"] = m_app->world.colliders.size();
     settings["Joints"] = m_app->world.joints.size();
-    settings["Total contacts"] = m_app->world.collisions.contact_solver()->total_contacts_count();
-    settings["Active contacts"] = m_app->world.collisions.contact_solver()->create_active_contacts_list().size();
+    settings["Total contacts"] = m_app->world.collisions.contact_manager()->total_contacts_count();
+    settings["Active contacts"] = m_app->world.collisions.contact_manager()->create_active_contacts_list().size();
     settings["Constraint settings"] = m_app->world.joints.constraints.params;
     const scenario *sc = m_app->scenarios->current_scenario();
     if (sc && !sc->stopped())
