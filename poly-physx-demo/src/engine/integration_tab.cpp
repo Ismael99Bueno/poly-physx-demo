@@ -24,7 +24,6 @@ void integration_tab::render_imgui_tab()
         ImGui::Text("Integration error: %.2e (max: %.2e)", error, max_error);
     }
     render_timestep_settings();
-    ImGui::Checkbox("Semi-implicit", &m_app->world.semi_implicit_integration);
     render_integration_method();
 }
 

@@ -15,7 +15,7 @@ float gravity::potential_energy(const state2D &state) const
 
 glm::vec3 drag::force(const state2D &state) const
 {
-    const float ts = world.rk_substep_timestep();
+    const float ts = world.rk_timestep();
     const glm::vec2 force = -state.velocity * magnitude / (1.f + magnitude * ts);
     const float torque = -state.angular_velocity * angular_magnitude / (1.f + angular_magnitude * ts);
     return glm::vec3(force, torque);
