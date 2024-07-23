@@ -245,14 +245,6 @@ void collision_tab::render_quad_tree_parameters(quad_tree_broad2D &qtbroad)
     if (ImGui::Button("Rebuild"))
         qtbroad.build_tree_from_scratch();
 
-    auto props = qtbroad.props();
-    bool changed = ImGui::SliderInt("Max colliders per quadrant", (int *)&props.elements_per_quad, 2, 20);
-    changed |= ImGui::SliderInt("Max depth", (int *)&props.max_depth, 1, 24);
-    changed |= ImGui::SliderFloat("Min quadrant size", &props.min_quad_size, 4.f, 100.f);
-
-    if (changed)
-        qtbroad.props(props);
-
     ImGui::Checkbox("Visualize tree", &m_visualize_qtree);
     if (ImGui::TreeNode("Quad tree root"))
     {
