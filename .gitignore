@@ -13,6 +13,8 @@
 # VS-VSCode config
 .vscode/
 .vs/
+config/*config.yaml
+!config/default-config.yaml
 
 # Python environments
 *env/
@@ -36,7 +38,9 @@ imgui.ini
 profile-results/
 fonts/
 saves/
+output/
 
 
 # Scripts
-scripts/
+scripts/*.sh
+!.dockerignore

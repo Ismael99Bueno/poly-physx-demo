@@ -2,8 +2,10 @@ require "export-compile-commands"
 
 workspace "poly-physx-demo"
 configurations {
+   "dist",
    "release",
    "debug",
+   "dist-profile",
    "release-profile",
    "debug-profile"
 }
@@ -12,11 +14,10 @@ startproject "poly-physx-demo"
 defines {
    "YAML_CPP_STATIC_DEFINE",
    "KIT_USE_SPDLOG",
-   -- "KIT_USE_CUSTOM_ALLOC",
    "KIT_USE_YAML_CPP",
-   "KIT_AKNOWLEDGE_PROFILE_THREAD_UNSAFETY",
    "LYNX_ENABLE_IMGUI",
    "LYNX_ENABLE_IMPLOT",
+   "PPX_ENABLE_BLOCK_ALLOCATOR"
 }
 
 function script_path()
@@ -50,6 +51,15 @@ filter "platforms:x86"
    architecture "x86"
 filter {}
 
+filter "system:linux"
+   platforms {
+      "x86_64"
+   }
+
+filter "platforms:x86_64"
+   architecture "x86_64"
+filter {}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}-" .. _ACTION
 
 filter "configurations:debug*"
@@ -61,6 +71,12 @@ filter "configurations:release*"
    defines "NDEBUG"
    runtime "Release"
    optimize "On"
+   symbols "On"
+
+filter "configurations:dist*"
+   defines "NDEBUG"
+   runtime "Release"
+   buildoptions {"-Ofast"}
 
 filter "configurations:*profile"
    defines "KIT_PROFILE"

@@ -3,7 +3,7 @@ from validation.python_validation import validate_python_version
 validate_python_version()
 
 from pathlib import Path
-from utility.arguments import build_and_retrieve_arguments
+from utility.arguments import create_and_parse_args
 from utility.buddy import Buddy
 from validation.exceptions import GeneratorNotSupportedError
 
@@ -27,7 +27,11 @@ def build(generator: str) -> None:
     bud.add_to_premake_path(export_compile_commands_path)
     subprocess.run(
         [
-            "premake5" if bud.is_macos else premake_windows_executable_path.__str__(),
+            (
+                "premake5"
+                if not bud.is_windows
+                else premake_windows_executable_path.__str__()
+            ),
             f"--file={premake_file_path}",
             generator,
         ],
@@ -67,7 +71,7 @@ def clean(generator: str) -> None:
 
 
 def main() -> None:
-    generator, cleanse = build_and_retrieve_arguments()
+    generator, cleanse = create_and_parse_args()
     if cleanse:
         clean(generator)
     else:

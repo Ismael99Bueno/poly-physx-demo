@@ -21,19 +21,19 @@ class Buddy:
             raise PathNotFoundError(f"Root path '{self.__root_path}' was not found")
 
         self.windows_mingw_path = Path(
-            "C:", "mingw", "32" if self.os_architecture == "x86" else "64"
+            f"C:/mingw{32 if self.os_architecture == 'x86' else 64}"
         )
         self.__accept_all_prompts = False
         self.all_yes = False
         return self
 
-    def add_to_premake_path(self, path: str) -> None:
+    def add_to_premake_path(self, path: str | Path) -> None:
         if "PREMAKE_PATH" in os.environ:
             os.environ["PREMAKE_PATH"] += f";{path}"
         else:
             os.environ["PREMAKE_PATH"] = path.__str__()
 
-    def add_to_path_with_binaries(self, path: str) -> None:
+    def add_to_path_with_binaries(self, path: str | Path) -> None:
         os.environ["PATH"] += f"{os.pathsep}{path}"
         os.environ["PATH"] += f"{os.pathsep}{path}/bin"
 
@@ -72,14 +72,20 @@ class Buddy:
         return platform.system() == "Windows"
 
     @property
+    def is_linux(self) -> bool:
+        return platform.system() == "Linux"
+
+    @property
     def is_os_unsupported(self) -> bool:
-        return not self.is_macos and not self.is_windows
+        return not self.is_macos and not self.is_windows and not self.is_linux
 
     @property
     def os_version(self) -> str:
         if self.is_macos:
             return platform.mac_ver()[0]
-        return platform.version()
+        if self.is_windows:
+            return platform.version()
+        return platform.release()
 
     @property
     def os_architecture(self) -> str:

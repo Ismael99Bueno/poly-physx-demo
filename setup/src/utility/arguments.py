@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from utility.buddy import Buddy
 
 
-def build_and_retrieve_arguments() -> tuple[str, bool]:
+def create_and_parse_args() -> tuple[str, bool]:
     bud = Buddy()
 
     parser = ArgumentParser(
@@ -14,7 +14,7 @@ def build_and_retrieve_arguments() -> tuple[str, bool]:
         "-g",
         "--generator",
         dest="generator",
-        default="gmake2" if bud.is_macos else "vs2022",
+        default="gmake2" if not bud.is_windows else "vs2022",
         type=str,
         help="Can be 'gmake' or 'gmake2'. The latter is recommended as 'gmake' is deprecated. If on Windows, it can also be any of the premake actions for Visual Studio. If the '--clean' option is enabled, 'all' can be passed as well to clean all generators.",
     )

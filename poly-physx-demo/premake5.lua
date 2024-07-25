@@ -6,14 +6,17 @@ defines {'PPX_DEMO_ROOT_PATH="' .. rootpath .. '"'}
 
 language "C++"
 cppdialect "c++20"
-filter "system:macosx"
+filter "system:macosx or linux"
    buildoptions {
       "-Wall",
       "-Wextra",
       "-Wpedantic",
       "-Wconversion",
       "-Wno-unused-parameter",
-      "-Wno-sign-conversion"
+      "-Wno-sign-conversion",
+      "-Wno-gnu-anonymous-struct",
+      "-Wno-nested-anon-types",
+      "-Wno-string-conversion"
    }
 filter{}
 
@@ -45,30 +48,42 @@ includedirs {
 }
 
 links {
+   "poly-physx-app",
+   "lynx",
+   "poly-physx",
+   "geometry",
+   "rk-integrator",
+   "cpp-kit",
+   "implot",
+   "imgui",
    "glfw",
    "yaml-cpp",
-   "rk-integrator",
-   "geometry",
-   "poly-physx",
-   "cpp-kit",
-   "imgui",
-   "implot",
-   "poly-physx-app",
-   "lynx"
 }
 
 VULKAN_SDK = os.getenv("VULKAN_SDK")
 filter "system:windows"
    includedirs "%{VULKAN_SDK}/Include"
    libdirs "%{VULKAN_SDK}/Lib"
-   links "vulkan-1"
+   links {"vulkan-1", "gdi32"}
 
 filter "system:macosx"
+   linkoptions "-rpath /usr/local/lib"
    links {
+      "vulkan",
       "Cocoa.framework",
       "IOKit.framework",
-      "CoreFoundation.framework",
-      "vulkan"
+      "CoreFoundation.framework"
    }
 
+filter "system:linux"
+   includedirs {
+      "%{VULKAN_SDK}/include",
+      "/usr/include" 
+   }
+   libdirs "%{VULKAN_SDK}/lib"
+   links {
+      "vulkan",
+      "X11",     
+      "pthread"
+   }
 

@@ -14,6 +14,7 @@ from validation.exceptions import BadOSError
 
 import sys
 import subprocess
+import os
 
 
 def main() -> None:
@@ -29,7 +30,9 @@ def main() -> None:
         quit()
     validate_premake()
     validate_vulkan()
-    if sys.argv[2].startswith("gmake"):
+
+    is_mingw = sys.argv[2].startswith("gmake")
+    if is_mingw:
         validate_mingw()
 
     __compile_lynx_shaders()
@@ -46,6 +49,22 @@ def main() -> None:
     print(
         "Run generate_build_files.py with python to have further detail on how the project can be built. Use the -h flag to display the options available"
     )
+
+    print(
+        "\nIf you are on a laptop and vulkan is unable to find a suitable physical device, try setting the DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 environment variable to 1"
+    )
+
+    print(
+        f"\nIf running with gmake generator, make sure to run 'mingw32-make' instead of 'make' to build the project. If the command fails, make sure to have MinGW binaries in your path by running 'set PATH=%PATH%;{bud.windows_mingw_path / 'bin'}' in the command prompt before running the build command. If the GLFW fails as well, manually set the C compiler using 'set CC=gcc'"
+    )
+
+    if is_mingw:
+        commands = input(
+            "\nAs MinGW (gmake) has been selected as the generator, this script will also automatically build the project. Enter any arguments to pass to the build command (makefile) or press enter to continue with the default configuration"
+        )
+        os.environ["CC"] = "gcc"
+        os.chdir(bud.root_path)
+        subprocess.run(["mingw32-make"] + commands.split(" "), check=True)
 
     print("\nSetup completed successfully!")
 
