@@ -70,13 +70,13 @@ filter "configurations:debug*"
 filter "configurations:release*"
    defines "NDEBUG"
    runtime "Release"
-   optimize "On"
+   optimize "Full"
    symbols "On"
 
 filter "configurations:dist*"
    defines "NDEBUG"
    runtime "Release"
-   buildoptions {"-Ofast"}
+   optimize "Full"
 
 filter "configurations:*profile"
    defines "KIT_PROFILE"
